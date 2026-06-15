@@ -1,21 +1,15 @@
 # RR Reparação Manager
 
-Sistema inicial de gestão para oficina mecânica, feito com HTML, CSS e JavaScript puro.
+Sistema de gestão para oficina mecânica feito com HTML, CSS e JavaScript puro.
 
-## Como abrir
-
-1. Abra a pasta do projeto.
-2. Dê dois cliques em `dashboard.html`.
-3. Use o menu lateral para acessar Clientes, Veículos, Serviços, Orçamentos e Financeiro.
-
-## Como testar o fluxo principal
+## Fluxo principal
 
 1. Cadastre um cliente em `clientes.html`.
-2. No próprio cadastro do cliente, adicione um ou mais carros.
-3. Crie um pré-orçamento em `orcamentos.html`, escolhendo o cliente e um dos carros cadastrados nele.
-4. Volte para `dashboard.html` para aprovar, marcar como não aprovado, editar ou imprimir.
-5. Lance somente despesas manuais em `financeiro.html`.
-6. Confira receitas, custos, despesas e lucro em `financeiro.html`.
+2. No cadastro do cliente, adicione um ou mais carros.
+3. Crie um pré-orçamento em `orcamentos.html`, escolhendo o cliente e o carro.
+4. No `dashboard.html`, aprove, reprove, edite ou imprima o orçamento.
+5. Quando um orçamento é aprovado, a receita entra automaticamente no financeiro.
+6. Em `financeiro.html`, lance também receitas e despesas manuais quando precisar.
 
 ## Orçamentos
 
@@ -23,27 +17,28 @@ O orçamento trabalha com:
 
 - status inicial sempre `Pré-orçamento`;
 - aprovação ou reprovação feita pelo dashboard;
-- lista de peças com quantidade, valor unitário e total;
-- preço de custo das peças para cálculo financeiro interno;
-- lista de serviços com horas, valor/hora editável e total;
+- peças com quantidade, custo, valor unitário e total;
+- serviços com horas, valor/hora editável e total;
 - valor/hora padrão de R$ 120,00;
-- resumo geral do orçamento;
-- botão de impressão para salvar em PDF pelo navegador.
+- valor final manual para ajustar o total quando necessário;
+- impressão do orçamento pelo navegador.
 
 ## Financeiro
 
-As receitas não são lançadas manualmente. Elas nascem automaticamente quando um orçamento é aprovado.
+O financeiro calcula:
 
-No financeiro você lança apenas despesas manuais. O sistema calcula:
-
-- receitas de orçamentos aprovados;
+- receitas automáticas de orçamentos aprovados;
+- receitas manuais, como entrada de dinheiro no caixa;
 - custo de peças dos orçamentos aprovados;
-- despesas manuais;
-- lucro estimado.
+- despesas manuais, como pró-labore, contas, prejuízos e saídas de caixa;
+- lucro estimado;
+- relatório por período, agrupado mês a mês.
 
-## Onde os dados ficam salvos
+## Dados e login
 
 O sistema mantém uma cópia local no LocalStorage do navegador e sincroniza com Firebase quando o login está configurado.
+
+No login existe a opção `Lembrar meu acesso neste computador`. Use essa opção apenas em computador pessoal.
 
 ## Firebase
 
@@ -72,13 +67,3 @@ service cloud.firestore {
 ```
 
 Com isso, cada usuário logado acessa apenas o próprio banco de dados.
-
-
-## Próximos passos recomendados
-
-1. Testar todos os cadastros com dados reais da oficina.
-2. Ajustar campos que faltarem no dia a dia.
-3. Criar impressão de orçamento.
-4. Criar exportação em PDF.
-5. Publicar no GitHub.
-6. Evoluir para login e banco de dados online, como Firebase ou Supabase.

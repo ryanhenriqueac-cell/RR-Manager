@@ -242,13 +242,19 @@ function getPecasCusto(orcamento) {
 }
 
 function getFinancialSummary() {
+  const manual = readData("financeiro");
   const aprovados = getApprovedOrcamentos();
-  const despesasManuais = readData("financeiro").filter((item) => item.tipo === "Despesa");
-  const receitas = aprovados.reduce((sum, orcamento) => sum + getOrcamentoTotal(orcamento), 0);
+  const receitasManuais = manual.filter((item) => item.tipo === "Receita");
+  const despesasManuais = manual.filter((item) => item.tipo === "Despesa");
+  const receitasAutomaticas = aprovados.reduce((sum, orcamento) => sum + getOrcamentoTotal(orcamento), 0);
+  const receitasExtras = receitasManuais.reduce((sum, item) => sum + Number(item.valor || 0), 0);
   const custoPecas = aprovados.reduce((sum, orcamento) => sum + getPecasCusto(orcamento), 0);
   const despesas = despesasManuais.reduce((sum, item) => sum + Number(item.valor || 0), 0);
+  const receitas = receitasAutomaticas + receitasExtras;
   return {
     receitas,
+    receitasAutomaticas,
+    receitasExtras,
     custoPecas,
     despesas,
     lucro: receitas - custoPecas - despesas
@@ -715,18 +721,30 @@ function buildOrcamentoPrintHtml(orcamento) {
 
 function initFinanceiro() {
   setValue("financeiroData", today());
+  setDefaultReportDates();
   byId("financeiroForm").addEventListener("submit", saveFinanceiro);
   byId("buscaFinanceiro").addEventListener("input", renderFinanceiro);
+  byId("financeiroRelatorioForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    renderFinanceiroRelatorio();
+  });
+  byId("limparRelatorio").addEventListener("click", () => {
+    setValue("relatorioInicio", "");
+    setValue("relatorioFim", "");
+    renderFinanceiroRelatorio();
+  });
   renderFinanceiro();
+  renderFinanceiroRelatorio();
 }
 
 function saveFinanceiro(event) {
   event.preventDefault();
   const financeiro = readData("financeiro");
   const id = getValue("financeiroId") || createId("fin");
+  const tipo = document.querySelector("input[name='financeiroTipo']:checked")?.value || "Despesa";
   const lancamento = {
     id,
-    tipo: "Despesa",
+    tipo,
     data: getValue("financeiroData"),
     descricao: getValue("financeiroDescricao"),
     categoria: getValue("financeiroCategoria"),
@@ -739,14 +757,36 @@ function saveFinanceiro(event) {
   event.target.reset();
   setValue("financeiroId", "");
   setValue("financeiroData", today());
+  byId("financeiroTipoDespesa").checked = true;
   renderFinanceiro();
+  renderFinanceiroRelatorio();
 }
 
 function renderFinanceiro() {
   const termo = getValue("buscaFinanceiro").toLowerCase();
-  const despesasManuais = readData("financeiro").filter((item) => item.tipo === "Despesa");
-  const aprovados = getApprovedOrcamentos();
   const resumo = getFinancialSummary();
+  const financeiro = getFinanceiroLancamentos()
+    .filter((item) => JSON.stringify(item).toLowerCase().includes(termo));
+
+  setText("totalReceitas", money(resumo.receitas));
+  setText("totalCustoPecas", money(resumo.custoPecas));
+  setText("totalDespesas", money(resumo.despesas));
+  setText("saldoFinanceiroPagina", money(resumo.lucro));
+
+  byId("financeiroTabela").innerHTML = financeiro.length ? financeiro.map((item) => `
+    <tr>
+      <td><strong>${escapeHtml(item.descricao)}</strong></td>
+      <td><span class="badge ${badgeClass(item.tipo)}">${escapeHtml(item.tipo)}</span></td>
+      <td>${escapeHtml(item.categoria || "-")}</td>
+      <td>${escapeHtml(formatDateBR(item.data) || "-")}</td>
+      <td>${money(item.valor)}</td>
+      <td class="actions">${item.automatico ? `<span class="muted">Automático</span>` : `<button class="btn btn-muted" onclick="editFinanceiro('${item.id}')">Editar</button><button class="btn btn-danger" onclick="deleteItem('financeiro','${item.id}', refreshFinanceiro)">Excluir</button>`}</td>
+    </tr>`).join("") : emptyRow(6, "Nenhum lançamento encontrado.");
+}
+
+function getFinanceiroLancamentos() {
+  const manuais = readData("financeiro");
+  const aprovados = getApprovedOrcamentos();
   const receitasAutomaticas = aprovados.map((orcamento) => ({
     id: `receita_${orcamento.id}`,
     tipo: "Receita automática",
@@ -767,23 +807,82 @@ function renderFinanceiro() {
       automatico: true
     }))
     .filter((item) => item.valor > 0);
-  const financeiro = [...receitasAutomaticas, ...custosAutomaticos, ...despesasManuais]
-    .filter((item) => JSON.stringify(item).toLowerCase().includes(termo));
 
-  setText("totalReceitas", money(resumo.receitas));
-  setText("totalCustoPecas", money(resumo.custoPecas));
-  setText("totalDespesas", money(resumo.despesas));
-  setText("saldoFinanceiroPagina", money(resumo.lucro));
+  return [...receitasAutomaticas, ...custosAutomaticos, ...manuais]
+    .sort((a, b) => String(b.data || "").localeCompare(String(a.data || "")));
+}
 
-  byId("financeiroTabela").innerHTML = financeiro.length ? financeiro.map((item) => `
-    <tr>
-      <td><strong>${escapeHtml(item.descricao)}</strong></td>
-      <td><span class="badge ${badgeClass(item.tipo)}">${escapeHtml(item.tipo)}</span></td>
-      <td>${escapeHtml(item.categoria || "-")}</td>
-      <td>${escapeHtml(item.data || "-")}</td>
-      <td>${money(item.valor)}</td>
-      <td class="actions">${item.automatico ? `<span class="muted">Automático</span>` : `<button class="btn btn-muted" onclick="editFinanceiro('${item.id}')">Editar</button><button class="btn btn-danger" onclick="deleteItem('financeiro','${item.id}', renderFinanceiro)">Excluir</button>`}</td>
-    </tr>`).join("") : emptyRow(6, "Nenhum lançamento encontrado.");
+function setDefaultReportDates() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const lastDay = new Date(year, now.getMonth() + 1, 0).getDate();
+  setValue("relatorioInicio", `${year}-${month}-01`);
+  setValue("relatorioFim", `${year}-${month}-${String(lastDay).padStart(2, "0")}`);
+}
+
+function isDateInRange(date, start, end) {
+  if (!date) return false;
+  if (start && date < start) return false;
+  if (end && date > end) return false;
+  return true;
+}
+
+function getMonthLabel(date) {
+  if (!date) return "Sem data";
+  const [year, month] = date.split("-");
+  if (!year || !month) return "Sem data";
+  return `${month}/${year}`;
+}
+
+function getLancamentoImpacto(item) {
+  if (item.tipo.includes("Receita")) return { receitas: Number(item.valor) || 0, custos: 0, despesas: 0 };
+  if (item.tipo.includes("Custo")) return { receitas: 0, custos: Number(item.valor) || 0, despesas: 0 };
+  return { receitas: 0, custos: 0, despesas: Number(item.valor) || 0 };
+}
+
+function renderFinanceiroRelatorio() {
+  const start = getValue("relatorioInicio");
+  const end = getValue("relatorioFim");
+  const lancamentos = getFinanceiroLancamentos().filter((item) => isDateInRange(item.data, start, end));
+  const resumo = lancamentos.reduce((acc, item) => {
+    const impacto = getLancamentoImpacto(item);
+    acc.receitas += impacto.receitas;
+    acc.custos += impacto.custos;
+    acc.despesas += impacto.despesas;
+    return acc;
+  }, { receitas: 0, custos: 0, despesas: 0 });
+  resumo.lucro = resumo.receitas - resumo.custos - resumo.despesas;
+
+  byId("financeiroRelatorioResumo").innerHTML = `
+    <article class="mini-stat"><span>Receitas</span><strong>${money(resumo.receitas)}</strong></article>
+    <article class="mini-stat"><span>Custos</span><strong>${money(resumo.custos)}</strong></article>
+    <article class="mini-stat"><span>Despesas</span><strong>${money(resumo.despesas)}</strong></article>
+    <article class="mini-stat highlight"><span>Lucro</span><strong>${money(resumo.lucro)}</strong></article>
+  `;
+
+  const meses = {};
+  lancamentos.forEach((item) => {
+    const key = getMonthLabel(item.data);
+    const impacto = getLancamentoImpacto(item);
+    meses[key] ||= { receitas: 0, custos: 0, despesas: 0 };
+    meses[key].receitas += impacto.receitas;
+    meses[key].custos += impacto.custos;
+    meses[key].despesas += impacto.despesas;
+  });
+
+  byId("financeiroRelatorioMeses").innerHTML = Object.entries(meses).map(([mes, valores]) => {
+    const lucro = valores.receitas - valores.custos - valores.despesas;
+    return `
+      <tr>
+        <td><strong>${escapeHtml(mes)}</strong></td>
+        <td>${money(valores.receitas)}</td>
+        <td>${money(valores.custos)}</td>
+        <td>${money(valores.despesas)}</td>
+        <td>${money(lucro)}</td>
+      </tr>
+    `;
+  }).join("") || emptyRow(5, "Nenhum lançamento neste período.");
 }
 
 function editFinanceiro(id) {
@@ -794,7 +893,13 @@ function editFinanceiro(id) {
   setValue("financeiroDescricao", item.descricao);
   setValue("financeiroCategoria", item.categoria);
   setValue("financeiroValor", item.valor);
+  byId(item.tipo === "Receita" ? "financeiroTipoReceita" : "financeiroTipoDespesa").checked = true;
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function refreshFinanceiro() {
+  renderFinanceiro();
+  renderFinanceiroRelatorio();
 }
 
 function hydrateClienteCarroSelects(clienteSelectId, carroSelectId, selectedCarroId = "") {

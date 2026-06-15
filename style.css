@@ -266,6 +266,50 @@ textarea {
   gap: 14px;
 }
 
+.finance-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.finance-type-card {
+  position: relative;
+  min-height: 112px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.finance-type-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.finance-type-card span,
+.finance-type-card small {
+  display: block;
+}
+
+.finance-type-card span {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.finance-type-card small {
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.finance-type-card:has(input:checked) {
+  border-color: rgba(241, 199, 91, 0.72);
+  background: linear-gradient(160deg, rgba(215, 166, 58, 0.18), rgba(18, 36, 60, 0.7));
+}
+
 label {
   display: grid;
   gap: 7px;
@@ -304,6 +348,42 @@ textarea:focus {
 
 .search-input {
   max-width: 280px;
+}
+
+.report-form {
+  margin-bottom: 16px;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mini-stat {
+  min-height: 96px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mini-stat span {
+  display: block;
+  color: var(--muted);
+}
+
+.mini-stat strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--text);
+  font-size: 24px;
+}
+
+.mini-stat.highlight {
+  border-color: rgba(215, 166, 58, 0.32);
+  background: rgba(215, 166, 58, 0.12);
 }
 
 .table-wrap {
@@ -560,6 +640,47 @@ td {
   margin-top: 18px;
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 54px;
+}
+
+.password-field button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.remember-login {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: left;
+}
+
+.remember-login input {
+  width: 18px;
+  min-height: 18px;
+  accent-color: var(--gold-2);
+}
+
 #firebaseAuthMessage {
   display: block;
   min-height: 20px;
@@ -806,6 +927,11 @@ td {
   }
 
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-type-grid,
+  .report-grid {
     grid-template-columns: 1fr;
   }
 

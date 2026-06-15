@@ -16,6 +16,7 @@ import {
 
 const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro"];
 const SYNC_FLAG = "rr_firebase_loaded_user";
+const REMEMBER_KEY = "rr_firebase_remember";
 const config = window.firebaseConfig || {};
 const configReady = Boolean(config.apiKey && config.apiKey !== "COLE_AQUI" && config.projectId && config.projectId !== "COLE_AQUI");
 
@@ -71,7 +72,14 @@ function buildAuthShell() {
       <p>Entre para sincronizar clientes, orçamentos e financeiro na nuvem.</p>
       <form id="firebaseLoginForm">
         <input id="firebaseEmail" type="email" placeholder="E-mail" autocomplete="email" required>
-        <input id="firebasePassword" type="password" placeholder="Senha" autocomplete="current-password" required>
+        <div class="password-field">
+          <input id="firebasePassword" type="password" placeholder="Senha" autocomplete="current-password" required>
+          <button type="button" id="toggleFirebasePassword" aria-label="Mostrar senha" title="Mostrar senha">&#128065;</button>
+        </div>
+        <label class="remember-login">
+          <input id="firebaseRemember" type="checkbox">
+          <span>Lembrar meu acesso neste computador</span>
+        </label>
         <button class="btn btn-primary" type="submit">Entrar</button>
         <button class="btn btn-muted" type="button" id="firebaseCreateAccount">Criar acesso</button>
       </form>
@@ -79,6 +87,7 @@ function buildAuthShell() {
     </div>
   `;
   document.body.appendChild(shell);
+  hydrateRememberedLogin();
 
   const bar = document.createElement("div");
   bar.id = "firebaseUserBar";
@@ -97,6 +106,7 @@ function bindAuthEvents() {
 
   document.getElementById("firebaseCreateAccount").addEventListener("click", createAccount);
   document.getElementById("firebaseLogout").addEventListener("click", () => signOut(auth));
+  document.getElementById("toggleFirebasePassword").addEventListener("click", togglePasswordVisibility);
 }
 
 async function login() {
@@ -105,6 +115,7 @@ async function login() {
   try {
     showAuthMessage("Entrando...");
     await signInWithEmailAndPassword(auth, email, password);
+    saveRememberedLogin(email, password);
   } catch (error) {
     showAuthMessage(firebaseError(error));
   }
@@ -116,10 +127,42 @@ async function createAccount() {
   try {
     showAuthMessage("Criando acesso...");
     await createUserWithEmailAndPassword(auth, email, password);
+    saveRememberedLogin(email, password);
     await saveCloudData();
   } catch (error) {
     showAuthMessage(firebaseError(error));
   }
+}
+
+function hydrateRememberedLogin() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(REMEMBER_KEY)) || {};
+    if (!saved.email || !saved.password) return;
+    document.getElementById("firebaseEmail").value = saved.email;
+    document.getElementById("firebasePassword").value = saved.password;
+    document.getElementById("firebaseRemember").checked = true;
+  } catch (error) {
+    localStorage.removeItem(REMEMBER_KEY);
+  }
+}
+
+function saveRememberedLogin(email, password) {
+  const remember = document.getElementById("firebaseRemember").checked;
+  if (!remember) {
+    localStorage.removeItem(REMEMBER_KEY);
+    return;
+  }
+  localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email, password }));
+}
+
+function togglePasswordVisibility() {
+  const password = document.getElementById("firebasePassword");
+  const button = document.getElementById("toggleFirebasePassword");
+  const visible = password.type === "text";
+  password.type = visible ? "password" : "text";
+  button.innerHTML = visible ? "&#128065;" : "&#9679;";
+  button.setAttribute("aria-label", visible ? "Mostrar senha" : "Ocultar senha");
+  button.title = visible ? "Mostrar senha" : "Ocultar senha";
 }
 
 async function loadCloudData(uid) {
