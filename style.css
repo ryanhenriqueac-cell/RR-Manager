@@ -918,8 +918,9 @@ td {
   z-index: 50;
   display: none;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 8px;
+  max-width: min(340px, calc(100vw - 36px));
+  padding: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(7, 17, 31, 0.92);
@@ -927,13 +928,22 @@ td {
   box-shadow: var(--shadow);
 }
 
+#firebaseUserBar .btn {
+  min-height: 38px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
 .auth-ready.firebase-logged-in #firebaseUserBar {
   display: flex;
 }
 
 #firebaseUserStatus {
+  overflow: hidden;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .print-preview-page {
