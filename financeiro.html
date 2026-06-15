@@ -84,9 +84,28 @@
           <div class="form-actions span-2">
             <button class="btn btn-primary" type="submit">Gerar relatório</button>
             <button class="btn btn-muted" type="button" id="limparRelatorio">Ver tudo</button>
+            <button class="btn btn-ghost" type="button" id="imprimirRelatorioFinanceiro">Gerar PDF</button>
           </div>
         </form>
+        <p class="report-status" id="financeiroRelatorioStatus"></p>
         <div class="report-grid" id="financeiroRelatorioResumo"></div>
+        <div class="finance-charts" id="financeiroGraficos">
+          <div class="chart-box">
+            <div class="chart-heading">
+              <h3>Distribuição do período</h3>
+              <span>Receitas x custos x despesas</span>
+            </div>
+            <div class="donut-chart" id="financeiroDonut"></div>
+            <div class="chart-legend" id="financeiroLegenda"></div>
+          </div>
+          <div class="chart-box">
+            <div class="chart-heading">
+              <h3>Evolução mensal</h3>
+              <span>Lucro por mês</span>
+            </div>
+            <div class="bar-chart" id="financeiroBarras"></div>
+          </div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Mês</th><th>Receitas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead>
@@ -109,8 +128,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=5"></script>
-  <script src="firebase-config.js?v=5"></script>
-  <script type="module" src="firebase-sync.js?v=5"></script>
+  <script src="script.js?v=6"></script>
+  <script src="firebase-config.js?v=6"></script>
+  <script type="module" src="firebase-sync.js?v=6"></script>
 </body>
 </html>

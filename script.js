@@ -21,6 +21,7 @@ const page = document.body.dataset.page;
 let clienteCarrosDraft = [];
 let orcamentoPecasDraft = [];
 let orcamentoServicosDraft = [];
+let ultimoRelatorioFinanceiro = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   migrateLegacyData();
@@ -733,6 +734,7 @@ function initFinanceiro() {
     setValue("relatorioFim", "");
     renderFinanceiroRelatorio();
   });
+  byId("imprimirRelatorioFinanceiro").addEventListener("click", imprimirRelatorioFinanceiro);
   renderFinanceiro();
   renderFinanceiroRelatorio();
 }
@@ -841,7 +843,7 @@ function getLancamentoImpacto(item) {
   return { receitas: 0, custos: 0, despesas: Number(item.valor) || 0 };
 }
 
-function renderFinanceiroRelatorio() {
+function getFinanceiroRelatorioData() {
   const start = getValue("relatorioInicio");
   const end = getValue("relatorioFim");
   const lancamentos = getFinanceiroLancamentos().filter((item) => isDateInRange(item.data, start, end));
@@ -854,6 +856,36 @@ function renderFinanceiroRelatorio() {
   }, { receitas: 0, custos: 0, despesas: 0 });
   resumo.lucro = resumo.receitas - resumo.custos - resumo.despesas;
 
+  const meses = {};
+  lancamentos.forEach((item) => {
+    const key = item.data ? item.data.slice(0, 7) : "sem-data";
+    const impacto = getLancamentoImpacto(item);
+    meses[key] ||= { label: getMonthLabel(item.data), receitas: 0, custos: 0, despesas: 0 };
+    meses[key].receitas += impacto.receitas;
+    meses[key].custos += impacto.custos;
+    meses[key].despesas += impacto.despesas;
+  });
+
+  const mesesLista = Object.entries(meses)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, valores]) => ({
+      ...valores,
+      lucro: valores.receitas - valores.custos - valores.despesas
+    }));
+
+  return { start, end, lancamentos, resumo, meses: mesesLista };
+}
+
+function renderFinanceiroRelatorio() {
+  const relatorio = getFinanceiroRelatorioData();
+  ultimoRelatorioFinanceiro = relatorio;
+  const { start, end, lancamentos, resumo, meses } = relatorio;
+  const periodo = start || end
+    ? `${formatDateBR(start) || "Início"} até ${formatDateBR(end) || "hoje"}`
+    : "Todo o histórico financeiro";
+
+  setText("financeiroRelatorioStatus", `${periodo} | ${lancamentos.length} lançamento(s) analisado(s)`);
+
   byId("financeiroRelatorioResumo").innerHTML = `
     <article class="mini-stat"><span>Receitas</span><strong>${money(resumo.receitas)}</strong></article>
     <article class="mini-stat"><span>Custos</span><strong>${money(resumo.custos)}</strong></article>
@@ -861,28 +893,113 @@ function renderFinanceiroRelatorio() {
     <article class="mini-stat highlight"><span>Lucro</span><strong>${money(resumo.lucro)}</strong></article>
   `;
 
-  const meses = {};
-  lancamentos.forEach((item) => {
-    const key = getMonthLabel(item.data);
-    const impacto = getLancamentoImpacto(item);
-    meses[key] ||= { receitas: 0, custos: 0, despesas: 0 };
-    meses[key].receitas += impacto.receitas;
-    meses[key].custos += impacto.custos;
-    meses[key].despesas += impacto.despesas;
-  });
+  byId("financeiroRelatorioMeses").innerHTML = meses.map((valores) => `
+    <tr>
+      <td><strong>${escapeHtml(valores.label)}</strong></td>
+      <td>${money(valores.receitas)}</td>
+      <td>${money(valores.custos)}</td>
+      <td>${money(valores.despesas)}</td>
+      <td>${money(valores.lucro)}</td>
+    </tr>
+  `).join("") || emptyRow(5, "Nenhum lançamento neste período.");
 
-  byId("financeiroRelatorioMeses").innerHTML = Object.entries(meses).map(([mes, valores]) => {
-    const lucro = valores.receitas - valores.custos - valores.despesas;
+  renderFinanceiroGraficos(relatorio);
+}
+
+function renderFinanceiroGraficos(relatorio) {
+  const { resumo, meses } = relatorio;
+  const valoresDonut = [
+    { label: "Receitas", valor: resumo.receitas, color: "#4fd1a1" },
+    { label: "Custos", valor: resumo.custos, color: "#f1c75b" },
+    { label: "Despesas", valor: resumo.despesas, color: "#ef6262" }
+  ];
+  const totalDonut = valoresDonut.reduce((sum, item) => sum + Math.max(item.valor, 0), 0);
+  let acumulado = 0;
+  const segmentos = valoresDonut.map((item) => {
+    const inicio = totalDonut ? (acumulado / totalDonut) * 360 : 0;
+    acumulado += Math.max(item.valor, 0);
+    const fim = totalDonut ? (acumulado / totalDonut) * 360 : 0;
+    return `${item.color} ${inicio}deg ${fim}deg`;
+  }).join(", ");
+
+  byId("financeiroDonut").style.background = totalDonut
+    ? `conic-gradient(${segmentos})`
+    : "conic-gradient(rgba(255,255,255,0.12) 0deg 360deg)";
+  byId("financeiroDonut").innerHTML = `<span>${money(resumo.lucro)}<small>Lucro</small></span>`;
+  byId("financeiroLegenda").innerHTML = valoresDonut.map((item) => `
+    <div><i style="background:${item.color}"></i><span>${item.label}</span><strong>${money(item.valor)}</strong></div>
+  `).join("");
+
+  const maiorLucro = Math.max(...meses.map((mes) => Math.abs(mes.lucro)), 1);
+  byId("financeiroBarras").innerHTML = meses.length ? meses.map((mes) => {
+    const altura = Math.max(8, Math.round((Math.abs(mes.lucro) / maiorLucro) * 150));
+    const classe = mes.lucro >= 0 ? "positive" : "negative";
     return `
-      <tr>
-        <td><strong>${escapeHtml(mes)}</strong></td>
-        <td>${money(valores.receitas)}</td>
-        <td>${money(valores.custos)}</td>
-        <td>${money(valores.despesas)}</td>
-        <td>${money(lucro)}</td>
-      </tr>
+      <div class="bar-item">
+        <div class="bar-value">${money(mes.lucro)}</div>
+        <div class="bar-track"><span class="${classe}" style="height:${altura}px"></span></div>
+        <strong>${escapeHtml(mes.label)}</strong>
+      </div>
     `;
-  }).join("") || emptyRow(5, "Nenhum lançamento neste período.");
+  }).join("") : `<div class="chart-empty">Sem dados para gráfico neste período.</div>`;
+}
+
+function imprimirRelatorioFinanceiro() {
+  const relatorio = ultimoRelatorioFinanceiro || getFinanceiroRelatorioData();
+  const { start, end, resumo, meses, lancamentos } = relatorio;
+  const periodo = start || end
+    ? `${formatDateBR(start) || "Início"} até ${formatDateBR(end) || "hoje"}`
+    : "Todo o histórico financeiro";
+  const linhasMes = meses.map((mes) => `
+    <tr><td>${escapeHtml(mes.label)}</td><td>${money(mes.receitas)}</td><td>${money(mes.custos)}</td><td>${money(mes.despesas)}</td><td>${money(mes.lucro)}</td></tr>
+  `).join("") || `<tr><td colspan="5">Sem lançamentos no período.</td></tr>`;
+  const linhasLancamentos = lancamentos.map((item) => `
+    <tr><td>${escapeHtml(formatDateBR(item.data))}</td><td>${escapeHtml(item.tipo)}</td><td>${escapeHtml(item.descricao)}</td><td>${escapeHtml(item.categoria || "-")}</td><td>${money(item.valor)}</td></tr>
+  `).join("") || `<tr><td colspan="5">Sem lançamentos no período.</td></tr>`;
+
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    alert("Permita pop-ups para gerar o PDF do relatório.");
+    return;
+  }
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <title>Relatório Financeiro | RR Reparação Manager</title>
+      <style>
+        body { font-family: Arial, sans-serif; color: #111827; margin: 32px; }
+        header { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid #d7a63a; padding-bottom: 16px; margin-bottom: 22px; }
+        img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; }
+        h1, h2 { color: #082f57; margin: 0 0 8px; }
+        .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0; }
+        .card { border: 1px solid #d8dee8; border-radius: 8px; padding: 12px; }
+        .card span { color: #526174; font-size: 12px; display: block; }
+        .card strong { display: block; margin-top: 8px; font-size: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+        th { background: #082f57; color: #fff; text-align: left; }
+        th, td { border: 1px solid #d8dee8; padding: 8px; }
+        section { margin-top: 22px; }
+        @media print { body { margin: 18mm; } }
+      </style>
+    </head>
+    <body>
+      <header><img src="assets/logo-rr.png" alt="RR"><div><h1>RR Reparação Manager</h1><p>Relatório financeiro - ${escapeHtml(periodo)}</p></div></header>
+      <div class="cards">
+        <div class="card"><span>Receitas</span><strong>${money(resumo.receitas)}</strong></div>
+        <div class="card"><span>Custos</span><strong>${money(resumo.custos)}</strong></div>
+        <div class="card"><span>Despesas</span><strong>${money(resumo.despesas)}</strong></div>
+        <div class="card"><span>Lucro</span><strong>${money(resumo.lucro)}</strong></div>
+      </div>
+      <section><h2>Resultado por mês</h2><table><thead><tr><th>Mês</th><th>Receitas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead><tbody>${linhasMes}</tbody></table></section>
+      <section><h2>Lançamentos analisados</h2><table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>${linhasLancamentos}</tbody></table></section>
+      <script>window.onload = () => { window.print(); };</script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
 }
 
 function editFinanceiro(id) {
