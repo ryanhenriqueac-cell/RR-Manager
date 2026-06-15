@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | RR Reparação Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="dashboard">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html">
+        <img class="brand-logo" src="assets/logo-rr.png" alt="RR Reparação Automotiva">
+        <span>
+          <strong>RR Reparação</strong>
+          <small>Manager</small>
+        </span>
+      </a>
+      <nav class="nav-menu" aria-label="Menu principal">
+        <a href="dashboard.html" data-nav="dashboard">Dashboard</a>
+        <a href="clientes.html" data-nav="clientes">Clientes</a>
+        <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
+        <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Central operacional</p>
+          <h1>Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <a class="btn btn-ghost" href="orcamentos.html">Novo orçamento</a>
+          <a class="btn btn-primary" href="clientes.html">Cadastrar cliente</a>
+        </div>
+      </header>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <span>Clientes</span>
+          <strong id="totalClientes">0</strong>
+          <small>Base cadastrada</small>
+        </article>
+        <article class="stat-card">
+          <span>Carros</span>
+          <strong id="totalCarros">0</strong>
+          <small>Vinculados aos clientes</small>
+        </article>
+        <article class="stat-card">
+          <span>Pré-orçamentos</span>
+          <strong id="totalPreDashboard">0</strong>
+          <small>Aguardando decisão</small>
+        </article>
+        <article class="stat-card highlight">
+          <span>Saldo</span>
+          <strong id="saldoFinanceiro">R$ 0,00</strong>
+          <small>Receitas menos despesas</small>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Fila comercial</p>
+              <h2>Pré-orçamentos para decidir</h2>
+            </div>
+            <a href="orcamentos.html">Criar orçamento</a>
+          </div>
+          <div id="dashboardOrcamentos" class="timeline"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Orçamentos</p>
+              <h2>Conversão comercial</h2>
+            </div>
+            <a href="orcamentos.html">Gerenciar</a>
+          </div>
+          <div class="status-list">
+            <div><span>Pré-orçamentos</span><strong id="orcamentosPre">0</strong></div>
+            <div><span>Aprovados</span><strong id="orcamentosAprovados">0</strong></div>
+            <div><span>Não aprovados</span><strong id="orcamentosNaoAprovados">0</strong></div>
+            <div><span>Conversão</span><strong id="taxaConversao">0%</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel backup-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Segurança</p>
+            <h2>Backup dos dados</h2>
+          </div>
+        </div>
+        <p class="muted">
+          Exporte uma cópia dos cadastros antes de trocar de computador, limpar o navegador ou publicar novas versões.
+        </p>
+        <div class="backup-actions">
+          <button class="btn btn-primary" type="button" id="exportBackup">Exportar backup</button>
+          <label class="btn btn-ghost backup-import">
+            Importar backup
+            <input type="file" id="importBackup" accept="application/json">
+          </label>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

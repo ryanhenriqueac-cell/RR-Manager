@@ -1,0 +1,12 @@
+# Sistema
+Thumbs.db
+.DS_Store
+
+# Editor
+.vscode/
+
+# Backups exportados pelo app
+rr-reparacao-backup-*.json
+
+# Logs
+*.log

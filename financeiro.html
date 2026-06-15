@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro | RR Reparação Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="financeiro">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html"><img class="brand-logo" src="assets/logo-rr.png" alt="RR Reparação Automotiva"><span><strong>RR Reparação</strong><small>Manager</small></span></a>
+      <nav class="nav-menu" aria-label="Menu principal">
+        <a href="dashboard.html" data-nav="dashboard">Dashboard</a>
+        <a href="clientes.html" data-nav="clientes">Clientes</a>
+        <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
+        <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar"><div><p class="eyebrow">Resultados</p><h1>Controle financeiro</h1></div></header>
+      <section class="stats-grid compact">
+        <article class="stat-card"><span>Receitas</span><strong id="totalReceitas">R$ 0,00</strong><small>Orçamentos aprovados</small></article>
+        <article class="stat-card"><span>Custo de peças</span><strong id="totalCustoPecas">R$ 0,00</strong><small>Custos dos aprovados</small></article>
+        <article class="stat-card"><span>Despesas</span><strong id="totalDespesas">R$ 0,00</strong><small>Lançamentos manuais</small></article>
+        <article class="stat-card highlight"><span>Lucro</span><strong id="saldoFinanceiroPagina">R$ 0,00</strong><small>Receitas menos custos e despesas</small></article>
+      </section>
+      <section class="form-panel">
+        <form id="financeiroForm" class="form-grid">
+          <input type="hidden" id="financeiroId">
+          <label>Data<input id="financeiroData" type="date" required></label>
+          <label class="span-2">Descrição<input id="financeiroDescricao" required placeholder="Pagamento, peça, fornecedor, serviço..."></label>
+          <label>Categoria<input id="financeiroCategoria" placeholder="Serviços, peças, aluguel..."></label>
+          <label>Valor<input id="financeiroValor" type="number" min="0" step="0.01" required placeholder="0,00"></label>
+          <div class="form-actions span-2">
+            <button class="btn btn-primary" type="submit">Salvar despesa</button>
+            <button class="btn btn-muted" type="button" data-clear-form="financeiroForm">Limpar</button>
+          </div>
+        </form>
+      </section>
+      <section class="panel">
+        <div class="panel-header"><div><p class="eyebrow">Caixa</p><h2>Receitas automáticas e despesas</h2></div><input class="search-input" id="buscaFinanceiro" placeholder="Buscar lançamento"></div>
+        <div class="table-wrap"><table><thead><tr><th>Descrição</th><th>Tipo</th><th>Categoria</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="financeiroTabela"></tbody></table></div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

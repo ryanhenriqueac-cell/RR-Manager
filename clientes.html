@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes | RR Reparação Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="clientes">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html"><img class="brand-logo" src="assets/logo-rr.png" alt="RR Reparação Automotiva"><span><strong>RR Reparação</strong><small>Manager</small></span></a>
+      <nav class="nav-menu" aria-label="Menu principal">
+        <a href="dashboard.html" data-nav="dashboard">Dashboard</a>
+        <a href="clientes.html" data-nav="clientes">Clientes</a>
+        <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
+        <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar"><div><p class="eyebrow">Relacionamento</p><h1>Clientes</h1></div></header>
+      <section class="form-panel">
+        <form id="clienteForm" class="form-grid">
+          <input type="hidden" id="clienteId">
+          <label>Nome completo<input id="clienteNome" required placeholder="Ex: Ryan Oliveira"></label>
+          <label>Telefone<input id="clienteTelefone" required placeholder="(00) 00000-0000"></label>
+          <label>E-mail<input id="clienteEmail" type="email" placeholder="cliente@email.com"></label>
+          <label>CPF/CNPJ<input id="clienteDocumento" placeholder="Documento"></label>
+          <label class="span-2">Endereço<input id="clienteEndereco" placeholder="Rua, número, bairro"></label>
+          <label class="span-2">Observações<textarea id="clienteObs" rows="3" placeholder="Preferências, histórico ou alertas"></textarea></label>
+          <div class="span-2 nested-section">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Garagem do cliente</p>
+                <h2>Carros vinculados</h2>
+              </div>
+              <button class="btn btn-ghost" type="button" id="addCarroCliente">Adicionar carro</button>
+            </div>
+            <div id="clienteCarros" class="nested-list"></div>
+          </div>
+          <div class="form-actions span-2">
+            <button class="btn btn-primary" type="submit">Salvar cliente</button>
+            <button class="btn btn-muted" type="button" data-clear-form="clienteForm">Limpar</button>
+          </div>
+        </form>
+      </section>
+      <section class="panel">
+        <div class="panel-header"><div><p class="eyebrow">Cadastros</p><h2>Clientes cadastrados</h2></div><input class="search-input" id="buscaClientes" placeholder="Buscar cliente"></div>
+        <div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Contato</th><th>Carros</th><th>Endereço</th><th>Ações</th></tr></thead><tbody id="clientesTabela"></tbody></table></div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
