@@ -913,7 +913,7 @@ td {
 
 #firebaseUserBar {
   position: fixed;
-  right: 18px;
+  left: 18px;
   bottom: 18px;
   z-index: 50;
   display: none;
