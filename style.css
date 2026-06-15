@@ -525,6 +525,96 @@ td {
   text-align: center;
 }
 
+#firebaseAuthShell {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(215, 166, 58, 0.16), transparent 32rem),
+    rgba(7, 17, 31, 0.96);
+}
+
+.auth-locked #firebaseAuthShell {
+  display: grid;
+}
+
+.auth-locked .app-shell,
+.auth-locked .print-toolbar,
+.auth-locked #printRoot {
+  filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.auth-card {
+  width: min(430px, 100%);
+  padding: 28px;
+  border: 1px solid rgba(215, 166, 58, 0.28);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(18, 36, 60, 0.98), rgba(7, 17, 31, 0.98));
+  color: var(--text);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.auth-card img {
+  width: 86px;
+  height: 86px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #062e55;
+}
+
+.auth-card h1 {
+  margin: 16px 0 8px;
+}
+
+.auth-card p,
+#firebaseAuthMessage {
+  color: var(--muted);
+}
+
+.auth-card form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+#firebaseAuthMessage {
+  display: block;
+  min-height: 20px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+#firebaseUserBar {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(7, 17, 31, 0.92);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.auth-ready #firebaseUserBar {
+  display: flex;
+}
+
+#firebaseUserStatus {
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .print-preview-page {
   background: #e8edf3;
   color: #111827;

@@ -43,9 +43,37 @@ No financeiro você lança apenas despesas manuais. O sistema calcula:
 
 ## Onde os dados ficam salvos
 
-Nesta primeira versão, os dados ficam no LocalStorage do navegador.
+O sistema ainda mantém uma cópia local no LocalStorage do navegador, mas agora também pode sincronizar com Firebase quando o login estiver configurado.
 
-Isso significa que os dados ficam salvos apenas naquele navegador e computador. Antes de limpar o navegador, trocar de computador ou publicar uma nova versão, use a opção de backup no dashboard.
+Antes de limpar o navegador, trocar de computador ou publicar uma nova versão, continue usando a opção de backup no dashboard como segurança extra.
+
+## Firebase
+
+Para ativar login e banco online:
+
+1. Acesse `https://console.firebase.google.com`.
+2. Crie um projeto.
+3. Em Authentication, ative o provedor `Email/password`.
+4. Em Firestore Database, crie um banco em modo de produção.
+5. Registre um app Web no Firebase.
+6. Copie o objeto `firebaseConfig`.
+7. Cole os dados no arquivo `firebase-config.js`.
+
+Use estas regras no Firestore:
+
+```js
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /workspaces/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+Com isso, cada usuário logado acessa apenas o próprio banco de dados.
 
 ## Backup
 
