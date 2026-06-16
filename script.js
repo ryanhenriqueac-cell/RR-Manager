@@ -71,6 +71,32 @@ function formatDateBR(value) {
   return `${day}/${month}/${year}`;
 }
 
+function sanitizePrintTitle(value) {
+  return String(value || "")
+    .replace(/[\\/:*?"<>|]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getMonthNameBR(date) {
+  const [, month] = String(date || "").split("-");
+  const months = [
+    "JANEIRO",
+    "FEVEREIRO",
+    "MARÇO",
+    "ABRIL",
+    "MAIO",
+    "JUNHO",
+    "JULHO",
+    "AGOSTO",
+    "SETEMBRO",
+    "OUTUBRO",
+    "NOVEMBRO",
+    "DEZEMBRO"
+  ];
+  return months[Number(month) - 1] || "GERAL";
+}
+
 function formatPhoneBR(value) {
   const digits = String(value || "").replace(/\D/g, "");
   if (digits.length === 11) return `(${digits.slice(0, 2)})${digits.slice(2, 7)}-${digits.slice(7)}`;
@@ -666,7 +692,11 @@ function initOrcamentoPrint() {
   const root = byId("printRoot");
   const printButton = byId("printButton");
 
-  if (printButton) printButton.addEventListener("click", printDocument);
+  if (printButton) {
+    const clienteNome = sanitizePrintTitle(getClienteNome(orcamento?.clienteId)).toUpperCase();
+    const title = sanitizePrintTitle(`RR - Orçamento do Serviço Automotivo ${clienteNome}`);
+    printButton.addEventListener("click", () => printDocument(title));
+  }
 
   if (!orcamento) {
     root.innerHTML = `<section class="print-document"><h1>Orçamento não encontrado</h1><p>Volte para a lista e tente novamente.</p></section>`;
@@ -991,9 +1021,9 @@ function imprimirRelatorioFinanceiro() {
   window.location.href = `relatorio-financeiro.html${params.toString() ? `?${params}` : ""}`;
 }
 
-function printDocument() {
+function printDocument(title) {
   const originalTitle = document.title;
-  document.title = " ";
+  document.title = sanitizePrintTitle(title) || originalTitle;
   const restoreTitle = () => {
     document.title = originalTitle;
     window.removeEventListener("afterprint", restoreTitle);
@@ -1011,7 +1041,10 @@ function initFinanceiroPrint() {
   const end = params.get("fim") || "";
   const relatorio = getFinanceiroRelatorioData(start, end);
 
-  if (printButton) printButton.addEventListener("click", printDocument);
+  if (printButton) {
+    const title = sanitizePrintTitle(`RR - Relatório financeiro mês ${getMonthNameBR(start || end)}`);
+    printButton.addEventListener("click", () => printDocument(title));
+  }
   root.innerHTML = buildFinanceiroReportHtml(relatorio);
 }
 
