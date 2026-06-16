@@ -666,7 +666,7 @@ function initOrcamentoPrint() {
   const root = byId("printRoot");
   const printButton = byId("printButton");
 
-  if (printButton) printButton.addEventListener("click", () => window.print());
+  if (printButton) printButton.addEventListener("click", printDocument);
 
   if (!orcamento) {
     root.innerHTML = `<section class="print-document"><h1>Orçamento não encontrado</h1><p>Volte para a lista e tente novamente.</p></section>`;
@@ -991,6 +991,18 @@ function imprimirRelatorioFinanceiro() {
   window.location.href = `relatorio-financeiro.html${params.toString() ? `?${params}` : ""}`;
 }
 
+function printDocument() {
+  const originalTitle = document.title;
+  document.title = " ";
+  const restoreTitle = () => {
+    document.title = originalTitle;
+    window.removeEventListener("afterprint", restoreTitle);
+  };
+  window.addEventListener("afterprint", restoreTitle);
+  window.print();
+  setTimeout(restoreTitle, 30000);
+}
+
 function initFinanceiroPrint() {
   const root = byId("printRoot");
   const printButton = byId("printButton");
@@ -999,7 +1011,7 @@ function initFinanceiroPrint() {
   const end = params.get("fim") || "";
   const relatorio = getFinanceiroRelatorioData(start, end);
 
-  if (printButton) printButton.addEventListener("click", () => window.print());
+  if (printButton) printButton.addEventListener("click", printDocument);
   root.innerHTML = buildFinanceiroReportHtml(relatorio);
 }
 

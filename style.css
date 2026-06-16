@@ -1306,28 +1306,59 @@ td {
   white-space: nowrap;
 }
 
+.print-document,
+.print-document *,
 .finance-report-document,
 .finance-report-document * {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
 
+@page {
+  size: A4;
+  margin: 0;
+}
+
 @media print {
+  html,
   body.print-preview-page {
+    width: 210mm;
+    margin: 0;
     background: #fff;
   }
 
-  .print-toolbar {
-    display: none;
+  .print-toolbar,
+  #firebaseUserBar,
+  #firebaseAuthShell {
+    display: none !important;
   }
 
   .print-document,
   .finance-report-document {
-    width: auto;
-    min-height: auto;
+    width: 210mm;
+    min-height: 297mm;
     margin: 0;
-    padding: 12mm;
+    padding: 14mm;
     box-shadow: none;
+  }
+
+  .print-header,
+  .print-info-grid,
+  .print-table,
+  .print-totals,
+  .report-print-summary,
+  .report-chart-card {
+    break-inside: avoid;
+  }
+
+  .print-table th {
+    background: #062e55 !important;
+    color: #fff !important;
+  }
+
+  .print-totals div:last-child {
+    background: #062e55 !important;
+    color: #fff !important;
   }
 }
 
