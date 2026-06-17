@@ -615,13 +615,14 @@ function saveOrcamento(event) {
   const existente = orcamentos.find((item) => item.id === id);
   const valorFinalManual = parseDecimal(getValue("orcamentoValorFinal"));
   const totalFinal = valorFinalManual > 0 ? valorFinalManual : totals.total;
+  const status = existente?.status === "Aprovado" ? "Pré-orçamento" : existente?.status || "Pré-orçamento";
   const orcamento = {
     id,
     numero: existente?.numero || getNextOrcamentoNumber(orcamentos),
     clienteId: getValue("orcamentoCliente"),
     carroId: getValue("orcamentoCarro"),
     data: getValue("orcamentoData"),
-    status: existente?.status || "Pré-orçamento",
+    status,
     pecas,
     servicos,
     totalPecas: totals.totalPecas,
@@ -632,6 +633,7 @@ function saveOrcamento(event) {
     total: totalFinal,
     lucroEstimado: totalFinal - totals.totalCustoPecas
   };
+  if (existente?.status && existente.status !== "Aprovado") orcamento.decidedAt = existente.decidedAt;
   const index = orcamentos.findIndex((item) => item.id === id);
   if (index >= 0) orcamentos[index] = orcamento;
   else orcamentos.push(orcamento);
