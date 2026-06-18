@@ -1190,7 +1190,6 @@ function initOrcamentoPrint() {
     const clienteNome = sanitizePrintTitle(getClienteNome(orcamento?.clienteId)).toUpperCase();
     const title = sanitizePrintTitle(`RR - Orçamento do Serviço Automotivo ${clienteNome}`);
     printButton.addEventListener("click", () => printDocument(title));
-    bindSharePdfButton(title);
   }
 
   if (!orcamento) {
@@ -1241,7 +1240,6 @@ function renderPublicOrcamentoData(rawData) {
     const clienteNome = sanitizePrintTitle(data.cliente?.nome).toUpperCase();
     const title = sanitizePrintTitle(`RR - Orçamento do Serviço Automotivo ${clienteNome}`);
     printButton?.addEventListener("click", () => printDocument(title));
-    bindSharePdfButton(title);
     root.innerHTML = buildOrcamentoPrintHtml(orcamento);
   } catch (error) {
     showPublicOrcamentoError("Confira se o link recebido está completo.");
@@ -1615,75 +1613,6 @@ function printDocument(title) {
   setTimeout(restoreTitle, 30000);
 }
 
-function bindSharePdfButton(title) {
-  const shareButton = byId("sharePdfButton");
-  if (!shareButton) return;
-  shareButton.addEventListener("click", () => sharePdfDocument(title));
-}
-
-async function sharePdfDocument(title) {
-  const documentElement = document.querySelector(".print-document, .finance-report-document");
-  if (!documentElement) {
-    alert("Não encontrei o documento para gerar o PDF.");
-    return;
-  }
-
-  if (typeof window.html2pdf !== "function") {
-    alert("Não consegui carregar o gerador de PDF. Verifique a internet e tente novamente.");
-    return;
-  }
-
-  const shareButton = byId("sharePdfButton");
-  const originalLabel = shareButton?.textContent || "";
-  const fileName = `${sanitizePrintTitle(title) || "RR Reparacao Manager"}.pdf`;
-
-  try {
-    if (shareButton) {
-      shareButton.disabled = true;
-      shareButton.textContent = "Gerando PDF...";
-    }
-    document.body.classList.add("pdf-exporting");
-
-    const blob = await window.html2pdf()
-      .set({
-        filename: fileName,
-        margin: 0,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["css", "legacy"] }
-      })
-      .from(documentElement)
-      .outputPdf("blob");
-
-    const file = new File([blob], fileName, { type: "application/pdf" });
-    if (navigator.canShare?.({ files: [file] }) && navigator.share) {
-      await navigator.share({
-        title: fileName.replace(/\.pdf$/i, ""),
-        text: "Segue o PDF.",
-        files: [file]
-      });
-      return;
-    }
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
-    alert("Seu navegador não permite compartilhar arquivo direto. Baixei o PDF para você anexar no WhatsApp.");
-  } catch (error) {
-    alert("Não consegui gerar ou compartilhar o PDF neste navegador. Tente abrir no Chrome/Safari e repetir.");
-  } finally {
-    document.body.classList.remove("pdf-exporting");
-    if (shareButton) {
-      shareButton.disabled = false;
-      shareButton.textContent = originalLabel;
-    }
-  }
-}
-
 function initFinanceiroPrint() {
   const root = byId("printRoot");
   const printButton = byId("printButton");
@@ -1695,7 +1624,6 @@ function initFinanceiroPrint() {
   if (printButton) {
     const title = sanitizePrintTitle(`RR - Relatório financeiro mês ${getMonthNameBR(start || end)}`);
     printButton.addEventListener("click", () => printDocument(title));
-    bindSharePdfButton(title);
   }
   root.innerHTML = buildFinanceiroReportHtml(relatorio);
 }
