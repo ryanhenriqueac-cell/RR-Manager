@@ -1431,6 +1431,26 @@ td {
   -webkit-print-color-adjust: exact;
 }
 
+body.pdf-exporting {
+  background: #fff !important;
+}
+
+body.pdf-exporting .print-document,
+body.pdf-exporting .finance-report-document {
+  width: 210mm !important;
+  min-height: 297mm !important;
+  margin: 0 !important;
+  padding: 10mm !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.pdf-exporting .print-toolbar,
+body.pdf-exporting #firebaseUserBar,
+body.pdf-exporting #firebaseAuthShell {
+  display: none !important;
+}
+
 @page {
   size: A4;
   margin: 0;
