@@ -1057,11 +1057,13 @@ td {
   width: 100%;
   min-width: 0;
   margin: 10px 0 16px;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .print-table th {
   background: #062e55;
+  border-top: 0;
   color: #fff;
 }
 
