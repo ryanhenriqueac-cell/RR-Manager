@@ -318,7 +318,8 @@ function buildPixPayload(value, txid = "***") {
 }
 
 function buildPixPaymentHtml(orcamento, totalFinal) {
-  if (orcamento.status !== "Aprovado") return "";
+  const podeMostrarPix = orcamento.publicCliente ? orcamento.pixEnabled === true : orcamento.status === "Aprovado";
+  if (!podeMostrarPix) return "";
 
   const numero = String(orcamento.numero || "").padStart(4, "0");
   const payload = buildPixPayload(totalFinal, `ORC${numero}`);
@@ -389,7 +390,8 @@ function buildPublicOrcamentoData(orcamento) {
         v: parseDecimal(servico.valorHora)
       })),
       f: parseDecimal(orcamento.valorFinalManual),
-      t: getOrcamentoTotal(orcamento)
+      t: getOrcamentoTotal(orcamento),
+      pg: orcamento.status === "Aprovado"
     }
   };
 }
@@ -431,7 +433,8 @@ function normalizePublicOrcamentoData(data) {
         valorHora: parseDecimal(servico.v)
       })),
       valorFinalManual: parseDecimal(data.o?.f),
-      total: parseDecimal(data.o?.t)
+      total: parseDecimal(data.o?.t),
+      pixEnabled: data.o?.pg === true
     }
   };
 }
