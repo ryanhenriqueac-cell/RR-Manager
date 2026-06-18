@@ -824,8 +824,9 @@ td {
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at top, rgba(215, 166, 58, 0.16), transparent 32rem),
-    rgba(7, 17, 31, 0.96);
+    radial-gradient(circle at top, rgba(215, 166, 58, 0.08), transparent 28rem),
+    rgba(3, 8, 15, 0.992);
+  backdrop-filter: blur(12px);
 }
 
 .auth-locked #firebaseAuthShell {
@@ -835,7 +836,7 @@ td {
 .auth-locked .app-shell,
 .auth-locked .print-toolbar,
 .auth-locked #printRoot {
-  filter: blur(3px);
+  filter: blur(12px) brightness(0.18);
   pointer-events: none;
   user-select: none;
 }
