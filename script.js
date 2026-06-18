@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "orcamentos") initOrcamentos();
   if (page === "financeiro") initFinanceiro();
   if (page === "orcamento-print") initOrcamentoPrint();
+  if (page === "orcamento-publico") initOrcamentoPublico();
   if (page === "financeiro-print") initFinanceiroPrint();
 });
 
@@ -268,11 +269,77 @@ function getWhatsAppPhone(value) {
   return digits.length >= 12 ? digits : "";
 }
 
+function encodePublicPayload(data) {
+  const bytes = new TextEncoder().encode(JSON.stringify(data));
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+
+function decodePublicPayload(value) {
+  const base64 = String(value || "").replaceAll("-", "+").replaceAll("_", "/");
+  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+  const binary = atob(padded);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function buildPublicOrcamentoData(orcamento) {
+  const cliente = getCliente(orcamento.clienteId) || {};
+  const carro = getCarro(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId) || {};
+  const pecas = Array.isArray(orcamento.pecas) ? orcamento.pecas : [];
+  const servicos = Array.isArray(orcamento.servicos) ? orcamento.servicos : [];
+
+  return {
+    cliente: {
+      nome: cliente.nome || "",
+      telefone: cliente.telefone || "",
+      email: cliente.email || ""
+    },
+    carro: {
+      marca: carro.marca || "",
+      modelo: carro.modelo || "",
+      motor: carro.motor || "",
+      ano: carro.ano || "",
+      placa: carro.placa || ""
+    },
+    orcamento: {
+      id: orcamento.id,
+      numero: orcamento.numero,
+      data: orcamento.data,
+      status: orcamento.status,
+      pecas: pecas.map((peca) => ({
+        nome: peca.nome || "",
+        quantidade: parseInteger(peca.quantidade),
+        valorUnitario: parseDecimal(peca.valorUnitario)
+      })),
+      servicos: servicos.map((servico) => ({
+        descricao: servico.descricao || "",
+        horas: parseDecimal(servico.horas),
+        valorHora: parseDecimal(servico.valorHora)
+      })),
+      totalPecas: parseDecimal(orcamento.totalPecas),
+      totalServicos: parseDecimal(orcamento.totalServicos),
+      totalCalculado: parseDecimal(orcamento.totalCalculado),
+      valorFinalManual: parseDecimal(orcamento.valorFinalManual),
+      total: getOrcamentoTotal(orcamento)
+    }
+  };
+}
+
+function getOrcamentoPublicUrl(orcamento) {
+  const data = encodePublicPayload(buildPublicOrcamentoData(orcamento));
+  return new URL(`orcamento-publico.html#d=${data}`, window.location.href).href;
+}
+
 function buildOrcamentoWhatsAppMessage(orcamento) {
   const clienteNome = getClienteNome(orcamento.clienteId);
   const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
   const numero = String(orcamento.numero || "").padStart(4, "0");
   const total = money(getOrcamentoTotal(orcamento));
+  const publicUrl = getOrcamentoPublicUrl(orcamento);
   return [
     `Olá, ${clienteNome}!`,
     "",
@@ -283,6 +350,9 @@ function buildOrcamentoWhatsAppMessage(orcamento) {
     "Á vista 3% de DESCONTO",
     "Aguardo 😉👍",
     "Não trabalho com peças fornecidas",
+    "",
+    "Visualizar orçamento:",
+    publicUrl,
     "",
     "Qualquer dúvida, fico à disposição."
   ].join("\n");
@@ -731,18 +801,10 @@ function printOrcamento(id) {
 }
 
 function initOrcamentoPrint() {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-  const publicView = params.get("publico") === "1";
+  const id = new URLSearchParams(window.location.search).get("id");
   const orcamento = readData("orcamentos").find((item) => item.id === id);
   const root = byId("printRoot");
   const printButton = byId("printButton");
-  const backButton = byId("printBackButton");
-
-  if (publicView) {
-    document.body.classList.add("public-print-view");
-    backButton?.remove();
-  }
 
   if (printButton) {
     const clienteNome = sanitizePrintTitle(getClienteNome(orcamento?.clienteId)).toUpperCase();
@@ -758,9 +820,30 @@ function initOrcamentoPrint() {
   root.innerHTML = buildOrcamentoPrintHtml(orcamento);
 }
 
+function initOrcamentoPublico() {
+  const root = byId("printRoot");
+  const printButton = byId("printButton");
+  const dataParam = new URLSearchParams(window.location.hash.slice(1)).get("d");
+
+  try {
+    const data = decodePublicPayload(dataParam);
+    const orcamento = {
+      ...data.orcamento,
+      publicCliente: data.cliente,
+      publicCarro: data.carro
+    };
+    const clienteNome = sanitizePrintTitle(data.cliente?.nome).toUpperCase();
+    const title = sanitizePrintTitle(`RR - Orçamento do Serviço Automotivo ${clienteNome}`);
+    printButton?.addEventListener("click", () => printDocument(title));
+    root.innerHTML = buildOrcamentoPrintHtml(orcamento);
+  } catch (error) {
+    root.innerHTML = `<section class="print-document"><h1>Orçamento indisponível</h1><p>Confira se o link recebido está completo.</p></section>`;
+  }
+}
+
 function buildOrcamentoPrintHtml(orcamento) {
-  const cliente = getCliente(orcamento.clienteId);
-  const carro = getCarro(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
+  const cliente = orcamento.publicCliente || getCliente(orcamento.clienteId);
+  const carro = orcamento.publicCarro || getCarro(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
   const pecas = Array.isArray(orcamento.pecas) ? orcamento.pecas : [];
   const servicos = Array.isArray(orcamento.servicos) ? orcamento.servicos : [];
   const totals = calculateOrcamentoTotals(pecas, servicos);
