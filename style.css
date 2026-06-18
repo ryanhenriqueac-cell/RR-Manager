@@ -1080,9 +1080,16 @@ td {
   text-align: right;
 }
 
+.print-payment-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 8px;
+}
+
 .print-totals {
   width: 310px;
-  margin-left: auto;
   border: 1px solid #d7dde6;
   border-radius: 8px;
   overflow: hidden;
@@ -1101,6 +1108,65 @@ td {
   color: #fff;
   font-weight: 800;
   font-size: 18px;
+}
+
+.pix-payment {
+  display: grid;
+  grid-template-columns: 1fr 118px;
+  gap: 10px;
+  width: 355px;
+  padding: 12px;
+  border: 1px solid #d7a63a;
+  border-radius: 8px;
+  background: #fff8e6;
+  color: #111827;
+}
+
+.pix-payment span,
+.pix-payment small {
+  display: block;
+}
+
+.pix-payment span {
+  color: #062e55;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.pix-payment strong {
+  display: block;
+  margin: 6px 0;
+  color: #062e55;
+  font-size: 20px;
+}
+
+.pix-payment img {
+  width: 118px;
+  height: 118px;
+  border: 1px solid #d7dde6;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.pix-payment p {
+  grid-column: 1 / -1;
+  max-height: 38px;
+  margin: 0;
+  padding: 7px;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  border: 1px solid #ead89d;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 8px;
+  line-height: 1.25;
+}
+
+.pix-payment > small {
+  grid-column: 1 / -1;
+  color: #4b5563;
+  overflow-wrap: anywhere;
 }
 
 .print-footer {
@@ -1356,7 +1422,9 @@ td {
   .print-header,
   .print-info-grid,
   .print-table,
+  .print-payment-row,
   .print-totals,
+  .pix-payment,
   .report-print-summary,
   .report-chart-card {
     break-inside: avoid;

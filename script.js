@@ -11,6 +11,11 @@ const legacyKeys = {
 };
 
 const VALOR_HORA_PADRAO = 120;
+const PIX_CONFIG = {
+  chave: "b1b2ecb6-a8f1-41b5-a705-7f5b375b1395",
+  nome: "Ryan Henrique Alves Costa",
+  cidade: "Belo Horizonte"
+};
 
 const formatCurrency = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -267,6 +272,70 @@ function getWhatsAppPhone(value) {
   if (digits.startsWith("55") && (digits.length === 12 || digits.length === 13)) return digits;
   if (digits.length === 10 || digits.length === 11) return `55${digits}`;
   return digits.length >= 12 ? digits : "";
+}
+
+function onlyAscii(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\x20-\x7E]/g, "")
+    .trim();
+}
+
+function pixTlv(id, value) {
+  const text = String(value ?? "");
+  return `${id}${String(text.length).padStart(2, "0")}${text}`;
+}
+
+function pixCrc16(payload) {
+  let crc = 0xffff;
+  for (let index = 0; index < payload.length; index += 1) {
+    crc ^= payload.charCodeAt(index) << 8;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
+      crc &= 0xffff;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function buildPixPayload(value, txid = "***") {
+  const merchantAccount = pixTlv("00", "br.gov.bcb.pix") + pixTlv("01", PIX_CONFIG.chave);
+  const amount = parseDecimal(value).toFixed(2);
+  const payloadSemCrc = [
+    pixTlv("00", "01"),
+    pixTlv("26", merchantAccount),
+    pixTlv("52", "0000"),
+    pixTlv("53", "986"),
+    pixTlv("54", amount),
+    pixTlv("58", "BR"),
+    pixTlv("59", onlyAscii(PIX_CONFIG.nome).slice(0, 25).toUpperCase()),
+    pixTlv("60", onlyAscii(PIX_CONFIG.cidade).slice(0, 15).toUpperCase()),
+    pixTlv("62", pixTlv("05", onlyAscii(txid).replace(/\W/g, "").slice(0, 25) || "***")),
+    "6304"
+  ].join("");
+  return `${payloadSemCrc}${pixCrc16(payloadSemCrc)}`;
+}
+
+function buildPixPaymentHtml(orcamento, totalFinal) {
+  if (orcamento.status !== "Aprovado") return "";
+
+  const numero = String(orcamento.numero || "").padStart(4, "0");
+  const payload = buildPixPayload(totalFinal, `ORC${numero}`);
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&margin=8&data=${encodeURIComponent(payload)}`;
+
+  return `
+    <aside class="pix-payment">
+      <div>
+        <span>Pagamento Pix</span>
+        <strong>${money(totalFinal)}</strong>
+        <small>Escaneie o QR Code ou use o Pix copia e cola.</small>
+      </div>
+      <img src="${qrUrl}" alt="QR Code Pix para pagamento do orçamento ${numero}">
+      <p>${escapeHtml(payload)}</p>
+      <small>Chave Pix: ${escapeHtml(PIX_CONFIG.chave)}</small>
+    </aside>
+  `;
 }
 
 function encodePublicPayload(data) {
@@ -1020,11 +1089,14 @@ function buildOrcamentoPrintHtml(orcamento) {
         </table>
       </section>
 
-      <section class="print-totals">
+      <section class="print-payment-row">
+        <div class="print-totals">
         <div><span>Total peças</span><strong>${money(totals.totalPecas)}</strong></div>
         <div><span>Total serviços</span><strong>${money(totals.totalServicos)}</strong></div>
         ${orcamento.valorFinalManual ? `<div><span>Total calculado</span><strong>${money(totals.total)}</strong></div>` : ""}
         <div><span>Total geral</span><strong>${money(totalFinal)}</strong></div>
+        </div>
+        ${buildPixPaymentHtml(orcamento, totalFinal)}
       </section>
 
       <footer class="print-footer">Orçamento sujeito à aprovação. Valores podem mudar após desmontagem ou diagnóstico complementar.</footer>
