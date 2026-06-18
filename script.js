@@ -1461,7 +1461,7 @@ function buildFinanceiroReportHtml(relatorio) {
             ${meses.length ? meses.map((mes) => {
               const bars = series.map((serie) => {
                 const value = Number(mes[serie.key]) || 0;
-                const altura = value === 0 ? 4 : Math.max(10, Math.round((Math.abs(value) / maiorValor) * 130));
+                const altura = value === 0 ? 4 : Math.max(10, Math.round((Math.abs(value) / maiorValor) * 112));
                 return `<span class="${serie.className}" style="height:${altura}px" title="${serie.label}: ${money(value)}"></span>`;
               }).join("");
               return `<div class="report-month-group"><div>${bars}</div><strong>${escapeHtml(mes.label)}</strong><small>${money(mes.lucro)}</small></div>`;

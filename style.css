@@ -1393,6 +1393,7 @@ td {
 
 .report-month-group span {
   width: 9px;
+  max-height: 100%;
   min-height: 4px;
   border-radius: 999px 999px 2px 2px;
 }
@@ -1613,12 +1614,12 @@ td {
   }
 
   .report-donut {
-    width: 132px;
+    width: 112px;
     margin: 6px auto 9px;
   }
 
   .report-donut::after {
-    inset: 27px;
+    inset: 24px;
   }
 
   .report-donut span {
@@ -1647,25 +1648,26 @@ td {
     align-items: end;
     justify-content: center;
     gap: 10px;
-    min-height: 108px;
+    min-height: 116px;
     overflow: visible;
   }
 
   .report-month-group {
-    grid-template-rows: 82px auto auto;
+    grid-template-rows: 88px auto auto;
     min-width: 58px;
     gap: 4px;
   }
 
   .report-month-group div {
     width: 56px;
-    height: 82px;
+    height: 88px;
     gap: 4px;
     padding: 6px 5px 0;
   }
 
   .report-month-group span {
     width: 7px;
+    max-height: 100%;
   }
 
   .report-month-group strong {
