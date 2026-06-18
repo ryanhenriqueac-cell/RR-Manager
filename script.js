@@ -1185,6 +1185,7 @@ function initOrcamentoPrint() {
   const orcamento = readData("orcamentos").find((item) => item.id === id);
   const root = byId("printRoot");
   const printButton = byId("printButton");
+  setupMobilePrintButtonLabel();
 
   if (printButton) {
     const clienteNome = sanitizePrintTitle(getClienteNome(orcamento?.clienteId)).toUpperCase();
@@ -1202,6 +1203,7 @@ function initOrcamentoPrint() {
 
 function initOrcamentoPublico() {
   const root = byId("printRoot");
+  setupMobilePrintButtonLabel();
   const dataParam = new URLSearchParams(window.location.hash.slice(1)).get("d");
   const publicId = new URLSearchParams(window.location.search).get("id");
 
@@ -1601,9 +1603,21 @@ function printDocument(title) {
   setTimeout(restoreTitle, 30000);
 }
 
+function setupMobilePrintButtonLabel() {
+  const printButton = byId("printButton");
+  if (!printButton) return;
+  const mobileQuery = window.matchMedia("(max-width: 760px)");
+  const updateLabel = () => {
+    printButton.textContent = mobileQuery.matches ? "Compartilhar PDF" : "Imprimir / Salvar PDF";
+  };
+  updateLabel();
+  mobileQuery.addEventListener?.("change", updateLabel);
+}
+
 function initFinanceiroPrint() {
   const root = byId("printRoot");
   const printButton = byId("printButton");
+  setupMobilePrintButtonLabel();
   const params = new URLSearchParams(window.location.search);
   const start = params.get("inicio") || "";
   const end = params.get("fim") || "";
