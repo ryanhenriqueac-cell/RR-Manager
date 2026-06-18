@@ -1059,24 +1059,36 @@ td {
   margin: 10px 0 16px;
   border-collapse: separate;
   border-spacing: 0;
+  border: 1px solid #d7dde6;
+  border-top: 0;
 }
 
 .print-table th {
   background: #062e55;
-  border-top: 0;
   color: #fff;
 }
 
 .print-table th,
 .print-table td {
   padding: 7px;
-  border: 1px solid #d7dde6;
+  border: 0;
+  border-right: 1px solid #d7dde6;
+  border-bottom: 1px solid #d7dde6;
   color: #111827;
   font-size: 12px;
 }
 
 .print-table th {
   color: #fff;
+}
+
+.print-table th:last-child,
+.print-table td:last-child {
+  border-right: 0;
+}
+
+.print-table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 .right {
@@ -1479,11 +1491,13 @@ td {
 
   .print-table {
     margin: 7px 0 10px;
+    border-top: 0;
   }
 
   .print-table th,
   .print-table td {
     padding: 5px;
+    border-top: 0;
     font-size: 9px;
     line-height: 1.25;
   }
