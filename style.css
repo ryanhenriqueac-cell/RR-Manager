@@ -1305,6 +1305,8 @@ td {
 .report-legend {
   display: grid;
   gap: 8px;
+  width: min(290px, 100%);
+  margin: 0 auto;
 }
 
 .report-legend div {
@@ -1595,16 +1597,19 @@ td {
   }
 
   .report-print-charts {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
     margin: 12px 0 14px;
+    align-items: stretch;
   }
 
   .report-chart-card {
-    display: block;
-    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 66mm;
     padding: 10px;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .report-chart-card h2,
@@ -1614,8 +1619,8 @@ td {
   }
 
   .report-donut {
-    width: 112px;
-    margin: 6px auto 9px;
+    width: 118px;
+    margin: 6px auto 10px;
   }
 
   .report-donut::after {
@@ -1636,6 +1641,8 @@ td {
 
   .report-legend {
     gap: 5px;
+    width: min(245px, 100%);
+    margin: 0 auto;
   }
 
   .report-bars-legend {
@@ -1647,14 +1654,14 @@ td {
     display: flex;
     align-items: end;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     min-height: 116px;
     overflow: visible;
   }
 
   .report-month-group {
     grid-template-rows: 88px auto auto;
-    min-width: 58px;
+    min-width: 56px;
     gap: 4px;
   }
 
@@ -1663,6 +1670,7 @@ td {
     height: 88px;
     gap: 4px;
     padding: 6px 5px 0;
+    overflow: hidden;
   }
 
   .report-month-group span {
