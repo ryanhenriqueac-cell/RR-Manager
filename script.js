@@ -617,6 +617,10 @@ function getPaymentFee(orcamento) {
   return parseDecimal(orcamento.pagamento?.taxaValor);
 }
 
+function getPaymentSurcharge(orcamento) {
+  return parseDecimal(orcamento.pagamento?.acrescimoValor);
+}
+
 function getPaymentDiscount(orcamento) {
   if (orcamento.pagamento?.tipo !== "pix") return 0;
   if (orcamento.pagamento?.descontoValor !== undefined) {
@@ -626,14 +630,14 @@ function getPaymentDiscount(orcamento) {
 }
 
 function getOrcamentoReceita(orcamento) {
-  return Math.max(0, getOrcamentoTotal(orcamento) - getPaymentDiscount(orcamento));
+  return Math.max(0, getOrcamentoTotal(orcamento) - getPaymentDiscount(orcamento) + getPaymentSurcharge(orcamento));
 }
 
 function getServiceCosts(orcamento) {
   return getPecasCusto(orcamento) + getPaymentFee(orcamento);
 }
 
-function buildPaymentInfo(type, installments, total) {
+function buildPaymentInfo(type, installments, total, taxaRepassada = false) {
   const config = PAYMENT_RATES[type];
   if (!config) return null;
 
@@ -642,7 +646,11 @@ function buildPaymentInfo(type, installments, total) {
   if (!Number.isFinite(taxaPercentual)) return null;
 
   const valorTotal = parseDecimal(total);
-  const taxaValor = (valorTotal * taxaPercentual) / 100;
+  const taxaDecimal = taxaPercentual / 100;
+  const podeRepassar = taxaRepassada && taxaDecimal > 0 && taxaDecimal < 1;
+  const totalCobrado = podeRepassar ? valorTotal / (1 - taxaDecimal) : valorTotal;
+  const acrescimoValor = Math.max(0, totalCobrado - valorTotal);
+  const taxaValor = (totalCobrado * taxaPercentual) / 100;
   const descontoPercentual = Number(config.discountPercent || 0);
   const descontoValor = (valorTotal * descontoPercentual) / 100;
   return {
@@ -650,10 +658,38 @@ function buildPaymentInfo(type, installments, total) {
     parcelas,
     taxaPercentual,
     taxaValor,
+    taxaRepassada: podeRepassar,
+    acrescimoValor,
+    totalCobrado,
     descontoPercentual,
     descontoValor,
     label: type === "pix" || type === "debit" ? config.label : `${config.label} ${parcelas}x`
   };
+}
+
+function askTaxPassThrough(type, installments) {
+  const defaultPassThrough = (type === "credit" || type === "link") && Number(installments) > 3;
+  const answer = prompt(
+    [
+      "Repassar a taxa de pagamento para o cliente?",
+      "",
+      "Regra sugerida:",
+      "- Até 3x: não repassar",
+      "- 4x ou mais: repassar",
+      "",
+      "1 - Não repassar (taxa fica como custo da oficina)",
+      "2 - Repassar para o cliente"
+    ].join("\n"),
+    defaultPassThrough ? "2" : "1"
+  );
+  if (answer === null) return null;
+
+  const option = String(answer).trim();
+  if (option === "1") return false;
+  if (option === "2") return true;
+
+  alert("Opção inválida. Aprovação cancelada para você tentar novamente.");
+  return null;
 }
 
 function askInstallments(type) {
@@ -688,11 +724,16 @@ function askPaymentInfo(total) {
 
   const option = String(answer).trim();
   if (option === "1") return buildPaymentInfo("pix", 1, total);
-  if (option === "2") return buildPaymentInfo("debit", 1, total);
+  if (option === "2") {
+    const taxaRepassada = askTaxPassThrough("debit", 1);
+    return taxaRepassada === null ? null : buildPaymentInfo("debit", 1, total, taxaRepassada);
+  }
   if (option === "3" || option === "4") {
     const type = option === "3" ? "credit" : "link";
     const installments = askInstallments(type);
-    return installments ? buildPaymentInfo(type, installments, total) : null;
+    if (!installments) return null;
+    const taxaRepassada = askTaxPassThrough(type, installments);
+    return taxaRepassada === null ? null : buildPaymentInfo(type, installments, total, taxaRepassada);
   }
 
   alert("Forma de pagamento inválida. Aprovação cancelada para você tentar novamente.");
@@ -1218,7 +1259,9 @@ function buildOrcamentoPrintHtml(orcamento) {
   const totals = calculateOrcamentoTotals(pecas, servicos);
   const totalFinal = getOrcamentoTotal(orcamento);
   const descontoPix = getPaymentDiscount(orcamento);
+  const acrescimoPagamento = getPaymentSurcharge(orcamento);
   const totalPix = Math.max(0, totalFinal - descontoPix);
+  const totalComPagamento = Math.max(0, totalFinal + acrescimoPagamento);
   const logoUrl = new URL("assets/logo-rr.png", window.location.href).href;
 
   return `
@@ -1264,6 +1307,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <div><span>Total serviços</span><strong>${money(totals.totalServicos)}</strong></div>
         ${orcamento.valorFinalManual ? `<div><span>Total calculado</span><strong>${money(totals.total)}</strong></div>` : ""}
         <div><span>Total geral</span><strong>${money(totalFinal)}</strong></div>
+        ${acrescimoPagamento > 0 ? `<div><span>Taxa de parcelamento</span><strong>+ ${money(acrescimoPagamento)}</strong></div><div><span>Total a pagar</span><strong>${money(totalComPagamento)}</strong></div>` : ""}
         ${descontoPix > 0 ? `<div><span>Desconto Pix (3%)</span><strong>- ${money(descontoPix)}</strong></div><div><span>Total no Pix</span><strong>${money(totalPix)}</strong></div>` : ""}
         </div>
         ${buildPixPaymentHtml(orcamento, descontoPix > 0 ? totalPix : totalFinal)}
@@ -1370,7 +1414,7 @@ function getFinanceiroLancamentos() {
       id: `taxa_${orcamento.id}`,
       tipo: "Custo de serviços",
       data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
-      descricao: `Taxa de pagamento (${orcamento.pagamento?.label || "forma não informada"}) - ${getClienteNome(orcamento.clienteId)}`,
+      descricao: `Taxa de pagamento (${orcamento.pagamento?.label || "forma não informada"}${orcamento.pagamento?.taxaRepassada ? " - repassada ao cliente" : ""}) - ${getClienteNome(orcamento.clienteId)}`,
       categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
       valor: getPaymentFee(orcamento),
       automatico: true
