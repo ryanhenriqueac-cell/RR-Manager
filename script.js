@@ -1592,12 +1592,24 @@ function imprimirRelatorioFinanceiro() {
 function printDocument(title) {
   const originalTitle = document.title;
   document.title = sanitizePrintTitle(title) || originalTitle;
+  const isMobile = window.matchMedia?.("(max-width: 760px)").matches;
+  let printStarted = false;
   const restoreTitle = () => {
+    printStarted = true;
     document.title = originalTitle;
     window.removeEventListener("afterprint", restoreTitle);
   };
   window.addEventListener("afterprint", restoreTitle);
-  window.print();
+  try {
+    window.print();
+    if (isMobile) {
+      setTimeout(() => {
+        if (!printStarted) alert("Se a tela de imprimir não abrir no celular, use o menu do navegador e escolha Compartilhar ou Imprimir.");
+      }, 700);
+    }
+  } catch (error) {
+    alert("Não consegui abrir a impressão neste navegador. Use o menu do navegador e escolha Compartilhar ou Imprimir.");
+  }
   setTimeout(restoreTitle, 30000);
 }
 
