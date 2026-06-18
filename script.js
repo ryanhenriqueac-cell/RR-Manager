@@ -293,38 +293,76 @@ function buildPublicOrcamentoData(orcamento) {
   const servicos = Array.isArray(orcamento.servicos) ? orcamento.servicos : [];
 
   return {
+    c: {
+      n: cliente.nome || "",
+      t: cliente.telefone || "",
+      e: cliente.email || ""
+    },
+    v: {
+      m: carro.marca || "",
+      o: carro.modelo || "",
+      r: carro.motor || "",
+      a: carro.ano || "",
+      p: carro.placa || ""
+    },
+    o: {
+      n: orcamento.numero,
+      d: orcamento.data,
+      st: orcamento.status,
+      p: pecas.map((peca) => ({
+        n: peca.nome || "",
+        q: parseInteger(peca.quantidade),
+        v: parseDecimal(peca.valorUnitario)
+      })),
+      s: servicos.map((servico) => ({
+        d: servico.descricao || "",
+        h: parseDecimal(servico.horas),
+        v: parseDecimal(servico.valorHora)
+      })),
+      f: parseDecimal(orcamento.valorFinalManual),
+      t: getOrcamentoTotal(orcamento)
+    }
+  };
+}
+
+function normalizePublicOrcamentoData(data) {
+  if (data.orcamento) {
+    return {
+      cliente: data.cliente || {},
+      carro: data.carro || {},
+      orcamento: data.orcamento || {}
+    };
+  }
+
+  return {
     cliente: {
-      nome: cliente.nome || "",
-      telefone: cliente.telefone || "",
-      email: cliente.email || ""
+      nome: data.c?.n || "",
+      telefone: data.c?.t || "",
+      email: data.c?.e || ""
     },
     carro: {
-      marca: carro.marca || "",
-      modelo: carro.modelo || "",
-      motor: carro.motor || "",
-      ano: carro.ano || "",
-      placa: carro.placa || ""
+      marca: data.v?.m || "",
+      modelo: data.v?.o || "",
+      motor: data.v?.r || "",
+      ano: data.v?.a || "",
+      placa: data.v?.p || ""
     },
     orcamento: {
-      id: orcamento.id,
-      numero: orcamento.numero,
-      data: orcamento.data,
-      status: orcamento.status,
-      pecas: pecas.map((peca) => ({
-        nome: peca.nome || "",
-        quantidade: parseInteger(peca.quantidade),
-        valorUnitario: parseDecimal(peca.valorUnitario)
+      numero: data.o?.n,
+      data: data.o?.d,
+      status: data.o?.st,
+      pecas: (data.o?.p || []).map((peca) => ({
+        nome: peca.n || "",
+        quantidade: parseInteger(peca.q),
+        valorUnitario: parseDecimal(peca.v)
       })),
-      servicos: servicos.map((servico) => ({
-        descricao: servico.descricao || "",
-        horas: parseDecimal(servico.horas),
-        valorHora: parseDecimal(servico.valorHora)
+      servicos: (data.o?.s || []).map((servico) => ({
+        descricao: servico.d || "",
+        horas: parseDecimal(servico.h),
+        valorHora: parseDecimal(servico.v)
       })),
-      totalPecas: parseDecimal(orcamento.totalPecas),
-      totalServicos: parseDecimal(orcamento.totalServicos),
-      totalCalculado: parseDecimal(orcamento.totalCalculado),
-      valorFinalManual: parseDecimal(orcamento.valorFinalManual),
-      total: getOrcamentoTotal(orcamento)
+      valorFinalManual: parseDecimal(data.o?.f),
+      total: parseDecimal(data.o?.t)
     }
   };
 }
@@ -826,7 +864,7 @@ function initOrcamentoPublico() {
   const dataParam = new URLSearchParams(window.location.hash.slice(1)).get("d");
 
   try {
-    const data = decodePublicPayload(dataParam);
+    const data = normalizePublicOrcamentoData(decodePublicPayload(dataParam));
     const orcamento = {
       ...data.orcamento,
       publicCliente: data.cliente,
