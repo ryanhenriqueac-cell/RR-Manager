@@ -399,6 +399,37 @@ function getOrcamentoWhatsAppButton(orcamento) {
   return `<button class="btn btn-whatsapp" type="button" onclick="sendOrcamentoWhatsApp('${orcamento.id}')">WhatsApp</button>`;
 }
 
+function waitForPublicOrcamentoPublisher(timeout = 6000) {
+  if (window.rrPublishPublicOrcamento) return Promise.resolve(window.rrPublishPublicOrcamento);
+
+  return new Promise((resolve) => {
+    const startedAt = Date.now();
+    const timer = setInterval(() => {
+      if (window.rrPublishPublicOrcamento) {
+        clearInterval(timer);
+        resolve(window.rrPublishPublicOrcamento);
+        return;
+      }
+
+      if (Date.now() - startedAt >= timeout) {
+        clearInterval(timer);
+        resolve(null);
+      }
+    }, 150);
+  });
+}
+
+function publicOrcamentoErrorMessage(error) {
+  const code = error?.code || "";
+  if (code.includes("permission-denied")) {
+    return "O Firebase bloqueou a criação do link curto. Libere a coleção public_orcamentos nas regras do Firestore.";
+  }
+  if (code.includes("network") || code.includes("unavailable")) {
+    return "Falha de internet ao gerar o link curto. Confira a conexão e tente novamente.";
+  }
+  return "Não consegui gerar o link curto do orçamento. Tente novamente em alguns segundos.";
+}
+
 async function sendOrcamentoWhatsApp(id) {
   const whatsappWindow = window.open("about:blank", "_blank");
   const orcamento = readData("orcamentos").find((item) => item.id === id);
@@ -416,18 +447,21 @@ async function sendOrcamentoWhatsApp(id) {
   }
 
   let publicUrl = "";
+  let publishError = null;
   try {
-    if (window.rrPublishPublicOrcamento) {
-      const publicId = await window.rrPublishPublicOrcamento(buildPublicOrcamentoData(orcamento));
+    const publishPublicOrcamento = await waitForPublicOrcamentoPublisher();
+    if (publishPublicOrcamento) {
+      const publicId = await publishPublicOrcamento(buildPublicOrcamentoData(orcamento));
       publicUrl = new URL(`orcamento-publico.html?id=${encodeURIComponent(publicId)}`, window.location.href).href;
     }
   } catch (error) {
     console.error("Erro ao publicar link curto do orçamento:", error);
+    publishError = error;
   }
 
   if (!publicUrl) {
     whatsappWindow?.close();
-    alert("Não consegui gerar o link curto do orçamento. Tente novamente em alguns segundos.");
+    alert(publicOrcamentoErrorMessage(publishError));
     return;
   }
 
