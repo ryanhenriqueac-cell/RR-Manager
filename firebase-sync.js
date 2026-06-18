@@ -26,6 +26,7 @@ let currentUser = null;
 let saveTimer = null;
 let cloudReady = false;
 let syncingFromCloud = false;
+window.rrFirebaseReady = false;
 
 buildAuthShell();
 
@@ -54,6 +55,7 @@ if (!configReady) {
     setAppLocked(false);
     await loadCloudData(user.uid);
     cloudReady = true;
+    window.rrFirebaseReady = true;
 
     if (sessionStorage.getItem(SYNC_FLAG) !== user.uid) {
       sessionStorage.setItem(SYNC_FLAG, user.uid);
@@ -61,6 +63,21 @@ if (!configReady) {
     }
   });
 }
+
+function createPublicShareId() {
+  return Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+
+window.rrPublishPublicOrcamento = async (data) => {
+  if (!currentUser || !db) throw new Error("Login indisponível para publicar orçamento.");
+  const id = createPublicShareId();
+  await setDoc(doc(db, "public_orcamentos", id), {
+    owner: currentUser.uid,
+    createdAt: serverTimestamp(),
+    data
+  });
+  return id;
+};
 
 function buildAuthShell() {
   const shell = document.createElement("div");

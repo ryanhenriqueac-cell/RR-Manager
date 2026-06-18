@@ -367,18 +367,12 @@ function normalizePublicOrcamentoData(data) {
   };
 }
 
-function getOrcamentoPublicUrl(orcamento) {
-  const data = encodePublicPayload(buildPublicOrcamentoData(orcamento));
-  return new URL(`orcamento-publico.html#d=${data}`, window.location.href).href;
-}
-
-function buildOrcamentoWhatsAppMessage(orcamento) {
+function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
   const clienteNome = getClienteNome(orcamento.clienteId);
   const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
   const numero = String(orcamento.numero || "").padStart(4, "0");
   const total = money(getOrcamentoTotal(orcamento));
-  const publicUrl = getOrcamentoPublicUrl(orcamento);
-  return [
+  const message = [
     `Olá, ${clienteNome}!`,
     "",
     `Segue o pré-orçamento #${numero} da RR Reparação Automotiva:`,
@@ -388,25 +382,63 @@ function buildOrcamentoWhatsAppMessage(orcamento) {
     "Á vista 3% de DESCONTO",
     "Aguardo 😉👍",
     "Não trabalho com peças fornecidas",
-    "",
-    "Visualizar orçamento:",
-    publicUrl,
-    "",
-    "Qualquer dúvida, fico à disposição."
-  ].join("\n");
-}
+    ""
+  ];
 
-function getOrcamentoWhatsAppUrl(orcamento) {
-  const cliente = getCliente(orcamento.clienteId);
-  const phone = getWhatsAppPhone(cliente?.telefone);
-  if (!phone) return "";
-  return `https://wa.me/${phone}?text=${encodeURIComponent(buildOrcamentoWhatsAppMessage(orcamento))}`;
+  if (publicUrl) {
+    message.push("Visualizar orçamento:", publicUrl, "");
+  }
+
+  message.push("Qualquer dúvida, fico à disposição.");
+  return message.join("\n");
 }
 
 function getOrcamentoWhatsAppButton(orcamento) {
-  const url = getOrcamentoWhatsAppUrl(orcamento);
-  if (!url) return `<button class="btn btn-muted" type="button" disabled title="Cadastre um telefone válido no cliente">WhatsApp</button>`;
-  return `<a class="btn btn-whatsapp" href="${url}" target="_blank" rel="noopener">WhatsApp</a>`;
+  const cliente = getCliente(orcamento.clienteId);
+  if (!getWhatsAppPhone(cliente?.telefone)) return `<button class="btn btn-muted" type="button" disabled title="Cadastre um telefone válido no cliente">WhatsApp</button>`;
+  return `<button class="btn btn-whatsapp" type="button" onclick="sendOrcamentoWhatsApp('${orcamento.id}')">WhatsApp</button>`;
+}
+
+async function sendOrcamentoWhatsApp(id) {
+  const whatsappWindow = window.open("about:blank", "_blank");
+  const orcamento = readData("orcamentos").find((item) => item.id === id);
+  if (!orcamento) {
+    whatsappWindow?.close();
+    return;
+  }
+
+  const cliente = getCliente(orcamento.clienteId);
+  const phone = getWhatsAppPhone(cliente?.telefone);
+  if (!phone) {
+    whatsappWindow?.close();
+    alert("Cadastre um telefone válido no cliente antes de enviar pelo WhatsApp.");
+    return;
+  }
+
+  let publicUrl = "";
+  try {
+    if (window.rrPublishPublicOrcamento) {
+      const publicId = await window.rrPublishPublicOrcamento(buildPublicOrcamentoData(orcamento));
+      publicUrl = new URL(`orcamento-publico.html?id=${encodeURIComponent(publicId)}`, window.location.href).href;
+    }
+  } catch (error) {
+    console.error("Erro ao publicar link curto do orçamento:", error);
+  }
+
+  if (!publicUrl) {
+    whatsappWindow?.close();
+    alert("Não consegui gerar o link curto do orçamento. Tente novamente em alguns segundos.");
+    return;
+  }
+
+  const message = buildOrcamentoWhatsAppMessage(orcamento, publicUrl);
+  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  if (whatsappWindow) {
+    whatsappWindow.opener = null;
+    whatsappWindow.location.href = whatsappUrl;
+  } else {
+    window.location.href = whatsappUrl;
+  }
 }
 
 function badgeClass(status) {
@@ -860,11 +892,36 @@ function initOrcamentoPrint() {
 
 function initOrcamentoPublico() {
   const root = byId("printRoot");
-  const printButton = byId("printButton");
   const dataParam = new URLSearchParams(window.location.hash.slice(1)).get("d");
+  const publicId = new URLSearchParams(window.location.search).get("id");
 
+  window.renderPublicOrcamentoData = renderPublicOrcamentoData;
+  window.showPublicOrcamentoError = showPublicOrcamentoError;
+
+  if (dataParam) {
+    try {
+      renderPublicOrcamentoData(decodePublicPayload(dataParam));
+    } catch (error) {
+      showPublicOrcamentoError("Confira se o link recebido está completo.");
+    }
+    return;
+  }
+
+  if (publicId) {
+    root.innerHTML = `<section class="print-document"><h1>Carregando orçamento...</h1><p>Aguarde um instante.</p></section>`;
+    if (window.rrPendingPublicOrcamentoData) renderPublicOrcamentoData(window.rrPendingPublicOrcamentoData);
+    window.addEventListener("rr-public-orcamento-loaded", (event) => renderPublicOrcamentoData(event.detail), { once: true });
+    return;
+  }
+
+  showPublicOrcamentoError("Confira se o link recebido está completo.");
+}
+
+function renderPublicOrcamentoData(rawData) {
+  const root = byId("printRoot");
+  const printButton = byId("printButton");
   try {
-    const data = normalizePublicOrcamentoData(decodePublicPayload(dataParam));
+    const data = normalizePublicOrcamentoData(rawData);
     const orcamento = {
       ...data.orcamento,
       publicCliente: data.cliente,
@@ -875,8 +932,13 @@ function initOrcamentoPublico() {
     printButton?.addEventListener("click", () => printDocument(title));
     root.innerHTML = buildOrcamentoPrintHtml(orcamento);
   } catch (error) {
-    root.innerHTML = `<section class="print-document"><h1>Orçamento indisponível</h1><p>Confira se o link recebido está completo.</p></section>`;
+    showPublicOrcamentoError("Confira se o link recebido está completo.");
   }
+}
+
+function showPublicOrcamentoError(message) {
+  const root = byId("printRoot");
+  root.innerHTML = `<section class="print-document"><h1>Orçamento indisponível</h1><p>${escapeHtml(message)}</p></section>`;
 }
 
 function buildOrcamentoPrintHtml(orcamento) {
