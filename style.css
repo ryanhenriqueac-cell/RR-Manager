@@ -20,6 +20,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top right, rgba(215, 166, 58, 0.14), transparent 32rem),
     linear-gradient(135deg, #06101e 0%, #0a1728 48%, #07111f 100%);
@@ -43,6 +44,8 @@ textarea {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
 }
 
 .sidebar {
@@ -121,6 +124,7 @@ textarea {
 
 .main-content {
   width: 100%;
+  min-width: 0;
   max-width: 1500px;
   padding: 30px;
 }
@@ -216,6 +220,7 @@ textarea {
 .stat-card,
 .panel,
 .form-panel {
+  min-width: 0;
   background: linear-gradient(180deg, rgba(18, 36, 60, 0.96), rgba(11, 25, 43, 0.96));
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1705,21 +1710,33 @@ td {
 }
 
 @media (max-width: 980px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   .app-shell {
     grid-template-columns: 1fr;
+    overflow-x: hidden;
   }
 
   .sidebar {
     position: static;
     height: auto;
     padding: 16px;
+    width: 100%;
+    min-width: 0;
   }
 
   .nav-menu {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .main-content {
+    width: 100%;
+    min-width: 0;
     padding: 20px;
   }
 
@@ -1737,18 +1754,82 @@ td {
 }
 
 @media (max-width: 640px) {
+  .sidebar {
+    padding: 18px 16px 14px;
+  }
+
+  .brand {
+    margin-bottom: 18px;
+    padding: 8px;
+  }
+
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .main-content {
+    padding: 18px 16px 110px;
+  }
+
   .topbar,
   .panel-header {
     align-items: stretch;
     flex-direction: column;
   }
 
+  .topbar {
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .topbar h1 {
+    font-size: 34px;
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+
   .nav-menu {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .nav-menu a {
+    min-width: 0;
+    padding: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    gap: 12px;
+  }
+
+  .stat-card,
+  .panel,
+  .form-panel {
+    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .stat-card {
+    min-height: 118px;
+  }
+
+  .stat-card strong {
+    font-size: 30px;
+    overflow-wrap: anywhere;
+  }
+
+  .panel-header .btn,
+  .form-actions .btn,
+  .topbar-actions .btn {
+    width: 100%;
   }
 
   .finance-type-grid,
@@ -1771,7 +1852,38 @@ td {
     grid-template-columns: 1fr;
   }
 
+  .nested-section {
+    padding: 12px;
+    min-width: 0;
+  }
+
+  .totals-box {
+    justify-content: flex-start;
+  }
+
   .line-total {
     justify-content: flex-start;
+  }
+
+  .table-wrap {
+    max-width: 100%;
+  }
+
+  #firebaseUserBar {
+    left: auto;
+    right: 12px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
+    max-width: 86px;
+    padding: 5px;
+    opacity: 0.92;
+  }
+
+  #firebaseUserStatus {
+    display: none;
+  }
+
+  #firebaseUserBar .btn {
+    min-height: 34px;
+    padding: 7px 12px;
   }
 }
