@@ -1528,14 +1528,6 @@ function renderFinanceiroGraficos(relatorio) {
     { label: "Custos", valor: resumo.custos, color: "#f1c75b" },
     { label: "Despesas", valor: resumo.despesas, color: "#ef6262" }
   ];
-  const totalDonut = valoresDonut.reduce((sum, item) => sum + Math.max(item.valor, 0), 0);
-  let acumulado = 0;
-  const segmentos = valoresDonut.map((item) => {
-    const inicio = totalDonut ? (acumulado / totalDonut) * 360 : 0;
-    acumulado += Math.max(item.valor, 0);
-    const fim = totalDonut ? (acumulado / totalDonut) * 360 : 0;
-    return `${item.color} ${inicio}deg ${fim}deg`;
-  }).join(", ");
 
   byId("financeiroDonut").style.background = totalDonut
     ? `conic-gradient(${segmentos})`
@@ -1659,7 +1651,7 @@ async function sharePdfDocument(title) {
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["css", "legacy"] }
+        pagebreak: { mode: ["legacy"] }
       })
       .from(exportDocument)
       .outputPdf("blob");
@@ -1708,6 +1700,26 @@ function initFinanceiroPrint() {
   root.innerHTML = buildFinanceiroReportHtml(relatorio);
 }
 
+function buildReportDonutSvg(items) {
+  const total = items.reduce((sum, item) => sum + Math.max(Number(item.valor) || 0, 0), 0);
+  const radius = 38;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+  const circles = total ? items.map((item) => {
+    const value = Math.max(Number(item.valor) || 0, 0);
+    const length = (value / total) * circumference;
+    const circle = `<circle cx="50" cy="50" r="${radius}" fill="none" stroke="${item.color}" stroke-width="18" stroke-dasharray="${length} ${circumference - length}" stroke-dashoffset="${-offset}" transform="rotate(-90 50 50)"></circle>`;
+    offset += length;
+    return circle;
+  }).join("") : "";
+  return `
+    <svg class="report-donut-svg" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="${radius}" fill="none" stroke="#edf2f7" stroke-width="18"></circle>
+      ${circles}
+    </svg>
+  `;
+}
+
 function buildFinanceiroReportHtml(relatorio) {
   const { start, end, resumo, meses, lancamentos } = relatorio;
   const periodo = start || end
@@ -1719,14 +1731,6 @@ function buildFinanceiroReportHtml(relatorio) {
     { label: "Custos", valor: resumo.custos, color: "#f1c75b" },
     { label: "Despesas", valor: resumo.despesas, color: "#ef6262" }
   ];
-  const totalDonut = valoresDonut.reduce((sum, item) => sum + Math.max(item.valor, 0), 0);
-  let acumulado = 0;
-  const segmentos = valoresDonut.map((item) => {
-    const inicio = totalDonut ? (acumulado / totalDonut) * 360 : 0;
-    acumulado += Math.max(item.valor, 0);
-    const fim = totalDonut ? (acumulado / totalDonut) * 360 : 0;
-    return `${item.color} ${inicio}deg ${fim}deg`;
-  }).join(", ");
   const series = [
     { key: "receitas", label: "Receitas", className: "income" },
     { key: "custos", label: "Custos", className: "cost" },
@@ -1759,7 +1763,8 @@ function buildFinanceiroReportHtml(relatorio) {
       <section class="report-print-charts">
         <div class="report-chart-card">
           <h2>Distribuição do período</h2>
-          <div class="report-donut" style="background:${totalDonut ? `conic-gradient(${segmentos})` : "#edf2f7"}">
+          <div class="report-donut">
+            ${buildReportDonutSvg(valoresDonut)}
             <span>${money(resumo.lucro)}<small>Lucro líquido</small></span>
           </div>
           <div class="report-legend">
