@@ -18,7 +18,7 @@ const PIX_CONFIG = {
 };
 
 const PAYMENT_RATES = {
-  pix: { label: "Pix", installments: { 1: 0 } },
+  pix: { label: "Pix com 3% de desconto", installments: { 1: 0 }, discountPercent: 3 },
   debit: { label: "Débito", installments: { 1: 1.37 } },
   credit: {
     label: "Crédito maquininha",
@@ -617,6 +617,18 @@ function getPaymentFee(orcamento) {
   return parseDecimal(orcamento.pagamento?.taxaValor);
 }
 
+function getPaymentDiscount(orcamento) {
+  if (orcamento.pagamento?.tipo !== "pix") return 0;
+  if (orcamento.pagamento?.descontoValor !== undefined) {
+    return parseDecimal(orcamento.pagamento.descontoValor);
+  }
+  return getOrcamentoTotal(orcamento) * 0.03;
+}
+
+function getOrcamentoReceita(orcamento) {
+  return Math.max(0, getOrcamentoTotal(orcamento) - getPaymentDiscount(orcamento));
+}
+
 function getServiceCosts(orcamento) {
   return getPecasCusto(orcamento) + getPaymentFee(orcamento);
 }
@@ -629,12 +641,17 @@ function buildPaymentInfo(type, installments, total) {
   const taxaPercentual = Number(config.installments[parcelas]);
   if (!Number.isFinite(taxaPercentual)) return null;
 
-  const taxaValor = (parseDecimal(total) * taxaPercentual) / 100;
+  const valorTotal = parseDecimal(total);
+  const taxaValor = (valorTotal * taxaPercentual) / 100;
+  const descontoPercentual = Number(config.discountPercent || 0);
+  const descontoValor = (valorTotal * descontoPercentual) / 100;
   return {
     tipo: type,
     parcelas,
     taxaPercentual,
     taxaValor,
+    descontoPercentual,
+    descontoValor,
     label: type === "pix" || type === "debit" ? config.label : `${config.label} ${parcelas}x`
   };
 }
@@ -660,7 +677,7 @@ function askPaymentInfo(total) {
     [
       "Escolha a forma de pagamento:",
       "",
-      "1 - Pix (0%)",
+      "1 - Pix (3% de desconto)",
       "2 - Débito (1,37%)",
       "3 - Crédito maquininha",
       "4 - Link de pagamento"
@@ -687,7 +704,7 @@ function getFinancialSummary() {
   const aprovados = getApprovedOrcamentos();
   const receitasManuais = manual.filter((item) => item.tipo === "Receita");
   const despesasManuais = manual.filter((item) => item.tipo === "Despesa");
-  const receitasAutomaticas = aprovados.reduce((sum, orcamento) => sum + getOrcamentoTotal(orcamento), 0);
+  const receitasAutomaticas = aprovados.reduce((sum, orcamento) => sum + getOrcamentoReceita(orcamento), 0);
   const receitasExtras = receitasManuais.reduce((sum, item) => sum + Number(item.valor || 0), 0);
   const custosServicos = aprovados.reduce((sum, orcamento) => sum + getServiceCosts(orcamento), 0);
   const despesas = despesasManuais.reduce((sum, item) => sum + Number(item.valor || 0), 0);
@@ -1200,6 +1217,8 @@ function buildOrcamentoPrintHtml(orcamento) {
   const servicos = Array.isArray(orcamento.servicos) ? orcamento.servicos : [];
   const totals = calculateOrcamentoTotals(pecas, servicos);
   const totalFinal = getOrcamentoTotal(orcamento);
+  const descontoPix = getPaymentDiscount(orcamento);
+  const totalPix = Math.max(0, totalFinal - descontoPix);
   const logoUrl = new URL("assets/logo-rr.png", window.location.href).href;
 
   return `
@@ -1213,7 +1232,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         </div>
       </header>
 
-      <h2>Orçamento de Serviço Automotivo</h2>
+      <h2>Orçamento do Serviço Automotivo</h2>
 
       <section class="print-info-grid">
         <div><strong>Cliente</strong>${escapeHtml(cliente?.nome || "")}<br>${escapeHtml(formatPhoneBR(cliente?.telefone))}<br>${escapeHtml(cliente?.email || "")}</div>
@@ -1245,8 +1264,9 @@ function buildOrcamentoPrintHtml(orcamento) {
         <div><span>Total serviços</span><strong>${money(totals.totalServicos)}</strong></div>
         ${orcamento.valorFinalManual ? `<div><span>Total calculado</span><strong>${money(totals.total)}</strong></div>` : ""}
         <div><span>Total geral</span><strong>${money(totalFinal)}</strong></div>
+        ${descontoPix > 0 ? `<div><span>Desconto Pix (3%)</span><strong>- ${money(descontoPix)}</strong></div><div><span>Total no Pix</span><strong>${money(totalPix)}</strong></div>` : ""}
         </div>
-        ${buildPixPaymentHtml(orcamento, totalFinal)}
+        ${buildPixPaymentHtml(orcamento, descontoPix > 0 ? totalPix : totalFinal)}
       </section>
 
       <footer class="print-footer">Orçamento sujeito à aprovação. Valores podem mudar após desmontagem ou diagnóstico complementar.</footer>
@@ -1327,9 +1347,11 @@ function getFinanceiroLancamentos() {
     id: `receita_${orcamento.id}`,
     tipo: "Receita automática",
     data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
-    descricao: `Orçamento aprovado - ${getClienteNome(orcamento.clienteId)}`,
+    descricao: getPaymentDiscount(orcamento) > 0
+      ? `Orçamento aprovado (${orcamento.pagamento?.label || "Pix com 3% de desconto"}) - ${getClienteNome(orcamento.clienteId)}`
+      : `Orçamento aprovado - ${getClienteNome(orcamento.clienteId)}`,
     categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
-    valor: getOrcamentoTotal(orcamento),
+    valor: getOrcamentoReceita(orcamento),
     automatico: true
   }));
   const custosAutomaticos = aprovados
