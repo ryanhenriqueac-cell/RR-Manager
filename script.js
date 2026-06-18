@@ -17,6 +17,45 @@ const PIX_CONFIG = {
   cidade: "Belo Horizonte"
 };
 
+const PAYMENT_RATES = {
+  pix: { label: "Pix", installments: { 1: 0 } },
+  debit: { label: "Débito", installments: { 1: 1.37 } },
+  credit: {
+    label: "Crédito maquininha",
+    installments: {
+      1: 3.15,
+      2: 5.39,
+      3: 6.12,
+      4: 6.85,
+      5: 7.57,
+      6: 8.28,
+      7: 8.99,
+      8: 9.69,
+      9: 10.38,
+      10: 11.06,
+      11: 11.74,
+      12: 12.40
+    }
+  },
+  link: {
+    label: "Link de pagamento",
+    installments: {
+      1: 4.20,
+      2: 6.09,
+      3: 7.01,
+      4: 7.91,
+      5: 8.80,
+      6: 9.67,
+      7: 12.59,
+      8: 13.42,
+      9: 14.25,
+      10: 15.06,
+      11: 15.87,
+      12: 16.66
+    }
+  }
+};
+
 const formatCurrency = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL"
@@ -574,6 +613,75 @@ function getPecasCusto(orcamento) {
   return pecas.reduce((sum, peca) => sum + parseInteger(peca.quantidade) * parseDecimal(peca.custoUnitario), 0);
 }
 
+function getPaymentFee(orcamento) {
+  return parseDecimal(orcamento.pagamento?.taxaValor);
+}
+
+function getServiceCosts(orcamento) {
+  return getPecasCusto(orcamento) + getPaymentFee(orcamento);
+}
+
+function buildPaymentInfo(type, installments, total) {
+  const config = PAYMENT_RATES[type];
+  if (!config) return null;
+
+  const parcelas = Number(installments) || 1;
+  const taxaPercentual = Number(config.installments[parcelas]);
+  if (!Number.isFinite(taxaPercentual)) return null;
+
+  const taxaValor = (parseDecimal(total) * taxaPercentual) / 100;
+  return {
+    tipo: type,
+    parcelas,
+    taxaPercentual,
+    taxaValor,
+    label: type === "pix" || type === "debit" ? config.label : `${config.label} ${parcelas}x`
+  };
+}
+
+function askInstallments(type) {
+  const config = PAYMENT_RATES[type];
+  const options = Object.entries(config.installments)
+    .map(([parcelas, taxa]) => `${parcelas}x - ${String(taxa).replace(".", ",")}%`)
+    .join("\n");
+  const answer = prompt(`Escolha as parcelas para ${config.label}:\n\n${options}`, "1");
+  if (answer === null) return null;
+
+  const installments = parseInteger(String(answer).replace(/\D/g, ""));
+  if (!config.installments[installments]) {
+    alert("Parcela inválida. Aprovação cancelada para você tentar novamente.");
+    return null;
+  }
+  return installments;
+}
+
+function askPaymentInfo(total) {
+  const answer = prompt(
+    [
+      "Escolha a forma de pagamento:",
+      "",
+      "1 - Pix (0%)",
+      "2 - Débito (1,37%)",
+      "3 - Crédito maquininha",
+      "4 - Link de pagamento"
+    ].join("\n"),
+    "1"
+  );
+  if (answer === null) return null;
+
+  const option = String(answer).trim();
+  if (option === "1") return buildPaymentInfo("pix", 1, total);
+  if (option === "2") return buildPaymentInfo("debit", 1, total);
+  if (option === "3" || option === "4") {
+    const type = option === "3" ? "credit" : "link";
+    const installments = askInstallments(type);
+    return installments ? buildPaymentInfo(type, installments, total) : null;
+  }
+
+  alert("Forma de pagamento inválida. Aprovação cancelada para você tentar novamente.");
+  return null;
+}
+
 function getFinancialSummary() {
   const manual = readData("financeiro");
   const aprovados = getApprovedOrcamentos();
@@ -581,16 +689,17 @@ function getFinancialSummary() {
   const despesasManuais = manual.filter((item) => item.tipo === "Despesa");
   const receitasAutomaticas = aprovados.reduce((sum, orcamento) => sum + getOrcamentoTotal(orcamento), 0);
   const receitasExtras = receitasManuais.reduce((sum, item) => sum + Number(item.valor || 0), 0);
-  const custoPecas = aprovados.reduce((sum, orcamento) => sum + getPecasCusto(orcamento), 0);
+  const custosServicos = aprovados.reduce((sum, orcamento) => sum + getServiceCosts(orcamento), 0);
   const despesas = despesasManuais.reduce((sum, item) => sum + Number(item.valor || 0), 0);
   const receitas = receitasAutomaticas + receitasExtras;
   return {
     receitas,
     receitasAutomaticas,
     receitasExtras,
-    custoPecas,
+    custoPecas: custosServicos,
+    custosServicos,
     despesas,
-    lucro: receitas - custoPecas - despesas
+    lucro: receitas - custosServicos - despesas
   };
 }
 
@@ -645,11 +754,14 @@ function updateOrcamentoStatus(id, status) {
   const orcamentos = readData("orcamentos");
   const index = orcamentos.findIndex((orcamento) => orcamento.id === id);
   if (index < 0) return;
+  const pagamento = status === "Aprovado" ? askPaymentInfo(getOrcamentoTotal(orcamentos[index])) : null;
+  if (status === "Aprovado" && !pagamento) return;
 
   orcamentos[index] = {
     ...orcamentos[index],
     status,
-    decidedAt: new Date().toISOString()
+    decidedAt: new Date().toISOString(),
+    pagamento
   };
   writeData("orcamentos", orcamentos);
   initDashboard();
@@ -1223,16 +1335,27 @@ function getFinanceiroLancamentos() {
   const custosAutomaticos = aprovados
     .map((orcamento) => ({
       id: `custo_${orcamento.id}`,
-      tipo: "Custo de peças",
+      tipo: "Custo de serviços",
       data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
-      descricao: `Custo de peças - ${getClienteNome(orcamento.clienteId)}`,
+      descricao: `Peças do serviço - ${getClienteNome(orcamento.clienteId)}`,
       categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
       valor: getPecasCusto(orcamento),
       automatico: true
     }))
     .filter((item) => item.valor > 0);
+  const taxasAutomaticas = aprovados
+    .map((orcamento) => ({
+      id: `taxa_${orcamento.id}`,
+      tipo: "Custo de serviços",
+      data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
+      descricao: `Taxa de pagamento (${orcamento.pagamento?.label || "forma não informada"}) - ${getClienteNome(orcamento.clienteId)}`,
+      categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
+      valor: getPaymentFee(orcamento),
+      automatico: true
+    }))
+    .filter((item) => item.valor > 0);
 
-  return [...receitasAutomaticas, ...custosAutomaticos, ...manuais]
+  return [...receitasAutomaticas, ...custosAutomaticos, ...taxasAutomaticas, ...manuais]
     .sort((a, b) => String(b.data || "").localeCompare(String(a.data || "")));
 }
 
