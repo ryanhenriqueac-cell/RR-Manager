@@ -1365,6 +1365,7 @@ td {
 .report-monthly-bars {
   display: flex;
   align-items: end;
+  justify-content: center;
   gap: 10px;
   min-height: 176px;
   overflow-x: auto;
@@ -1593,18 +1594,16 @@ td {
   }
 
   .report-print-charts {
-    grid-template-columns: minmax(62mm, 0.82fr) minmax(92mm, 1.18fr);
-    gap: 10px;
+    grid-template-columns: 1fr;
+    gap: 8px;
     margin: 12px 0 14px;
-    align-items: stretch;
   }
 
   .report-chart-card {
-    display: flex;
-    flex-direction: column;
-    min-height: 62mm;
+    display: block;
+    min-height: 0;
     padding: 10px;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .report-chart-card h2,
@@ -1647,20 +1646,20 @@ td {
     display: flex;
     align-items: end;
     justify-content: center;
-    gap: 8px;
-    min-height: 122px;
+    gap: 10px;
+    min-height: 108px;
     overflow: visible;
   }
 
   .report-month-group {
-    grid-template-rows: 92px auto auto;
-    min-width: 54px;
+    grid-template-rows: 82px auto auto;
+    min-width: 58px;
     gap: 4px;
   }
 
   .report-month-group div {
-    width: 52px;
-    height: 92px;
+    width: 56px;
+    height: 82px;
     gap: 4px;
     padding: 6px 5px 0;
   }
