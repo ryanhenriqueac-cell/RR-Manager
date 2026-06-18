@@ -260,6 +260,52 @@ function getCarroDetalhes(clienteId, carroId) {
   return [getCarroNome(clienteId, carroId), carro.placa ? `Placa ${carro.placa}` : ""].filter(Boolean).join(" | ");
 }
 
+function getWhatsAppPhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.startsWith("55") && (digits.length === 12 || digits.length === 13)) return digits;
+  if (digits.length === 10 || digits.length === 11) return `55${digits}`;
+  return digits.length >= 12 ? digits : "";
+}
+
+function buildOrcamentoWhatsAppMessage(orcamento) {
+  const clienteNome = getClienteNome(orcamento.clienteId);
+  const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
+  const numero = String(orcamento.numero || "").padStart(4, "0");
+  const total = money(getOrcamentoTotal(orcamento));
+  const printUrl = new URL(`orcamento-imprimir.html?id=${encodeURIComponent(orcamento.id)}`, window.location.href).href;
+
+  return [
+    `Olá, ${clienteNome}!`,
+    "",
+    `Segue o pré-orçamento #${numero} da RR Reparação Automotiva:`,
+    `Veículo: ${carro}`,
+    `Valor total: ${total}`,
+    "Parcelado em até 3x NO CARTÃO SEM JUROS",
+    "Á vista 3% de DESCONTO",
+    "Aguardo 😉👍",
+    "Não trabalho com peças fornecidas",
+    "",
+    "Visualizar orçamento:",
+    printUrl,
+    "",
+    "Qualquer dúvida, fico à disposição."
+  ].join("\n");
+}
+
+function getOrcamentoWhatsAppUrl(orcamento) {
+  const cliente = getCliente(orcamento.clienteId);
+  const phone = getWhatsAppPhone(cliente?.telefone);
+  if (!phone) return "";
+  return `https://wa.me/${phone}?text=${encodeURIComponent(buildOrcamentoWhatsAppMessage(orcamento))}`;
+}
+
+function getOrcamentoWhatsAppButton(orcamento) {
+  const url = getOrcamentoWhatsAppUrl(orcamento);
+  if (!url) return `<button class="btn btn-muted" type="button" disabled title="Cadastre um telefone válido no cliente">WhatsApp</button>`;
+  return `<a class="btn btn-whatsapp" href="${url}" target="_blank" rel="noopener">WhatsApp</a>`;
+}
+
 function badgeClass(status) {
   const value = String(status).toLowerCase();
   if (value.includes("aprovado") && !value.includes("não")) return "success";
@@ -339,6 +385,7 @@ function renderDashboardOrcamentos(pendentes) {
         <div class="actions">
           <button class="btn btn-primary" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Aprovado')">Aprovar</button>
           <button class="btn btn-danger" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Não aprovado')">Não aprovado</button>
+          ${getOrcamentoWhatsAppButton(orcamento)}
           <a class="btn btn-muted" href="orcamentos.html?editar=${orcamento.id}">Editar</a>
           <a class="btn btn-ghost" href="orcamento-imprimir.html?id=${orcamento.id}">Imprimir</a>
         </div>
