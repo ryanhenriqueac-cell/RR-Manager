@@ -1451,6 +1451,136 @@ body.pdf-exporting #firebaseAuthShell {
   display: none !important;
 }
 
+.pdf-export-stage {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  width: 210mm;
+  min-height: 297mm;
+  overflow: hidden;
+  pointer-events: none;
+  background: #fff;
+}
+
+.pdf-export-clone {
+  width: 210mm !important;
+  min-height: 297mm !important;
+  margin: 0 !important;
+  padding: 10mm !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.pdf-export-clone .print-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding-bottom: 10px !important;
+}
+
+.pdf-export-clone .print-header img {
+  width: 72px !important;
+  height: 72px !important;
+  flex: 0 0 72px !important;
+}
+
+.pdf-export-clone .print-header div {
+  text-align: right !important;
+}
+
+.pdf-export-clone .print-header h1 {
+  font-size: 22px !important;
+}
+
+.pdf-export-clone .print-header p {
+  margin-top: 3px !important;
+  font-size: 10px !important;
+}
+
+.pdf-export-clone h2 {
+  margin: 12px 0 10px !important;
+  font-size: 16px !important;
+}
+
+.pdf-export-clone h3 {
+  margin: 9px 0 6px !important;
+  font-size: 12px !important;
+}
+
+.pdf-export-clone .print-info-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.pdf-export-clone .print-info-grid div {
+  padding: 8px !important;
+  font-size: 10px !important;
+}
+
+.pdf-export-clone .print-table {
+  display: table !important;
+  width: 100% !important;
+  margin: 7px 0 10px !important;
+  overflow: visible !important;
+}
+
+.pdf-export-clone .print-table th,
+.pdf-export-clone .print-table td {
+  min-width: 0 !important;
+  padding: 5px !important;
+  font-size: 9px !important;
+  line-height: 1.25 !important;
+}
+
+.pdf-export-clone .print-payment-row {
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.pdf-export-clone .print-totals {
+  width: 265px !important;
+}
+
+.pdf-export-clone .pix-payment {
+  grid-template-columns: 1fr 92px !important;
+  width: 310px !important;
+  gap: 7px !important;
+  padding: 8px !important;
+}
+
+.pdf-export-clone .pix-payment img {
+  width: 92px !important;
+  height: 92px !important;
+}
+
+.pdf-export-clone .report-print-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  margin: 10px 0 !important;
+}
+
+.pdf-export-clone .report-print-charts {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 10px !important;
+  margin: 12px 0 14px !important;
+}
+
+.pdf-export-clone .report-donut {
+  width: 118px !important;
+}
+
+.pdf-export-clone .report-monthly-bars {
+  justify-content: center !important;
+  min-height: 116px !important;
+  overflow: visible !important;
+}
+
 @page {
   size: A4;
   margin: 0;

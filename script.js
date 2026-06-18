@@ -1636,13 +1636,19 @@ async function sharePdfDocument(title) {
   const shareButton = byId("sharePdfButton");
   const originalLabel = shareButton?.textContent || "";
   const fileName = `${sanitizePrintTitle(title) || "RR Reparacao Manager"}.pdf`;
+  let exportStage;
 
   try {
     if (shareButton) {
       shareButton.disabled = true;
       shareButton.textContent = "Gerando PDF...";
     }
-    document.body.classList.add("pdf-exporting");
+    const exportDocument = documentElement.cloneNode(true);
+    exportDocument.classList.add("pdf-export-clone");
+    exportStage = document.createElement("div");
+    exportStage.className = "pdf-export-stage";
+    exportStage.appendChild(exportDocument);
+    document.body.appendChild(exportStage);
 
     const blob = await window.html2pdf()
       .set({
@@ -1653,7 +1659,7 @@ async function sharePdfDocument(title) {
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
         pagebreak: { mode: ["css", "legacy"] }
       })
-      .from(documentElement)
+      .from(exportDocument)
       .outputPdf("blob");
 
     const file = new File([blob], fileName, { type: "application/pdf" });
@@ -1676,7 +1682,7 @@ async function sharePdfDocument(title) {
   } catch (error) {
     alert("Não consegui gerar ou compartilhar o PDF neste navegador. Tente abrir no Chrome/Safari e repetir.");
   } finally {
-    document.body.classList.remove("pdf-exporting");
+    exportStage?.remove();
     if (shareButton) {
       shareButton.disabled = false;
       shareButton.textContent = originalLabel;
