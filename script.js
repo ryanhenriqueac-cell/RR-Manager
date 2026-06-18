@@ -273,8 +273,6 @@ function buildOrcamentoWhatsAppMessage(orcamento) {
   const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
   const numero = String(orcamento.numero || "").padStart(4, "0");
   const total = money(getOrcamentoTotal(orcamento));
-  const printUrl = new URL(`orcamento-imprimir.html?id=${encodeURIComponent(orcamento.id)}`, window.location.href).href;
-
   return [
     `Olá, ${clienteNome}!`,
     "",
@@ -285,9 +283,6 @@ function buildOrcamentoWhatsAppMessage(orcamento) {
     "Á vista 3% de DESCONTO",
     "Aguardo 😉👍",
     "Não trabalho com peças fornecidas",
-    "",
-    "Visualizar orçamento:",
-    printUrl,
     "",
     "Qualquer dúvida, fico à disposição."
   ].join("\n");
@@ -736,10 +731,18 @@ function printOrcamento(id) {
 }
 
 function initOrcamentoPrint() {
-  const id = new URLSearchParams(window.location.search).get("id");
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  const publicView = params.get("publico") === "1";
   const orcamento = readData("orcamentos").find((item) => item.id === id);
   const root = byId("printRoot");
   const printButton = byId("printButton");
+  const backButton = byId("printBackButton");
+
+  if (publicView) {
+    document.body.classList.add("public-print-view");
+    backButton?.remove();
+  }
 
   if (printButton) {
     const clienteNome = sanitizePrintTitle(getClienteNome(orcamento?.clienteId)).toUpperCase();
