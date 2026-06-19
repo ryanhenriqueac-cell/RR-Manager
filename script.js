@@ -1638,16 +1638,18 @@ async function ensurePdfShareLibraries() {
 
 function getPdfShareBreakData(documentEl, scale) {
   const rootRect = documentEl.getBoundingClientRect();
-  const elements = Array.from(documentEl.querySelectorAll(".print-info-grid, section, h3, thead, tr, .print-payment-title, .print-payment-row, .print-totals, .pix-payment, .print-footer, .report-print-summary, .report-chart-card, .report-table-section"));
-  const ranges = elements.map((element) => {
+  const offsetElements = Array.from(documentEl.querySelectorAll(".print-info-grid, section, h3, thead, tr, .print-payment-title, .print-payment-row, .print-totals, .pix-payment, .print-footer, .report-print-summary, .report-chart-card"));
+  const avoidElements = Array.from(documentEl.querySelectorAll("tr, .print-totals, .pix-payment, .print-footer, .report-chart-card"));
+  const toRange = (element) => {
     const rect = element.getBoundingClientRect();
     return {
       top: Math.round((rect.top - rootRect.top) * scale),
       bottom: Math.round((rect.bottom - rootRect.top) * scale)
     };
-  }).filter((range) => range.top > 0 && range.bottom > range.top);
+  };
+  const ranges = avoidElements.map(toRange).filter((range) => range.top > 0 && range.bottom > range.top);
   return {
-    offsets: ranges.map((range) => range.top).sort((a, b) => a - b),
+    offsets: offsetElements.map(toRange).filter((range) => range.top > 0).map((range) => range.top).sort((a, b) => a - b),
     ranges
   };
 }
@@ -1655,9 +1657,9 @@ function getPdfShareBreakData(documentEl, scale) {
 function getPdfShareSliceHeight(sourceY, pageHeightPx, canvasHeight, breakData) {
   const targetY = Math.min(sourceY + pageHeightPx, canvasHeight);
   if (targetY >= canvasHeight) return canvasHeight - sourceY;
-  const minY = sourceY + Math.round(pageHeightPx * 0.55);
+  const minY = sourceY + Math.round(pageHeightPx * 0.78);
   const containingRange = breakData.ranges
-    .filter((range) => range.top > sourceY + 24 && range.top > minY && range.top < targetY && range.bottom > targetY)
+    .filter((range) => range.top > sourceY + 24 && range.top < targetY && range.bottom > targetY)
     .sort((a, b) => b.top - a.top)[0];
   if (containingRange) return Math.max(1, containingRange.top - sourceY);
 
