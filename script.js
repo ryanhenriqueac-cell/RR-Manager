@@ -1607,20 +1607,93 @@ function isMobilePrintView() {
   return window.matchMedia("(max-width: 760px)").matches;
 }
 
-async function sharePrintDocument(title) {
-  const shareTitle = sanitizePrintTitle(title) || document.title;
-  const shareData = {
-    title: shareTitle,
-    text: "Segue o documento da RR Reparacao Manager.",
-    url: window.location.href
-  };
+function loadExternalScript(src, globalCheck) {
+  if (globalCheck?.()) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) {
+      existing.addEventListener("load", resolve, { once: true });
+      existing.addEventListener("error", reject, { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
 
-  if (navigator.share) {
-    try {
+async function ensurePdfShareLibraries() {
+  await loadExternalScript(
+    "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+    () => Boolean(window.html2canvas)
+  );
+  await loadExternalScript(
+    "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+    () => Boolean(window.jspdf?.jsPDF)
+  );
+}
+
+async function createPdfFileFromDocument(title) {
+  await ensurePdfShareLibraries();
+  const documentEl = document.querySelector(".print-document, .finance-report-document");
+  if (!documentEl) throw new Error("Documento indisponivel.");
+
+  const canvas = await window.html2canvas(documentEl, {
+    backgroundColor: "#ffffff",
+    scale: Math.min(2, window.devicePixelRatio || 1.5),
+    useCORS: true,
+    windowWidth: document.documentElement.scrollWidth
+  });
+
+  const imageData = canvas.toDataURL("image/jpeg", 0.95);
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 0;
+  const imageWidth = pageWidth - margin * 2;
+  const imageHeight = (canvas.height * imageWidth) / canvas.width;
+  let y = margin;
+  let remainingHeight = imageHeight;
+
+  pdf.addImage(imageData, "JPEG", margin, y, imageWidth, imageHeight);
+  remainingHeight -= pageHeight;
+
+  while (remainingHeight > 0) {
+    y -= pageHeight;
+    pdf.addPage();
+    pdf.addImage(imageData, "JPEG", margin, y, imageWidth, imageHeight);
+    remainingHeight -= pageHeight;
+  }
+
+  const fileName = `${sanitizePrintTitle(title) || "RR - Documento"}.pdf`;
+  const blob = pdf.output("blob");
+  return new File([blob], fileName, { type: "application/pdf" });
+}
+
+async function sharePrintDocument(title) {
+  const printButton = byId("printButton");
+  try {
+    if (printButton) {
+      printButton.disabled = true;
+      printButton.textContent = "Gerando PDF...";
+    }
+    const file = await createPdfFileFromDocument(title);
+    const shareData = { files: [file] };
+
+    if (navigator.canShare?.(shareData) && navigator.share) {
       await navigator.share(shareData);
       return;
-    } catch (error) {
-      if (error?.name === "AbortError") return;
+    }
+  } catch (error) {
+    if (error?.name === "AbortError") return;
+  } finally {
+    if (printButton) {
+      printButton.disabled = false;
+      printButton.textContent = isMobilePrintView() ? "Compartilhar PDF" : "Imprimir / Salvar PDF";
     }
   }
 
