@@ -1431,6 +1431,199 @@ td {
   -webkit-print-color-adjust: exact;
 }
 
+@media screen and (max-width: 760px) {
+  body[data-page="orcamento-print"].print-preview-page,
+  body[data-page="orcamento-publico"].print-preview-page {
+    overflow-x: hidden;
+    background: #eef3f8;
+  }
+
+  body[data-page="orcamento-print"] .print-toolbar,
+  body[data-page="orcamento-publico"] .print-toolbar {
+    justify-content: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  body[data-page="orcamento-print"] .print-toolbar .btn,
+  body[data-page="orcamento-publico"] .print-toolbar .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 14px;
+    white-space: normal;
+  }
+
+  body[data-page="orcamento-print"] .print-document,
+  body[data-page="orcamento-publico"] .print-document {
+    width: calc(100% - 16px);
+    min-height: 0;
+    margin: 10px auto 84px;
+    padding: 14px;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.16);
+  }
+
+  body[data-page="orcamento-print"] .print-header,
+  body[data-page="orcamento-publico"] .print-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+  }
+
+  body[data-page="orcamento-print"] .print-header img,
+  body[data-page="orcamento-publico"] .print-header img {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 auto;
+  }
+
+  body[data-page="orcamento-print"] .print-header div,
+  body[data-page="orcamento-publico"] .print-header div {
+    min-width: 0;
+    text-align: right;
+  }
+
+  body[data-page="orcamento-print"] .print-header h1,
+  body[data-page="orcamento-publico"] .print-header h1 {
+    font-size: 18px;
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="orcamento-print"] .print-header p,
+  body[data-page="orcamento-publico"] .print-header p {
+    margin-top: 3px;
+    font-size: 9px;
+    line-height: 1.25;
+  }
+
+  body[data-page="orcamento-print"] .print-document h2,
+  body[data-page="orcamento-publico"] .print-document h2 {
+    margin: 12px 0 9px;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  body[data-page="orcamento-print"] .print-document h3,
+  body[data-page="orcamento-publico"] .print-document h3 {
+    margin: 8px 0 6px;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  body[data-page="orcamento-print"] .print-info-grid,
+  body[data-page="orcamento-publico"] .print-info-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  body[data-page="orcamento-print"] .print-info-grid div,
+  body[data-page="orcamento-publico"] .print-info-grid div {
+    padding: 7px;
+    border-radius: 6px;
+    font-size: 9px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="orcamento-print"] .print-info-grid strong,
+  body[data-page="orcamento-publico"] .print-info-grid strong {
+    margin-bottom: 3px;
+  }
+
+  body[data-page="orcamento-print"] .print-table,
+  body[data-page="orcamento-publico"] .print-table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    margin: 6px 0 10px;
+  }
+
+  body[data-page="orcamento-print"] .print-table th,
+  body[data-page="orcamento-print"] .print-table td,
+  body[data-page="orcamento-publico"] .print-table th,
+  body[data-page="orcamento-publico"] .print-table td {
+    min-width: 0;
+    padding: 5px;
+    font-size: 8px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="orcamento-print"] .print-table th:first-child,
+  body[data-page="orcamento-print"] .print-table td:first-child,
+  body[data-page="orcamento-publico"] .print-table th:first-child,
+  body[data-page="orcamento-publico"] .print-table td:first-child {
+    width: 48%;
+  }
+
+  body[data-page="orcamento-print"] .print-table th:nth-child(2),
+  body[data-page="orcamento-print"] .print-table td:nth-child(2),
+  body[data-page="orcamento-publico"] .print-table th:nth-child(2),
+  body[data-page="orcamento-publico"] .print-table td:nth-child(2) {
+    width: 10%;
+  }
+
+  body[data-page="orcamento-print"] .print-table th:nth-child(3),
+  body[data-page="orcamento-print"] .print-table td:nth-child(3),
+  body[data-page="orcamento-publico"] .print-table th:nth-child(3),
+  body[data-page="orcamento-publico"] .print-table td:nth-child(3),
+  body[data-page="orcamento-print"] .print-table th:nth-child(4),
+  body[data-page="orcamento-print"] .print-table td:nth-child(4),
+  body[data-page="orcamento-publico"] .print-table th:nth-child(4),
+  body[data-page="orcamento-publico"] .print-table td:nth-child(4) {
+    width: 21%;
+  }
+
+  body[data-page="orcamento-print"] .print-payment-row,
+  body[data-page="orcamento-publico"] .print-payment-row {
+    gap: 8px;
+  }
+
+  body[data-page="orcamento-print"] .print-totals,
+  body[data-page="orcamento-print"] .pix-payment,
+  body[data-page="orcamento-publico"] .print-totals,
+  body[data-page="orcamento-publico"] .pix-payment {
+    width: min(100%, 220px);
+  }
+
+  body[data-page="orcamento-print"] .print-totals div,
+  body[data-page="orcamento-publico"] .print-totals div {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+
+  body[data-page="orcamento-print"] .pix-payment,
+  body[data-page="orcamento-publico"] .pix-payment {
+    grid-template-columns: 1fr 74px;
+    gap: 6px;
+    padding: 7px;
+    font-size: 8px;
+  }
+
+  body[data-page="orcamento-print"] .pix-payment img,
+  body[data-page="orcamento-publico"] .pix-payment img {
+    width: 74px;
+    height: 74px;
+  }
+
+  body[data-page="orcamento-print"] .print-footer,
+  body[data-page="orcamento-publico"] .print-footer {
+    margin-top: 14px;
+    font-size: 8px;
+  }
+
+  body[data-page="orcamento-print"] #firebaseUserBar,
+  body[data-page="orcamento-publico"] #firebaseUserBar {
+    display: none !important;
+  }
+}
+
 @page {
   size: A4;
   margin: 0;
