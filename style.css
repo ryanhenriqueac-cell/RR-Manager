@@ -1624,6 +1624,201 @@ td {
   }
 }
 
+@media screen and (max-width: 760px) {
+  body[data-page="financeiro-print"].print-preview-page {
+    overflow-x: hidden;
+    background: #eef3f8;
+  }
+
+  body[data-page="financeiro-print"] .print-toolbar {
+    justify-content: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  body[data-page="financeiro-print"] .print-toolbar .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 14px;
+    white-space: normal;
+  }
+
+  body[data-page="financeiro-print"] .finance-report-document {
+    width: calc(100% - 16px);
+    min-height: 0;
+    margin: 10px auto 84px;
+    padding: 14px;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.16);
+  }
+
+  body[data-page="financeiro-print"] .report-print-header {
+    margin-bottom: 10px;
+  }
+
+  body[data-page="financeiro-print"] .print-header {
+    gap: 12px;
+    padding-bottom: 10px;
+  }
+
+  body[data-page="financeiro-print"] .print-header img {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 auto;
+  }
+
+  body[data-page="financeiro-print"] .print-header div {
+    min-width: 0;
+    text-align: right;
+  }
+
+  body[data-page="financeiro-print"] .print-header h1 {
+    font-size: 18px;
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="financeiro-print"] .print-header p {
+    margin-top: 3px;
+    font-size: 9px;
+    line-height: 1.25;
+  }
+
+  body[data-page="financeiro-print"] .report-print-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 10px 0;
+  }
+
+  body[data-page="financeiro-print"] .report-print-summary div {
+    min-width: 0;
+    padding: 7px;
+    border-radius: 6px;
+  }
+
+  body[data-page="financeiro-print"] .report-print-summary span {
+    font-size: 8px;
+  }
+
+  body[data-page="financeiro-print"] .report-print-summary strong {
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  body[data-page="financeiro-print"] .report-print-charts {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 10px 0 12px;
+  }
+
+  body[data-page="financeiro-print"] .report-chart-card {
+    min-height: 0;
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  body[data-page="financeiro-print"] .report-chart-card h2,
+  body[data-page="financeiro-print"] .report-table-section h2 {
+    margin: 0 0 7px;
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  body[data-page="financeiro-print"] .report-donut {
+    width: 132px;
+    margin: 6px auto 10px;
+  }
+
+  body[data-page="financeiro-print"] .report-donut::after {
+    inset: 27px;
+  }
+
+  body[data-page="financeiro-print"] .report-donut span {
+    max-width: 82px;
+    font-size: 11px;
+  }
+
+  body[data-page="financeiro-print"] .report-donut small,
+  body[data-page="financeiro-print"] .report-legend div,
+  body[data-page="financeiro-print"] .report-bars-legend,
+  body[data-page="financeiro-print"] .report-month-group small {
+    font-size: 8px;
+  }
+
+  body[data-page="financeiro-print"] .report-legend {
+    gap: 5px;
+    width: 100%;
+  }
+
+  body[data-page="financeiro-print"] .report-legend div {
+    grid-template-columns: 9px 1fr auto;
+    gap: 6px;
+  }
+
+  body[data-page="financeiro-print"] .report-bars-legend {
+    gap: 6px 10px;
+    margin-bottom: 8px;
+  }
+
+  body[data-page="financeiro-print"] .report-monthly-bars {
+    justify-content: flex-start;
+    gap: 8px;
+    min-height: 112px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  body[data-page="financeiro-print"] .report-month-group {
+    grid-template-rows: 84px auto auto;
+    min-width: 58px;
+    gap: 4px;
+  }
+
+  body[data-page="financeiro-print"] .report-month-group div {
+    width: 58px;
+    height: 84px;
+    gap: 4px;
+    padding: 6px 5px 0;
+  }
+
+  body[data-page="financeiro-print"] .report-month-group span {
+    width: 7px;
+    max-height: 100%;
+  }
+
+  body[data-page="financeiro-print"] .report-month-group strong {
+    font-size: 8px;
+  }
+
+  body[data-page="financeiro-print"] .report-table-section {
+    margin-top: 10px;
+  }
+
+  body[data-page="financeiro-print"] .print-table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    margin: 6px 0 10px;
+  }
+
+  body[data-page="financeiro-print"] .print-table th,
+  body[data-page="financeiro-print"] .print-table td {
+    min-width: 0;
+    padding: 5px;
+    font-size: 8px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="financeiro-print"] #firebaseUserBar {
+    display: none !important;
+  }
+}
+
 @page {
   size: A4;
   margin: 0;
