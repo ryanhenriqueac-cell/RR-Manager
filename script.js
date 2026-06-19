@@ -1636,42 +1636,109 @@ async function ensurePdfShareLibraries() {
   );
 }
 
+function getPdfShareBreakOffsets(documentEl, scale) {
+  const rootRect = documentEl.getBoundingClientRect();
+  return Array.from(documentEl.querySelectorAll("section, h3, tr, .print-payment-title, .print-payment-row, .print-footer, .report-table-section"))
+    .map((element) => Math.round((element.getBoundingClientRect().top - rootRect.top) * scale))
+    .filter((offset) => offset > 0)
+    .sort((a, b) => a - b);
+}
+
+function getPdfShareSliceHeight(sourceY, pageHeightPx, canvasHeight, breakOffsets) {
+  const targetY = Math.min(sourceY + pageHeightPx, canvasHeight);
+  if (targetY >= canvasHeight) return canvasHeight - sourceY;
+  const minY = sourceY + Math.round(pageHeightPx * 0.55);
+  const safeBreak = breakOffsets
+    .filter((offset) => offset > minY && offset < targetY - 24)
+    .pop();
+  return Math.max(1, (safeBreak || targetY) - sourceY);
+}
+
+function parseMoneyValue(text) {
+  const normalized = String(text || "")
+    .replace(/[^\d,.-]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".");
+  return Number(normalized) || 0;
+}
+
+function preparePdfShareDonut(documentEl) {
+  const donut = documentEl.querySelector(".report-donut");
+  if (!donut) return;
+  const legendItems = Array.from(documentEl.querySelectorAll(".report-legend div")).map((item) => ({
+    color: item.querySelector("i")?.style.background || "#d4dce8",
+    value: Math.max(0, parseMoneyValue(item.querySelector("strong")?.textContent))
+  }));
+  const total = legendItems.reduce((sum, item) => sum + item.value, 0);
+  let offset = 0;
+  const radius = 35;
+  const circumference = 2 * Math.PI * radius;
+  const circles = total
+    ? legendItems.map((item) => {
+        const length = (item.value / total) * circumference;
+        const circle = `<circle cx="50" cy="50" r="${radius}" fill="none" stroke="${item.color}" stroke-width="28" stroke-dasharray="${length} ${circumference - length}" stroke-dashoffset="${-offset}" transform="rotate(-90 50 50)"/>`;
+        offset += length;
+        return circle;
+      }).join("")
+    : `<circle cx="50" cy="50" r="${radius}" fill="none" stroke="#edf2f7" stroke-width="28"/>`;
+  donut.insertAdjacentHTML("afterbegin", `<svg class="report-donut-svg" viewBox="0 0 100 100" aria-hidden="true">${circles}<circle cx="50" cy="50" r="24" fill="#fff" stroke="#d4dce8" stroke-width="1"/></svg>`);
+}
+
 async function createPdfFileFromDocument(title) {
   await ensurePdfShareLibraries();
   const documentEl = document.querySelector(".print-document, .finance-report-document");
   if (!documentEl) throw new Error("Documento indisponivel.");
+  const renderHost = document.createElement("div");
+  const clonedDocument = documentEl.cloneNode(true);
+  renderHost.className = "pdf-share-render-host";
+  clonedDocument.classList.add("pdf-share-document");
+  preparePdfShareDonut(clonedDocument);
+  renderHost.appendChild(clonedDocument);
+  document.body.appendChild(renderHost);
 
-  const canvas = await window.html2canvas(documentEl, {
-    backgroundColor: "#ffffff",
-    scale: Math.min(2, window.devicePixelRatio || 1.5),
-    useCORS: true,
-    windowWidth: document.documentElement.scrollWidth
-  });
+  try {
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const canvas = await window.html2canvas(clonedDocument, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true,
+      windowWidth: 794,
+      width: clonedDocument.scrollWidth,
+      height: clonedDocument.scrollHeight
+    });
 
-  const imageData = canvas.toDataURL("image/jpeg", 0.95);
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = 210;
-  const pageHeight = 297;
-  const margin = 0;
-  const imageWidth = pageWidth - margin * 2;
-  const imageHeight = (canvas.height * imageWidth) / canvas.width;
-  let y = margin;
-  let remainingHeight = imageHeight;
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const pageHeightPx = Math.floor((canvas.width * pageHeight) / pageWidth);
+    const canvasScale = canvas.width / clonedDocument.scrollWidth;
+    const breakOffsets = getPdfShareBreakOffsets(clonedDocument, canvasScale);
+    let sourceY = 0;
+    let pageIndex = 0;
 
-  pdf.addImage(imageData, "JPEG", margin, y, imageWidth, imageHeight);
-  remainingHeight -= pageHeight;
+    while (sourceY < canvas.height) {
+      const sliceHeight = getPdfShareSliceHeight(sourceY, pageHeightPx, canvas.height, breakOffsets);
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = pageHeightPx;
+      const context = pageCanvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+      context.drawImage(canvas, 0, sourceY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
 
-  while (remainingHeight > 0) {
-    y -= pageHeight;
-    pdf.addPage();
-    pdf.addImage(imageData, "JPEG", margin, y, imageWidth, imageHeight);
-    remainingHeight -= pageHeight;
+      if (pageIndex > 0) pdf.addPage();
+      pdf.addImage(pageCanvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pageWidth, pageHeight);
+      sourceY += sliceHeight;
+      pageIndex += 1;
+    }
+
+    const fileName = `${sanitizePrintTitle(title) || "RR - Documento"}.pdf`;
+    const blob = pdf.output("blob");
+    return new File([blob], fileName, { type: "application/pdf" });
+  } finally {
+    renderHost.remove();
   }
-
-  const fileName = `${sanitizePrintTitle(title) || "RR - Documento"}.pdf`;
-  const blob = pdf.output("blob");
-  return new File([blob], fileName, { type: "application/pdf" });
 }
 
 async function sharePrintDocument(title) {

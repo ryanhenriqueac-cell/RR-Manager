@@ -1431,6 +1431,266 @@ td {
   -webkit-print-color-adjust: exact;
 }
 
+.pdf-share-render-host {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  z-index: -1;
+  width: 794px;
+  min-height: 1123px;
+  overflow: visible;
+  background: #fff;
+  pointer-events: none;
+}
+
+.pdf-share-render-host .print-document,
+.pdf-share-render-host .finance-report-document {
+  box-sizing: border-box !important;
+  width: 794px !important;
+  min-height: 1123px !important;
+  margin: 0 !important;
+  padding: 38px !important;
+  overflow: visible !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.pdf-share-render-host .print-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding-bottom: 10px !important;
+}
+
+.pdf-share-render-host .print-header img {
+  width: 72px !important;
+  height: 72px !important;
+}
+
+.pdf-share-render-host .print-header div {
+  min-width: 0 !important;
+  text-align: right !important;
+}
+
+.pdf-share-render-host .print-header h1 {
+  margin: 0 !important;
+  font-size: 22px !important;
+  line-height: 1.12 !important;
+}
+
+.pdf-share-render-host .print-header p {
+  margin-top: 3px !important;
+  font-size: 10px !important;
+  line-height: 1.25 !important;
+}
+
+.pdf-share-render-host .print-document h2 {
+  margin: 12px 0 10px !important;
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+}
+
+.pdf-share-render-host .print-document h3,
+.pdf-share-render-host .report-chart-card h2,
+.pdf-share-render-host .report-table-section h2 {
+  margin: 9px 0 6px !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+}
+
+.pdf-share-render-host .print-info-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.pdf-share-render-host .print-info-grid div {
+  padding: 8px !important;
+  border-radius: 8px !important;
+  font-size: 10px !important;
+  line-height: 1.25 !important;
+}
+
+.pdf-share-render-host .print-info-grid strong {
+  margin-bottom: 4px !important;
+}
+
+.pdf-share-render-host .print-table {
+  display: table !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 7px 0 10px !important;
+  table-layout: auto !important;
+}
+
+.pdf-share-render-host .print-table th,
+.pdf-share-render-host .print-table td {
+  min-width: 0 !important;
+  padding: 5px !important;
+  font-size: 9px !important;
+  line-height: 1.25 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.pdf-share-render-host .print-table th {
+  background: #062e55 !important;
+  color: #fff !important;
+}
+
+.pdf-share-render-host .print-payment-row {
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.pdf-share-render-host .print-totals {
+  width: 265px !important;
+}
+
+.pdf-share-render-host .print-totals div {
+  padding: 7px 9px !important;
+  font-size: 10px !important;
+}
+
+.pdf-share-render-host .pix-payment {
+  display: grid !important;
+  grid-template-columns: 1fr 92px !important;
+  gap: 7px !important;
+  width: 310px !important;
+  padding: 8px !important;
+  font-size: 9px !important;
+}
+
+.pdf-share-render-host .pix-payment strong {
+  margin: 3px 0 !important;
+  font-size: 14px !important;
+}
+
+.pdf-share-render-host .pix-payment img {
+  width: 92px !important;
+  height: 92px !important;
+}
+
+.pdf-share-render-host .pix-payment p {
+  max-height: 30px !important;
+  padding: 5px !important;
+  font-size: 6px !important;
+}
+
+.pdf-share-render-host .pix-payment small {
+  font-size: 8px !important;
+}
+
+.pdf-share-render-host .print-footer {
+  margin-top: 14px !important;
+  font-size: 9px !important;
+}
+
+.pdf-share-render-host .finance-report-document {
+  padding: 38px !important;
+}
+
+.pdf-share-render-host .finance-report-document .print-header {
+  margin-bottom: 10px !important;
+}
+
+.pdf-share-render-host .report-print-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  margin: 10px 0 !important;
+}
+
+.pdf-share-render-host .report-print-summary div {
+  padding: 8px !important;
+}
+
+.pdf-share-render-host .report-print-summary span {
+  font-size: 9px !important;
+}
+
+.pdf-share-render-host .report-print-summary strong {
+  margin-top: 5px !important;
+  font-size: 13px !important;
+}
+
+.pdf-share-render-host .report-print-charts {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 10px !important;
+  margin: 12px 0 14px !important;
+}
+
+.pdf-share-render-host .report-chart-card {
+  min-height: 0 !important;
+  padding: 10px !important;
+  overflow: hidden !important;
+}
+
+.pdf-share-render-host .report-donut {
+  width: 118px !important;
+  margin: 6px auto 10px !important;
+  background: transparent !important;
+}
+
+.pdf-share-render-host .report-donut::after {
+  display: none !important;
+}
+
+.pdf-share-render-host .report-donut-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pdf-share-render-host .report-donut span {
+  max-width: 82px !important;
+  font-size: 11px !important;
+}
+
+.pdf-share-render-host .report-donut small,
+.pdf-share-render-host .report-legend div,
+.pdf-share-render-host .report-bars-legend,
+.pdf-share-render-host .report-month-group small {
+  font-size: 8px !important;
+}
+
+.pdf-share-render-host .report-legend {
+  gap: 5px !important;
+  width: min(245px, 100%) !important;
+}
+
+.pdf-share-render-host .report-monthly-bars {
+  justify-content: center !important;
+  gap: 8px !important;
+  min-height: 116px !important;
+  overflow: visible !important;
+}
+
+.pdf-share-render-host .report-month-group {
+  grid-template-rows: 88px auto auto !important;
+  min-width: 56px !important;
+  gap: 4px !important;
+}
+
+.pdf-share-render-host .report-month-group div {
+  width: 56px !important;
+  height: 88px !important;
+  gap: 4px !important;
+  padding: 6px 5px 0 !important;
+}
+
+.pdf-share-render-host .report-month-group span {
+  width: 7px !important;
+}
+
+.pdf-share-render-host .report-month-group strong {
+  font-size: 8px !important;
+}
+
 @media screen and (max-width: 760px) {
   body[data-page="orcamento-print"].print-preview-page,
   body[data-page="orcamento-publico"].print-preview-page {
