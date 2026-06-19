@@ -1454,6 +1454,7 @@ td {
   border-radius: 0 !important;
   background: #fff !important;
   box-shadow: none !important;
+  font-family: Inter, "Segoe UI", Arial, sans-serif !important;
 }
 
 .pdf-share-render-host .print-header {
@@ -1523,7 +1524,7 @@ td {
   width: 100% !important;
   max-width: 100% !important;
   margin: 7px 0 10px !important;
-  table-layout: auto !important;
+  table-layout: fixed !important;
 }
 
 .pdf-share-render-host .print-table th,
@@ -1533,6 +1534,55 @@ td {
   font-size: 9px !important;
   line-height: 1.25 !important;
   overflow-wrap: anywhere !important;
+}
+
+.pdf-share-render-host .print-table th:first-child,
+.pdf-share-render-host .print-table td:first-child {
+  width: 56% !important;
+}
+
+.pdf-share-render-host .print-table th:nth-child(2),
+.pdf-share-render-host .print-table td:nth-child(2) {
+  width: 10% !important;
+  text-align: center !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+.pdf-share-render-host .print-table th:nth-child(3),
+.pdf-share-render-host .print-table td:nth-child(3),
+.pdf-share-render-host .print-table th:nth-child(4),
+.pdf-share-render-host .print-table td:nth-child(4) {
+  width: 17% !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+
+.pdf-share-render-host .report-table-section .print-table th:first-child,
+.pdf-share-render-host .report-table-section .print-table td:first-child {
+  width: 14% !important;
+}
+
+.pdf-share-render-host .report-table-section .print-table th:nth-child(2),
+.pdf-share-render-host .report-table-section .print-table td:nth-child(2) {
+  width: 17% !important;
+}
+
+.pdf-share-render-host .report-table-section .print-table th:nth-child(3),
+.pdf-share-render-host .report-table-section .print-table td:nth-child(3) {
+  width: 35% !important;
+}
+
+.pdf-share-render-host .report-table-section .print-table th:nth-child(4),
+.pdf-share-render-host .report-table-section .print-table td:nth-child(4) {
+  width: 24% !important;
+}
+
+.pdf-share-render-host .report-table-section .print-table th:nth-child(5),
+.pdf-share-render-host .report-table-section .print-table td:nth-child(5) {
+  width: 10% !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
 }
 
 .pdf-share-render-host .print-table th {

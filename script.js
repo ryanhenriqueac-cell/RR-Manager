@@ -1636,19 +1636,32 @@ async function ensurePdfShareLibraries() {
   );
 }
 
-function getPdfShareBreakOffsets(documentEl, scale) {
+function getPdfShareBreakData(documentEl, scale) {
   const rootRect = documentEl.getBoundingClientRect();
-  return Array.from(documentEl.querySelectorAll("section, h3, tr, .print-payment-title, .print-payment-row, .print-footer, .report-table-section"))
-    .map((element) => Math.round((element.getBoundingClientRect().top - rootRect.top) * scale))
-    .filter((offset) => offset > 0)
-    .sort((a, b) => a - b);
+  const elements = Array.from(documentEl.querySelectorAll(".print-info-grid, section, h3, thead, tr, .print-payment-title, .print-payment-row, .print-totals, .pix-payment, .print-footer, .report-print-summary, .report-chart-card, .report-table-section"));
+  const ranges = elements.map((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      top: Math.round((rect.top - rootRect.top) * scale),
+      bottom: Math.round((rect.bottom - rootRect.top) * scale)
+    };
+  }).filter((range) => range.top > 0 && range.bottom > range.top);
+  return {
+    offsets: ranges.map((range) => range.top).sort((a, b) => a - b),
+    ranges
+  };
 }
 
-function getPdfShareSliceHeight(sourceY, pageHeightPx, canvasHeight, breakOffsets) {
+function getPdfShareSliceHeight(sourceY, pageHeightPx, canvasHeight, breakData) {
   const targetY = Math.min(sourceY + pageHeightPx, canvasHeight);
   if (targetY >= canvasHeight) return canvasHeight - sourceY;
   const minY = sourceY + Math.round(pageHeightPx * 0.55);
-  const safeBreak = breakOffsets
+  const containingRange = breakData.ranges
+    .filter((range) => range.top > sourceY + 24 && range.top > minY && range.top < targetY && range.bottom > targetY)
+    .sort((a, b) => b.top - a.top)[0];
+  if (containingRange) return Math.max(1, containingRange.top - sourceY);
+
+  const safeBreak = breakData.offsets
     .filter((offset) => offset > minY && offset < targetY - 24)
     .pop();
   return Math.max(1, (safeBreak || targetY) - sourceY);
@@ -1713,12 +1726,12 @@ async function createPdfFileFromDocument(title) {
     const pageHeight = 297;
     const pageHeightPx = Math.floor((canvas.width * pageHeight) / pageWidth);
     const canvasScale = canvas.width / clonedDocument.scrollWidth;
-    const breakOffsets = getPdfShareBreakOffsets(clonedDocument, canvasScale);
+    const breakData = getPdfShareBreakData(clonedDocument, canvasScale);
     let sourceY = 0;
     let pageIndex = 0;
 
     while (sourceY < canvas.height) {
-      const sliceHeight = getPdfShareSliceHeight(sourceY, pageHeightPx, canvas.height, breakOffsets);
+      const sliceHeight = getPdfShareSliceHeight(sourceY, pageHeightPx, canvas.height, breakData);
       const pageCanvas = document.createElement("canvas");
       pageCanvas.width = canvas.width;
       pageCanvas.height = pageHeightPx;
@@ -1728,7 +1741,7 @@ async function createPdfFileFromDocument(title) {
       context.drawImage(canvas, 0, sourceY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
 
       if (pageIndex > 0) pdf.addPage();
-      pdf.addImage(pageCanvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pageWidth, pageHeight);
+      pdf.addImage(pageCanvas.toDataURL("image/png"), "PNG", 0, 0, pageWidth, pageHeight);
       sourceY += sliceHeight;
       pageIndex += 1;
     }
