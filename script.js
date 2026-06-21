@@ -1096,6 +1096,28 @@ function updateOrcamentoPreview() {
   });
 }
 
+function cloneOrcamentoVersion(orcamento) {
+  if (!orcamento) return null;
+  const {
+    historicoVersoes,
+    ...snapshot
+  } = orcamento;
+  return {
+    ...snapshot,
+    versionId: createId("ver"),
+    savedAt: new Date().toISOString()
+  };
+}
+
+function isSameOrcamentoVersion(a, b) {
+  if (!a || !b) return false;
+  const fields = ["clienteId", "carroId", "veiculoId", "data", "status", "valorFinalManual", "total"];
+  const basicFieldsMatch = fields.every((field) => String(a[field] ?? "") === String(b[field] ?? ""));
+  return basicFieldsMatch
+    && JSON.stringify(a.pecas || []) === JSON.stringify(b.pecas || [])
+    && JSON.stringify(a.servicos || []) === JSON.stringify(b.servicos || []);
+}
+
 function saveOrcamento(event) {
   event.preventDefault();
   syncOrcamentoDrafts();
@@ -1123,8 +1145,15 @@ function saveOrcamento(event) {
     totalCalculado: totals.total,
     valorFinalManual,
     total: totalFinal,
-    lucroEstimado: totalFinal - totals.totalCustoPecas
+    lucroEstimado: totalFinal - totals.totalCustoPecas,
+    historicoVersoes: existente?.historicoVersoes || []
   };
+  if (existente && !isSameOrcamentoVersion(existente, orcamento)) {
+    orcamento.historicoVersoes = [
+      cloneOrcamentoVersion(existente),
+      ...(existente.historicoVersoes || [])
+    ].filter(Boolean).slice(0, 12);
+  }
   if (existente?.status && existente.status !== "Aprovado") orcamento.decidedAt = existente.decidedAt;
   const index = orcamentos.findIndex((item) => item.id === id);
   if (index >= 0) orcamentos[index] = orcamento;
@@ -1151,6 +1180,7 @@ function renderOrcamentos() {
       <td>${escapeHtml(formatDateBR(orcamento.data) || "-")}</td>
       <td class="actions">
         <button class="btn btn-muted" onclick="editOrcamento('${orcamento.id}')">Editar</button>
+        ${(orcamento.historicoVersoes || []).length ? `<button class="btn btn-ghost" onclick="restoreOrcamentoVersion('${orcamento.id}')">Versões</button>` : ""}
         <a class="btn btn-ghost" href="orcamento-imprimir.html?id=${orcamento.id}">Imprimir</a>
         <button class="btn btn-danger" onclick="deleteItem('orcamentos','${orcamento.id}', renderOrcamentos)">Excluir</button>
       </td>
@@ -1165,6 +1195,10 @@ function getOrcamentoTotal(orcamento) {
 function editOrcamento(id) {
   const orcamento = readData("orcamentos").find((item) => item.id === id);
   if (!orcamento) return;
+  loadOrcamentoIntoForm(orcamento);
+}
+
+function loadOrcamentoIntoForm(orcamento) {
   setValue("orcamentoId", orcamento.id);
   setValue("orcamentoCliente", orcamento.clienteId);
   hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro", orcamento.carroId || orcamento.veiculoId);
@@ -1174,6 +1208,36 @@ function editOrcamento(id) {
   orcamentoServicosDraft = Array.isArray(orcamento.servicos) ? orcamento.servicos : [{ ...blankServicoOrcamento(), descricao: "Mão de obra", horas: 1, valorHora: Number(orcamento.maoObra) || VALOR_HORA_PADRAO }];
   renderOrcamentoDrafts();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function restoreOrcamentoVersion(id) {
+  const orcamento = readData("orcamentos").find((item) => item.id === id);
+  const versoes = orcamento?.historicoVersoes || [];
+  if (!versoes.length) {
+    alert("Este orçamento ainda não tem versões anteriores salvas.");
+    return;
+  }
+  const opcoes = versoes.map((versao, index) => {
+    const data = formatDateBR((versao.savedAt || "").slice(0, 10)) || "sem data";
+    return `${index + 1} - ${data} | ${versao.status || "-"} | ${money(getOrcamentoTotal(versao))}`;
+  }).join("\n");
+  const escolha = prompt(`Escolha a versão para carregar no formulário:\n\n${opcoes}`);
+  if (!escolha) return;
+  const index = parseInteger(escolha) - 1;
+  const versao = versoes[index];
+  if (!versao) {
+    alert("Versão não encontrada.");
+    return;
+  }
+  loadOrcamentoIntoForm({
+    ...orcamento,
+    ...versao,
+    id: orcamento.id,
+    numero: orcamento.numero,
+    status: "Pré-orçamento",
+    historicoVersoes: orcamento.historicoVersoes || []
+  });
+  alert("Versão carregada no formulário. Revise e clique em Salvar orçamento para confirmar.");
 }
 
 function printOrcamento(id) {
