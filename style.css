@@ -1457,6 +1457,11 @@ td {
   font-family: Inter, "Segoe UI", Arial, sans-serif !important;
 }
 
+.pdf-share-render-host .print-document {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
 .pdf-share-render-host .print-header {
   display: flex !important;
   align-items: center !important;
@@ -1636,7 +1641,8 @@ td {
 }
 
 .pdf-share-render-host .print-footer {
-  margin-top: 8px !important;
+  margin-top: auto !important;
+  padding-top: 8px !important;
   font-size: 8px !important;
 }
 
