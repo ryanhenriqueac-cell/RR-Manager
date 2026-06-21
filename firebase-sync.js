@@ -43,6 +43,7 @@ let cloudReady = false;
 let syncingFromCloud = false;
 let adminWorkspaces = [];
 let pendingAuthMessage = "";
+let pendingAuthModal = null;
 let creatingAccessRequest = false;
 window.rrFirebaseReady = false;
 
@@ -74,6 +75,11 @@ if (!configReady) {
         showAuthMessage(pendingAuthMessage);
         pendingAuthMessage = "";
       }
+      if (pendingAuthModal) {
+        const modal = pendingAuthModal;
+        pendingAuthModal = null;
+        await showAuthStatusModal(modal.title, modal.message);
+      }
       return;
     }
 
@@ -93,9 +99,16 @@ if (!configReady) {
     if (!isAdminUser(user)) {
       const accessStatus = await getWorkspaceAccessStatus(activeWorkspaceId);
       if (accessStatus === ACCESS_STATUS.PENDING || accessStatus === ACCESS_STATUS.BLOCKED) {
-        pendingAuthMessage = accessStatus === ACCESS_STATUS.PENDING
-          ? "Cadastro concluído. Seu acesso está em análise para confirmação."
-          : "Seu acesso está bloqueado. Fale com o administrador.";
+        const isPending = accessStatus === ACCESS_STATUS.PENDING;
+        pendingAuthMessage = isPending
+          ? "Seu acesso ainda está em análise."
+          : "Seu acesso está bloqueado.";
+        pendingAuthModal = {
+          title: isPending ? "Acesso em análise" : "Acesso bloqueado",
+          message: isPending
+            ? "Seu cadastro foi recebido e ainda precisa ser liberado pela RR Reparação. Aguarde a confirmação para entrar no sistema."
+            : "Seu acesso está bloqueado no momento. Entre em contato com a RR Reparação para regularizar ou solicitar a liberação."
+        };
         await signOut(auth);
         return;
       }
@@ -320,7 +333,10 @@ async function submitAccessRequest() {
     pendingAuthMessage = "Cadastro concluído e enviado para análise. Aguarde a liberação do administrador.";
     await signOut(auth);
     showLoginForm();
-    await showAccessRequestModal();
+    await showAuthStatusModal(
+      "Cadastro concluído",
+      "Seu cadastro foi enviado e será analisado para confirmação de acesso."
+    );
   } catch (error) {
     showAuthMessage(firebaseError(error));
   } finally {
@@ -427,15 +443,15 @@ async function getWorkspaceAccessStatus(workspaceId) {
   return snap.data().accessStatus || ACCESS_STATUS.ACTIVE;
 }
 
-function showAccessRequestModal() {
+function showAuthStatusModal(title, message) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "auth-modal-overlay";
     overlay.innerHTML = `
       <div class="auth-modal">
         <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
-        <h2>Cadastro concluído</h2>
-        <p>Seu cadastro foi enviado e será analisado para confirmação de acesso.</p>
+        <h2>${escapeHtml(title)}</h2>
+        <p>${escapeHtml(message)}</p>
         <button class="btn btn-primary" type="button">OK</button>
       </div>
     `;
