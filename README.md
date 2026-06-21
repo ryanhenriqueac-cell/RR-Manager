@@ -52,27 +52,15 @@ Para ativar login e banco online:
 6. Copie o objeto `firebaseConfig`.
 7. Cole os dados no arquivo `firebase-config.js`.
 
-Use estas regras no Firestore. Troque `admin@rrreparacao.com.br` pelo e-mail administrador definido em `firebase-config.js`.
+Use estas regras no Firestore:
 
 ```js
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAdmin() {
-      return request.auth != null
-        && request.auth.token.email in ['admin@rrreparacao.com.br'];
-    }
-
     match /workspaces/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read, write: if isAdmin() && userId == 'rr-reparacao-principal';
-    }
-
-    match /public_orcamentos/{shareId} {
-      allow read: if true;
-      allow create, update, delete: if request.auth != null
-        && (request.resource.data.ownerUid == request.auth.uid || isAdmin());
     }
   }
 }

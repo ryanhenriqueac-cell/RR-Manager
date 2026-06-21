@@ -18,17 +18,11 @@ const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", 
 const SYNC_FLAG = "rr_firebase_loaded_user";
 const REMEMBER_KEY = "rr_firebase_remember";
 const config = window.firebaseConfig || {};
-const adminAccess = window.rrAdminAccess || {};
-const ADMIN_WORKSPACE_ID = adminAccess.workspaceId || "rr-reparacao-principal";
-const ADMIN_EMAILS = Array.isArray(adminAccess.adminEmails)
-  ? adminAccess.adminEmails.map((email) => normalizeEmail(email)).filter(Boolean)
-  : [];
 const configReady = Boolean(config.apiKey && config.apiKey !== "COLE_AQUI" && config.projectId && config.projectId !== "COLE_AQUI");
 
 let auth;
 let db;
 let currentUser = null;
-let activeWorkspaceId = null;
 let saveTimer = null;
 let cloudReady = false;
 let syncingFromCloud = false;
@@ -52,7 +46,6 @@ if (!configReady) {
 
     if (!user) {
       sessionStorage.removeItem(SYNC_FLAG);
-      activeWorkspaceId = null;
       setAppLocked(true);
       setUserStatus("");
       return;
@@ -60,13 +53,12 @@ if (!configReady) {
 
     setUserStatus(user.email);
     setAppLocked(false);
-    activeWorkspaceId = getWorkspaceId(user);
-    await loadCloudData(activeWorkspaceId);
+    await loadCloudData(user.uid);
     cloudReady = true;
     window.rrFirebaseReady = true;
 
-    if (sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId) {
-      sessionStorage.setItem(SYNC_FLAG, activeWorkspaceId);
+    if (sessionStorage.getItem(SYNC_FLAG) !== user.uid) {
+      sessionStorage.setItem(SYNC_FLAG, user.uid);
       window.location.reload();
     }
   });
@@ -80,8 +72,7 @@ window.rrPublishPublicOrcamento = async (data) => {
   if (!currentUser || !db) throw new Error("Login indisponível para publicar orçamento.");
   const id = createPublicShareId();
   await setDoc(doc(db, "public_orcamentos", id), {
-    owner: activeWorkspaceId || currentUser.uid,
-    ownerUid: currentUser.uid,
+    owner: currentUser.uid,
     createdAt: serverTimestamp(),
     data
   });
@@ -215,33 +206,19 @@ async function loadCloudData(uid) {
 }
 
 async function saveCloudData() {
-  if (!currentUser || !db || !activeWorkspaceId) return;
+  if (!currentUser || !db) return;
 
   const data = {};
   APP_KEYS.forEach((key) => {
     data[key] = JSON.parse(localStorage.getItem(key)) || [];
   });
 
-  await setDoc(doc(db, "workspaces", activeWorkspaceId), {
-    owner: activeWorkspaceId,
-    ownerUid: currentUser.uid,
+  await setDoc(doc(db, "workspaces", currentUser.uid), {
+    owner: currentUser.uid,
     ownerEmail: currentUser.email,
-    adminWorkspace: isAdminUser(currentUser),
     updatedAt: serverTimestamp(),
     data
   }, { merge: true });
-}
-
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
-}
-
-function isAdminUser(user) {
-  return ADMIN_EMAILS.includes(normalizeEmail(user?.email));
-}
-
-function getWorkspaceId(user) {
-  return isAdminUser(user) ? ADMIN_WORKSPACE_ID : user.uid;
 }
 
 function patchLocalStorageSync() {
@@ -266,8 +243,7 @@ function setAppLocked(locked) {
 
 function setUserStatus(email) {
   const status = document.getElementById("firebaseUserStatus");
-  const adminLabel = currentUser && isAdminUser(currentUser) ? " Admin" : "";
-  if (status) status.textContent = email ? `Status: Online${adminLabel}` : "";
+  if (status) status.textContent = email ? "Status: Online" : "";
   document.body.classList.toggle("firebase-logged-in", Boolean(email));
 }
 
