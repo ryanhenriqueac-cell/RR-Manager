@@ -106,8 +106,8 @@ if (!configReady) {
         pendingAuthModal = {
           title: isPending ? "Acesso em análise" : "Acesso bloqueado",
           message: isPending
-            ? "Seu cadastro foi recebido e ainda precisa ser liberado pela RR Reparação. Aguarde a confirmação para entrar no sistema."
-            : "Seu acesso está bloqueado no momento. Entre em contato com a RR Reparação para regularizar ou solicitar a liberação."
+            ? "Seu cadastro foi recebido e ainda precisa ser liberado pelo RR Manager. Aguarde a confirmação para entrar no sistema."
+            : "Seu acesso está bloqueado no momento. Entre em contato com o RR Manager para regularizar ou solicitar a liberação."
         };
         await signOut(auth);
         return;
