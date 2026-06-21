@@ -198,11 +198,17 @@ function buildAuthShell() {
           </label>
           <label>
             <span>Senha *</span>
-            <input id="registerPassword" type="password" placeholder="Crie uma senha (mínimo de 8 dígitos)" autocomplete="new-password" required>
+            <div class="password-field">
+              <input id="registerPassword" type="password" placeholder="Crie uma senha (mínimo de 8 dígitos)" autocomplete="new-password" required>
+              <button type="button" class="toggle-password" data-password-target="registerPassword" aria-label="Mostrar senha" title="Mostrar senha">&#128065;</button>
+            </div>
           </label>
           <label>
             <span>Confirme a senha *</span>
-            <input id="registerPasswordConfirm" type="password" placeholder="Confirme a senha" autocomplete="new-password" required>
+            <div class="password-field">
+              <input id="registerPasswordConfirm" type="password" placeholder="Confirme a senha" autocomplete="new-password" required>
+              <button type="button" class="toggle-password" data-password-target="registerPasswordConfirm" aria-label="Mostrar senha" title="Mostrar senha">&#128065;</button>
+            </div>
           </label>
         </div>
         <div class="auth-register-actions">
@@ -263,7 +269,10 @@ function bindAuthEvents() {
   document.getElementById("firebaseLogout").addEventListener("click", () => signOut(auth));
   document.getElementById("firebaseAdminLogout").addEventListener("click", () => signOut(auth));
   document.getElementById("firebaseAdminBack").addEventListener("click", backToAdminDashboard);
-  document.getElementById("toggleFirebasePassword").addEventListener("click", togglePasswordVisibility);
+  document.getElementById("toggleFirebasePassword").addEventListener("click", () => togglePasswordVisibility("firebasePassword", "toggleFirebasePassword"));
+  document.querySelectorAll("[data-password-target]").forEach((button) => {
+    button.addEventListener("click", () => togglePasswordVisibility(button.dataset.passwordTarget, null, button));
+  });
   document.querySelectorAll("input[name='registerDocType']").forEach((input) => {
     input.addEventListener("change", updateRegisterDocumentPlaceholder);
   });
@@ -381,9 +390,10 @@ function saveRememberedLogin(email, password) {
   localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email, password }));
 }
 
-function togglePasswordVisibility() {
-  const password = document.getElementById("firebasePassword");
-  const button = document.getElementById("toggleFirebasePassword");
+function togglePasswordVisibility(inputId = "firebasePassword", buttonId = "toggleFirebasePassword", buttonElement = null) {
+  const password = document.getElementById(inputId);
+  const button = buttonElement || document.getElementById(buttonId);
+  if (!password || !button) return;
   const visible = password.type === "text";
   password.type = visible ? "password" : "text";
   button.innerHTML = visible ? "&#128065;" : "&#9679;";
