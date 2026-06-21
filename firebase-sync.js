@@ -35,6 +35,7 @@ let activeWorkspaceEmail = "";
 let saveTimer = null;
 let cloudReady = false;
 let syncingFromCloud = false;
+let adminWorkspaces = [];
 window.rrFirebaseReady = false;
 
 buildAuthShell();
@@ -145,6 +146,7 @@ function buildAuthShell() {
           <p>Escolha um cadastro para abrir o sistema completo.</p>
         </div>
       </div>
+      <input id="firebaseAdminSearch" class="admin-search" type="search" placeholder="Buscar por e-mail" autocomplete="off">
       <div id="firebaseAdminMessage" class="admin-message"></div>
       <div id="firebaseAdminList" class="admin-workspace-list"></div>
       <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
@@ -294,43 +296,67 @@ async function renderAdminDashboard() {
   if (!isAdminUser(currentUser)) return;
   const list = document.getElementById("firebaseAdminList");
   const message = document.getElementById("firebaseAdminMessage");
+  const search = document.getElementById("firebaseAdminSearch");
   if (!list || !message) return;
 
   message.textContent = "Carregando cadastros...";
   list.innerHTML = "";
+  if (search) search.value = "";
 
   try {
     const snap = await getDocs(collection(db, "workspaces"));
-    const workspaces = dedupeWorkspaces(snap.docs
+    adminWorkspaces = dedupeWorkspaces(snap.docs
       .map((item) => ({ id: item.id, ...(item.data() || {}) }))
       .filter((item) => item.ownerEmail || item.ownerUid || item.owner)
       .filter((item) => !ADMIN_EMAILS.includes(normalizeEmail(item.ownerEmail)))
       .sort((a, b) => String(a.ownerEmail || a.id).localeCompare(String(b.ownerEmail || b.id))));
 
-    if (!workspaces.length) {
-      message.textContent = "Nenhum cadastro encontrado ainda.";
-      return;
-    }
-
-    message.textContent = `${workspaces.length} cadastro(s) encontrado(s).`;
-    list.innerHTML = workspaces.map((workspace) => {
-      const email = workspace.ownerEmail || "Sem e-mail salvo";
-      const clientes = Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0;
-      const orcamentos = Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0;
-      return `
-        <button class="admin-workspace-item" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
-          <strong>${escapeHtml(email)}</strong>
-          <span>${clientes} clientes | ${orcamentos} orçamentos</span>
-        </button>
-      `;
-    }).join("");
-
-    list.querySelectorAll("[data-workspace-id]").forEach((button) => {
-      button.addEventListener("click", () => openAdminWorkspace(button.dataset.workspaceId, button.dataset.workspaceEmail));
-    });
+    renderAdminWorkspaceList();
+    if (search) search.oninput = renderAdminWorkspaceList;
   } catch (error) {
     message.textContent = firebaseError(error);
   }
+}
+
+function renderAdminWorkspaceList() {
+  const list = document.getElementById("firebaseAdminList");
+  const message = document.getElementById("firebaseAdminMessage");
+  const search = document.getElementById("firebaseAdminSearch");
+  if (!list || !message) return;
+
+  const query = normalizeEmail(search?.value || "");
+  const filtered = adminWorkspaces.filter((workspace) => normalizeEmail(workspace.ownerEmail || workspace.id).includes(query));
+
+  if (!adminWorkspaces.length) {
+    message.textContent = "Nenhum cadastro encontrado ainda.";
+    list.innerHTML = "";
+    return;
+  }
+
+  message.textContent = query
+    ? `${filtered.length} de ${adminWorkspaces.length} cadastro(s) encontrado(s).`
+    : `${adminWorkspaces.length} cadastro(s) encontrado(s).`;
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="admin-empty">Nenhum e-mail encontrado para essa busca.</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((workspace) => {
+    const email = workspace.ownerEmail || "Sem e-mail salvo";
+    const clientes = Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0;
+    const orcamentos = Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0;
+    return `
+      <button class="admin-workspace-item" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
+        <strong>${escapeHtml(email)}</strong>
+        <span>${clientes} clientes | ${orcamentos} orçamentos</span>
+      </button>
+    `;
+  }).join("");
+
+  list.querySelectorAll("[data-workspace-id]").forEach((button) => {
+    button.addEventListener("click", () => openAdminWorkspace(button.dataset.workspaceId, button.dataset.workspaceEmail));
+  });
 }
 
 function getWorkspaceDataScore(workspace) {
