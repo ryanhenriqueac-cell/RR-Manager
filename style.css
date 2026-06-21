@@ -1294,6 +1294,21 @@ td {
   text-overflow: ellipsis;
 }
 
+.admin-workspace-open .admin-workspace-identity {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  color: var(--text);
+  white-space: normal;
+}
+
+.admin-workspace-identity small {
+  overflow: hidden;
+  color: var(--muted);
+  font-weight: 800;
+  text-overflow: ellipsis;
+}
+
 .admin-workspace-open span {
   color: var(--muted);
   font-weight: 800;

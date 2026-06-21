@@ -180,6 +180,10 @@ function buildAuthShell() {
             <input id="registerName" type="text" placeholder="Digite seu nome completo" autocomplete="name">
           </label>
           <label>
+            <span>Nome da empresa *</span>
+            <input id="registerBusinessName" type="text" placeholder="Digite o nome da empresa" autocomplete="organization" required>
+          </label>
+          <label>
             <span>E-mail *</span>
             <input id="registerEmail" type="email" placeholder="Digite seu e-mail" autocomplete="email" required>
           </label>
@@ -237,7 +241,7 @@ function buildAuthShell() {
           <p>Escolha um cadastro para abrir o sistema completo.</p>
         </div>
       </div>
-      <input id="firebaseAdminSearch" class="admin-search" type="search" placeholder="Buscar por e-mail" autocomplete="off">
+      <input id="firebaseAdminSearch" class="admin-search" type="search" placeholder="Buscar por e-mail ou empresa" autocomplete="off">
       <div id="firebaseAdminMessage" class="admin-message"></div>
       <div id="firebaseAdminList" class="admin-workspace-list"></div>
       <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
@@ -327,12 +331,17 @@ function updateRegisterDocumentPlaceholder() {
 async function submitAccessRequest() {
   const emailInput = document.getElementById("registerEmail");
   const email = normalizeEmail(emailInput.value);
+  const businessName = document.getElementById("registerBusinessName").value.trim();
   const password = document.getElementById("registerPassword").value;
   const passwordConfirm = document.getElementById("registerPasswordConfirm").value;
   try {
     emailInput.value = email;
     if (!email) {
       showAuthMessage("Informe um e-mail para criar o acesso.");
+      return;
+    }
+    if (!businessName) {
+      showAuthMessage("Informe o nome da empresa para identificar o cadastro.");
       return;
     }
     if (!password || password.length < 8) {
@@ -451,8 +460,10 @@ async function saveAccessRequest(user) {
     owner: user.uid,
     ownerUid: user.uid,
     ownerEmail: user.email,
+    businessName: document.getElementById("registerBusinessName").value.trim(),
     accessStatus: ACCESS_STATUS.PENDING,
     registration: {
+      empresa: document.getElementById("registerBusinessName").value.trim(),
       nome: document.getElementById("registerName").value.trim(),
       telefone: document.getElementById("registerPhone").value.trim(),
       documentoTipo: docType,
@@ -562,7 +573,10 @@ function renderAdminWorkspaceList() {
   if (!list || !message) return;
 
   const query = normalizeEmail(search?.value || "");
-  const filtered = adminWorkspaces.filter((workspace) => normalizeEmail(workspace.ownerEmail || workspace.id).includes(query));
+  const filtered = adminWorkspaces.filter((workspace) => {
+    const businessName = workspace.businessName || workspace.registration?.empresa || "";
+    return normalizeEmail(`${workspace.ownerEmail || workspace.id} ${businessName}`).includes(query);
+  });
 
   if (!adminWorkspaces.length) {
     message.textContent = "Nenhum cadastro encontrado ainda.";
@@ -575,12 +589,13 @@ function renderAdminWorkspaceList() {
     : `${adminWorkspaces.length} cadastro(s) encontrado(s).`;
 
   if (!filtered.length) {
-    list.innerHTML = `<div class="admin-empty">Nenhum e-mail encontrado para essa busca.</div>`;
+    list.innerHTML = `<div class="admin-empty">Nenhum cadastro encontrado para essa busca.</div>`;
     return;
   }
 
   list.innerHTML = filtered.map((workspace) => {
     const email = workspace.ownerEmail || "Sem e-mail salvo";
+    const businessName = workspace.businessName || workspace.registration?.empresa || "";
     const clientes = Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0;
     const orcamentos = Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0;
     const accessStatus = workspace.accessStatus || ACCESS_STATUS.ACTIVE;
@@ -588,7 +603,10 @@ function renderAdminWorkspaceList() {
     return `
       <div class="admin-workspace-item">
         <button class="admin-workspace-open" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
-          <strong>${escapeHtml(email)}</strong>
+          <span class="admin-workspace-identity">
+            ${businessName ? `<strong>${escapeHtml(businessName)}</strong>` : ""}
+            <small>${escapeHtml(email)}</small>
+          </span>
           <span>${clientes} clientes | ${orcamentos} orçamentos</span>
         </button>
         <div class="admin-access-row">
