@@ -6,3 +6,9 @@ window.firebaseConfig = {
   messagingSenderId: "802685910397",
   appId: "1:802685910397:web:a40ac971bd941a3c40a014"
 };
+
+window.rrAdminAccess = {
+  adminEmails: [
+    "admin@rrreparacao.com.br"
+  ]
+};

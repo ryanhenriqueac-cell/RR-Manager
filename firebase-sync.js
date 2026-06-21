@@ -7,8 +7,10 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import {
+  collection,
   doc,
   getDoc,
+  getDocs,
   getFirestore,
   serverTimestamp,
   setDoc
@@ -17,12 +19,19 @@ import {
 const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro"];
 const SYNC_FLAG = "rr_firebase_loaded_user";
 const REMEMBER_KEY = "rr_firebase_remember";
+const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
 const config = window.firebaseConfig || {};
+const adminAccess = window.rrAdminAccess || {};
+const ADMIN_EMAILS = Array.isArray(adminAccess.adminEmails)
+  ? adminAccess.adminEmails.map((email) => normalizeEmail(email)).filter(Boolean)
+  : [];
 const configReady = Boolean(config.apiKey && config.apiKey !== "COLE_AQUI" && config.projectId && config.projectId !== "COLE_AQUI");
 
 let auth;
 let db;
 let currentUser = null;
+let activeWorkspaceId = null;
+let activeWorkspaceEmail = "";
 let saveTimer = null;
 let cloudReady = false;
 let syncingFromCloud = false;
@@ -46,19 +55,36 @@ if (!configReady) {
 
     if (!user) {
       sessionStorage.removeItem(SYNC_FLAG);
+      sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
+      activeWorkspaceId = null;
+      activeWorkspaceEmail = "";
       setAppLocked(true);
+      setAdminSelecting(false);
       setUserStatus("");
       return;
     }
 
+    activeWorkspaceId = getWorkspaceId(user);
+    activeWorkspaceEmail = "";
+
+    if (isAdminUser(user) && !activeWorkspaceId) {
+      setAppLocked(false);
+      setAdminSelecting(true);
+      setUserStatus(user.email);
+      await renderAdminDashboard();
+      return;
+    }
+
+    setAdminSelecting(false);
     setUserStatus(user.email);
     setAppLocked(false);
-    await loadCloudData(user.uid);
+    await loadCloudData(activeWorkspaceId);
+    setUserStatus(user.email);
     cloudReady = true;
     window.rrFirebaseReady = true;
 
-    if (sessionStorage.getItem(SYNC_FLAG) !== user.uid) {
-      sessionStorage.setItem(SYNC_FLAG, user.uid);
+    if (sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId) {
+      sessionStorage.setItem(SYNC_FLAG, activeWorkspaceId);
       window.location.reload();
     }
   });
@@ -72,7 +98,8 @@ window.rrPublishPublicOrcamento = async (data) => {
   if (!currentUser || !db) throw new Error("Login indisponível para publicar orçamento.");
   const id = createPublicShareId();
   await setDoc(doc(db, "public_orcamentos", id), {
-    owner: currentUser.uid,
+    owner: activeWorkspaceId || currentUser.uid,
+    ownerUid: currentUser.uid,
     createdAt: serverTimestamp(),
     data
   });
@@ -106,10 +133,30 @@ function buildAuthShell() {
   document.body.appendChild(shell);
   hydrateRememberedLogin();
 
+  const adminShell = document.createElement("div");
+  adminShell.id = "firebaseAdminShell";
+  adminShell.innerHTML = `
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <img src="assets/logo-rr.png" alt="RR ReparaÃ§Ã£o Automotiva">
+        <div>
+          <span>Admin RR</span>
+          <h1>Painel de acessos</h1>
+          <p>Escolha um cadastro para abrir o sistema completo.</p>
+        </div>
+      </div>
+      <div id="firebaseAdminMessage" class="admin-message"></div>
+      <div id="firebaseAdminList" class="admin-workspace-list"></div>
+      <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
+    </div>
+  `;
+  document.body.appendChild(adminShell);
+
   const bar = document.createElement("div");
   bar.id = "firebaseUserBar";
   bar.innerHTML = `
     <span id="firebaseUserStatus"></span>
+    <button class="btn btn-muted" type="button" id="firebaseAdminBack" hidden>Admin</button>
     <button class="btn btn-muted" type="button" id="firebaseLogout">Sair</button>
   `;
   document.body.appendChild(bar);
@@ -123,6 +170,8 @@ function bindAuthEvents() {
 
   document.getElementById("firebaseCreateAccount").addEventListener("click", createAccount);
   document.getElementById("firebaseLogout").addEventListener("click", () => signOut(auth));
+  document.getElementById("firebaseAdminLogout").addEventListener("click", () => signOut(auth));
+  document.getElementById("firebaseAdminBack").addEventListener("click", backToAdminDashboard);
   document.getElementById("toggleFirebasePassword").addEventListener("click", togglePasswordVisibility);
 }
 
@@ -143,7 +192,10 @@ async function createAccount() {
   const password = document.getElementById("firebasePassword").value;
   try {
     showAuthMessage("Criando acesso...");
-    await createUserWithEmailAndPassword(auth, email, password);
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
+    currentUser = credential.user;
+    activeWorkspaceId = getWorkspaceId(currentUser) || currentUser.uid;
+    activeWorkspaceEmail = currentUser.email;
     saveRememberedLogin(email, password);
     await saveCloudData();
   } catch (error) {
@@ -192,7 +244,9 @@ async function loadCloudData(uid) {
       return;
     }
 
-    const data = snap.data().data || {};
+    const cloudData = snap.data() || {};
+    activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
+    const data = cloudData.data || {};
     syncingFromCloud = true;
     APP_KEYS.forEach((key) => {
       localStorage.setItem(key, JSON.stringify(Array.isArray(data[key]) ? data[key] : []));
@@ -206,19 +260,105 @@ async function loadCloudData(uid) {
 }
 
 async function saveCloudData() {
-  if (!currentUser || !db) return;
+  if (!currentUser || !db || !activeWorkspaceId) return;
 
   const data = {};
   APP_KEYS.forEach((key) => {
     data[key] = JSON.parse(localStorage.getItem(key)) || [];
   });
 
-  await setDoc(doc(db, "workspaces", currentUser.uid), {
-    owner: currentUser.uid,
-    ownerEmail: currentUser.email,
+  await setDoc(doc(db, "workspaces", activeWorkspaceId), {
+    owner: activeWorkspaceId,
+    ownerUid: currentUser.uid,
+    ownerEmail: activeWorkspaceEmail || currentUser.email,
+    activeByAdmin: isAdminUser(currentUser),
     updatedAt: serverTimestamp(),
     data
   }, { merge: true });
+}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function isAdminUser(user) {
+  return ADMIN_EMAILS.includes(normalizeEmail(user?.email));
+}
+
+function getWorkspaceId(user) {
+  if (!isAdminUser(user)) return user.uid;
+  return sessionStorage.getItem(ADMIN_WORKSPACE_KEY) || "";
+}
+
+async function renderAdminDashboard() {
+  if (!isAdminUser(currentUser)) return;
+  const list = document.getElementById("firebaseAdminList");
+  const message = document.getElementById("firebaseAdminMessage");
+  if (!list || !message) return;
+
+  message.textContent = "Carregando cadastros...";
+  list.innerHTML = "";
+
+  try {
+    const snap = await getDocs(collection(db, "workspaces"));
+    const workspaces = snap.docs
+      .map((item) => ({ id: item.id, ...(item.data() || {}) }))
+      .filter((item) => item.ownerEmail || item.ownerUid || item.owner)
+      .sort((a, b) => String(a.ownerEmail || a.id).localeCompare(String(b.ownerEmail || b.id)));
+
+    if (!workspaces.length) {
+      message.textContent = "Nenhum cadastro encontrado ainda.";
+      return;
+    }
+
+    message.textContent = `${workspaces.length} cadastro(s) encontrado(s).`;
+    list.innerHTML = workspaces.map((workspace) => {
+      const email = workspace.ownerEmail || "Sem e-mail salvo";
+      const clientes = Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0;
+      const orcamentos = Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0;
+      return `
+        <button class="admin-workspace-item" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
+          <strong>${escapeHtml(email)}</strong>
+          <span>${clientes} clientes | ${orcamentos} orÃ§amentos</span>
+        </button>
+      `;
+    }).join("");
+
+    list.querySelectorAll("[data-workspace-id]").forEach((button) => {
+      button.addEventListener("click", () => openAdminWorkspace(button.dataset.workspaceId, button.dataset.workspaceEmail));
+    });
+  } catch (error) {
+    message.textContent = firebaseError(error);
+  }
+}
+
+async function openAdminWorkspace(workspaceId, workspaceEmail = "") {
+  activeWorkspaceId = workspaceId;
+  activeWorkspaceEmail = workspaceEmail;
+  sessionStorage.setItem(ADMIN_WORKSPACE_KEY, workspaceId);
+  sessionStorage.removeItem(SYNC_FLAG);
+  setAdminSelecting(false);
+  await loadCloudData(workspaceId);
+  cloudReady = true;
+  window.rrFirebaseReady = true;
+  window.location.reload();
+}
+
+function backToAdminDashboard() {
+  if (!isAdminUser(currentUser)) return;
+  sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
+  sessionStorage.removeItem(SYNC_FLAG);
+  window.location.reload();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  }[char]));
 }
 
 function patchLocalStorageSync() {
@@ -241,9 +381,19 @@ function setAppLocked(locked) {
   document.body.classList.toggle("auth-ready", !locked);
 }
 
+function setAdminSelecting(selecting) {
+  document.body.classList.toggle("admin-selecting", selecting);
+}
+
 function setUserStatus(email) {
   const status = document.getElementById("firebaseUserStatus");
-  if (status) status.textContent = email ? "Status: Online" : "";
+  const adminBack = document.getElementById("firebaseAdminBack");
+  const adminViewing = currentUser && isAdminUser(currentUser) && activeWorkspaceId;
+  if (status) {
+    const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId}` : "Status: Online";
+    status.textContent = email ? detail : "";
+  }
+  if (adminBack) adminBack.hidden = !adminViewing;
   document.body.classList.toggle("firebase-logged-in", Boolean(email));
 }
 
