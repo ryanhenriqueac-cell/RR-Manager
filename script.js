@@ -762,7 +762,7 @@ async function askInstallments(type) {
   return rrModal({
     title: `Parcelas - ${config.label}`,
     eyebrow: "Pagamento",
-    message: modalList(Object.entries(config.installments).map(([parcelas, taxa]) => `<strong>${parcelas}x</strong><span>${String(taxa).replace(".", ",")}% de taxa</span>`)),
+    message: `<p>Escolha em quantas vezes o cliente vai pagar.</p>`,
     options
   });
 }
