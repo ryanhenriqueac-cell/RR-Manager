@@ -604,7 +604,7 @@ function emptyRow(colspan, message) {
   return `<tr><td colspan="${colspan}" class="muted">${message}</td></tr>`;
 }
 
-function rrModal({ title, message = "", eyebrow = "RR Reparação", options = [] }) {
+function rrModal({ title, message = "", eyebrow = "RR Manager", options = [] }) {
   return new Promise((resolve) => {
     const previousActiveElement = document.activeElement;
     const overlay = document.createElement("div");
@@ -613,7 +613,7 @@ function rrModal({ title, message = "", eyebrow = "RR Reparação", options = []
     overlay.innerHTML = `
       <div class="rr-modal" role="dialog" aria-modal="true" aria-labelledby="rrModalTitle">
         <div class="rr-modal-header">
-          <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
+          <img src="assets/logo-rr-manager.png" alt="RR Manager">
           <div>
             <span>${escapeHtml(eyebrow)}</span>
             <h2 id="rrModalTitle">${escapeHtml(title)}</h2>

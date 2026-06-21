@@ -157,8 +157,8 @@ function buildAuthShell() {
   shell.id = "firebaseAuthShell";
   shell.innerHTML = `
     <div class="auth-card">
-      <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
-      <h1>${isRegisterPage ? "Criar acesso" : "RR Reparação Manager"}</h1>
+      <img src="assets/logo-rr-manager.png" alt="RR Manager">
+      <h1>${isRegisterPage ? "Criar acesso" : "RR Manager"}</h1>
       <p>${isRegisterPage ? "Preencha seu cadastro para solicitar a liberação do RR Manager." : "Entre para sincronizar clientes, orçamentos e financeiro na nuvem."}</p>
       <form id="firebaseLoginForm" ${isRegisterPage ? "hidden" : ""}>
         <input id="firebaseEmail" type="email" placeholder="E-mail" autocomplete="email" required>
@@ -230,7 +230,7 @@ function buildAuthShell() {
   adminShell.innerHTML = `
     <div class="admin-card">
       <div class="admin-card-header">
-        <img src="assets/logo-rr.png" alt="RR ReparaÃ§Ã£o Automotiva">
+        <img src="assets/logo-rr-manager.png" alt="RR Manager">
         <div>
           <span>Admin RR</span>
           <h1>Painel de acessos</h1>
@@ -476,7 +476,7 @@ function showAuthStatusModal(title, message) {
     overlay.className = "auth-modal-overlay";
     overlay.innerHTML = `
       <div class="auth-modal">
-        <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
+        <img src="assets/logo-rr-manager.png" alt="RR Manager">
         <h2>${escapeHtml(title)}</h2>
         <p>${escapeHtml(message)}</p>
         <button class="btn btn-primary" type="button">OK</button>
@@ -496,7 +496,7 @@ function showAuthConfirmModal(title, message) {
     overlay.className = "auth-modal-overlay";
     overlay.innerHTML = `
       <div class="auth-modal">
-        <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
+        <img src="assets/logo-rr-manager.png" alt="RR Manager">
         <h2>${escapeHtml(title)}</h2>
         <p>${escapeHtml(message)}</p>
         <div class="auth-modal-actions">
