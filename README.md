@@ -65,7 +65,13 @@ service cloud.firestore {
     }
 
     match /workspaces/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.accessStatus == 'pending';
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.accessStatus == resource.data.accessStatus;
       allow read, write: if isAdmin();
     }
 

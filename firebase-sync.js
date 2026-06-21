@@ -21,6 +21,11 @@ const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", 
 const SYNC_FLAG = "rr_firebase_loaded_user";
 const REMEMBER_KEY = "rr_firebase_remember";
 const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
+const ACCESS_STATUS = {
+  PENDING: "pending",
+  ACTIVE: "active",
+  BLOCKED: "blocked"
+};
 const config = window.firebaseConfig || {};
 const adminAccess = window.rrAdminAccess || {};
 const ADMIN_EMAILS = Array.isArray(adminAccess.adminEmails)
@@ -37,6 +42,8 @@ let saveTimer = null;
 let cloudReady = false;
 let syncingFromCloud = false;
 let adminWorkspaces = [];
+let pendingAuthMessage = "";
+let creatingAccessRequest = false;
 window.rrFirebaseReady = false;
 
 buildAuthShell();
@@ -63,8 +70,14 @@ if (!configReady) {
       setAppLocked(true);
       setAdminSelecting(false);
       setUserStatus("");
+      if (pendingAuthMessage) {
+        showAuthMessage(pendingAuthMessage);
+        pendingAuthMessage = "";
+      }
       return;
     }
+
+    if (creatingAccessRequest) return;
 
     activeWorkspaceId = getWorkspaceId(user);
     activeWorkspaceEmail = "";
@@ -75,6 +88,17 @@ if (!configReady) {
       setUserStatus(user.email);
       await renderAdminDashboard();
       return;
+    }
+
+    if (!isAdminUser(user)) {
+      const accessStatus = await getWorkspaceAccessStatus(activeWorkspaceId);
+      if (accessStatus === ACCESS_STATUS.PENDING || accessStatus === ACCESS_STATUS.BLOCKED) {
+        pendingAuthMessage = accessStatus === ACCESS_STATUS.PENDING
+          ? "Cadastro concluído. Seu acesso está em análise para confirmação."
+          : "Seu acesso está bloqueado. Fale com o administrador.";
+        await signOut(auth);
+        return;
+      }
     }
 
     setAdminSelecting(false);
@@ -129,6 +153,44 @@ function buildAuthShell() {
         <button class="btn btn-primary" type="submit">Entrar</button>
         <button class="btn btn-muted" type="button" id="firebaseCreateAccount">Criar acesso</button>
       </form>
+      <form id="firebaseRegisterForm" class="auth-register-form" hidden>
+        <div class="auth-register-grid">
+          <label>
+            <span>Nome completo</span>
+            <input id="registerName" type="text" placeholder="Digite seu nome completo" autocomplete="name">
+          </label>
+          <label>
+            <span>E-mail *</span>
+            <input id="registerEmail" type="email" placeholder="Digite seu e-mail" autocomplete="email" required>
+          </label>
+          <label>
+            <span>Telefone</span>
+            <input id="registerPhone" type="tel" placeholder="Telefone" autocomplete="tel">
+            <small>Ex.: (31) 99999-9999</small>
+          </label>
+          <label>
+            <span>Documento</span>
+            <div class="document-options">
+              <label><input id="registerDocCpf" type="radio" name="registerDocType" value="CPF" checked> CPF</label>
+              <label><input type="radio" name="registerDocType" value="CNPJ"> CNPJ</label>
+            </div>
+            <input id="registerDocument" type="text" placeholder="Digite seu CPF">
+            <small>Escolha CPF ou CNPJ acima e informe apenas números.</small>
+          </label>
+          <label>
+            <span>Senha *</span>
+            <input id="registerPassword" type="password" placeholder="Crie uma senha (mínimo de 8 dígitos)" autocomplete="new-password" required>
+          </label>
+          <label>
+            <span>Confirme a senha *</span>
+            <input id="registerPasswordConfirm" type="password" placeholder="Confirme a senha" autocomplete="new-password" required>
+          </label>
+        </div>
+        <div class="auth-register-actions">
+          <button class="btn btn-muted" type="button" id="firebaseBackToLogin">Voltar</button>
+          <button class="btn btn-primary" type="submit">Salvar cadastro</button>
+        </div>
+      </form>
       <span id="firebaseAuthMessage"></span>
     </div>
   `;
@@ -170,12 +232,20 @@ function bindAuthEvents() {
     event.preventDefault();
     await login();
   });
+  document.getElementById("firebaseRegisterForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await submitAccessRequest();
+  });
 
-  document.getElementById("firebaseCreateAccount").addEventListener("click", createAccount);
+  document.getElementById("firebaseCreateAccount").addEventListener("click", showRegisterForm);
+  document.getElementById("firebaseBackToLogin").addEventListener("click", showLoginForm);
   document.getElementById("firebaseLogout").addEventListener("click", () => signOut(auth));
   document.getElementById("firebaseAdminLogout").addEventListener("click", () => signOut(auth));
   document.getElementById("firebaseAdminBack").addEventListener("click", backToAdminDashboard);
   document.getElementById("toggleFirebasePassword").addEventListener("click", togglePasswordVisibility);
+  document.querySelectorAll("input[name='registerDocType']").forEach((input) => {
+    input.addEventListener("change", updateRegisterDocumentPlaceholder);
+  });
 }
 
 async function login() {
@@ -192,30 +262,69 @@ async function login() {
   }
 }
 
-async function createAccount() {
-  const emailInput = document.getElementById("firebaseEmail");
-  const email = normalizeEmail(emailInput.value);
+function showRegisterForm() {
+  const email = normalizeEmail(document.getElementById("firebaseEmail").value);
   const password = document.getElementById("firebasePassword").value;
+  document.getElementById("registerEmail").value = email;
+  document.getElementById("registerPassword").value = password;
+  document.getElementById("registerPasswordConfirm").value = password;
+  document.getElementById("firebaseLoginForm").hidden = true;
+  document.getElementById("firebaseRegisterForm").hidden = false;
+  document.body.classList.add("auth-registering");
+  showAuthMessage("");
+}
+
+function showLoginForm() {
+  document.getElementById("firebaseRegisterForm").hidden = true;
+  document.getElementById("firebaseLoginForm").hidden = false;
+  document.body.classList.remove("auth-registering");
+  showAuthMessage("");
+}
+
+function updateRegisterDocumentPlaceholder() {
+  const type = document.querySelector("input[name='registerDocType']:checked")?.value || "CPF";
+  document.getElementById("registerDocument").placeholder = `Digite seu ${type}`;
+}
+
+async function submitAccessRequest() {
+  const emailInput = document.getElementById("registerEmail");
+  const email = normalizeEmail(emailInput.value);
+  const password = document.getElementById("registerPassword").value;
+  const passwordConfirm = document.getElementById("registerPasswordConfirm").value;
   try {
     emailInput.value = email;
     if (!email) {
       showAuthMessage("Informe um e-mail para criar o acesso.");
       return;
     }
-    showAuthMessage("Criando acesso...");
+    if (!password || password.length < 8) {
+      showAuthMessage("Crie uma senha com pelo menos 8 dígitos.");
+      return;
+    }
+    if (password !== passwordConfirm) {
+      showAuthMessage("A confirmação de senha não confere.");
+      return;
+    }
+    showAuthMessage("Enviando cadastro...");
     const existingMethods = await fetchSignInMethodsForEmail(auth, email);
     if (existingMethods.length) {
       showAuthMessage("Este e-mail já tem acesso. Use Entrar ou recupere a senha no Firebase.");
       return;
     }
+    creatingAccessRequest = true;
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     currentUser = credential.user;
-    activeWorkspaceId = getWorkspaceId(currentUser) || currentUser.uid;
+    activeWorkspaceId = currentUser.uid;
     activeWorkspaceEmail = currentUser.email;
-    saveRememberedLogin(email, password);
-    await saveCloudData();
+    await saveAccessRequest(credential.user);
+    pendingAuthMessage = "Cadastro concluído e enviado para análise. Aguarde a liberação do administrador.";
+    await signOut(auth);
+    showLoginForm();
+    await showAccessRequestModal();
   } catch (error) {
     showAuthMessage(firebaseError(error));
+  } finally {
+    creatingAccessRequest = false;
   }
 }
 
@@ -293,6 +402,51 @@ async function saveCloudData() {
   }, { merge: true });
 }
 
+async function saveAccessRequest(user) {
+  const docType = document.querySelector("input[name='registerDocType']:checked")?.value || "CPF";
+  await setDoc(doc(db, "workspaces", user.uid), {
+    owner: user.uid,
+    ownerUid: user.uid,
+    ownerEmail: user.email,
+    accessStatus: ACCESS_STATUS.PENDING,
+    registration: {
+      nome: document.getElementById("registerName").value.trim(),
+      telefone: document.getElementById("registerPhone").value.trim(),
+      documentoTipo: docType,
+      documento: document.getElementById("registerDocument").value.replace(/\D/g, ""),
+      solicitadoEm: new Date().toISOString()
+    },
+    updatedAt: serverTimestamp(),
+    data: APP_KEYS.reduce((acc, key) => ({ ...acc, [key]: [] }), {})
+  }, { merge: true });
+}
+
+async function getWorkspaceAccessStatus(workspaceId) {
+  const snap = await getDoc(doc(db, "workspaces", workspaceId));
+  if (!snap.exists()) return ACCESS_STATUS.ACTIVE;
+  return snap.data().accessStatus || ACCESS_STATUS.ACTIVE;
+}
+
+function showAccessRequestModal() {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "auth-modal-overlay";
+    overlay.innerHTML = `
+      <div class="auth-modal">
+        <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
+        <h2>Cadastro concluído</h2>
+        <p>Seu cadastro foi enviado e será analisado para confirmação de acesso.</p>
+        <button class="btn btn-primary" type="button">OK</button>
+      </div>
+    `;
+    overlay.querySelector("button").addEventListener("click", () => {
+      overlay.remove();
+      resolve();
+    });
+    document.body.appendChild(overlay);
+  });
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -360,17 +514,46 @@ function renderAdminWorkspaceList() {
     const email = workspace.ownerEmail || "Sem e-mail salvo";
     const clientes = Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0;
     const orcamentos = Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0;
+    const accessStatus = workspace.accessStatus || ACCESS_STATUS.ACTIVE;
+    const statusClass = accessStatus === ACCESS_STATUS.BLOCKED ? "is-blocked" : accessStatus === ACCESS_STATUS.PENDING ? "is-pending" : "is-active";
     return `
-      <button class="admin-workspace-item" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
-        <strong>${escapeHtml(email)}</strong>
-        <span>${clientes} clientes | ${orcamentos} orçamentos</span>
-      </button>
+      <div class="admin-workspace-item">
+        <button class="admin-workspace-open" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
+          <strong>${escapeHtml(email)}</strong>
+          <span>${clientes} clientes | ${orcamentos} orçamentos</span>
+        </button>
+        <div class="admin-access-row">
+          <span class="admin-access-status ${statusClass}">${getAccessStatusText(accessStatus)}</span>
+          <button class="btn btn-primary" type="button" data-access-action="${ACCESS_STATUS.ACTIVE}" data-workspace-id="${escapeHtml(workspace.id)}">Liberar acesso</button>
+          <button class="btn btn-danger" type="button" data-access-action="${ACCESS_STATUS.BLOCKED}" data-workspace-id="${escapeHtml(workspace.id)}">Bloquear acesso</button>
+        </div>
+      </div>
     `;
   }).join("");
 
-  list.querySelectorAll("[data-workspace-id]").forEach((button) => {
+  list.querySelectorAll(".admin-workspace-open").forEach((button) => {
     button.addEventListener("click", () => openAdminWorkspace(button.dataset.workspaceId, button.dataset.workspaceEmail));
   });
+  list.querySelectorAll("[data-access-action]").forEach((button) => {
+    button.addEventListener("click", () => updateWorkspaceAccess(button.dataset.workspaceId, button.dataset.accessAction));
+  });
+}
+
+function getAccessStatusText(status) {
+  if (status === ACCESS_STATUS.BLOCKED) return "Acesso bloqueado";
+  if (status === ACCESS_STATUS.PENDING) return "Aguardando análise";
+  return "Acesso liberado";
+}
+
+async function updateWorkspaceAccess(workspaceId, status) {
+  await setDoc(doc(db, "workspaces", workspaceId), {
+    accessStatus: status,
+    accessUpdatedAt: serverTimestamp(),
+    accessUpdatedBy: currentUser.email
+  }, { merge: true });
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  if (workspace) workspace.accessStatus = status;
+  renderAdminWorkspaceList();
 }
 
 function getWorkspaceDataScore(workspace) {

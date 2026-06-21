@@ -978,6 +978,11 @@ td {
   text-align: center;
 }
 
+.auth-registering .auth-card {
+  width: min(1060px, 100%);
+  text-align: left;
+}
+
 .auth-card img {
   width: 86px;
   height: 86px;
@@ -999,6 +1004,87 @@ td {
   display: grid;
   gap: 12px;
   margin-top: 18px;
+}
+
+.auth-register-form {
+  margin-top: 18px;
+}
+
+.auth-register-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 22px;
+}
+
+.auth-register-grid label {
+  display: grid;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.auth-register-grid small {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.document-options {
+  display: flex;
+  gap: 14px;
+  min-height: 24px;
+}
+
+.document-options label {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 7px;
+}
+
+.document-options input {
+  width: 16px;
+  min-height: 16px;
+  accent-color: var(--gold-2);
+}
+
+.auth-register-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 8, 16, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.auth-modal {
+  width: min(420px, 100%);
+  padding: 24px;
+  border: 1px solid rgba(215, 166, 58, 0.36);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(18, 36, 60, 0.98), rgba(7, 17, 31, 0.98));
+  color: var(--text);
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.auth-modal img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.auth-modal p {
+  color: var(--muted);
 }
 
 .password-field {
@@ -1164,35 +1250,71 @@ td {
 }
 
 .admin-workspace-item {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-workspace-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   width: 100%;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--text);
   font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.admin-workspace-item:hover {
+.admin-workspace-item:hover,
+.admin-workspace-open:hover {
   border-color: rgba(241, 199, 91, 0.58);
-  background: rgba(215, 166, 58, 0.08);
 }
 
-.admin-workspace-item strong {
+.admin-workspace-open strong {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.admin-workspace-item span {
+.admin-workspace-open span {
   color: var(--muted);
   font-weight: 800;
   white-space: nowrap;
+}
+
+.admin-access-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-access-status {
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.admin-access-status.is-active {
+  color: #46d783;
+}
+
+.admin-access-status.is-blocked {
+  color: #ff8f8f;
+}
+
+.admin-access-status.is-pending {
+  color: var(--gold-2);
 }
 
 .admin-empty {
@@ -2844,5 +2966,33 @@ td {
   #firebaseUserBar .btn {
     min-height: 34px;
     padding: 7px 12px;
+  }
+
+  .auth-card,
+  .auth-registering .auth-card,
+  .admin-card {
+    width: 100%;
+    max-height: calc(100vh - 36px);
+    padding: 18px;
+  }
+
+  .auth-register-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .auth-register-actions,
+  .admin-access-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-workspace-open {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-workspace-open span {
+    white-space: normal;
   }
 }
