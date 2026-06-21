@@ -559,7 +559,7 @@ async function sendOrcamentoWhatsApp(id) {
   const phone = getWhatsAppPhone(cliente?.telefone);
   if (!phone) {
     whatsappWindow?.close();
-    alert("Cadastre um telefone válido no cliente antes de enviar pelo WhatsApp.");
+    await rrAlert("Cadastre um telefone válido no cliente antes de enviar pelo WhatsApp.", "WhatsApp");
     return;
   }
 
@@ -578,7 +578,7 @@ async function sendOrcamentoWhatsApp(id) {
 
   if (!publicUrl) {
     whatsappWindow?.close();
-    alert(publicOrcamentoErrorMessage(publishError));
+    await rrAlert(publicOrcamentoErrorMessage(publishError), "Link do orçamento");
     return;
   }
 
@@ -602,6 +602,73 @@ function badgeClass(status) {
 
 function emptyRow(colspan, message) {
   return `<tr><td colspan="${colspan}" class="muted">${message}</td></tr>`;
+}
+
+function rrModal({ title, message = "", eyebrow = "RR Reparação", options = [] }) {
+  return new Promise((resolve) => {
+    const previousActiveElement = document.activeElement;
+    const overlay = document.createElement("div");
+    overlay.className = "rr-modal-overlay";
+    const buttons = options.length ? options : [{ label: "OK", value: true, variant: "primary" }];
+    overlay.innerHTML = `
+      <div class="rr-modal" role="dialog" aria-modal="true" aria-labelledby="rrModalTitle">
+        <div class="rr-modal-header">
+          <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
+          <div>
+            <span>${escapeHtml(eyebrow)}</span>
+            <h2 id="rrModalTitle">${escapeHtml(title)}</h2>
+          </div>
+        </div>
+        <div class="rr-modal-body">${message}</div>
+        <div class="rr-modal-actions">
+          ${buttons.map((option, index) => `<button class="btn ${option.variant === "danger" ? "btn-danger" : option.variant === "muted" ? "btn-muted" : "btn-primary"}" type="button" data-modal-option="${index}">${escapeHtml(option.label)}</button>`).join("")}
+        </div>
+      </div>
+    `;
+
+    const close = (value) => {
+      document.removeEventListener("keydown", onKeydown);
+      overlay.remove();
+      previousActiveElement?.focus?.();
+      resolve(value);
+    };
+    const onKeydown = (event) => {
+      if (event.key === "Escape") close(null);
+    };
+
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) close(null);
+    });
+    overlay.querySelectorAll("[data-modal-option]").forEach((button) => {
+      button.addEventListener("click", () => close(buttons[Number(button.dataset.modalOption)]?.value));
+    });
+    document.addEventListener("keydown", onKeydown);
+    document.body.appendChild(overlay);
+    overlay.querySelector("button")?.focus();
+  });
+}
+
+function modalText(text) {
+  return `<p>${escapeHtml(text)}</p>`;
+}
+
+function modalList(items) {
+  return `<div class="rr-modal-list">${items.map((item) => `<div>${item}</div>`).join("")}</div>`;
+}
+
+function rrAlert(message, title = "Aviso") {
+  return rrModal({ title, message: modalText(message), options: [{ label: "OK", value: true, variant: "primary" }] });
+}
+
+function rrConfirm(message, title = "Confirmar", danger = false) {
+  return rrModal({
+    title,
+    message: modalText(message),
+    options: [
+      { label: danger ? "Excluir" : "Confirmar", value: true, variant: danger ? "danger" : "primary" },
+      { label: "Cancelar", value: false, variant: "muted" }
+    ]
+  });
 }
 
 function getApprovedOrcamentos() {
@@ -667,76 +734,70 @@ function buildPaymentInfo(type, installments, total, taxaRepassada = false) {
   };
 }
 
-function askTaxPassThrough(type, installments) {
+async function askTaxPassThrough(type, installments) {
   const defaultPassThrough = (type === "credit" || type === "link") && Number(installments) > 3;
-  const answer = prompt(
-    [
-      "Repassar a taxa de pagamento para o cliente?",
-      "",
-      "Regra sugerida:",
-      "- Até 3x: não repassar",
-      "- 4x ou mais: repassar",
-      "",
-      "1 - Não repassar (taxa fica como custo da oficina)",
-      "2 - Repassar para o cliente"
-    ].join("\n"),
-    defaultPassThrough ? "2" : "1"
-  );
-  if (answer === null) return null;
-
-  const option = String(answer).trim();
-  if (option === "1") return false;
-  if (option === "2") return true;
-
-  alert("Opção inválida. Aprovação cancelada para você tentar novamente.");
-  return null;
+  return rrModal({
+    title: "Taxa de pagamento",
+    eyebrow: "Financeiro",
+    message: `
+      <p>Deseja repassar a taxa para o cliente?</p>
+      <div class="rr-modal-note">Sugestão: até 3x fica como custo da oficina; acima de 3x pode ser repassado.</div>
+    `,
+    options: [
+      { label: defaultPassThrough ? "Repassar taxa" : "Não repassar", value: defaultPassThrough, variant: "primary" },
+      { label: defaultPassThrough ? "Não repassar" : "Repassar taxa", value: !defaultPassThrough, variant: "muted" },
+      { label: "Cancelar", value: null, variant: "muted" }
+    ]
+  });
 }
 
-function askInstallments(type) {
+async function askInstallments(type) {
   const config = PAYMENT_RATES[type];
-  const options = Object.entries(config.installments)
-    .map(([parcelas, taxa]) => `${parcelas}x - ${String(taxa).replace(".", ",")}%`)
-    .join("\n");
-  const answer = prompt(`Escolha as parcelas para ${config.label}:\n\n${options}`, "1");
-  if (answer === null) return null;
-
-  const installments = parseInteger(String(answer).replace(/\D/g, ""));
-  if (!config.installments[installments]) {
-    alert("Parcela inválida. Aprovação cancelada para você tentar novamente.");
-    return null;
-  }
-  return installments;
+  const options = Object.entries(config.installments).map(([parcelas, taxa]) => ({
+    label: `${parcelas}x (${String(taxa).replace(".", ",")}%)`,
+    value: Number(parcelas),
+    variant: parcelas === "1" ? "primary" : "muted"
+  }));
+  options.push({ label: "Cancelar", value: null, variant: "muted" });
+  return rrModal({
+    title: `Parcelas - ${config.label}`,
+    eyebrow: "Pagamento",
+    message: modalList(Object.entries(config.installments).map(([parcelas, taxa]) => `<strong>${parcelas}x</strong><span>${String(taxa).replace(".", ",")}% de taxa</span>`)),
+    options
+  });
 }
 
-function askPaymentInfo(total) {
-  const answer = prompt(
-    [
-      "Escolha a forma de pagamento:",
-      "",
-      "1 - Pix (3% de desconto)",
-      "2 - Débito (1,37%)",
-      "3 - Crédito maquininha",
-      "4 - Link de pagamento"
-    ].join("\n"),
-    "1"
-  );
-  if (answer === null) return null;
+async function askPaymentInfo(total) {
+  const option = await rrModal({
+    title: "Forma de pagamento",
+    eyebrow: "Aprovação",
+    message: `
+      <p>Escolha como esse orçamento será recebido.</p>
+      <div class="rr-modal-note">Total do orçamento: <strong>${money(total)}</strong></div>
+    `,
+    options: [
+      { label: "Pix (3% desc.)", value: "1", variant: "primary" },
+      { label: "Débito", value: "2", variant: "muted" },
+      { label: "Crédito", value: "3", variant: "muted" },
+      { label: "Link pagamento", value: "4", variant: "muted" },
+      { label: "Cancelar", value: null, variant: "muted" }
+    ]
+  });
+  if (option === null) return null;
 
-  const option = String(answer).trim();
   if (option === "1") return buildPaymentInfo("pix", 1, total);
   if (option === "2") {
-    const taxaRepassada = askTaxPassThrough("debit", 1);
+    const taxaRepassada = await askTaxPassThrough("debit", 1);
     return taxaRepassada === null ? null : buildPaymentInfo("debit", 1, total, taxaRepassada);
   }
   if (option === "3" || option === "4") {
     const type = option === "3" ? "credit" : "link";
-    const installments = askInstallments(type);
+    const installments = await askInstallments(type);
     if (!installments) return null;
-    const taxaRepassada = askTaxPassThrough(type, installments);
+    const taxaRepassada = await askTaxPassThrough(type, installments);
     return taxaRepassada === null ? null : buildPaymentInfo(type, installments, total, taxaRepassada);
   }
 
-  alert("Forma de pagamento inválida. Aprovação cancelada para você tentar novamente.");
   return null;
 }
 
@@ -808,11 +869,11 @@ function renderDashboardOrcamentos(pendentes) {
     : `<div class="empty-state muted">Nenhum pré-orçamento aguardando decisão.</div>`;
 }
 
-function updateOrcamentoStatus(id, status) {
+async function updateOrcamentoStatus(id, status) {
   const orcamentos = readData("orcamentos");
   const index = orcamentos.findIndex((orcamento) => orcamento.id === id);
   if (index < 0) return;
-  const pagamento = status === "Aprovado" ? askPaymentInfo(getOrcamentoTotal(orcamentos[index])) : null;
+  const pagamento = status === "Aprovado" ? await askPaymentInfo(getOrcamentoTotal(orcamentos[index])) : null;
   if (status === "Aprovado" && !pagamento) return;
 
   orcamentos[index] = {
@@ -1210,23 +1271,35 @@ function loadOrcamentoIntoForm(orcamento) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function restoreOrcamentoVersion(id) {
+async function restoreOrcamentoVersion(id) {
   const orcamento = readData("orcamentos").find((item) => item.id === id);
   const versoes = orcamento?.historicoVersoes || [];
   if (!versoes.length) {
-    alert("Este orçamento ainda não tem versões anteriores salvas.");
+    await rrAlert("Este orçamento ainda não tem versões anteriores salvas.", "Versões");
     return;
   }
-  const opcoes = versoes.map((versao, index) => {
+  const options = versoes.map((versao, index) => {
     const data = formatDateBR((versao.savedAt || "").slice(0, 10)) || "sem data";
-    return `${index + 1} - ${data} | ${versao.status || "-"} | ${money(getOrcamentoTotal(versao))}`;
-  }).join("\n");
-  const escolha = prompt(`Escolha a versão para carregar no formulário:\n\n${opcoes}`);
-  if (!escolha) return;
-  const index = parseInteger(escolha) - 1;
+    return {
+      label: `${data} | ${money(getOrcamentoTotal(versao))}`,
+      value: index,
+      variant: index === 0 ? "primary" : "muted"
+    };
+  });
+  options.push({ label: "Cancelar", value: null, variant: "muted" });
+  const index = await rrModal({
+    title: "Versões do orçamento",
+    eyebrow: "Histórico",
+    message: modalList(versoes.map((versao, index) => {
+      const data = formatDateBR((versao.savedAt || "").slice(0, 10)) || "sem data";
+      return `<strong>${index + 1}. ${data}</strong><span>${versao.status || "-"} | ${money(getOrcamentoTotal(versao))}</span>`;
+    })),
+    options
+  });
+  if (index === null) return;
   const versao = versoes[index];
   if (!versao) {
-    alert("Versão não encontrada.");
+    await rrAlert("Versão não encontrada.", "Versões");
     return;
   }
   loadOrcamentoIntoForm({
@@ -1237,7 +1310,7 @@ function restoreOrcamentoVersion(id) {
     status: "Pré-orçamento",
     historicoVersoes: orcamento.historicoVersoes || []
   });
-  alert("Versão carregada no formulário. Revise e clique em Salvar orçamento para confirmar.");
+  await rrAlert("Versão carregada no formulário. Revise e clique em Salvar orçamento para confirmar.", "Versões");
 }
 
 function printOrcamento(id) {
@@ -2007,8 +2080,8 @@ function hydrateClienteCarroSelects(clienteSelectId, carroSelectId, selectedCarr
   if (selectedCarroId) setValue(carroSelectId, selectedCarroId);
 }
 
-function deleteItem(type, id, callback) {
-  const confirmed = confirm("Deseja excluir este registro?");
+async function deleteItem(type, id, callback) {
+  const confirmed = await rrConfirm("Deseja excluir este registro? Essa ação não pode ser desfeita.", "Excluir registro", true);
   if (!confirmed) return;
   writeData(type, readData(type).filter((item) => item.id !== id));
   callback();
