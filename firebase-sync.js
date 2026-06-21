@@ -301,10 +301,11 @@ async function renderAdminDashboard() {
 
   try {
     const snap = await getDocs(collection(db, "workspaces"));
-    const workspaces = snap.docs
+    const workspaces = dedupeWorkspaces(snap.docs
       .map((item) => ({ id: item.id, ...(item.data() || {}) }))
       .filter((item) => item.ownerEmail || item.ownerUid || item.owner)
-      .sort((a, b) => String(a.ownerEmail || a.id).localeCompare(String(b.ownerEmail || b.id)));
+      .filter((item) => !ADMIN_EMAILS.includes(normalizeEmail(item.ownerEmail)))
+      .sort((a, b) => String(a.ownerEmail || a.id).localeCompare(String(b.ownerEmail || b.id))));
 
     if (!workspaces.length) {
       message.textContent = "Nenhum cadastro encontrado ainda.";
@@ -319,7 +320,7 @@ async function renderAdminDashboard() {
       return `
         <button class="admin-workspace-item" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
           <strong>${escapeHtml(email)}</strong>
-          <span>${clientes} clientes | ${orcamentos} orÃ§amentos</span>
+          <span>${clientes} clientes | ${orcamentos} orçamentos</span>
         </button>
       `;
     }).join("");
@@ -330,6 +331,26 @@ async function renderAdminDashboard() {
   } catch (error) {
     message.textContent = firebaseError(error);
   }
+}
+
+function getWorkspaceDataScore(workspace) {
+  return APP_KEYS.reduce((total, key) => {
+    const items = workspace.data?.[key];
+    return total + (Array.isArray(items) ? items.length : 0);
+  }, 0);
+}
+
+function dedupeWorkspaces(workspaces) {
+  const byEmail = new Map();
+  workspaces.forEach((workspace) => {
+    const email = normalizeEmail(workspace.ownerEmail);
+    const key = email || workspace.id;
+    const current = byEmail.get(key);
+    if (!current || getWorkspaceDataScore(workspace) > getWorkspaceDataScore(current)) {
+      byEmail.set(key, workspace);
+    }
+  });
+  return Array.from(byEmail.values());
 }
 
 async function openAdminWorkspace(workspaceId, workspaceEmail = "") {
