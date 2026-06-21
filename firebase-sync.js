@@ -21,6 +21,7 @@ const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", 
 const SYNC_FLAG = "rr_firebase_loaded_user";
 const REMEMBER_KEY = "rr_firebase_remember";
 const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
+const REGISTER_PREFILL_KEY = "rr_register_prefill";
 const ACCESS_STATUS = {
   PENDING: "pending",
   ACTIVE: "active",
@@ -32,6 +33,7 @@ const ADMIN_EMAILS = Array.isArray(adminAccess.adminEmails)
   ? adminAccess.adminEmails.map((email) => normalizeEmail(email)).filter(Boolean)
   : [];
 const configReady = Boolean(config.apiKey && config.apiKey !== "COLE_AQUI" && config.projectId && config.projectId !== "COLE_AQUI");
+const isRegisterPage = document.body.dataset.page === "cadastro-acesso";
 
 let auth;
 let db;
@@ -84,6 +86,10 @@ if (!configReady) {
     }
 
     if (creatingAccessRequest) return;
+    if (isRegisterPage) {
+      await signOut(auth);
+      return;
+    }
 
     activeWorkspaceId = getWorkspaceId(user);
     activeWorkspaceEmail = "";
@@ -151,9 +157,9 @@ function buildAuthShell() {
   shell.innerHTML = `
     <div class="auth-card">
       <img src="assets/logo-rr.png" alt="RR Reparação Automotiva">
-      <h1>RR Reparação Manager</h1>
-      <p>Entre para sincronizar clientes, orçamentos e financeiro na nuvem.</p>
-      <form id="firebaseLoginForm">
+      <h1>${isRegisterPage ? "Criar acesso" : "RR Reparação Manager"}</h1>
+      <p>${isRegisterPage ? "Preencha seu cadastro para solicitar a liberação do RR Manager." : "Entre para sincronizar clientes, orçamentos e financeiro na nuvem."}</p>
+      <form id="firebaseLoginForm" ${isRegisterPage ? "hidden" : ""}>
         <input id="firebaseEmail" type="email" placeholder="E-mail" autocomplete="email" required>
         <div class="password-field">
           <input id="firebasePassword" type="password" placeholder="Senha" autocomplete="current-password" required>
@@ -166,7 +172,7 @@ function buildAuthShell() {
         <button class="btn btn-primary" type="submit">Entrar</button>
         <button class="btn btn-muted" type="button" id="firebaseCreateAccount">Criar acesso</button>
       </form>
-      <form id="firebaseRegisterForm" class="auth-register-form" hidden>
+      <form id="firebaseRegisterForm" class="auth-register-form" ${isRegisterPage ? "" : "hidden"}>
         <div class="auth-register-grid">
           <label>
             <span>Nome completo</span>
@@ -209,6 +215,8 @@ function buildAuthShell() {
   `;
   document.body.appendChild(shell);
   hydrateRememberedLogin();
+  hydrateRegisterPrefill();
+  document.body.classList.toggle("auth-registering", isRegisterPage);
 
   const adminShell = document.createElement("div");
   adminShell.id = "firebaseAdminShell";
@@ -250,7 +258,7 @@ function bindAuthEvents() {
     await submitAccessRequest();
   });
 
-  document.getElementById("firebaseCreateAccount").addEventListener("click", showRegisterForm);
+  document.getElementById("firebaseCreateAccount").addEventListener("click", goToRegisterPage);
   document.getElementById("firebaseBackToLogin").addEventListener("click", showLoginForm);
   document.getElementById("firebaseLogout").addEventListener("click", () => signOut(auth));
   document.getElementById("firebaseAdminLogout").addEventListener("click", () => signOut(auth));
@@ -275,23 +283,30 @@ async function login() {
   }
 }
 
-function showRegisterForm() {
+function goToRegisterPage() {
   const email = normalizeEmail(document.getElementById("firebaseEmail").value);
   const password = document.getElementById("firebasePassword").value;
-  document.getElementById("registerEmail").value = email;
-  document.getElementById("registerPassword").value = password;
-  document.getElementById("registerPasswordConfirm").value = password;
-  document.getElementById("firebaseLoginForm").hidden = true;
-  document.getElementById("firebaseRegisterForm").hidden = false;
-  document.body.classList.add("auth-registering");
-  showAuthMessage("");
+  sessionStorage.setItem(REGISTER_PREFILL_KEY, JSON.stringify({ email, password }));
+  window.location.href = "cadastro-acesso.html";
 }
 
 function showLoginForm() {
-  document.getElementById("firebaseRegisterForm").hidden = true;
-  document.getElementById("firebaseLoginForm").hidden = false;
-  document.body.classList.remove("auth-registering");
-  showAuthMessage("");
+  sessionStorage.removeItem(REGISTER_PREFILL_KEY);
+  window.location.href = "dashboard.html";
+}
+
+function hydrateRegisterPrefill() {
+  if (!isRegisterPage) return;
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(REGISTER_PREFILL_KEY)) || {};
+    if (saved.email) document.getElementById("registerEmail").value = normalizeEmail(saved.email);
+    if (saved.password) {
+      document.getElementById("registerPassword").value = saved.password;
+      document.getElementById("registerPasswordConfirm").value = saved.password;
+    }
+  } catch (error) {
+    sessionStorage.removeItem(REGISTER_PREFILL_KEY);
+  }
 }
 
 function updateRegisterDocumentPlaceholder() {
@@ -332,11 +347,12 @@ async function submitAccessRequest() {
     await saveAccessRequest(credential.user);
     pendingAuthMessage = "Cadastro concluído e enviado para análise. Aguarde a liberação do administrador.";
     await signOut(auth);
-    showLoginForm();
+    sessionStorage.removeItem(REGISTER_PREFILL_KEY);
     await showAuthStatusModal(
       "Cadastro concluído",
       "Seu cadastro foi enviado e será analisado para confirmação de acesso."
     );
+    window.location.href = "dashboard.html";
   } catch (error) {
     showAuthMessage(firebaseError(error));
   } finally {
