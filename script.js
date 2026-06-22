@@ -1468,9 +1468,10 @@ function buildOrcamentoPrintHtml(orcamento) {
   const totalComPagamento = Math.max(0, totalFinal + acrescimoPagamento);
   const branding = getDocumentBranding(orcamento);
   const logoUrl = new URL(branding.logoUrl, window.location.href).href;
+  const manyPartsClass = pecas.length >= 14 ? " has-many-parts" : "";
 
   return `
-    <article class="print-document">
+    <article class="print-document${manyPartsClass}">
       <header class="print-header">
         <img src="${logoUrl}" alt="${escapeHtml(branding.companyName)}">
         <div>
@@ -1489,7 +1490,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <div><strong>Número do orçamento</strong>${String(orcamento.numero || "").padStart(4, "0")}</div>
       </section>
 
-      <section>
+      <section class="print-parts-section">
         <h3>Peças</h3>
         <table class="print-table">
           <thead><tr><th>Item</th><th>Qtd</th><th>Valor unit.</th><th>Total</th></tr></thead>
@@ -1497,7 +1498,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         </table>
       </section>
 
-      <section>
+      <section class="print-services-section">
         <h3>Serviços</h3>
         <table class="print-table">
           <thead><tr><th>Serviço</th><th>Horas</th><th>Valor/hora</th><th>Total</th></tr></thead>
@@ -1506,7 +1507,7 @@ function buildOrcamentoPrintHtml(orcamento) {
       </section>
 
       <h3 class="print-payment-title">Resumo e pagamento</h3>
-      <section class="print-payment-row">
+      <section class="print-payment-row print-payment-section">
         <div class="print-totals">
         <div><span>Total peças</span><strong>${money(totals.totalPecas)}</strong></div>
         <div><span>Total serviços</span><strong>${money(totals.totalServicos)}</strong></div>
@@ -1843,6 +1844,7 @@ function getPdfShareBreakData(documentEl, scale) {
   const rootRect = documentEl.getBoundingClientRect();
   const offsetElements = Array.from(documentEl.querySelectorAll(".print-info-grid, section, h3, thead, tr, .print-payment-title, .print-payment-row, .print-totals, .pix-payment, .print-footer, .report-print-summary, .report-chart-card"));
   const avoidElements = Array.from(documentEl.querySelectorAll("tr, .print-totals, .pix-payment, .print-footer, .report-chart-card"));
+  const forcedElements = Array.from(documentEl.querySelectorAll(".has-many-parts .print-services-section, .has-many-parts .print-payment-section"));
   const toRange = (element) => {
     const rect = element.getBoundingClientRect();
     return {
@@ -1853,6 +1855,7 @@ function getPdfShareBreakData(documentEl, scale) {
   const ranges = avoidElements.map(toRange).filter((range) => range.top > 0 && range.bottom > range.top);
   return {
     offsets: offsetElements.map(toRange).filter((range) => range.top > 0).map((range) => range.top).sort((a, b) => a - b),
+    forcedOffsets: forcedElements.map(toRange).filter((range) => range.top > 0).map((range) => range.top).sort((a, b) => a - b),
     ranges
   };
 }
@@ -1861,6 +1864,11 @@ function getPdfShareSliceHeight(sourceY, pageHeightPx, canvasHeight, breakData) 
   const targetY = Math.min(sourceY + pageHeightPx, canvasHeight);
   if (targetY >= canvasHeight) return canvasHeight - sourceY;
   const minY = sourceY + Math.round(pageHeightPx * 0.78);
+  const forcedBreak = breakData.forcedOffsets
+    .filter((offset) => offset > sourceY + Math.round(pageHeightPx * 0.52) && offset < targetY - 24)
+    .pop();
+  if (forcedBreak) return Math.max(1, forcedBreak - sourceY);
+
   const containingRange = breakData.ranges
     .filter((range) => range.top > sourceY + 24 && range.top < targetY && range.bottom > targetY)
     .sort((a, b) => b.top - a.top)[0];

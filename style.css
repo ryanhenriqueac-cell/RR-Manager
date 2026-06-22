@@ -1511,6 +1511,21 @@ td {
   border-bottom: 0;
 }
 
+.print-parts-section .print-table {
+  break-inside: auto;
+}
+
+.print-table tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.print-services-section,
+.print-payment-section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 .right {
   text-align: right;
 }
@@ -1867,6 +1882,10 @@ td {
 .pdf-share-render-host .print-document {
   display: flex !important;
   flex-direction: column !important;
+}
+
+.pdf-share-render-host .has-many-parts .print-footer {
+  margin-top: 10px !important;
 }
 
 .pdf-share-render-host .print-header {
@@ -2587,14 +2606,30 @@ td {
 
   .print-header,
   .print-info-grid,
-  .print-table,
   .print-payment-title,
   .print-payment-row,
+  .print-payment-section,
   .print-totals,
   .pix-payment,
   .report-print-summary,
   .report-chart-card {
     break-inside: avoid;
+  }
+
+  .print-parts-section,
+  .print-parts-section .print-table {
+    break-inside: auto;
+  }
+
+  .print-table thead,
+  .print-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .has-many-parts .print-services-section {
+    break-before: page;
+    page-break-before: always;
   }
 
   .print-header {
