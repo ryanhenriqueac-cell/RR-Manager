@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu cadastro | RR Manager</title>
+  <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
+  <link rel="stylesheet" href="style.css?v=42">
+</head>
+<body data-page="meu-cadastro">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html">
+        <img class="brand-logo" src="assets/logo-rr-manager.png" alt="RR Manager">
+        <span><strong>RR Manager</strong></span>
+      </a>
+      <nav class="nav-menu" aria-label="Menu principal">
+        <a href="dashboard.html" data-nav="dashboard">Dashboard</a>
+        <a href="clientes.html" data-nav="clientes">Clientes</a>
+        <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
+        <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
+        <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Conta da oficina</p>
+          <h1>Meu cadastro</h1>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Identidade do cadastro</p>
+            <h2>Dados da empresa</h2>
+          </div>
+        </div>
+        <p class="muted">Em breve estes dados serão usados para personalizar PDFs, links e mensagens deste cadastro.</p>
+      </section>
+    </main>
+  </div>
+  <script src="script.js?v=40"></script>
+  <script src="firebase-config.js?v=13"></script>
+  <script type="module" src="firebase-sync.js?v=27"></script>
+</body>
+</html>
