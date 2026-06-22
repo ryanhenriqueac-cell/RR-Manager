@@ -49,8 +49,7 @@
             <input id="meuCadastroEmail" type="email" disabled>
           </label>
           <label>Telefone
-            <input id="meuCadastroTelefone" type="tel" placeholder="Telefone">
-            <small>Ex.: (31) 99999-9999</small>
+            <input id="meuCadastroTelefone" type="tel" placeholder="(31) 99999-9999" maxlength="15">
           </label>
           <div class="span-2">
             <span class="field-label">Documento</span>
@@ -60,7 +59,7 @@
             </div>
           </div>
           <label class="span-2">CPF/CNPJ
-            <input id="meuCadastroDocumento" placeholder="Digite seu CPF">
+            <input id="meuCadastroDocumento" placeholder="XXX.XXX.XXX-YY" maxlength="18">
             <small>Escolha CPF ou CNPJ acima e informe apenas n&uacute;meros.</small>
           </label>
           <div class="form-actions span-2">
@@ -73,6 +72,6 @@
   </div>
   <script src="script.js?v=42"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=28"></script>
+  <script type="module" src="firebase-sync.js?v=29"></script>
 </body>
 </html>

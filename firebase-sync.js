@@ -191,8 +191,7 @@ function buildAuthShell() {
           </label>
           <label>
             <span>Telefone</span>
-            <input id="registerPhone" type="tel" placeholder="Telefone" autocomplete="tel">
-            <small>Ex.: (31) 99999-9999</small>
+            <input id="registerPhone" type="tel" placeholder="(31) 99999-9999" autocomplete="tel" maxlength="15">
           </label>
           <label>
             <span>Documento</span>
@@ -200,7 +199,7 @@ function buildAuthShell() {
               <label><input id="registerDocCpf" type="radio" name="registerDocType" value="CPF" checked> CPF</label>
               <label><input type="radio" name="registerDocType" value="CNPJ"> CNPJ</label>
             </div>
-            <input id="registerDocument" type="text" placeholder="Digite seu CPF">
+            <input id="registerDocument" type="text" placeholder="XXX.XXX.XXX-YY" maxlength="18">
             <small>Escolha CPF ou CNPJ acima e informe apenas números.</small>
           </label>
           <label>
@@ -229,6 +228,7 @@ function buildAuthShell() {
   document.body.appendChild(shell);
   hydrateRememberedLogin();
   hydrateRegisterPrefill();
+  updateRegisterDocumentPlaceholder();
   document.body.classList.toggle("auth-registering", isRegisterPage);
 
   const adminShell = document.createElement("div");
@@ -283,6 +283,8 @@ function bindAuthEvents() {
   document.querySelectorAll("input[name='registerDocType']").forEach((input) => {
     input.addEventListener("change", updateRegisterDocumentPlaceholder);
   });
+  bindMaskedInput("registerPhone", formatCadastroPhone);
+  bindMaskedInput("registerDocument", (value) => formatCadastroDocument(value, getRegisterDocType()));
   bindMeuCadastroEvents();
 }
 
@@ -327,8 +329,15 @@ function hydrateRegisterPrefill() {
 }
 
 function updateRegisterDocumentPlaceholder() {
-  const type = document.querySelector("input[name='registerDocType']:checked")?.value || "CPF";
-  document.getElementById("registerDocument").placeholder = `Digite seu ${type}`;
+  const documentInput = document.getElementById("registerDocument");
+  if (!documentInput) return;
+  documentInput.placeholder = getDocumentPlaceholder(getRegisterDocType());
+  documentInput.maxLength = getRegisterDocType() === "CNPJ" ? 18 : 14;
+  documentInput.value = formatCadastroDocument(documentInput.value, getRegisterDocType());
+}
+
+function getRegisterDocType() {
+  return document.querySelector("input[name='registerDocType']:checked")?.value || "CPF";
 }
 
 async function submitAccessRequest() {
@@ -484,9 +493,9 @@ async function saveAccessRequest(user) {
     registration: {
       empresa: document.getElementById("registerBusinessName").value.trim(),
       nome: document.getElementById("registerName").value.trim(),
-      telefone: document.getElementById("registerPhone").value.trim(),
+      telefone: formatCadastroPhone(document.getElementById("registerPhone").value),
       documentoTipo: docType,
-      documento: document.getElementById("registerDocument").value.replace(/\D/g, ""),
+      documento: formatCadastroDocument(document.getElementById("registerDocument").value, docType),
       solicitadoEm: new Date().toISOString()
     },
     updatedAt: serverTimestamp(),
@@ -526,6 +535,8 @@ function bindMeuCadastroEvents() {
   document.querySelectorAll("input[name='meuCadastroDocType']").forEach((input) => {
     input.addEventListener("change", updateMeuCadastroDocumentPlaceholder);
   });
+  bindMaskedInput("meuCadastroTelefone", formatCadastroPhone);
+  bindMaskedInput("meuCadastroDocumento", (value) => formatCadastroDocument(value, getMeuCadastroDocType()));
 }
 
 function renderMeuCadastro(workspace = {}) {
@@ -536,8 +547,8 @@ function renderMeuCadastro(workspace = {}) {
   document.getElementById("meuCadastroEmpresa").value = workspace.businessName || registration.empresa || "";
   document.getElementById("meuCadastroNome").value = registration.nome || "";
   document.getElementById("meuCadastroEmail").value = workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "";
-  document.getElementById("meuCadastroTelefone").value = registration.telefone || "";
-  document.getElementById("meuCadastroDocumento").value = registration.documento || "";
+  document.getElementById("meuCadastroTelefone").value = formatCadastroPhone(registration.telefone || "");
+  document.getElementById("meuCadastroDocumento").value = formatCadastroDocument(registration.documento || "", docType);
   const docTypeInput = document.querySelector(`input[name='meuCadastroDocType'][value='${docType}']`);
   if (docTypeInput) docTypeInput.checked = true;
   updateMeuCadastroDocumentPlaceholder();
@@ -547,8 +558,52 @@ function renderMeuCadastro(workspace = {}) {
 function updateMeuCadastroDocumentPlaceholder() {
   const input = document.getElementById("meuCadastroDocumento");
   if (!input) return;
-  const type = document.querySelector("input[name='meuCadastroDocType']:checked")?.value || "CPF";
-  input.placeholder = `Digite seu ${type}`;
+  input.placeholder = getDocumentPlaceholder(getMeuCadastroDocType());
+  input.maxLength = getMeuCadastroDocType() === "CNPJ" ? 18 : 14;
+  input.value = formatCadastroDocument(input.value, getMeuCadastroDocType());
+}
+
+function getMeuCadastroDocType() {
+  return document.querySelector("input[name='meuCadastroDocType']:checked")?.value || "CPF";
+}
+
+function bindMaskedInput(inputId, formatter) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener("input", () => {
+    input.value = formatter(input.value);
+  });
+}
+
+function getDocumentPlaceholder(type) {
+  return type === "CNPJ" ? "AA.AAA.AAA/AAAA-DV" : "XXX.XXX.XXX-YY";
+}
+
+function onlyDigits(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function formatCadastroPhone(value) {
+  const digits = onlyDigits(value).slice(0, 11);
+  if (digits.length <= 2) return digits ? `(${digits}` : "";
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function formatCadastroDocument(value, type) {
+  const digits = onlyDigits(value).slice(0, type === "CNPJ" ? 14 : 11);
+  if (type === "CNPJ") {
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+    if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+    if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+    return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+  }
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 }
 
 async function saveMeuCadastro(event) {
@@ -570,9 +625,9 @@ async function saveMeuCadastro(event) {
         ...currentRegistration,
         empresa: businessName,
         nome: document.getElementById("meuCadastroNome").value.trim(),
-        telefone: document.getElementById("meuCadastroTelefone").value.trim(),
+        telefone: formatCadastroPhone(document.getElementById("meuCadastroTelefone").value),
         documentoTipo: docType,
-        documento: document.getElementById("meuCadastroDocumento").value.replace(/\D/g, ""),
+        documento: formatCadastroDocument(document.getElementById("meuCadastroDocumento").value, docType),
         atualizadoEm: new Date().toISOString()
       },
       updatedAt: serverTimestamp()
@@ -584,9 +639,9 @@ async function saveMeuCadastro(event) {
         ...currentRegistration,
         empresa: businessName,
         nome: document.getElementById("meuCadastroNome").value.trim(),
-        telefone: document.getElementById("meuCadastroTelefone").value.trim(),
+        telefone: formatCadastroPhone(document.getElementById("meuCadastroTelefone").value),
         documentoTipo: docType,
-        documento: document.getElementById("meuCadastroDocumento").value.replace(/\D/g, "")
+        documento: formatCadastroDocument(document.getElementById("meuCadastroDocumento").value, docType)
       }
     });
     setMeuCadastroStatus("Cadastro salvo.");
