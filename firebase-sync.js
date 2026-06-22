@@ -893,7 +893,7 @@ function setUserStatus(email) {
     const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId}` : "Status: Online";
     status.textContent = email ? detail : "";
   }
-  if (adminBack) adminBack.hidden = !adminViewing;
+  if (adminBack) adminBack.hidden = true;
   document.body.classList.toggle("firebase-logged-in", Boolean(email));
 }
 
