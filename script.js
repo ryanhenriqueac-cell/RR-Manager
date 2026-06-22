@@ -17,6 +17,25 @@ const PIX_CONFIG = {
   cidade: "Belo Horizonte"
 };
 
+const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
+const DEFAULT_DOCUMENT_BRANDING = {
+  companyName: "RR Reparação Automotiva",
+  reportName: "RR Reparação Manager",
+  tagline: "Manutenção especializada | Paixão por carros",
+  logoUrl: "assets/logo-rr.png"
+};
+const DOCUMENT_BRANDING_PATCHES = {
+  "ryanhenriqueac@gmail.com": {
+    companyName: DEFAULT_DOCUMENT_BRANDING.companyName,
+    reportName: DEFAULT_DOCUMENT_BRANDING.reportName,
+    tagline: DEFAULT_DOCUMENT_BRANDING.tagline,
+    logoUrl: DEFAULT_DOCUMENT_BRANDING.logoUrl
+  },
+  "nicolylmrocha@gmail.com": {
+    tagline: "Manutenção especializada | Paixão por carros"
+  }
+};
+
 const PAYMENT_RATES = {
   pix: { label: "Pix com 3% de desconto", installments: { 1: 0 }, discountPercent: 3 },
   debit: { label: "Débito", installments: { 1: 1.37 } },
@@ -287,6 +306,46 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function normalizeEmailKey(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function getStoredWorkspaceBranding() {
+  try {
+    return JSON.parse(localStorage.getItem(WORKSPACE_BRANDING_KEY)) || {};
+  } catch (error) {
+    localStorage.removeItem(WORKSPACE_BRANDING_KEY);
+    return {};
+  }
+}
+
+function getDocumentBranding(source = {}) {
+  const stored = getStoredWorkspaceBranding();
+  const incoming = source.branding || source.b || {};
+  const registration = stored.registration || {};
+  const email = normalizeEmailKey(incoming.ownerEmail || stored.ownerEmail || stored.email);
+  const patch = DOCUMENT_BRANDING_PATCHES[email] || {};
+  const companyName = patch.companyName || incoming.companyName || stored.businessName || registration.empresa || DEFAULT_DOCUMENT_BRANDING.companyName;
+  return {
+    companyName,
+    reportName: patch.reportName || incoming.reportName || companyName || DEFAULT_DOCUMENT_BRANDING.reportName,
+    tagline: patch.tagline || incoming.tagline || stored.tagline || DEFAULT_DOCUMENT_BRANDING.tagline,
+    logoUrl: patch.logoUrl || incoming.logoUrl || stored.logoUrl || DEFAULT_DOCUMENT_BRANDING.logoUrl,
+    ownerEmail: email
+  };
+}
+
+function getPublicDocumentBranding() {
+  const branding = getDocumentBranding();
+  return {
+    ownerEmail: branding.ownerEmail,
+    companyName: branding.companyName,
+    reportName: branding.reportName,
+    tagline: branding.tagline,
+    logoUrl: branding.logoUrl
+  };
+}
+
 function getCliente(id) {
   return readData("clientes").find((item) => item.id === id);
 }
@@ -408,6 +467,7 @@ function buildPublicOrcamentoData(orcamento) {
   const servicos = Array.isArray(orcamento.servicos) ? orcamento.servicos : [];
 
   return {
+    b: getPublicDocumentBranding(),
     c: {
       n: cliente.nome || "",
       t: cliente.telefone || "",
@@ -444,6 +504,7 @@ function buildPublicOrcamentoData(orcamento) {
 function normalizePublicOrcamentoData(data) {
   if (data.orcamento) {
     return {
+      branding: data.branding || data.b || {},
       cliente: data.cliente || {},
       carro: data.carro || {},
       orcamento: data.orcamento || {}
@@ -451,6 +512,7 @@ function normalizePublicOrcamentoData(data) {
   }
 
   return {
+    branding: data.b || {},
     cliente: {
       nome: data.c?.n || "",
       telefone: data.c?.t || "",
@@ -485,6 +547,7 @@ function normalizePublicOrcamentoData(data) {
 }
 
 function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
+  const branding = getDocumentBranding(orcamento);
   const clienteNome = getClienteNome(orcamento.clienteId);
   const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
   const numero = String(orcamento.numero || "").padStart(4, "0");
@@ -492,7 +555,7 @@ function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
   const message = [
     `Olá, ${clienteNome}!`,
     "",
-    `Segue o pré-orçamento #${numero} da RR Reparação Automotiva:`,
+    `Segue o pré-orçamento #${numero} da ${branding.companyName}:`,
     `Veículo: ${carro}`,
     `Valor total: ${total}`,
     "Parcelado em até 3x NO CARTÃO SEM JUROS",
@@ -1374,7 +1437,8 @@ function renderPublicOrcamentoData(rawData) {
     const orcamento = {
       ...data.orcamento,
       publicCliente: data.cliente,
-      publicCarro: data.carro
+      publicCarro: data.carro,
+      branding: data.branding
     };
     const clienteNome = sanitizePrintTitle(data.cliente?.nome).toUpperCase();
     const title = sanitizePrintTitle(`RR - Orçamento do Serviço Automotivo ${clienteNome}`);
@@ -1401,15 +1465,16 @@ function buildOrcamentoPrintHtml(orcamento) {
   const acrescimoPagamento = getPaymentSurcharge(orcamento);
   const totalPix = Math.max(0, totalFinal - descontoPix);
   const totalComPagamento = Math.max(0, totalFinal + acrescimoPagamento);
-  const logoUrl = new URL("assets/logo-rr.png", window.location.href).href;
+  const branding = getDocumentBranding(orcamento);
+  const logoUrl = new URL(branding.logoUrl, window.location.href).href;
 
   return `
     <article class="print-document">
       <header class="print-header">
-        <img src="${logoUrl}" alt="RR Reparação Automotiva">
+        <img src="${logoUrl}" alt="${escapeHtml(branding.companyName)}">
         <div>
-          <h1>RR Reparação Automotiva</h1>
-          <p>Manutenção especializada | Paixão por carros</p>
+          <h1>${escapeHtml(branding.companyName)}</h1>
+          <p>${escapeHtml(branding.tagline)}</p>
           <p>Status: <strong>${escapeHtml(orcamento.status)}</strong></p>
         </div>
       </header>
@@ -1959,7 +2024,8 @@ function buildFinanceiroReportHtml(relatorio) {
   const periodo = start || end
     ? `${formatDateBR(start) || "Início"} até ${formatDateBR(end) || "hoje"}`
     : "Todo o histórico financeiro";
-  const logoUrl = "assets/logo-rr.png";
+  const branding = getDocumentBranding();
+  const logoUrl = branding.logoUrl;
   const valoresDonut = [
     { label: "Receitas", valor: resumo.receitas, color: "#4fd1a1" },
     { label: "Custos", valor: resumo.custos, color: "#f1c75b" },
@@ -1987,9 +2053,9 @@ function buildFinanceiroReportHtml(relatorio) {
   return `
     <article class="finance-report-document">
       <header class="print-header report-print-header">
-        <img src="${logoUrl}" alt="RR Reparação Automotiva">
+        <img src="${logoUrl}" alt="${escapeHtml(branding.companyName)}">
         <div>
-          <h1>RR Reparação Manager</h1>
+          <h1>${escapeHtml(branding.reportName)}</h1>
           <p>Relatório financeiro</p>
           <p>Período: <strong>${escapeHtml(periodo)}</strong></p>
         </div>

@@ -23,6 +23,7 @@ const SYNC_FLAG = "rr_firebase_loaded_user";
 const REMEMBER_KEY = "rr_firebase_remember";
 const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
 const REGISTER_PREFILL_KEY = "rr_register_prefill";
+const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
 const ACCESS_STATUS = {
   PENDING: "pending",
   ACTIVE: "active",
@@ -69,6 +70,7 @@ if (!configReady) {
     if (!user) {
       sessionStorage.removeItem(SYNC_FLAG);
       sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
+      localStorage.removeItem(WORKSPACE_BRANDING_KEY);
       activeWorkspaceId = null;
       activeWorkspaceEmail = "";
       setAppLocked(true);
@@ -418,13 +420,16 @@ async function loadCloudData(uid) {
     const snap = await getDoc(doc(db, "workspaces", uid));
     if (!snap.exists()) {
       await saveCloudData();
-      renderMeuCadastro({ ownerEmail: activeWorkspaceEmail || currentUser.email });
+      const workspace = { ownerEmail: activeWorkspaceEmail || currentUser.email };
+      setWorkspaceBrandingContext(workspace);
+      renderMeuCadastro(workspace);
       showAuthMessage("");
       return;
     }
 
     const cloudData = snap.data() || {};
     activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
+    setWorkspaceBrandingContext(cloudData);
     renderMeuCadastro(cloudData);
     const data = cloudData.data || {};
     syncingFromCloud = true;
@@ -455,6 +460,17 @@ async function saveCloudData() {
     updatedAt: serverTimestamp(),
     data
   }, { merge: true });
+}
+
+function setWorkspaceBrandingContext(workspace = {}) {
+  const registration = workspace.registration || {};
+  localStorage.setItem(WORKSPACE_BRANDING_KEY, JSON.stringify({
+    ownerEmail: workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "",
+    businessName: workspace.businessName || registration.empresa || "",
+    logoUrl: workspace.logoUrl || "",
+    tagline: workspace.tagline || "",
+    registration
+  }));
 }
 
 async function saveAccessRequest(user) {
@@ -561,6 +577,18 @@ async function saveMeuCadastro(event) {
       },
       updatedAt: serverTimestamp()
     }, { merge: true });
+    setWorkspaceBrandingContext({
+      ownerEmail: activeWorkspaceEmail || currentUser.email,
+      businessName,
+      registration: {
+        ...currentRegistration,
+        empresa: businessName,
+        nome: document.getElementById("meuCadastroNome").value.trim(),
+        telefone: document.getElementById("meuCadastroTelefone").value.trim(),
+        documentoTipo: docType,
+        documento: document.getElementById("meuCadastroDocumento").value.replace(/\D/g, "")
+      }
+    });
     setMeuCadastroStatus("Cadastro salvo.");
   } catch (error) {
     setMeuCadastroStatus(firebaseError(error));
