@@ -1034,6 +1034,19 @@ td {
   font-weight: 600;
 }
 
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.form-status {
+  align-self: center;
+  color: var(--muted);
+  font-weight: 800;
+}
+
 .document-options {
   display: flex;
   gap: 14px;

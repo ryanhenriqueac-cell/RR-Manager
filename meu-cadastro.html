@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu cadastro | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=42">
+  <link rel="stylesheet" href="style.css?v=43">
 </head>
 <body data-page="meu-cadastro">
   <div class="app-shell">
@@ -17,7 +17,7 @@
       <nav class="nav-menu" aria-label="Menu principal">
         <a href="dashboard.html" data-nav="dashboard">Dashboard</a>
         <a href="clientes.html" data-nav="clientes">Clientes</a>
-        <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
+        <a href="orcamentos.html" data-nav="orcamentos">Or&ccedil;amentos</a>
         <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
         <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
       </nav>
@@ -31,19 +31,48 @@
         </div>
       </header>
 
-      <section class="panel">
+      <section class="form-panel">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Identidade do cadastro</p>
             <h2>Dados da empresa</h2>
           </div>
         </div>
-        <p class="muted">Em breve estes dados serão usados para personalizar PDFs, links e mensagens deste cadastro.</p>
+        <form id="meuCadastroForm" class="form-grid">
+          <label>Nome da empresa *
+            <input id="meuCadastroEmpresa" required placeholder="Digite o nome da empresa">
+          </label>
+          <label>Nome completo
+            <input id="meuCadastroNome" placeholder="Digite seu nome completo">
+          </label>
+          <label>E-mail
+            <input id="meuCadastroEmail" type="email" disabled>
+          </label>
+          <label>Telefone
+            <input id="meuCadastroTelefone" type="tel" placeholder="Telefone">
+            <small>Ex.: (31) 99999-9999</small>
+          </label>
+          <div class="span-2">
+            <span class="field-label">Documento</span>
+            <div class="document-options">
+              <label><input id="meuCadastroDocCpf" type="radio" name="meuCadastroDocType" value="CPF" checked> CPF</label>
+              <label><input type="radio" name="meuCadastroDocType" value="CNPJ"> CNPJ</label>
+            </div>
+          </div>
+          <label class="span-2">CPF/CNPJ
+            <input id="meuCadastroDocumento" placeholder="Digite seu CPF">
+            <small>Escolha CPF ou CNPJ acima e informe apenas n&uacute;meros.</small>
+          </label>
+          <div class="form-actions span-2">
+            <button class="btn btn-primary" type="submit">Salvar cadastro</button>
+            <span id="meuCadastroStatus" class="form-status"></span>
+          </div>
+        </form>
       </section>
     </main>
   </div>
   <script src="script.js?v=40"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=27"></script>
+  <script type="module" src="firebase-sync.js?v=28"></script>
 </body>
 </html>

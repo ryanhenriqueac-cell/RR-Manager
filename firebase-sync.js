@@ -281,6 +281,7 @@ function bindAuthEvents() {
   document.querySelectorAll("input[name='registerDocType']").forEach((input) => {
     input.addEventListener("change", updateRegisterDocumentPlaceholder);
   });
+  bindMeuCadastroEvents();
 }
 
 async function login() {
@@ -417,12 +418,14 @@ async function loadCloudData(uid) {
     const snap = await getDoc(doc(db, "workspaces", uid));
     if (!snap.exists()) {
       await saveCloudData();
+      renderMeuCadastro({ ownerEmail: activeWorkspaceEmail || currentUser.email });
       showAuthMessage("");
       return;
     }
 
     const cloudData = snap.data() || {};
     activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
+    renderMeuCadastro(cloudData);
     const data = cloudData.data || {};
     syncingFromCloud = true;
     APP_KEYS.forEach((key) => {
@@ -499,6 +502,74 @@ function showAuthStatusModal(title, message) {
     });
     document.body.appendChild(overlay);
   });
+}
+
+function bindMeuCadastroEvents() {
+  if (!document.getElementById("meuCadastroForm")) return;
+  document.getElementById("meuCadastroForm").addEventListener("submit", saveMeuCadastro);
+  document.querySelectorAll("input[name='meuCadastroDocType']").forEach((input) => {
+    input.addEventListener("change", updateMeuCadastroDocumentPlaceholder);
+  });
+}
+
+function renderMeuCadastro(workspace = {}) {
+  const form = document.getElementById("meuCadastroForm");
+  if (!form) return;
+  const registration = workspace.registration || {};
+  const docType = registration.documentoTipo || "CPF";
+  document.getElementById("meuCadastroEmpresa").value = workspace.businessName || registration.empresa || "";
+  document.getElementById("meuCadastroNome").value = registration.nome || "";
+  document.getElementById("meuCadastroEmail").value = workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "";
+  document.getElementById("meuCadastroTelefone").value = registration.telefone || "";
+  document.getElementById("meuCadastroDocumento").value = registration.documento || "";
+  const docTypeInput = document.querySelector(`input[name='meuCadastroDocType'][value='${docType}']`);
+  if (docTypeInput) docTypeInput.checked = true;
+  updateMeuCadastroDocumentPlaceholder();
+  setMeuCadastroStatus("");
+}
+
+function updateMeuCadastroDocumentPlaceholder() {
+  const input = document.getElementById("meuCadastroDocumento");
+  if (!input) return;
+  const type = document.querySelector("input[name='meuCadastroDocType']:checked")?.value || "CPF";
+  input.placeholder = `Digite seu ${type}`;
+}
+
+async function saveMeuCadastro(event) {
+  event.preventDefault();
+  if (!currentUser || !db || !activeWorkspaceId) return;
+  const businessName = document.getElementById("meuCadastroEmpresa").value.trim();
+  if (!businessName) {
+    setMeuCadastroStatus("Informe o nome da empresa.");
+    return;
+  }
+  try {
+    const snap = await getDoc(doc(db, "workspaces", activeWorkspaceId));
+    const currentRegistration = snap.exists() ? snap.data().registration || {} : {};
+    const docType = document.querySelector("input[name='meuCadastroDocType']:checked")?.value || "CPF";
+    setMeuCadastroStatus("Salvando...");
+    await setDoc(doc(db, "workspaces", activeWorkspaceId), {
+      businessName,
+      registration: {
+        ...currentRegistration,
+        empresa: businessName,
+        nome: document.getElementById("meuCadastroNome").value.trim(),
+        telefone: document.getElementById("meuCadastroTelefone").value.trim(),
+        documentoTipo: docType,
+        documento: document.getElementById("meuCadastroDocumento").value.replace(/\D/g, ""),
+        atualizadoEm: new Date().toISOString()
+      },
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    setMeuCadastroStatus("Cadastro salvo.");
+  } catch (error) {
+    setMeuCadastroStatus(firebaseError(error));
+  }
+}
+
+function setMeuCadastroStatus(message) {
+  const status = document.getElementById("meuCadastroStatus");
+  if (status) status.textContent = message;
 }
 
 function showAuthConfirmModal(title, message) {
