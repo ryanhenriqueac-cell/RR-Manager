@@ -4762,24 +4762,55 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
 
   .manager-pro-showcase-grid {
     display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: none;
     gap: 12px;
     min-height: 0;
-    padding: 14px;
+    padding: 12px;
   }
 
-  .manager-pro-module {
+  .manager-pro-module,
+  .manager-pro-module-orcamentos,
+  .manager-pro-module-financeiro,
+  .manager-pro-module-pdf,
+  .manager-pro-module-cliente {
     position: static;
+    grid-area: auto;
     width: auto;
+    overflow: hidden;
+  }
+
+  .module-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .module-head strong {
+    font-size: 22px;
   }
 
   .module-kanban {
     grid-template-columns: 1fr;
   }
 
+  .module-kanban div {
+    min-height: auto;
+  }
+
   .module-total {
     font-size: 38px;
   }
 
+  .module-money,
+  .module-pdf-paper footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .module-pdf-paper {
+    min-height: auto;
+  }
   .manager-pro-stats div {
     border-right: 0;
     border-bottom: 1px solid var(--mp-border);
