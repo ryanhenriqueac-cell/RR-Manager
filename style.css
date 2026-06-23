@@ -4426,6 +4426,12 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   letter-spacing: 2px;
 }
 
+.manager-pro-price-line {
+  display: block;
+  color: inherit;
+  font-weight: inherit;
+}
+
 .manager-pro-section-head p,
 .manager-pro-diff p,
 .manager-pro-final p {
