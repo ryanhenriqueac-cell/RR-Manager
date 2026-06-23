@@ -4064,7 +4064,6 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
 
 .manager-pro-showcase {
   isolation: isolate;
-  min-height: 610px;
   border: 1px solid rgba(47, 124, 246, 0.22);
   border-radius: 8px;
   background:
@@ -4088,16 +4087,21 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
 
 .manager-pro-showcase-grid {
   position: relative;
-  min-height: inherit;
-  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
+  grid-template-areas:
+    "orcamentos financeiro"
+    "orcamentos pdf"
+    "cliente pdf";
+  gap: 14px;
+  padding: 18px;
 }
 
 .manager-pro-module {
-  position: absolute;
   display: grid;
   gap: 14px;
   min-width: 0;
-  padding: 18px;
+  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   background: linear-gradient(180deg, rgba(18, 36, 60, 0.96), rgba(8, 17, 31, 0.96));
@@ -4106,31 +4110,20 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
 }
 
 .manager-pro-module-orcamentos {
-  top: 34px;
-  left: 24px;
-  width: 57%;
-  z-index: 3;
+  grid-area: orcamentos;
 }
 
 .manager-pro-module-financeiro {
-  top: 78px;
-  right: 22px;
-  width: 39%;
-  z-index: 4;
+  grid-area: financeiro;
 }
 
 .manager-pro-module-pdf {
-  right: 42px;
-  bottom: 30px;
-  width: 34%;
-  z-index: 5;
+  grid-area: pdf;
+  align-content: start;
 }
 
 .manager-pro-module-cliente {
-  left: 52px;
-  bottom: 54px;
-  width: 49%;
-  z-index: 2;
+  grid-area: cliente;
 }
 
 .module-head {
@@ -4229,7 +4222,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   display: flex;
   align-items: end;
   gap: 9px;
-  height: 126px;
+  height: 104px;
   padding: 12px 12px 0;
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 8px;
@@ -4252,6 +4245,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   display: grid;
   gap: 10px;
   padding: 16px;
+  min-height: 245px;
   border-radius: 8px;
   background: #eef4fb;
   color: #102033;
