@@ -220,20 +220,31 @@
 
     const landingConfig = window.firebaseConfig || {};
     const hasFirebaseConfig = landingConfig.apiKey && landingConfig.projectId && landingConfig.authDomain;
+    const hasLocalSession = Boolean(
+      sessionStorage.getItem("rr_firebase_loaded_user")
+      || localStorage.getItem("rr_firebase_remember")
+    );
 
     function updateLandingAccessState(user) {
+      const isLogged = Boolean(user) || hasLocalSession;
       document.querySelectorAll('a[href="dashboard.html"]').forEach((link) => {
         if (!link.dataset.guestLabel) link.dataset.guestLabel = link.textContent.trim();
-        link.textContent = user ? "Voltar para sistema de gest\u00e3o" : link.dataset.guestLabel;
+        link.textContent = isLogged ? "Voltar para sistema de gest\u00e3o" : link.dataset.guestLabel;
       });
       document.querySelectorAll('a[href="cadastro-acesso.html"]').forEach((link) => {
-        link.hidden = Boolean(user);
+        link.hidden = isLogged;
       });
     }
 
+    updateLandingAccessState(hasLocalSession);
+
     if (hasFirebaseConfig) {
-      const landingApp = initializeApp(landingConfig, "rr-manager-landing");
-      onAuthStateChanged(getAuth(landingApp), updateLandingAccessState);
+      try {
+        const landingApp = initializeApp(landingConfig, "rr-manager-landing");
+        onAuthStateChanged(getAuth(landingApp), updateLandingAccessState);
+      } catch (error) {
+        updateLandingAccessState(hasLocalSession);
+      }
     }
   </script>
   <script>
