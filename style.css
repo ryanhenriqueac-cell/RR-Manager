@@ -4854,3 +4854,47 @@ td {
     font-size: 14px;
   }
 }
+
+/* Footer requested refinements */
+.manager-pro-footer-brand small {
+  color: rgba(120, 148, 180, 0.9);
+  letter-spacing: 0.3px;
+}
+
+.manager-pro-float {
+  width: 72px;
+  height: 72px;
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 12px 34px rgba(37, 211, 102, 0.38), 0 0 28px rgba(37, 211, 102, 0.24);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.manager-pro-float:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 16px 42px rgba(37, 211, 102, 0.46), 0 0 34px rgba(37, 211, 102, 0.28);
+}
+
+.manager-pro-float::before {
+  content: none;
+}
+
+.manager-pro-float svg {
+  width: 34px;
+  height: 34px;
+  fill: currentColor;
+}
+
+@media (max-width: 720px) {
+  .manager-pro-float {
+    width: 58px;
+    height: 58px;
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .manager-pro-float svg {
+    width: 28px;
+    height: 28px;
+  }
+}
