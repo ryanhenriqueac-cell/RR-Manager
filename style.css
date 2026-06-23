@@ -4594,3 +4594,263 @@ td {
     text-align: left;
   }
 }
+
+/* RR Manager scroll reveal and footer polish */
+.manager-pro-page {
+  scroll-behavior: smooth;
+}
+
+.manager-pro-page main {
+  overflow: hidden;
+}
+
+.reveal,
+.reveal-l,
+.reveal-r {
+  opacity: 0;
+  transition: opacity 0.72s ease, transform 0.72s ease, filter 0.72s ease;
+  will-change: opacity, transform;
+  filter: blur(8px);
+}
+
+.reveal {
+  transform: translateY(34px);
+}
+
+.reveal-l {
+  transform: translateX(-42px);
+}
+
+.reveal-r {
+  transform: translateX(42px);
+}
+
+.reveal.visible,
+.reveal-l.visible,
+.reveal-r.visible {
+  opacity: 1;
+  transform: translate(0, 0);
+  filter: blur(0);
+}
+
+.manager-pro-screen.visible .manager-pro-bars span {
+  animation: managerBars 2.8s ease-in-out infinite alternate;
+}
+
+.manager-pro-screen.visible .manager-pro-bars span:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.manager-pro-screen.visible .manager-pro-bars span:nth-child(3) {
+  animation-delay: 0.34s;
+}
+
+.manager-pro-screen.visible .manager-pro-bars span:nth-child(4) {
+  animation-delay: 0.5s;
+}
+
+.manager-pro-screen.visible .manager-pro-bars span:nth-child(5) {
+  animation-delay: 0.66s;
+}
+
+.manager-pro-screen.visible .manager-pro-bars span:nth-child(6) {
+  animation-delay: 0.82s;
+}
+
+@keyframes managerBars {
+  from {
+    transform: scaleY(0.86);
+    opacity: 0.72;
+  }
+
+  to {
+    transform: scaleY(1.04);
+    opacity: 1;
+  }
+}
+
+.manager-pro-problem-grid article,
+.manager-pro-steps div,
+.manager-pro-feature-grid article,
+.manager-pro-faq-grid details {
+  transition-property: opacity, transform, filter, background, border-color, box-shadow;
+}
+
+.manager-pro-problem-grid article:hover,
+.manager-pro-steps div:hover,
+.manager-pro-feature-grid article:hover,
+.manager-pro-faq-grid details:hover {
+  background: var(--mp-surface2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.manager-pro-final {
+  padding-bottom: 112px;
+}
+
+.manager-pro-final-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(47, 124, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 124, 246, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 75% 62% at 50% 48%, black 12%, transparent 78%);
+  pointer-events: none;
+}
+
+.manager-pro-final > span,
+.manager-pro-final > h2,
+.manager-pro-final > p,
+.manager-pro-final > div:not(.manager-pro-final-grid) {
+  position: relative;
+  z-index: 1;
+}
+
+.manager-pro-footer {
+  position: relative;
+  border-top: 1px solid var(--mp-border);
+  background: linear-gradient(180deg, rgba(8, 17, 32, 0.98), rgba(5, 9, 18, 1));
+  overflow: hidden;
+}
+
+.manager-pro-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(47, 124, 246, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 124, 246, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+.manager-pro-footer-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  width: min(1450px, calc(100% - 96px));
+  min-height: 170px;
+  margin: 0 auto;
+  padding: 34px 0;
+}
+
+.manager-pro-footer-brand div {
+  color: var(--mp-text);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 31px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.manager-pro-footer-brand strong {
+  color: var(--mp-blue);
+  font-weight: inherit;
+}
+
+.manager-pro-footer-brand sup {
+  color: var(--mp-muted);
+  font-family: "Exo 2", sans-serif;
+  font-size: 10px;
+  letter-spacing: 0;
+}
+
+.manager-pro-footer-brand p,
+.manager-pro-footer-brand small {
+  display: block;
+  color: rgba(120, 148, 180, 0.78);
+  font-family: "Share Tech Mono", monospace;
+  letter-spacing: 2px;
+}
+
+.manager-pro-footer-brand p {
+  margin: 4px 0 20px;
+  font-size: 13px;
+}
+
+.manager-pro-footer-brand small {
+  font-size: 12px;
+}
+
+.manager-pro-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 22px;
+  max-width: 760px;
+  color: rgba(120, 148, 180, 0.9);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.manager-pro-footer-links a {
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.manager-pro-footer-links a:hover {
+  color: var(--mp-blue);
+  transform: translateY(-1px);
+}
+
+.manager-pro-float {
+  font-size: 0;
+}
+
+.manager-pro-float::before {
+  content: "";
+  width: 27px;
+  height: 27px;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347M12.05 21.785h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-l,
+  .reveal-r {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+
+  .manager-pro-screen.visible .manager-pro-bars span {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .manager-pro-footer-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    width: min(100% - 32px, 1450px);
+  }
+
+  .manager-pro-footer-links {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .reveal-l,
+  .reveal-r {
+    transform: translateY(30px);
+  }
+
+  .manager-pro-footer-inner {
+    min-height: 0;
+    padding: 28px 0 92px;
+  }
+
+  .manager-pro-footer-brand div {
+    font-size: 27px;
+  }
+
+  .manager-pro-footer-links {
+    gap: 14px 18px;
+    font-size: 14px;
+  }
+}
