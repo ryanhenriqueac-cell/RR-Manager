@@ -1129,6 +1129,8 @@ td {
   position: absolute;
   right: 8px;
   top: 50%;
+  display: grid;
+  place-items: center;
   width: 36px;
   height: 36px;
   min-height: 36px;
@@ -1138,6 +1140,8 @@ td {
   background: transparent;
   color: var(--muted);
   cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
   transform: translateY(-50%);
 }
 
