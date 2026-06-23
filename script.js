@@ -326,12 +326,16 @@ function getDocumentBranding(source = {}) {
   const registration = stored.registration || {};
   const email = normalizeEmailKey(incoming.ownerEmail || stored.ownerEmail || stored.email);
   const patch = DOCUMENT_BRANDING_PATCHES[email] || {};
-  const companyName = patch.companyName || incoming.companyName || stored.businessName || registration.empresa || DEFAULT_DOCUMENT_BRANDING.companyName;
+  const companyName = incoming.companyName || stored.reportName || stored.businessName || registration.empresa || patch.companyName || DEFAULT_DOCUMENT_BRANDING.companyName;
+  const reportName = incoming.reportName || stored.reportName || companyName || patch.reportName || DEFAULT_DOCUMENT_BRANDING.reportName;
   return {
     companyName,
-    reportName: patch.reportName || incoming.reportName || companyName || DEFAULT_DOCUMENT_BRANDING.reportName,
-    tagline: patch.tagline || incoming.tagline || stored.tagline || DEFAULT_DOCUMENT_BRANDING.tagline,
-    logoUrl: patch.logoUrl || incoming.logoUrl || stored.logoUrl || DEFAULT_DOCUMENT_BRANDING.logoUrl,
+    reportName,
+    tagline: incoming.tagline || stored.tagline || patch.tagline || DEFAULT_DOCUMENT_BRANDING.tagline,
+    logoUrl: incoming.logoUrl || stored.logoUrl || patch.logoUrl || DEFAULT_DOCUMENT_BRANDING.logoUrl,
+    pixKey: incoming.pixKey || stored.pixKey || PIX_CONFIG.chave,
+    pixName: incoming.pixName || stored.pixName || companyName || PIX_CONFIG.nome,
+    pixCity: incoming.pixCity || stored.pixCity || PIX_CONFIG.cidade,
     ownerEmail: email
   };
 }
@@ -343,7 +347,10 @@ function getPublicDocumentBranding() {
     companyName: branding.companyName,
     reportName: branding.reportName,
     tagline: branding.tagline,
-    logoUrl: branding.logoUrl
+    logoUrl: branding.logoUrl,
+    pixKey: branding.pixKey,
+    pixName: branding.pixName,
+    pixCity: branding.pixCity
   };
 }
 
@@ -404,8 +411,8 @@ function pixCrc16(payload) {
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
-function buildPixPayload(value, txid = "***") {
-  const merchantAccount = pixTlv("00", "br.gov.bcb.pix") + pixTlv("01", PIX_CONFIG.chave);
+function buildPixPayload(value, txid = "***", pixConfig = PIX_CONFIG) {
+  const merchantAccount = pixTlv("00", "br.gov.bcb.pix") + pixTlv("01", pixConfig.chave);
   const amount = parseDecimal(value).toFixed(2);
   const payloadSemCrc = [
     pixTlv("00", "01"),
@@ -414,8 +421,8 @@ function buildPixPayload(value, txid = "***") {
     pixTlv("53", "986"),
     pixTlv("54", amount),
     pixTlv("58", "BR"),
-    pixTlv("59", onlyAscii(PIX_CONFIG.nome).slice(0, 25).toUpperCase()),
-    pixTlv("60", onlyAscii(PIX_CONFIG.cidade).slice(0, 15).toUpperCase()),
+    pixTlv("59", onlyAscii(pixConfig.nome).slice(0, 25).toUpperCase()),
+    pixTlv("60", onlyAscii(pixConfig.cidade).slice(0, 15).toUpperCase()),
     pixTlv("62", pixTlv("05", onlyAscii(txid).replace(/\W/g, "").slice(0, 25) || "***")),
     "6304"
   ].join("");
@@ -426,8 +433,16 @@ function buildPixPaymentHtml(orcamento, totalFinal) {
   const podeMostrarPix = orcamento.publicCliente ? orcamento.pixEnabled === true : orcamento.status === "Aprovado";
   if (!podeMostrarPix) return "";
 
+  const branding = getDocumentBranding(orcamento);
+  const pixConfig = {
+    chave: branding.pixKey,
+    nome: branding.pixName || branding.companyName,
+    cidade: branding.pixCity || PIX_CONFIG.cidade
+  };
+  if (!pixConfig.chave) return "";
+
   const numero = String(orcamento.numero || "").padStart(4, "0");
-  const payload = buildPixPayload(totalFinal, `ORC${numero}`);
+  const payload = buildPixPayload(totalFinal, `ORC${numero}`, pixConfig);
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&margin=8&data=${encodeURIComponent(payload)}`;
 
   return `
@@ -437,9 +452,9 @@ function buildPixPaymentHtml(orcamento, totalFinal) {
         <strong>${money(totalFinal)}</strong>
         <small>Escaneie o QR Code ou use o Pix copia e cola.</small>
       </div>
-      <img src="${qrUrl}" alt="QR Code Pix para pagamento do orçamento ${numero}">
+      <img src="${qrUrl}" alt="QR Code Pix para pagamento do orcamento ${numero}">
       <p>${escapeHtml(payload)}</p>
-      <small>Chave Pix: ${escapeHtml(PIX_CONFIG.chave)}</small>
+      <small>Chave Pix: ${escapeHtml(pixConfig.chave)}</small>
     </aside>
   `;
 }

@@ -24,6 +24,7 @@ const REMEMBER_KEY = "rr_firebase_remember";
 const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
 const REGISTER_PREFILL_KEY = "rr_register_prefill";
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
+const ONBOARDING_VERSION = "manager_intro_v1";
 const ACCESS_STATUS = {
   PENDING: "pending",
   ACTIVE: "active",
@@ -126,7 +127,7 @@ if (!configReady) {
     setAdminSelecting(false);
     setUserStatus(user.email);
     setAppLocked(false);
-    await loadCloudData(activeWorkspaceId);
+    const loadedWorkspace = await loadCloudData(activeWorkspaceId);
     setUserStatus(user.email);
     cloudReady = true;
     window.rrFirebaseReady = true;
@@ -134,7 +135,10 @@ if (!configReady) {
     if (sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId) {
       sessionStorage.setItem(SYNC_FLAG, activeWorkspaceId);
       window.location.reload();
+      return;
     }
+
+    maybeShowOnboarding(loadedWorkspace);
   });
 }
 
@@ -255,6 +259,7 @@ function buildAuthShell() {
   bar.id = "firebaseUserBar";
   bar.innerHTML = `
     <span id="firebaseUserStatus"></span>
+    <button class="btn btn-muted" type="button" id="rrOnboardingReplay" hidden>Tutorial</button>
     <button class="btn btn-muted" type="button" id="firebaseAdminBack" hidden>Admin</button>
     <button class="btn btn-muted" type="button" id="firebaseLogout">Sair</button>
   `;
@@ -276,6 +281,7 @@ function bindAuthEvents() {
   document.getElementById("firebaseLogout").addEventListener("click", () => signOut(auth));
   document.getElementById("firebaseAdminLogout").addEventListener("click", () => signOut(auth));
   document.getElementById("firebaseAdminBack").addEventListener("click", backToAdminDashboard);
+  document.getElementById("rrOnboardingReplay").addEventListener("click", () => showOnboarding(true));
   document.getElementById("toggleFirebasePassword").addEventListener("click", () => togglePasswordVisibility("firebasePassword", "toggleFirebasePassword"));
   document.querySelectorAll("[data-password-target]").forEach((button) => {
     button.addEventListener("click", () => togglePasswordVisibility(button.dataset.passwordTarget, null, button));
@@ -433,7 +439,7 @@ async function loadCloudData(uid) {
       setWorkspaceBrandingContext(workspace);
       renderMeuCadastro(workspace);
       showAuthMessage("");
-      return;
+      return workspace;
     }
 
     const cloudData = snap.data() || {};
@@ -447,9 +453,11 @@ async function loadCloudData(uid) {
     });
     syncingFromCloud = false;
     showAuthMessage("");
+    return cloudData;
   } catch (error) {
     syncingFromCloud = false;
     showAuthMessage(firebaseError(error));
+    return null;
   }
 }
 
@@ -476,8 +484,12 @@ function setWorkspaceBrandingContext(workspace = {}) {
   localStorage.setItem(WORKSPACE_BRANDING_KEY, JSON.stringify({
     ownerEmail: workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "",
     businessName: workspace.businessName || registration.empresa || "",
+    reportName: workspace.reportName || "",
     logoUrl: workspace.logoUrl || "",
     tagline: workspace.tagline || "",
+    pixKey: workspace.pixKey || "",
+    pixName: workspace.pixName || "",
+    pixCity: workspace.pixCity || "",
     registration
   }));
 }
@@ -490,6 +502,10 @@ async function saveAccessRequest(user) {
     ownerEmail: user.email,
     businessName: document.getElementById("registerBusinessName").value.trim(),
     accessStatus: ACCESS_STATUS.PENDING,
+    onboarding: {
+      version: ONBOARDING_VERSION,
+      managerIntroCompleted: false
+    },
     registration: {
       empresa: document.getElementById("registerBusinessName").value.trim(),
       nome: document.getElementById("registerName").value.trim(),
@@ -532,11 +548,15 @@ function showAuthStatusModal(title, message) {
 function bindMeuCadastroEvents() {
   if (!document.getElementById("meuCadastroForm")) return;
   document.getElementById("meuCadastroForm").addEventListener("submit", saveMeuCadastro);
+  document.getElementById("empresaPersonalizacaoForm")?.addEventListener("submit", saveEmpresaPersonalizacao);
   document.querySelectorAll("input[name='meuCadastroDocType']").forEach((input) => {
     input.addEventListener("change", updateMeuCadastroDocumentPlaceholder);
   });
   bindMaskedInput("meuCadastroTelefone", formatCadastroPhone);
   bindMaskedInput("meuCadastroDocumento", (value) => formatCadastroDocument(value, getMeuCadastroDocType()));
+  ["meuCadastroNomeOrcamento", "meuCadastroTagline", "meuCadastroLogoUrl"].forEach((id) => {
+    document.getElementById(id)?.addEventListener("input", updatePersonalizacaoPreview);
+  });
 }
 
 function renderMeuCadastro(workspace = {}) {
@@ -544,15 +564,43 @@ function renderMeuCadastro(workspace = {}) {
   if (!form) return;
   const registration = workspace.registration || {};
   const docType = registration.documentoTipo || "CPF";
-  document.getElementById("meuCadastroEmpresa").value = workspace.businessName || registration.empresa || "";
+  const businessName = workspace.businessName || registration.empresa || "";
+  document.getElementById("meuCadastroEmpresa").value = businessName;
   document.getElementById("meuCadastroNome").value = registration.nome || "";
   document.getElementById("meuCadastroEmail").value = workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "";
   document.getElementById("meuCadastroTelefone").value = formatCadastroPhone(registration.telefone || "");
   document.getElementById("meuCadastroDocumento").value = formatCadastroDocument(registration.documento || "", docType);
+  setValueIfExists("meuCadastroNomeOrcamento", workspace.reportName || businessName);
+  setValueIfExists("meuCadastroTagline", workspace.tagline || "");
+  setValueIfExists("meuCadastroLogoUrl", workspace.logoUrl || "");
+  setValueIfExists("meuCadastroPixChave", workspace.pixKey || "");
+  setValueIfExists("meuCadastroPixNome", workspace.pixName || businessName);
+  setValueIfExists("meuCadastroPixCidade", workspace.pixCity || "");
   const docTypeInput = document.querySelector(`input[name='meuCadastroDocType'][value='${docType}']`);
   if (docTypeInput) docTypeInput.checked = true;
   updateMeuCadastroDocumentPlaceholder();
+  updatePersonalizacaoPreview();
   setMeuCadastroStatus("");
+  setMeuCadastroPersonalizacaoStatus("");
+}
+
+function setValueIfExists(id, value) {
+  const input = document.getElementById(id);
+  if (input) input.value = value || "";
+}
+
+function updatePersonalizacaoPreview() {
+  const companyName = document.getElementById("meuCadastroNomeOrcamento")?.value
+    || document.getElementById("meuCadastroEmpresa")?.value
+    || "Nome da empresa";
+  const tagline = document.getElementById("meuCadastroTagline")?.value || "Frase do orcamento";
+  const logoUrl = document.getElementById("meuCadastroLogoUrl")?.value || "assets/logo-rr.png";
+  const previewName = document.getElementById("meuCadastroPreviewNome");
+  const previewTagline = document.getElementById("meuCadastroPreviewTagline");
+  const previewLogo = document.getElementById("meuCadastroLogoPreview");
+  if (previewName) previewName.textContent = companyName;
+  if (previewTagline) previewTagline.textContent = tagline;
+  if (previewLogo) previewLogo.src = logoUrl;
 }
 
 function updateMeuCadastroDocumentPlaceholder() {
@@ -616,11 +664,14 @@ async function saveMeuCadastro(event) {
   }
   try {
     const snap = await getDoc(doc(db, "workspaces", activeWorkspaceId));
-    const currentRegistration = snap.exists() ? snap.data().registration || {} : {};
+    const currentData = snap.exists() ? snap.data() || {} : {};
+    const currentRegistration = currentData.registration || {};
     const docType = document.querySelector("input[name='meuCadastroDocType']:checked")?.value || "CPF";
+    const customization = getEmpresaPersonalizacaoPayload(businessName);
     setMeuCadastroStatus("Salvando...");
     await setDoc(doc(db, "workspaces", activeWorkspaceId), {
       businessName,
+      ...customization,
       registration: {
         ...currentRegistration,
         empresa: businessName,
@@ -635,6 +686,7 @@ async function saveMeuCadastro(event) {
     setWorkspaceBrandingContext({
       ownerEmail: activeWorkspaceEmail || currentUser.email,
       businessName,
+      ...customization,
       registration: {
         ...currentRegistration,
         empresa: businessName,
@@ -644,9 +696,46 @@ async function saveMeuCadastro(event) {
         documento: formatCadastroDocument(document.getElementById("meuCadastroDocumento").value, docType)
       }
     });
+    updatePersonalizacaoPreview();
     setMeuCadastroStatus("Cadastro salvo.");
   } catch (error) {
     setMeuCadastroStatus(firebaseError(error));
+  }
+}
+
+function getEmpresaPersonalizacaoPayload(fallbackName = "") {
+  const reportName = document.getElementById("meuCadastroNomeOrcamento")?.value.trim() || fallbackName;
+  return {
+    reportName,
+    logoUrl: document.getElementById("meuCadastroLogoUrl")?.value.trim() || "",
+    tagline: document.getElementById("meuCadastroTagline")?.value.trim() || "",
+    pixKey: document.getElementById("meuCadastroPixChave")?.value.trim() || "",
+    pixName: document.getElementById("meuCadastroPixNome")?.value.trim() || reportName,
+    pixCity: document.getElementById("meuCadastroPixCidade")?.value.trim() || ""
+  };
+}
+
+async function saveEmpresaPersonalizacao(event) {
+  event.preventDefault();
+  if (!currentUser || !db || !activeWorkspaceId) return;
+  const businessName = document.getElementById("meuCadastroEmpresa")?.value.trim() || "";
+  const customization = getEmpresaPersonalizacaoPayload(businessName);
+  try {
+    setMeuCadastroPersonalizacaoStatus("Salvando...");
+    await setDoc(doc(db, "workspaces", activeWorkspaceId), {
+      ...customization,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    setWorkspaceBrandingContext({
+      ownerEmail: activeWorkspaceEmail || currentUser.email,
+      businessName,
+      ...customization,
+      registration: { empresa: businessName }
+    });
+    updatePersonalizacaoPreview();
+    setMeuCadastroPersonalizacaoStatus("Personalizacao salva.");
+  } catch (error) {
+    setMeuCadastroPersonalizacaoStatus(firebaseError(error));
   }
 }
 
@@ -655,6 +744,160 @@ function setMeuCadastroStatus(message) {
   if (status) status.textContent = message;
 }
 
+function setMeuCadastroPersonalizacaoStatus(message) {
+  const status = document.getElementById("meuCadastroPersonalizacaoStatus");
+  if (status) status.textContent = message;
+}
+
+function isOnboardingPage() {
+  return ["dashboard", "clientes", "orcamentos", "financeiro", "meu-cadastro", "servicos", "veiculos"].includes(document.body.dataset.page || "");
+}
+
+function getOnboardingLocalKey() {
+  return `rr_onboarding_${ONBOARDING_VERSION}_${activeWorkspaceId || currentUser?.uid || "local"}`;
+}
+
+function maybeShowOnboarding(workspace = {}) {
+  if (!currentUser || isAdminUser(currentUser) || !isOnboardingPage()) return;
+  const onboarding = workspace?.onboarding || {};
+  const completed = onboarding.managerIntroCompleted || localStorage.getItem(getOnboardingLocalKey()) === "done";
+  if (completed) return;
+  setTimeout(() => showOnboarding(false), 650);
+}
+
+function getOnboardingSteps() {
+  return [
+    {
+      title: "Bem-vindo ao RR Manager",
+      text: "Vamos passar pelo fluxo ideal para sua oficina sentir valor logo no primeiro uso.",
+      action: "Comecar"
+    },
+    {
+      title: "1. Complete cadastro, logo e Pix",
+      text: "Em Meu cadastro, configure dados da empresa, logo, frase do orcamento e chave Pix usada no QR Code.",
+      href: "meu-cadastro.html",
+      action: "Abrir meu cadastro"
+    },
+    {
+      title: "2. Cadastre o primeiro cliente",
+      text: "Todo orcamento comeca por um cliente. Salve os dados principais para encontrar tudo depois.",
+      href: "clientes.html",
+      action: "Cadastrar cliente"
+    },
+    {
+      title: "3. Vincule o veiculo ao cliente",
+      text: "No cadastro do cliente, adicione carro, placa, modelo e observacoes importantes.",
+      href: "clientes.html",
+      action: "Adicionar veiculo"
+    },
+    {
+      title: "4. Crie o primeiro orcamento",
+      text: "Selecione cliente e veiculo, adicione pecas, servicos, horas e valor final.",
+      href: "orcamentos.html",
+      action: "Criar orcamento"
+    },
+    {
+      title: "5. Aprove e acompanhe o financeiro",
+      text: "Quando um orcamento e aprovado, a receita entra no financeiro e voce acompanha saldo, custos e despesas.",
+      href: "financeiro.html",
+      action: "Ver financeiro"
+    }
+  ];
+}
+function showOnboarding(force = false) {
+  if (!force && document.querySelector(".onboarding-overlay")) return;
+  const steps = getOnboardingSteps();
+  let currentStep = 0;
+  const overlay = document.createElement("div");
+  overlay.className = "onboarding-overlay";
+  overlay.innerHTML = `
+    <div class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+      <div class="onboarding-head">
+        <img src="assets/logo-rr-manager.png" alt="RR Manager">
+        <div>
+          <span>Primeiro acesso guiado</span>
+          <h2 id="onboardingTitle"></h2>
+        </div>
+      </div>
+      <p id="onboardingText"></p>
+      <div class="onboarding-progress" aria-hidden="true"></div>
+      <ol class="onboarding-checklist"></ol>
+      <div class="onboarding-actions">
+        <button class="btn btn-muted" type="button" data-onboarding-skip>Pular tutorial</button>
+        <button class="btn btn-muted" type="button" data-onboarding-back>Voltar</button>
+        <a class="btn btn-ghost" data-onboarding-link hidden></a>
+        <button class="btn btn-primary" type="button" data-onboarding-next>Proximo</button>
+      </div>
+    </div>
+  `;
+
+  const title = overlay.querySelector("#onboardingTitle");
+  const text = overlay.querySelector("#onboardingText");
+  const progress = overlay.querySelector(".onboarding-progress");
+  const checklist = overlay.querySelector(".onboarding-checklist");
+  const back = overlay.querySelector("[data-onboarding-back]");
+  const next = overlay.querySelector("[data-onboarding-next]");
+  const skip = overlay.querySelector("[data-onboarding-skip]");
+  const link = overlay.querySelector("[data-onboarding-link]");
+
+  async function finish(skipped = false) {
+    localStorage.setItem(getOnboardingLocalKey(), "done");
+    overlay.remove();
+    if (!currentUser || !db || !activeWorkspaceId) return;
+    await setDoc(doc(db, "workspaces", activeWorkspaceId), {
+      onboarding: {
+        version: ONBOARDING_VERSION,
+        managerIntroCompleted: true,
+        managerIntroSkipped: skipped,
+        managerIntroCompletedAt: new Date().toISOString()
+      },
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  function render() {
+    const step = steps[currentStep];
+    title.textContent = step.title;
+    text.textContent = step.text;
+    progress.style.setProperty("--onboarding-progress", `${((currentStep + 1) / steps.length) * 100}%`);
+    checklist.innerHTML = steps.map((item, index) => `
+      <li class="${index < currentStep ? "done" : index === currentStep ? "active" : ""}">
+        <span>${index + 1}</span>${escapeHtml(item.title.replace(/^\d+\.\s*/, ""))}
+      </li>
+    `).join("");
+    back.disabled = currentStep === 0;
+    next.textContent = currentStep === steps.length - 1 ? "Concluir" : "Proximo";
+    if (step.href) {
+      link.hidden = false;
+      link.href = step.href;
+      link.textContent = step.action;
+    } else {
+      link.hidden = true;
+      link.removeAttribute("href");
+      link.textContent = "";
+    }
+  }
+
+  back.addEventListener("click", () => {
+    currentStep = Math.max(0, currentStep - 1);
+    render();
+  });
+  next.addEventListener("click", async () => {
+    if (currentStep === steps.length - 1) {
+      await finish(false);
+      return;
+    }
+    currentStep += 1;
+    render();
+  });
+  skip.addEventListener("click", () => finish(true));
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) finish(true);
+  });
+
+  document.body.appendChild(overlay);
+  render();
+}
 function showAuthConfirmModal(title, message) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
@@ -888,12 +1131,14 @@ function setAdminSelecting(selecting) {
 function setUserStatus(email) {
   const status = document.getElementById("firebaseUserStatus");
   const adminBack = document.getElementById("firebaseAdminBack");
+  const onboardingReplay = document.getElementById("rrOnboardingReplay");
   const adminViewing = currentUser && isAdminUser(currentUser) && activeWorkspaceId;
   if (status) {
     const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId}` : "Status: Online";
     status.textContent = email ? detail : "";
   }
   if (adminBack) adminBack.hidden = !adminViewing;
+  if (onboardingReplay) onboardingReplay.hidden = !email || adminViewing || !isOnboardingPage();
   document.body.classList.toggle("firebase-logged-in", Boolean(email));
 }
 
