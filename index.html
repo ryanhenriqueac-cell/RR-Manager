@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=57">
+  <link rel="stylesheet" href="style.css?v=58">
 </head>
 <body class="manager-pro-page">
   <nav class="manager-pro-nav" aria-label="Navegacao principal">
@@ -53,31 +53,49 @@
         </div>
       </div>
 
-      <div class="manager-pro-screen reveal-r visible" aria-label="Previa do dashboard RR Manager">
-        <div class="manager-pro-window-bar">
-          <span></span><span></span><span></span>
-          <strong>RR Manager · Dashboard</strong>
-        </div>
-        <div class="manager-pro-screen-body">
-          <div class="manager-pro-mini-stats">
-            <div><small>Clientes</small><strong>128</strong></div>
-            <div><small>Carros</small><strong>214</strong></div>
-            <div><small>Pre-orc.</small><strong>24</strong></div>
-            <div><small>Saldo</small><strong>18,4K</strong></div>
-          </div>
-          <div class="manager-pro-bars" aria-hidden="true">
-            <span style="height: 36%"></span>
-            <span style="height: 72%"></span>
-            <span style="height: 52%"></span>
-            <span style="height: 88%"></span>
-            <span style="height: 64%"></span>
-            <span style="height: 78%"></span>
-          </div>
-          <div class="manager-pro-queue">
-            <div><span class="ok"></span><strong>Honda Civic 2018</strong><em>Aprovado</em><b>R$ 2.840</b></div>
-            <div><span class="warn"></span><strong>Fiat Toro 2021</strong><em>Aguardando</em><b>R$ 1.390</b></div>
-            <div><span class="ok"></span><strong>Onix 2020</strong><em>Aprovado</em><b>R$ 760</b></div>
-          </div>
+      <div class="manager-pro-showcase reveal-r visible" aria-label="Previa dos principais modulos do RR Manager">
+        <div class="manager-pro-showcase-grid">
+          <article class="manager-pro-module manager-pro-module-orcamentos">
+            <div class="module-head"><span>Orcamentos</span><strong>Pipeline</strong></div>
+            <div class="module-kanban">
+              <div><small>Pre-orc.</small><b>12</b><em>Aguardando decisao</em></div>
+              <div><small>Aprovados</small><b>8</b><em>Receita gerada</em></div>
+              <div><small>Conversao</small><b>67%</b><em>Mes atual</em></div>
+            </div>
+            <div class="module-row"><i class="warn"></i><span>Hilux 2020</span><strong>R$ 3.420</strong></div>
+            <div class="module-row"><i></i><span>Civic 2018</span><strong>R$ 2.840</strong></div>
+          </article>
+
+          <article class="manager-pro-module manager-pro-module-financeiro">
+            <div class="module-head"><span>Financeiro</span><strong>Fluxo do mes</strong></div>
+            <div class="module-total">R$ 18.460<small>saldo projetado</small></div>
+            <div class="module-chart" aria-hidden="true">
+              <span style="height: 42%"></span><span style="height: 68%"></span><span style="height: 54%"></span><span style="height: 86%"></span><span style="height: 72%"></span>
+            </div>
+            <div class="module-money"><span>Receitas R$ 27.900</span><em>Custos R$ 9.440</em></div>
+          </article>
+
+          <article class="manager-pro-module manager-pro-module-pdf">
+            <div class="module-head"><span>PDF</span><strong>Orcamento #0248</strong></div>
+            <div class="module-pdf-paper">
+              <div></div><p></p><p></p><p></p>
+              <section><span></span><span></span><span></span></section>
+              <strong>Total R$ 2.840</strong>
+            </div>
+          </article>
+
+          <article class="manager-pro-module manager-pro-module-cliente">
+            <div class="module-head"><span>Clientes</span><strong>Historico completo</strong></div>
+            <div class="module-client">
+              <b>Ryan Costa</b>
+              <span>BMW 320i 2019 | Placa RRM-2026</span>
+            </div>
+            <ul>
+              <li>Ultimo servico: revisao completa</li>
+              <li>Pix e logo personalizados por oficina</li>
+              <li>Dados sincronizados na nuvem</li>
+            </ul>
+          </article>
         </div>
       </div>
     </section>
