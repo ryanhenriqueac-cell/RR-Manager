@@ -4898,3 +4898,162 @@ td {
     height: 28px;
   }
 }
+
+/* Pricing conversion blocks */
+.manager-pro-hero-price {
+  display: inline-grid;
+  gap: 6px;
+  min-width: min(100%, 360px);
+  margin: 0 0 28px;
+  padding: 18px 22px;
+  border: 1px solid rgba(34, 197, 94, 0.38);
+  border-left: 3px solid var(--mp-green);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(18, 31, 51, 0.92), rgba(8, 17, 32, 0.92));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24), 0 0 30px rgba(34, 197, 94, 0.08);
+}
+
+.manager-pro-hero-price > span,
+.manager-pro-price-copy > span,
+.manager-pro-price-box > span {
+  color: var(--mp-blue);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.manager-pro-hero-price strong,
+.manager-pro-price-box strong {
+  color: var(--mp-green);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 58px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 0.95;
+}
+
+.manager-pro-hero-price small,
+.manager-pro-price-box small {
+  color: #9adbb8;
+  font-family: "Exo 2", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+
+.manager-pro-hero-price p {
+  margin: 0;
+  color: var(--mp-muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.manager-pro-pricing {
+  padding: 82px 48px;
+  border-bottom: 1px solid var(--mp-border);
+  background:
+    radial-gradient(ellipse 70% 60% at 70% 30%, rgba(34, 197, 94, 0.08), transparent 72%),
+    var(--mp-bg);
+}
+
+.manager-pro-price-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+  gap: 42px;
+  align-items: center;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 34px;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-left: 3px solid var(--mp-green);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(18, 31, 51, 0.98), rgba(8, 17, 32, 0.98));
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.34);
+}
+
+.manager-pro-price-copy h2 {
+  max-width: 680px;
+  margin: 14px 0;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(42px, 5vw, 70px);
+  font-weight: 400;
+  letter-spacing: 2px;
+  line-height: 0.96;
+}
+
+.manager-pro-price-copy p,
+.manager-pro-price-box p {
+  margin: 0;
+  color: var(--mp-muted);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.manager-pro-price-box {
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  background: rgba(3, 8, 15, 0.46);
+}
+
+.manager-pro-price-box strong {
+  font-size: 72px;
+}
+
+.manager-pro-price-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 2px;
+}
+
+.manager-pro-price-pills em {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 6px 10px;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.08);
+  color: #9adbb8;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.manager-pro-price-box .manager-pro-cta {
+  width: 100%;
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .manager-pro-price-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .manager-pro-pricing {
+    padding: 58px 16px;
+  }
+
+  .manager-pro-price-card,
+  .manager-pro-price-box {
+    padding: 20px;
+  }
+
+  .manager-pro-hero-price {
+    width: 100%;
+  }
+
+  .manager-pro-hero-price strong,
+  .manager-pro-price-box strong {
+    font-size: 52px;
+  }
+}
