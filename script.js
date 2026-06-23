@@ -19,24 +19,23 @@ const PIX_CONFIG = {
 
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
 const DEFAULT_DOCUMENT_BRANDING = {
-  companyName: "RR Reparação Automotiva",
-  reportName: "RR Reparação Manager",
-  tagline: "Manutenção especializada | Paixão por carros",
-  logoUrl: "assets/logo-rr.png"
+  companyName: "RR Manager",
+  reportName: "RR Manager",
+  tagline: "Manuten\u00e7\u00e3o especializada | Paix\u00e3o por carros",
+  logoUrl: "assets/logo-rr-manager.png"
 };
 const DOCUMENT_BRANDING_PATCHES = {
   "ryanhenriqueac@gmail.com": {
-    companyName: DEFAULT_DOCUMENT_BRANDING.companyName,
-    reportName: DEFAULT_DOCUMENT_BRANDING.reportName,
-    tagline: DEFAULT_DOCUMENT_BRANDING.tagline,
-    logoUrl: DEFAULT_DOCUMENT_BRANDING.logoUrl
+    companyName: "RR Repara\u00e7\u00e3o Automotiva",
+    reportName: "RR Repara\u00e7\u00e3o Manager",
+    tagline: "Manuten\u00e7\u00e3o especializada | Paix\u00e3o por carros",
+    logoUrl: "assets/logo-rr.png"
   },
   "nicolylmrocha@gmail.com": {
-    tagline: "Manutenção especializada | Paixão por carros",
+    tagline: "Manuten\u00e7\u00e3o especializada | Paix\u00e3o por carros",
     logoUrl: "assets/logo-rr-iphones.png"
   }
 };
-
 const PAYMENT_RATES = {
   pix: { label: "Pix com 3% de desconto", installments: { 1: 0 }, discountPercent: 3 },
   debit: { label: "Débito", installments: { 1: 1.37 } },
