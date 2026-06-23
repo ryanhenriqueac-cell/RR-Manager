@@ -220,10 +220,7 @@
 
     const landingConfig = window.firebaseConfig || {};
     const hasFirebaseConfig = landingConfig.apiKey && landingConfig.projectId && landingConfig.authDomain;
-    const hasLocalSession = Boolean(
-      sessionStorage.getItem("rr_firebase_loaded_user")
-      || localStorage.getItem("rr_firebase_remember")
-    );
+    const hasLocalSession = Boolean(sessionStorage.getItem("rr_firebase_loaded_user"));
 
     function updateLandingAccessState(user) {
       const isLogged = Boolean(user) || hasLocalSession;

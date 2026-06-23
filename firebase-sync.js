@@ -290,8 +290,8 @@ function bindAuthEvents() {
 
   document.getElementById("firebaseCreateAccount").addEventListener("click", goToRegisterPage);
   document.getElementById("firebaseBackToLogin").addEventListener("click", showLoginForm);
-  document.getElementById("firebaseLogout").addEventListener("click", () => signOut(auth));
-  document.getElementById("firebaseAdminLogout").addEventListener("click", () => signOut(auth));
+  document.getElementById("firebaseLogout").addEventListener("click", logout);
+  document.getElementById("firebaseAdminLogout").addEventListener("click", logout);
   document.getElementById("firebaseAdminBack").addEventListener("click", backToAdminDashboard);
   document.getElementById("rrOnboardingReplay").addEventListener("click", () => showOnboarding(true));
   document.getElementById("toggleFirebasePassword").addEventListener("click", () => togglePasswordVisibility("firebasePassword", "toggleFirebasePassword"));
@@ -306,6 +306,11 @@ function bindAuthEvents() {
   bindMeuCadastroEvents();
 }
 
+async function logout() {
+  sessionStorage.removeItem(SYNC_FLAG);
+  sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
+  await signOut(auth);
+}
 async function login() {
   const emailInput = document.getElementById("firebaseEmail");
   const email = normalizeEmail(emailInput.value);
