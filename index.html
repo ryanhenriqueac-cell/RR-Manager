@@ -4,19 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RR Manager | Sistema de gestao para oficinas</title>
-  <meta name="description" content="RR Manager e o sistema de gestao para oficinas mecanicas controlarem clientes, veiculos, orcamentos, aprovacoes e financeiro em uma rotina simples.">
+  <meta name="description" content="RR Manager e o sistema SaaS para oficinas controlarem clientes, veiculos, orcamentos, aprovacoes e financeiro em uma rotina simples.">
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=46">
+  <link rel="stylesheet" href="style.css?v=47">
 </head>
-<body class="landing-page">
+<body class="landing-page landing-saas-page">
   <header class="landing-header">
     <a class="landing-brand" href="index.html" aria-label="RR Manager">
       <img src="assets/logo-rr-manager.png" alt="RR Manager">
       <span>RR Manager</span>
     </a>
     <nav class="landing-nav" aria-label="Navegacao da landing page">
+      <a href="#problemas">Desafios</a>
       <a href="#recursos">Recursos</a>
-      <a href="#fluxo">Fluxo</a>
+      <a href="#diferenciais">Diferenciais</a>
       <a href="#contato">Contato</a>
     </nav>
     <a class="btn btn-primary" href="dashboard.html">Entrar</a>
@@ -25,12 +26,18 @@
   <main>
     <section class="landing-hero">
       <div class="landing-hero-copy">
-        <p class="eyebrow">Sistema para oficina mecanica</p>
-        <h1>RR Manager</h1>
-        <p class="landing-lead">Controle clientes, veiculos, pre-orcamentos, aprovacoes e financeiro em uma central feita para a rotina real da oficina.</p>
+        <p class="eyebrow">SaaS para oficina mecanica</p>
+        <h1>Controle total da sua oficina em um unico sistema.</h1>
+        <p class="landing-lead">Clientes, veiculos, orcamentos, financeiro e historico completo em uma plataforma criada para a rotina real da oficina.</p>
         <div class="landing-actions">
           <a class="btn btn-primary" href="dashboard.html">Entrar no sistema</a>
-          <a class="btn btn-ghost" href="cadastro-acesso.html">Criar acesso</a>
+          <a class="btn btn-ghost" href="cadastro-acesso.html">Solicitar acesso</a>
+          <a class="btn btn-whatsapp" href="https://wa.me/5531997851561" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+        <div class="landing-trust-row" aria-label="Diferenciais principais">
+          <span>Feito para oficinas</span>
+          <span>Login seguro</span>
+          <span>Dados na nuvem</span>
         </div>
       </div>
 
@@ -47,6 +54,13 @@
           <div><span>Pre-orcamentos</span><strong>24</strong></div>
           <div><span>Conversao</span><strong>68%</strong></div>
           <div><span>Saldo</span><strong>R$ 18,4k</strong></div>
+        </div>
+        <div class="product-chart" aria-hidden="true">
+          <span style="height: 48%"></span>
+          <span style="height: 72%"></span>
+          <span style="height: 38%"></span>
+          <span style="height: 86%"></span>
+          <span style="height: 62%"></span>
         </div>
         <div class="product-panel">
           <div>
@@ -67,6 +81,48 @@
       </div>
     </section>
 
+    <section id="problemas" class="landing-section landing-problem-section">
+      <div class="landing-section-title">
+        <p class="eyebrow">Desafios</p>
+        <h2>A realidade de muitas oficinas ainda fica espalhada.</h2>
+      </div>
+      <div class="landing-problem-grid">
+        <article>
+          <strong>01</strong>
+          <h3>Orcamentos perdidos</h3>
+          <p>Propostas ficam no papel, no WhatsApp ou em anotacoes soltas, e a oficina perde historico de negociacao.</p>
+        </article>
+        <article>
+          <strong>02</strong>
+          <h3>Cliente sem historico</h3>
+          <p>Sem registro organizado, cada retorno vira uma nova investigacao sobre carro, servico e valores anteriores.</p>
+        </article>
+        <article>
+          <strong>03</strong>
+          <h3>Financeiro no escuro</h3>
+          <p>Receitas, custos de pecas e despesas se misturam, dificultando entender o resultado real do mes.</p>
+        </article>
+        <article>
+          <strong>04</strong>
+          <h3>Tempo perdido</h3>
+          <p>A equipe gasta energia procurando informacao em vez de atender melhor e fechar mais servicos.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="landing-solution-band" aria-label="Solucao RR Manager">
+      <div>
+        <p class="eyebrow">A resposta</p>
+        <h2>Tudo centralizado, do atendimento ao fechamento.</h2>
+      </div>
+      <ul>
+        <li>Cadastre clientes, veiculos e historico em uma base unica.</li>
+        <li>Crie pre-orcamentos com pecas, servicos, status e impressao.</li>
+        <li>Acompanhe aprovacoes, conversao comercial, receitas e despesas.</li>
+        <li>Use login e Firebase para manter os dados sincronizados na nuvem.</li>
+      </ul>
+    </section>
+
     <section class="landing-strip" aria-label="Indicadores do sistema">
       <div><strong>Clientes</strong><span>Cadastro completo e historico por oficina</span></div>
       <div><strong>Orcamentos</strong><span>Pecas, servicos, aprovacao e impressao</span></div>
@@ -76,53 +132,64 @@
     <section id="recursos" class="landing-section">
       <div class="landing-section-title">
         <p class="eyebrow">Recursos</p>
-        <h2>O que o RR Manager organiza</h2>
+        <h2>Modulos essenciais para vender, executar e acompanhar.</h2>
       </div>
-      <div class="landing-feature-grid">
+      <div class="landing-feature-grid landing-feature-grid-six">
         <article>
           <span>01</span>
-          <h3>Clientes e veiculos</h3>
-          <p>Cadastre clientes, vincule carros e mantenha as informacoes importantes sempre prontas para novos atendimentos.</p>
+          <h3>Dashboard</h3>
+          <p>Visao geral com clientes, carros, saldo, pre-orcamentos e conversao comercial.</p>
         </article>
         <article>
           <span>02</span>
-          <h3>Pre-orcamentos</h3>
-          <p>Monte propostas com pecas, servicos, valores e status para acompanhar o que foi aprovado ou recusado.</p>
+          <h3>Clientes e veiculos</h3>
+          <p>Organize cadastros, carros vinculados e informacoes importantes de cada atendimento.</p>
         </article>
         <article>
           <span>03</span>
-          <h3>Financeiro da oficina</h3>
-          <p>Registre entradas, saidas, custos de pecas e visualize o saldo estimado por periodo.</p>
+          <h3>Orcamentos</h3>
+          <p>Monte propostas com pecas, servicos, valor final, aprovacao, reprovacao e impressao.</p>
         </article>
         <article>
           <span>04</span>
-          <h3>Banco online</h3>
-          <p>Com login configurado, os dados ficam sincronizados no Firebase para mais seguranca e continuidade.</p>
+          <h3>Financeiro</h3>
+          <p>Registre receitas, despesas, custos de pecas, saldo estimado e movimentos por periodo.</p>
+        </article>
+        <article>
+          <span>05</span>
+          <h3>Relatorios</h3>
+          <p>Acompanhe o desempenho financeiro por mes e gere uma visao clara para decisao.</p>
+        </article>
+        <article>
+          <span>06</span>
+          <h3>Dados na nuvem</h3>
+          <p>Com login configurado, cada usuario acessa sua propria base com sincronizacao online.</p>
         </article>
       </div>
     </section>
 
-    <section id="fluxo" class="landing-section landing-flow-section">
+    <section id="diferenciais" class="landing-section landing-flow-section">
       <div class="landing-section-title">
-        <p class="eyebrow">Fluxo de trabalho</p>
-        <h2>Da chegada do cliente ao fechamento</h2>
+        <p class="eyebrow">Diferenciais</p>
+        <h2>Um sistema com linguagem de oficina, nao de planilha complicada.</h2>
       </div>
-      <div class="landing-flow">
-        <div><strong>1</strong><span>Cadastre o cliente e o veiculo.</span></div>
-        <div><strong>2</strong><span>Crie o pre-orcamento com pecas e servicos.</span></div>
-        <div><strong>3</strong><span>Aprove, reprove, imprima ou compartilhe.</span></div>
-        <div><strong>4</strong><span>Acompanhe receitas, despesas e relatorios.</span></div>
+      <div class="landing-flow landing-differentials">
+        <div><strong>1</strong><span>Feito para oficina mecanica, com telas que seguem a rotina de atendimento.</span></div>
+        <div><strong>2</strong><span>Visual direto, botoes claros e operacao simples para o dia a dia.</span></div>
+        <div><strong>3</strong><span>Fluxo comercial conectado ao financeiro, evitando retrabalho.</span></div>
+        <div><strong>4</strong><span>Base pronta para crescer junto com o ecossistema RR Automotive.</span></div>
       </div>
     </section>
 
     <section id="contato" class="landing-cta">
       <div>
         <p class="eyebrow">RR Automotive</p>
-        <h2>Entre no RR Manager e assuma o controle da oficina.</h2>
+        <h2>Comece pelo acesso ao RR Manager e organize sua oficina com mais clareza.</h2>
       </div>
       <div class="landing-actions">
         <a class="btn btn-primary" href="dashboard.html">Entrar</a>
         <a class="btn btn-muted" href="cadastro-acesso.html">Solicitar acesso</a>
+        <a class="btn btn-whatsapp" href="https://wa.me/5531997851561" target="_blank" rel="noopener">WhatsApp</a>
       </div>
     </section>
   </main>
