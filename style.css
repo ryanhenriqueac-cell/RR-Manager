@@ -1175,13 +1175,13 @@ td {
 
 #firebaseLandingReturn {
   position: fixed;
-  left: 23px;
+  left: 18px;
   bottom: 76px;
   z-index: 50;
   display: none;
-  width: min(286px, calc(100vw - 46px));
-  min-height: 38px;
-  padding: 8px 12px;
+  width: min(230px, calc(100vw - 36px));
+  min-height: 36px;
+  padding: 7px 12px;
   font-size: 13px;
   background: rgba(255, 255, 255, 0.05);
 }
@@ -3523,8 +3523,8 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   }
 
   .landing-header > .btn {
-    min-height: 38px;
-    padding: 8px 12px;
+    min-height: 36px;
+    padding: 7px 12px;
   }
 
   .landing-hero {
@@ -3611,7 +3611,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   display: inline-flex;
   align-items: center;
   min-height: 36px;
-  padding: 8px 12px;
+  padding: 7px 12px;
   border: 1px solid rgba(79, 209, 161, 0.22);
   border-radius: 8px;
   background: rgba(79, 209, 161, 0.08);
@@ -4562,7 +4562,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   }
 
   .manager-pro-cta {
-    min-height: 38px;
+    min-height: 36px;
     padding: 9px 11px;
     font-size: 12px;
   }
