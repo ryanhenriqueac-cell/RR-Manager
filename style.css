@@ -4064,6 +4064,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
 
 .manager-pro-showcase {
   isolation: isolate;
+  transform: translateY(-22px);
   border: 1px solid rgba(47, 124, 246, 0.22);
   border-radius: 8px;
   background:
@@ -4189,6 +4190,11 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   font-style: normal;
 }
 
+.module-kanban em {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
 .module-row {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -4243,49 +4249,84 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
 
 .module-pdf-paper {
   display: grid;
-  gap: 10px;
-  padding: 16px;
+  gap: 12px;
+  padding: 14px;
   min-height: 245px;
   border-radius: 8px;
-  background: #eef4fb;
+  background: linear-gradient(180deg, #f4f8fc, #e7eef6);
   color: #102033;
   box-shadow: inset 0 0 0 1px rgba(16, 32, 51, 0.08);
 }
 
-.module-pdf-paper div {
+.module-pdf-paper header,
+.module-pdf-paper footer,
+.module-pdf-client {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.module-pdf-paper header {
+  justify-content: flex-start;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #d5e0eb;
+}
+
+.module-pdf-paper img {
   width: 46px;
   height: 46px;
   border-radius: 8px;
   background: #062e55;
+  object-fit: cover;
 }
 
-.module-pdf-paper p,
-.module-pdf-paper section span {
-  height: 8px;
+.module-pdf-paper header span,
+.module-pdf-client {
+  display: grid;
+  gap: 3px;
+}
+
+.module-pdf-paper header b,
+.module-pdf-client strong,
+.module-pdf-paper footer strong {
+  color: #0d1b2d;
+}
+
+.module-pdf-paper small,
+.module-pdf-client span,
+.module-pdf-paper footer span {
+  color: #587089;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.module-pdf-lines {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+
+.module-pdf-lines p {
+  height: 9px;
   margin: 0;
   border-radius: 999px;
   background: #bdcad8;
 }
 
-.module-pdf-paper p:nth-of-type(2) {
-  width: 72%;
+.module-pdf-lines p:nth-child(2) {
+  width: 78%;
 }
 
-.module-pdf-paper p:nth-of-type(3) {
+.module-pdf-lines p:nth-child(3) {
   width: 58%;
 }
 
-.module-pdf-paper section {
-  display: grid;
-  gap: 7px;
-  margin: 10px 0;
+.module-pdf-paper footer {
+  align-self: end;
+  padding-top: 12px;
+  border-top: 1px solid #d5e0eb;
 }
-
-.module-pdf-paper strong {
-  justify-self: end;
-  color: #0d1b2d;
-}
-
 .module-client {
   display: grid;
   gap: 4px;
@@ -4716,6 +4757,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
 
   .manager-pro-showcase {
     min-height: 0;
+    transform: none;
   }
 
   .manager-pro-showcase-grid {
