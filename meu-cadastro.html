@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu cadastro | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=52">
+  <link rel="stylesheet" href="style.css?v=53">
 </head>
 <body data-page="meu-cadastro">
   <div class="app-shell">
@@ -81,20 +81,23 @@
             <input id="meuCadastroNomeOrcamento" placeholder="Ex: RR Reparacao Automotiva">
           </label>
           <label>Frase do orcamento
-            <input id="meuCadastroTagline" placeholder="Ex: Manutencao especializada | Paixao por carros">
+            <input id="meuCadastroTagline" placeholder="Manuten&ccedil;&atilde;o Especializada | Paix&atilde;o por Carros">
           </label>
-          <label class="span-2">Logo da empresa (URL da imagem)
-            <input id="meuCadastroLogoUrl" placeholder="https://seudominio.com.br/logo.png ou assets/minha-logo.png">
-            <small>Use uma imagem quadrada ou horizontal. Ela sera usada no cabecalho dos orcamentos.</small>
-          </label>
+          <div class="span-2 logo-import-field">
+            <span class="field-label">Logo da empresa</span>
+            <input id="meuCadastroLogoUrl" type="hidden">
+            <input id="meuCadastroLogoFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+            <button class="btn btn-muted" type="button" id="meuCadastroLogoImport">Importar logo</button>
+            <small>Use uma imagem quadrada, de preferencia 2000px x 2000px. O sistema ajusta a logo para os orcamentos.</small>
+          </div>
           <label>Chave Pix para QR Code
             <input id="meuCadastroPixChave" placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatoria">
           </label>
           <label>Nome do recebedor Pix
             <input id="meuCadastroPixNome" maxlength="25" placeholder="Nome que aparece no Pix">
           </label>
-          <label>Cidade Pix
-            <input id="meuCadastroPixCidade" maxlength="15" placeholder="Ex: Belo Horizonte">
+          <label>Cidade
+            <input id="meuCadastroPixCidade" placeholder="Ex: Belo Horizonte - Minas Gerais">
           </label>
           <div class="personalization-preview">
             <span>Previa do orcamento</span>
@@ -102,7 +105,7 @@
               <img id="meuCadastroLogoPreview" src="assets/logo-rr.png" alt="Previa da logo">
               <div>
                 <strong id="meuCadastroPreviewNome">Nome da empresa</strong>
-                <small id="meuCadastroPreviewTagline">Frase do orcamento</small>
+                <small id="meuCadastroPreviewTagline">Manuten&ccedil;&atilde;o Especializada | Paix&atilde;o por Carros</small>
               </div>
             </div>
           </div>
@@ -116,6 +119,6 @@
   </div>
   <script src="script.js?v=45"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=34"></script>
+  <script type="module" src="firebase-sync.js?v=35"></script>
 </body>
 </html>

@@ -24,6 +24,10 @@ const REMEMBER_KEY = "rr_firebase_remember";
 const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
 const REGISTER_PREFILL_KEY = "rr_register_prefill";
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
+const DEFAULT_WORKSHOP_TAGLINE = "Manuten\u00e7\u00e3o Especializada | Paix\u00e3o por Carros";
+const DEFAULT_WORKSHOP_LOGO = "assets/logo-rr.png";
+const MAX_LOGO_DIMENSION = 2000;
+const MAX_LOGO_DATA_URL_LENGTH = 750000;
 const ONBOARDING_VERSION = "manager_intro_v1";
 const ACCESS_STATUS = {
   PENDING: "pending",
@@ -557,6 +561,10 @@ function bindMeuCadastroEvents() {
   ["meuCadastroNomeOrcamento", "meuCadastroTagline", "meuCadastroLogoUrl"].forEach((id) => {
     document.getElementById(id)?.addEventListener("input", updatePersonalizacaoPreview);
   });
+  document.getElementById("meuCadastroLogoImport")?.addEventListener("click", () => {
+    document.getElementById("meuCadastroLogoFile")?.click();
+  });
+  document.getElementById("meuCadastroLogoFile")?.addEventListener("change", handleMeuCadastroLogoImport);
 }
 
 function renderMeuCadastro(workspace = {}) {
@@ -571,10 +579,10 @@ function renderMeuCadastro(workspace = {}) {
   document.getElementById("meuCadastroTelefone").value = formatCadastroPhone(registration.telefone || "");
   document.getElementById("meuCadastroDocumento").value = formatCadastroDocument(registration.documento || "", docType);
   setValueIfExists("meuCadastroNomeOrcamento", workspace.reportName || businessName);
-  setValueIfExists("meuCadastroTagline", workspace.tagline || "");
-  setValueIfExists("meuCadastroLogoUrl", workspace.logoUrl || "");
+  setValueIfExists("meuCadastroTagline", workspace.tagline || DEFAULT_WORKSHOP_TAGLINE);
+  setValueIfExists("meuCadastroLogoUrl", workspace.logoUrl || DEFAULT_WORKSHOP_LOGO);
   setValueIfExists("meuCadastroPixChave", workspace.pixKey || "");
-  setValueIfExists("meuCadastroPixNome", workspace.pixName || businessName);
+  setValueIfExists("meuCadastroPixNome", workspace.pixName || "");
   setValueIfExists("meuCadastroPixCidade", workspace.pixCity || "");
   const docTypeInput = document.querySelector(`input[name='meuCadastroDocType'][value='${docType}']`);
   if (docTypeInput) docTypeInput.checked = true;
@@ -593,14 +601,70 @@ function updatePersonalizacaoPreview() {
   const companyName = document.getElementById("meuCadastroNomeOrcamento")?.value
     || document.getElementById("meuCadastroEmpresa")?.value
     || "Nome da empresa";
-  const tagline = document.getElementById("meuCadastroTagline")?.value || "Frase do orcamento";
-  const logoUrl = document.getElementById("meuCadastroLogoUrl")?.value || "assets/logo-rr.png";
+  const tagline = document.getElementById("meuCadastroTagline")?.value || DEFAULT_WORKSHOP_TAGLINE;
+  const logoUrl = document.getElementById("meuCadastroLogoUrl")?.value || DEFAULT_WORKSHOP_LOGO;
   const previewName = document.getElementById("meuCadastroPreviewNome");
   const previewTagline = document.getElementById("meuCadastroPreviewTagline");
   const previewLogo = document.getElementById("meuCadastroLogoPreview");
   if (previewName) previewName.textContent = companyName;
   if (previewTagline) previewTagline.textContent = tagline;
   if (previewLogo) previewLogo.src = logoUrl;
+}
+
+async function handleMeuCadastroLogoImport(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    setMeuCadastroPersonalizacaoStatus("Escolha uma imagem PNG, JPG ou WebP.");
+    return;
+  }
+  try {
+    setMeuCadastroPersonalizacaoStatus("Preparando logo...");
+    const logoDataUrl = await resizeLogoFile(file);
+    setValueIfExists("meuCadastroLogoUrl", logoDataUrl);
+    updatePersonalizacaoPreview();
+    setMeuCadastroPersonalizacaoStatus("Logo importada. Clique em Salvar personalizacao.");
+  } catch (error) {
+    setMeuCadastroPersonalizacaoStatus("Nao foi possivel importar a logo.");
+  } finally {
+    event.target.value = "";
+  }
+}
+
+function resizeLogoFile(file) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    image.onload = () => {
+      let maxDimension = MAX_LOGO_DIMENSION;
+      let quality = 0.92;
+      let dataUrl = "";
+
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        const ratio = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+        const width = Math.max(1, Math.round(image.naturalWidth * ratio));
+        const height = Math.max(1, Math.round(image.naturalHeight * ratio));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d");
+        context.clearRect(0, 0, width, height);
+        context.drawImage(image, 0, 0, width, height);
+        dataUrl = canvas.toDataURL("image/webp", quality);
+        if (dataUrl.length <= MAX_LOGO_DATA_URL_LENGTH) break;
+        if (quality > 0.72) quality -= 0.08;
+        else maxDimension = Math.max(900, Math.round(maxDimension * 0.82));
+      }
+
+      URL.revokeObjectURL(objectUrl);
+      resolve(dataUrl);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("invalid-logo"));
+    };
+    image.src = objectUrl;
+  });
 }
 
 function updateMeuCadastroDocumentPlaceholder() {
@@ -707,10 +771,10 @@ function getEmpresaPersonalizacaoPayload(fallbackName = "") {
   const reportName = document.getElementById("meuCadastroNomeOrcamento")?.value.trim() || fallbackName;
   return {
     reportName,
-    logoUrl: document.getElementById("meuCadastroLogoUrl")?.value.trim() || "",
-    tagline: document.getElementById("meuCadastroTagline")?.value.trim() || "",
+    logoUrl: document.getElementById("meuCadastroLogoUrl")?.value.trim() || DEFAULT_WORKSHOP_LOGO,
+    tagline: document.getElementById("meuCadastroTagline")?.value.trim() || DEFAULT_WORKSHOP_TAGLINE,
     pixKey: document.getElementById("meuCadastroPixChave")?.value.trim() || "",
-    pixName: document.getElementById("meuCadastroPixNome")?.value.trim() || reportName,
+    pixName: document.getElementById("meuCadastroPixNome")?.value.trim() || "",
     pixCity: document.getElementById("meuCadastroPixCidade")?.value.trim() || ""
   };
 }

@@ -5224,6 +5224,20 @@ td {
 }
 
 /* Company customization in Meu cadastro */
+.logo-import-field {
+  display: grid;
+  gap: 10px;
+}
+
+.logo-import-field .btn {
+  width: fit-content;
+}
+
+.logo-import-field small {
+  display: block;
+  color: var(--muted);
+  font-weight: 800;
+}
 .customization-panel {
   margin-top: 22px;
 }
