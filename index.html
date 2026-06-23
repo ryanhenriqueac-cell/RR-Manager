@@ -3,16 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=dashboard.html">
-  <title>RR Manager</title>
+  <title>RR Manager | Sistema de gestao para oficinas</title>
+  <meta name="description" content="RR Manager e o sistema de gestao para oficinas mecanicas controlarem clientes, veiculos, orcamentos, aprovacoes e financeiro em uma rotina simples.">
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=45">
+  <link rel="stylesheet" href="style.css?v=46">
 </head>
-<body class="redirect-page">
-  <main class="redirect-box">
-    <h1>RR Manager</h1>
-    <p>Carregando o painel...</p>
-    <a class="btn btn-primary" href="dashboard.html">Abrir dashboard</a>
+<body class="landing-page">
+  <header class="landing-header">
+    <a class="landing-brand" href="index.html" aria-label="RR Manager">
+      <img src="assets/logo-rr-manager.png" alt="RR Manager">
+      <span>RR Manager</span>
+    </a>
+    <nav class="landing-nav" aria-label="Navegacao da landing page">
+      <a href="#recursos">Recursos</a>
+      <a href="#fluxo">Fluxo</a>
+      <a href="#contato">Contato</a>
+    </nav>
+    <a class="btn btn-primary" href="dashboard.html">Entrar</a>
+  </header>
+
+  <main>
+    <section class="landing-hero">
+      <div class="landing-hero-copy">
+        <p class="eyebrow">Sistema para oficina mecanica</p>
+        <h1>RR Manager</h1>
+        <p class="landing-lead">Controle clientes, veiculos, pre-orcamentos, aprovacoes e financeiro em uma central feita para a rotina real da oficina.</p>
+        <div class="landing-actions">
+          <a class="btn btn-primary" href="dashboard.html">Entrar no sistema</a>
+          <a class="btn btn-ghost" href="cadastro-acesso.html">Criar acesso</a>
+        </div>
+      </div>
+
+      <div class="landing-product" aria-label="Resumo visual do RR Manager">
+        <div class="product-topbar">
+          <img src="assets/logo-rr-manager.png" alt="">
+          <div>
+            <strong>Dashboard RR</strong>
+            <span>Central operacional</span>
+          </div>
+        </div>
+        <div class="product-stats">
+          <div><span>Clientes</span><strong>128</strong></div>
+          <div><span>Pre-orcamentos</span><strong>24</strong></div>
+          <div><span>Conversao</span><strong>68%</strong></div>
+          <div><span>Saldo</span><strong>R$ 18,4k</strong></div>
+        </div>
+        <div class="product-panel">
+          <div>
+            <span class="product-dot"></span>
+            <strong>Honda Civic 2018</strong>
+            <small>Orcamento aprovado</small>
+          </div>
+          <span>R$ 2.840,00</span>
+        </div>
+        <div class="product-panel muted">
+          <div>
+            <span class="product-dot gold"></span>
+            <strong>Fiat Toro 2021</strong>
+            <small>Aguardando decisao</small>
+          </div>
+          <span>R$ 1.390,00</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-strip" aria-label="Indicadores do sistema">
+      <div><strong>Clientes</strong><span>Cadastro completo e historico por oficina</span></div>
+      <div><strong>Orcamentos</strong><span>Pecas, servicos, aprovacao e impressao</span></div>
+      <div><strong>Financeiro</strong><span>Receitas, despesas, saldo e relatorios</span></div>
+    </section>
+
+    <section id="recursos" class="landing-section">
+      <div class="landing-section-title">
+        <p class="eyebrow">Recursos</p>
+        <h2>O que o RR Manager organiza</h2>
+      </div>
+      <div class="landing-feature-grid">
+        <article>
+          <span>01</span>
+          <h3>Clientes e veiculos</h3>
+          <p>Cadastre clientes, vincule carros e mantenha as informacoes importantes sempre prontas para novos atendimentos.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Pre-orcamentos</h3>
+          <p>Monte propostas com pecas, servicos, valores e status para acompanhar o que foi aprovado ou recusado.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Financeiro da oficina</h3>
+          <p>Registre entradas, saidas, custos de pecas e visualize o saldo estimado por periodo.</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>Banco online</h3>
+          <p>Com login configurado, os dados ficam sincronizados no Firebase para mais seguranca e continuidade.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="fluxo" class="landing-section landing-flow-section">
+      <div class="landing-section-title">
+        <p class="eyebrow">Fluxo de trabalho</p>
+        <h2>Da chegada do cliente ao fechamento</h2>
+      </div>
+      <div class="landing-flow">
+        <div><strong>1</strong><span>Cadastre o cliente e o veiculo.</span></div>
+        <div><strong>2</strong><span>Crie o pre-orcamento com pecas e servicos.</span></div>
+        <div><strong>3</strong><span>Aprove, reprove, imprima ou compartilhe.</span></div>
+        <div><strong>4</strong><span>Acompanhe receitas, despesas e relatorios.</span></div>
+      </div>
+    </section>
+
+    <section id="contato" class="landing-cta">
+      <div>
+        <p class="eyebrow">RR Automotive</p>
+        <h2>Entre no RR Manager e assuma o controle da oficina.</h2>
+      </div>
+      <div class="landing-actions">
+        <a class="btn btn-primary" href="dashboard.html">Entrar</a>
+        <a class="btn btn-muted" href="cadastro-acesso.html">Solicitar acesso</a>
+      </div>
+    </section>
   </main>
 </body>
 </html>
