@@ -2408,9 +2408,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   }
 
   body[data-page="orcamento-print"] #firebaseUserBar,
-
-
-#firebaseUserBar {
+  body[data-page="orcamento-publico"] #firebaseUserBar {
     display: none !important;
   }
 }
@@ -2605,8 +2603,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
     overflow-wrap: anywhere;
   }
 
-
-#firebaseUserBar {
+  body[data-page="financeiro-print"] #firebaseUserBar {
     display: none !important;
   }
 }
@@ -2965,7 +2962,7 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
   }
 
   .main-content {
-    padding: 18px 16px 110px;
+    padding: 18px 16px 170px;
   }
 
   .topbar,
@@ -5490,9 +5487,8 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
     width: 100%;
   }
 
-
-#firebaseUserBar {
-    max-width: 172px;
+  #firebaseUserBar {
+    max-width: none;
   }
 }
 
