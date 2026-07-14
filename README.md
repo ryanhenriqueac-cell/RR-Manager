@@ -59,28 +59,65 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
     function isAdmin() {
-      return request.auth != null
+      return isSignedIn()
         && request.auth.token.email in ['admin@rrreparacao.com.br'];
     }
 
+    function isWorkspaceOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
     match /workspaces/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null
-        && request.auth.uid == userId
+      allow read: if isWorkspaceOwner(userId) || isAdmin();
+
+      allow create: if isWorkspaceOwner(userId)
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.accessStatus == 'pending';
-      allow update: if request.auth != null
-        && request.auth.uid == userId
+
+      allow update: if isWorkspaceOwner(userId)
+        && request.resource.data.owner == resource.data.owner
+        && request.resource.data.ownerUid == resource.data.ownerUid
         && request.resource.data.accessStatus == resource.data.accessStatus;
-      allow read, write: if isAdmin();
+
+      allow delete: if isAdmin();
+      allow create, update: if isAdmin();
     }
 
     match /public_orcamentos/{shareId} {
+      // O endereço aleatório funciona como link de visualização para o cliente.
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+
+      allow create: if isSignedIn()
+        && request.resource.data.ownerUid == request.auth.uid;
+
+      allow update, delete: if isSignedIn()
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
 ```
 
 Com isso, cada usuário logado acessa apenas o próprio banco de dados.
+
+### Publicar as regras
+
+1. Abra o Firebase Console e selecione o projeto do RR Manager.
+2. Entre em **Firestore Database > Regras**.
+3. Copie todo o conteúdo de `firestore.rules`.
+4. Substitua as regras exibidas no console.
+5. Confirme se o e-mail de administrador é o mesmo de `firebase-config.js`.
+6. Clique em **Publicar**.
+
+### Aceite jurídico do primeiro acesso
+
+As versões vigentes ficam nas constantes `LEGAL_TERMS_VERSION` e `LEGAL_PRIVACY_VERSION`, em `firebase-sync.js`. O aceite é salvo no campo `legalAcceptance` do documento da oficina em `workspaces/{uid}`. Ao alterar de forma relevante os documentos, atualize o texto, aumente a versão correspondente e publique o sistema. No próximo login, todos que ainda não aceitaram essa versão verão o modal novamente.

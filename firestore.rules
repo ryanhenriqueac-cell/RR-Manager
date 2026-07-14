@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email in ['admin@rrreparacao.com.br'];
+    }
+
+    function isWorkspaceOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /workspaces/{userId} {
+      allow read: if isWorkspaceOwner(userId) || isAdmin();
+
+      allow create: if isWorkspaceOwner(userId)
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.accessStatus == 'pending';
+
+      allow update: if isWorkspaceOwner(userId)
+        && request.resource.data.owner == resource.data.owner
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.accessStatus == resource.data.accessStatus;
+
+      allow delete: if isAdmin();
+      allow create, update: if isAdmin();
+    }
+
+    match /public_orcamentos/{shareId} {
+      // O endereço aleatório funciona como link de visualização para o cliente.
+      allow read: if true;
+
+      allow create: if isSignedIn()
+        && request.resource.data.ownerUid == request.auth.uid;
+
+      allow update, delete: if isSignedIn()
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

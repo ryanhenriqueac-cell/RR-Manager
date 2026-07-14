@@ -1,9 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import {
+  browserLocalPersistence,
+  browserSessionPersistence,
   createUserWithEmailAndPassword,
   fetchSignInMethodsForEmail,
   getAuth,
   onAuthStateChanged,
+  setPersistence,
   signInWithEmailAndPassword,
   signOut
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
@@ -31,6 +34,8 @@ const DEFAULT_LABOR_HOUR_RATE = 120;
 const MAX_LOGO_DIMENSION = 2000;
 const MAX_LOGO_DATA_URL_LENGTH = 750000;
 const ONBOARDING_VERSION = "manager_intro_v1";
+const LEGAL_TERMS_VERSION = "1.0";
+const LEGAL_PRIVACY_VERSION = "1.0";
 const ACCESS_STATUS = {
   PENDING: "pending",
   ACTIVE: "active",
@@ -144,6 +149,7 @@ if (!configReady) {
       return;
     }
 
+    await ensureLegalAcceptance(loadedWorkspace);
     maybeShowOnboarding(loadedWorkspace);
   });
 }
@@ -228,6 +234,7 @@ function buildAuthShell() {
             </div>
           </label>
         </div>
+        <p class="auth-legal-notice">Ao solicitar o acesso, você confirma que leu nossa <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. O aceite dos <a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a> será solicitado no primeiro acesso liberado.</p>
         <div class="auth-register-actions">
           <a class="btn btn-ghost" href="index.html">Voltar &agrave; p&aacute;gina principal</a>
           <button class="btn btn-muted" type="button" id="firebaseBackToLogin">Voltar</button>
@@ -320,8 +327,10 @@ async function login() {
   try {
     emailInput.value = email;
     showAuthMessage("Entrando...");
+    const remember = document.getElementById("firebaseRemember").checked;
+    await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
     await signInWithEmailAndPassword(auth, email, password);
-    saveRememberedLogin(email, password);
+    saveRememberedLogin(email);
   } catch (error) {
     showAuthMessage(firebaseError(error));
   }
@@ -329,8 +338,7 @@ async function login() {
 
 function goToRegisterPage() {
   const email = normalizeEmail(document.getElementById("firebaseEmail").value);
-  const password = document.getElementById("firebasePassword").value;
-  sessionStorage.setItem(REGISTER_PREFILL_KEY, JSON.stringify({ email, password }));
+  sessionStorage.setItem(REGISTER_PREFILL_KEY, JSON.stringify({ email }));
   window.location.href = "cadastro-acesso.html";
 }
 
@@ -344,10 +352,6 @@ function hydrateRegisterPrefill() {
   try {
     const saved = JSON.parse(sessionStorage.getItem(REGISTER_PREFILL_KEY)) || {};
     if (saved.email) document.getElementById("registerEmail").value = normalizeEmail(saved.email);
-    if (saved.password) {
-      document.getElementById("registerPassword").value = saved.password;
-      document.getElementById("registerPasswordConfirm").value = saved.password;
-    }
   } catch (error) {
     sessionStorage.removeItem(REGISTER_PREFILL_KEY);
   }
@@ -419,22 +423,22 @@ async function submitAccessRequest() {
 function hydrateRememberedLogin() {
   try {
     const saved = JSON.parse(localStorage.getItem(REMEMBER_KEY)) || {};
-    if (!saved.email || !saved.password) return;
+    if (!saved.email) return;
     document.getElementById("firebaseEmail").value = saved.email;
-    document.getElementById("firebasePassword").value = saved.password;
     document.getElementById("firebaseRemember").checked = true;
+    localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email: saved.email }));
   } catch (error) {
     localStorage.removeItem(REMEMBER_KEY);
   }
 }
 
-function saveRememberedLogin(email, password) {
+function saveRememberedLogin(email) {
   const remember = document.getElementById("firebaseRemember").checked;
   if (!remember) {
     localStorage.removeItem(REMEMBER_KEY);
     return;
   }
-  localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email, password }));
+  localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email }));
 }
 
 function togglePasswordVisibility(inputId = "firebasePassword", buttonId = "toggleFirebasePassword", buttonElement = null) {
@@ -490,7 +494,7 @@ async function saveCloudData() {
 
   await setDoc(doc(db, "workspaces", activeWorkspaceId), {
     owner: activeWorkspaceId,
-    ownerUid: currentUser.uid,
+    ownerUid: activeWorkspaceId,
     ownerEmail: activeWorkspaceEmail || currentUser.email,
     activeByAdmin: isAdminUser(currentUser),
     updatedAt: serverTimestamp(),
@@ -844,6 +848,97 @@ function setMeuCadastroStatus(message) {
 function setMeuCadastroPersonalizacaoStatus(message) {
   const status = document.getElementById("meuCadastroPersonalizacaoStatus");
   if (status) status.textContent = message;
+}
+
+function hasCurrentLegalAcceptance(workspace = {}) {
+  const acceptance = workspace.legalAcceptance || {};
+  return acceptance.termsVersion === LEGAL_TERMS_VERSION
+    && acceptance.privacyVersion === LEGAL_PRIVACY_VERSION;
+}
+
+async function ensureLegalAcceptance(workspace = {}) {
+  if (!currentUser || isAdminUser(currentUser) || !isOnboardingPage() || hasCurrentLegalAcceptance(workspace)) return;
+  await showLegalAcceptanceModal();
+}
+
+function showLegalAcceptanceModal() {
+  return new Promise((resolve) => {
+    document.querySelector(".legal-acceptance-overlay")?.remove();
+    document.body.classList.add("legal-acceptance-pending");
+
+    const overlay = document.createElement("div");
+    overlay.className = "legal-acceptance-overlay";
+    overlay.innerHTML = `
+      <div class="legal-acceptance-card" role="dialog" aria-modal="true" aria-labelledby="legalAcceptanceTitle">
+        <div class="legal-acceptance-head">
+          <img src="assets/logo-rr-manager.png" alt="RR Manager">
+          <div>
+            <span>PRIMEIRO ACESSO</span>
+            <h2 id="legalAcceptanceTitle">Privacidade e Termos de Uso</h2>
+          </div>
+        </div>
+        <p>Antes do tutorial, leia os documentos que explicam as regras do RR Manager e como os dados pessoais são tratados.</p>
+        <div class="legal-acceptance-links">
+          <a href="termos.html" target="_blank" rel="noopener">Ler Termos de Uso <small>versão ${LEGAL_TERMS_VERSION}</small></a>
+          <a href="privacidade.html" target="_blank" rel="noopener">Ler Política de Privacidade <small>versão ${LEGAL_PRIVACY_VERSION}</small></a>
+        </div>
+        <label class="legal-acceptance-check"><input type="checkbox" data-legal-terms><span>Li e aceito os Termos de Uso.</span></label>
+        <label class="legal-acceptance-check"><input type="checkbox" data-legal-privacy><span>Li e estou ciente da Política de Privacidade.</span></label>
+        <p class="legal-acceptance-status" role="status"></p>
+        <div class="legal-acceptance-actions">
+          <button class="btn btn-muted" type="button" data-legal-logout>Sair</button>
+          <button class="btn btn-primary" type="button" data-legal-accept disabled>Aceitar e continuar</button>
+        </div>
+      </div>
+    `;
+
+    const termsCheckbox = overlay.querySelector("[data-legal-terms]");
+    const privacyCheckbox = overlay.querySelector("[data-legal-privacy]");
+    const acceptButton = overlay.querySelector("[data-legal-accept]");
+    const logoutButton = overlay.querySelector("[data-legal-logout]");
+    const status = overlay.querySelector(".legal-acceptance-status");
+
+    function updateButton() {
+      acceptButton.disabled = !(termsCheckbox.checked && privacyCheckbox.checked);
+    }
+
+    termsCheckbox.addEventListener("change", updateButton);
+    privacyCheckbox.addEventListener("change", updateButton);
+    logoutButton.addEventListener("click", async () => {
+      overlay.remove();
+      document.body.classList.remove("legal-acceptance-pending");
+      await logout();
+    });
+    acceptButton.addEventListener("click", async () => {
+      if (!termsCheckbox.checked || !privacyCheckbox.checked || !currentUser || !db || !activeWorkspaceId) return;
+      acceptButton.disabled = true;
+      logoutButton.disabled = true;
+      status.textContent = "Registrando seu aceite...";
+      try {
+        await setDoc(doc(db, "workspaces", activeWorkspaceId), {
+          legalAcceptance: {
+            termsVersion: LEGAL_TERMS_VERSION,
+            privacyVersion: LEGAL_PRIVACY_VERSION,
+            acceptedAt: serverTimestamp(),
+            acceptedAtClient: new Date().toISOString(),
+            acceptedByUid: currentUser.uid,
+            acceptedByEmail: currentUser.email || ""
+          },
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        overlay.remove();
+        document.body.classList.remove("legal-acceptance-pending");
+        resolve(true);
+      } catch (error) {
+        status.textContent = firebaseError(error);
+        acceptButton.disabled = false;
+        logoutButton.disabled = false;
+      }
+    });
+
+    document.body.appendChild(overlay);
+    termsCheckbox.focus();
+  });
 }
 
 function isOnboardingPage() {
