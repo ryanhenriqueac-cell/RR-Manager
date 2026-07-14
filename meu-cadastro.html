@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu cadastro | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=66">
+  <link rel="stylesheet" href="style.css?v=67">
 </head>
 <body data-page="meu-cadastro">
   <div class="app-shell">
@@ -57,13 +57,53 @@
             <small>Estes valores são sugestões automáticas e poderão ser alterados em cada orçamento.</small>
           </div>
           <label>Margem de venda das peças (%)
-            <input id="meuCadastroMargemPecas" type="number" min="0" step="0.01" value="35" placeholder="35">
+            <div class="affixed-number-input">
+              <span aria-hidden="true">%</span>
+              <input id="meuCadastroMargemPecas" type="number" min="0" step="1" value="35" placeholder="35">
+            </div>
             <small>Custo de R$ 100,00 com 35% sugere venda de R$ 135,00.</small>
           </label>
           <label>Valor da hora de mão de obra (R$)
-            <input id="meuCadastroValorHora" type="number" min="0" step="0.01" value="120" placeholder="120,00">
+            <div class="affixed-number-input affixed-number-input-currency">
+              <span aria-hidden="true">R$</span>
+              <input id="meuCadastroValorHora" type="number" min="0" step="1" value="120" placeholder="120">
+            </div>
             <small>Será preenchido automaticamente ao adicionar um serviço.</small>
           </label>
+          <details class="span-2 payment-rates-settings">
+            <summary>
+              <span>
+                <strong>Taxas da maquininha</strong>
+                <small>Personalize as taxas cobradas pela operadora desta oficina.</small>
+              </span>
+            </summary>
+            <div class="payment-rates-body">
+              <label>Débito
+                <div class="affixed-number-input">
+                  <span aria-hidden="true">%</span>
+                  <input id="meuCadastroTaxaDebito" type="number" min="0" max="100" step="0.01">
+                </div>
+              </label>
+              <div class="payment-credit-rates span-2">
+                <span class="field-label">Crédito por número de parcelas</span>
+                <div class="payment-rates-grid">
+                <label>1x<input id="meuCadastroTaxaCredito1" type="number" min="0" max="100" step="0.01"></label>
+                <label>2x<input id="meuCadastroTaxaCredito2" type="number" min="0" max="100" step="0.01"></label>
+                <label>3x<input id="meuCadastroTaxaCredito3" type="number" min="0" max="100" step="0.01"></label>
+                <label>4x<input id="meuCadastroTaxaCredito4" type="number" min="0" max="100" step="0.01"></label>
+                <label>5x<input id="meuCadastroTaxaCredito5" type="number" min="0" max="100" step="0.01"></label>
+                <label>6x<input id="meuCadastroTaxaCredito6" type="number" min="0" max="100" step="0.01"></label>
+                <label>7x<input id="meuCadastroTaxaCredito7" type="number" min="0" max="100" step="0.01"></label>
+                <label>8x<input id="meuCadastroTaxaCredito8" type="number" min="0" max="100" step="0.01"></label>
+                <label>9x<input id="meuCadastroTaxaCredito9" type="number" min="0" max="100" step="0.01"></label>
+                <label>10x<input id="meuCadastroTaxaCredito10" type="number" min="0" max="100" step="0.01"></label>
+                <label>11x<input id="meuCadastroTaxaCredito11" type="number" min="0" max="100" step="0.01"></label>
+                <label>12x<input id="meuCadastroTaxaCredito12" type="number" min="0" max="100" step="0.01"></label>
+                </div>
+              </div>
+              <small class="span-2 payment-rates-note">Informe a taxa percentual total descontada pela maquininha em cada modalidade. Os valores serão usados nos cálculos de aprovação e do financeiro.</small>
+            </div>
+          </details>
           <div class="span-2">
             <span class="field-label">Documento</span>
             <div class="document-options">
@@ -130,8 +170,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=49"></script>
+  <script src="script.js?v=50"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=41"></script>
+  <script type="module" src="firebase-sync.js?v=42"></script>
 </body>
 </html>

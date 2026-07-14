@@ -331,6 +331,21 @@ function getLaborHourRate() {
   const rate = Number(stored.laborHourRate);
   return Number.isFinite(rate) && rate >= 0 ? rate : VALOR_HORA_PADRAO;
 }
+function getPaymentRates() {
+  const stored = getStoredWorkspaceBranding();
+  const custom = stored.paymentRates || {};
+  return {
+    ...PAYMENT_RATES,
+    debit: {
+      ...PAYMENT_RATES.debit,
+      installments: { ...PAYMENT_RATES.debit.installments, ...(custom.debit || {}) }
+    },
+    credit: {
+      ...PAYMENT_RATES.credit,
+      installments: { ...PAYMENT_RATES.credit.installments, ...(custom.credit || {}) }
+    }
+  };
+}
 
 function getDocumentBranding(source = {}) {
   const stored = getStoredWorkspaceBranding();
@@ -796,7 +811,7 @@ function getServiceCosts(orcamento) {
 }
 
 function buildPaymentInfo(type, installments, total, taxaRepassada = false) {
-  const config = PAYMENT_RATES[type];
+  const config = getPaymentRates()[type];
   if (!config) return null;
 
   const parcelas = Number(installments) || 1;
@@ -843,7 +858,7 @@ async function askTaxPassThrough(type, installments) {
 }
 
 async function askInstallments(type) {
-  const config = PAYMENT_RATES[type];
+  const config = getPaymentRates()[type];
   const options = Object.entries(config.installments).map(([parcelas, taxa]) => ({
     label: `${parcelas}x (${String(taxa).replace(".", ",")}%)`,
     value: Number(parcelas),

@@ -31,6 +31,10 @@ const DEFAULT_WORKSHOP_TAGLINE = "Manuten\u00e7\u00e3o Especializada | Paix\u00e
 const DEFAULT_WORKSHOP_LOGO = "assets/logo-rr-manager.png";
 const DEFAULT_PARTS_MARKUP_PERCENT = 35;
 const DEFAULT_LABOR_HOUR_RATE = 120;
+const DEFAULT_MACHINE_RATES = {
+  debit: { 1: 1.37 },
+  credit: { 1: 3.15, 2: 5.39, 3: 6.12, 4: 6.85, 5: 7.57, 6: 8.28, 7: 8.99, 8: 9.69, 9: 10.38, 10: 11.06, 11: 11.74, 12: 12.40 }
+};
 const MAX_LOGO_DIMENSION = 2000;
 const MAX_LOGO_DATA_URL_LENGTH = 750000;
 const ONBOARDING_VERSION = "manager_intro_v1";
@@ -515,6 +519,7 @@ function setWorkspaceBrandingContext(workspace = {}) {
     pixCity: workspace.pixCity || "",
     partsMarkupPercent: normalizePartsMarkupPercent(workspace.partsMarkupPercent),
     laborHourRate: normalizeLaborHourRate(workspace.laborHourRate),
+    paymentRates: normalizePaymentRates(workspace.paymentRates),
     registration
   }));
 }
@@ -607,6 +612,7 @@ function renderMeuCadastro(workspace = {}) {
   setValueIfExists("meuCadastroPixCidade", workspace.pixCity || "");
   document.getElementById("meuCadastroMargemPecas").value = normalizePartsMarkupPercent(workspace.partsMarkupPercent);
   document.getElementById("meuCadastroValorHora").value = normalizeLaborHourRate(workspace.laborHourRate);
+  renderPaymentRates(workspace.paymentRates);
   const docTypeInput = document.querySelector(`input[name='meuCadastroDocType'][value='${docType}']`);
   if (docTypeInput) docTypeInput.checked = true;
   updateMeuCadastroDocumentPlaceholder();
@@ -801,6 +807,48 @@ function normalizeLaborHourRate(value) {
   const rate = Number(value);
   return Number.isFinite(rate) && rate >= 0 ? rate : DEFAULT_LABOR_HOUR_RATE;
 }
+function normalizeMachineRate(value, fallback) {
+  if (value === "" || value === null || value === undefined) return fallback;
+  const rate = Number(value);
+  return Number.isFinite(rate) && rate >= 0 && rate < 100 ? rate : fallback;
+}
+
+function normalizePaymentRates(value = {}) {
+  const debitSource = value.debit || {};
+  const creditSource = value.credit || {};
+  const credit = {};
+  for (let installment = 1; installment <= 12; installment += 1) {
+    credit[installment] = normalizeMachineRate(creditSource[installment], DEFAULT_MACHINE_RATES.credit[installment]);
+  }
+  return {
+    debit: { 1: normalizeMachineRate(debitSource[1], DEFAULT_MACHINE_RATES.debit[1]) },
+    credit
+  };
+}
+
+function renderPaymentRates(value = {}) {
+  const rates = normalizePaymentRates(value);
+  setValueIfExists("meuCadastroTaxaDebito", rates.debit[1]);
+  for (let installment = 1; installment <= 12; installment += 1) {
+    setValueIfExists(`meuCadastroTaxaCredito${installment}`, rates.credit[installment]);
+  }
+}
+
+function getPaymentRatesPayload() {
+  const credit = {};
+  for (let installment = 1; installment <= 12; installment += 1) {
+    credit[installment] = normalizeMachineRate(
+      document.getElementById(`meuCadastroTaxaCredito${installment}`)?.value,
+      DEFAULT_MACHINE_RATES.credit[installment]
+    );
+  }
+  return {
+    debit: {
+      1: normalizeMachineRate(document.getElementById("meuCadastroTaxaDebito")?.value, DEFAULT_MACHINE_RATES.debit[1])
+    },
+    credit
+  };
+}
 
 function getEmpresaPersonalizacaoPayload(fallbackName = "") {
   const reportName = document.getElementById("meuCadastroNomeOrcamento")?.value.trim() || fallbackName;
@@ -812,7 +860,8 @@ function getEmpresaPersonalizacaoPayload(fallbackName = "") {
     pixName: document.getElementById("meuCadastroPixNome")?.value.trim() || "",
     pixCity: document.getElementById("meuCadastroPixCidade")?.value.trim() || "",
     partsMarkupPercent: normalizePartsMarkupPercent(document.getElementById("meuCadastroMargemPecas")?.value),
-    laborHourRate: normalizeLaborHourRate(document.getElementById("meuCadastroValorHora")?.value)
+    laborHourRate: normalizeLaborHourRate(document.getElementById("meuCadastroValorHora")?.value),
+    paymentRates: getPaymentRatesPayload()
   };
 }
 
