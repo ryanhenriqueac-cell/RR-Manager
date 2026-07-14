@@ -561,7 +561,7 @@ function normalizePublicOrcamentoData(data) {
   };
 }
 
-function buildOrcamentoWhatsAppMessage(orcamento) {
+function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
   const branding = getDocumentBranding(orcamento);
   const clienteNome = getClienteNome(orcamento.clienteId);
   const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
@@ -579,6 +579,10 @@ function buildOrcamentoWhatsAppMessage(orcamento) {
     "Não trabalho com peças fornecidas",
     ""
   ];
+
+  if (publicUrl) {
+    message.push("Visualizar orçamento:", publicUrl, "");
+  }
 
   message.push("Qualquer dúvida, fico à disposição.");
   return message.join("\n");
@@ -637,7 +641,26 @@ async function sendOrcamentoWhatsApp(id) {
     return;
   }
 
-  const message = buildOrcamentoWhatsAppMessage(orcamento);
+  let publicUrl = "";
+  let publishError = null;
+  try {
+    const publishPublicOrcamento = await waitForPublicOrcamentoPublisher();
+    if (publishPublicOrcamento) {
+      const publicId = await publishPublicOrcamento(buildPublicOrcamentoData(orcamento));
+      publicUrl = new URL(`orcamento-publico.html?id=${encodeURIComponent(publicId)}`, window.location.href).href;
+    }
+  } catch (error) {
+    console.error("Erro ao publicar link curto do orçamento:", error);
+    publishError = error;
+  }
+
+  if (!publicUrl) {
+    whatsappWindow?.close();
+    await rrAlert(publicOrcamentoErrorMessage(publishError), "Link do orçamento");
+    return;
+  }
+
+  const message = buildOrcamentoWhatsAppMessage(orcamento, publicUrl);
   const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   if (whatsappWindow) {
     whatsappWindow.opener = null;
