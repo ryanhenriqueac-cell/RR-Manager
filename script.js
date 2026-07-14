@@ -561,7 +561,7 @@ function normalizePublicOrcamentoData(data) {
   };
 }
 
-function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
+function buildOrcamentoWhatsAppMessage(orcamento) {
   const branding = getDocumentBranding(orcamento);
   const clienteNome = getClienteNome(orcamento.clienteId);
   const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
@@ -579,10 +579,6 @@ function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
     "Não trabalho com peças fornecidas",
     ""
   ];
-
-  if (publicUrl) {
-    message.push("Visualizar orçamento:", publicUrl, "");
-  }
 
   message.push("Qualquer dúvida, fico à disposição.");
   return message.join("\n");
@@ -641,26 +637,7 @@ async function sendOrcamentoWhatsApp(id) {
     return;
   }
 
-  let publicUrl = "";
-  let publishError = null;
-  try {
-    const publishPublicOrcamento = await waitForPublicOrcamentoPublisher();
-    if (publishPublicOrcamento) {
-      const publicId = await publishPublicOrcamento(buildPublicOrcamentoData(orcamento));
-      publicUrl = new URL(`orcamento-publico.html?id=${encodeURIComponent(publicId)}`, window.location.href).href;
-    }
-  } catch (error) {
-    console.error("Erro ao publicar link curto do orçamento:", error);
-    publishError = error;
-  }
-
-  if (!publicUrl) {
-    whatsappWindow?.close();
-    await rrAlert(publicOrcamentoErrorMessage(publishError), "Link do orçamento");
-    return;
-  }
-
-  const message = buildOrcamentoWhatsAppMessage(orcamento, publicUrl);
+  const message = buildOrcamentoWhatsAppMessage(orcamento);
   const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   if (whatsappWindow) {
     whatsappWindow.opener = null;
@@ -1327,7 +1304,15 @@ function renderOrcamentos() {
 }
 
 function getOrcamentoTotal(orcamento) {
-  if (orcamento.total !== undefined) return Number(orcamento.total) || 0;
+  const valorFinalManual = parseDecimal(orcamento.valorFinalManual);
+  if (valorFinalManual > 0) return valorFinalManual;
+  if (Array.isArray(orcamento.pecas) || Array.isArray(orcamento.servicos)) {
+    return calculateOrcamentoTotals(
+      Array.isArray(orcamento.pecas) ? orcamento.pecas : [],
+      Array.isArray(orcamento.servicos) ? orcamento.servicos : []
+    ).total;
+  }
+  if (orcamento.total !== undefined) return parseDecimal(orcamento.total);
   return (Number(orcamento.pecas) || 0) + (Number(orcamento.maoObra) || 0);
 }
 
