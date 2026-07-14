@@ -11,6 +11,7 @@ const legacyKeys = {
 };
 
 const VALOR_HORA_PADRAO = 120;
+const DEFAULT_PARTS_MARKUP_PERCENT = 35;
 const PIX_CONFIG = {
   chave: "b1b2ecb6-a8f1-41b5-a705-7f5b375b1395",
   nome: "Ryan Henrique Alves Costa",
@@ -317,6 +318,18 @@ function getStoredWorkspaceBranding() {
     localStorage.removeItem(WORKSPACE_BRANDING_KEY);
     return {};
   }
+}
+
+function getPartsMarkupPercent() {
+  const stored = getStoredWorkspaceBranding();
+  const percent = Number(stored.partsMarkupPercent);
+  return Number.isFinite(percent) && percent >= 0 ? percent : DEFAULT_PARTS_MARKUP_PERCENT;
+}
+
+function getLaborHourRate() {
+  const stored = getStoredWorkspaceBranding();
+  const rate = Number(stored.laborHourRate);
+  return Number.isFinite(rate) && rate >= 0 ? rate : VALOR_HORA_PADRAO;
 }
 
 function getDocumentBranding(source = {}) {
@@ -1098,13 +1111,27 @@ function initOrcamentos() {
     orcamentoServicosDraft.push(blankServicoOrcamento());
     renderOrcamentoDrafts();
   });
-  byId("orcamentoForm").addEventListener("input", updateOrcamentoPreview);
+  byId("orcamentoForm").addEventListener("input", handleOrcamentoFormInput);
   byId("orcamentoForm").addEventListener("submit", saveOrcamento);
   byId("buscaOrcamentos").addEventListener("input", renderOrcamentos);
   renderOrcamentos();
 
   const editarId = new URLSearchParams(window.location.search).get("editar");
   if (editarId) editOrcamento(editarId);
+}
+
+function handleOrcamentoFormInput(event) {
+  const costInput = event.target.closest("[data-field='custoUnitario']");
+  if (costInput) {
+    const row = costInput.closest("[data-peca-index]");
+    const saleInput = row?.querySelector("[data-field='valorUnitario']");
+    if (saleInput) {
+      const saleValue = parseDecimal(costInput.value) * (1 + getPartsMarkupPercent() / 100);
+      saleInput.value = saleValue.toFixed(2);
+      markZeroInput(saleInput);
+    }
+  }
+  updateOrcamentoPreview();
 }
 
 function resetOrcamentoDrafts() {
@@ -1118,7 +1145,7 @@ function blankPeca() {
 }
 
 function blankServicoOrcamento() {
-  return { id: createId("mao"), descricao: "", horas: 1, valorHora: VALOR_HORA_PADRAO };
+  return { id: createId("mao"), descricao: "", horas: 1, valorHora: getLaborHourRate() };
 }
 
 function zeroInputClass(value) {
@@ -1162,7 +1189,7 @@ function syncOrcamentoDrafts() {
     id: row.dataset.servicoId || createId("mao"),
     descricao: row.querySelector("[data-field='descricao']").value.trim(),
     horas: parseDecimal(row.querySelector("[data-field='horas']").value),
-    valorHora: parseDecimal(row.querySelector("[data-field='valorHora']").value) || VALOR_HORA_PADRAO
+    valorHora: parseDecimal(row.querySelector("[data-field='valorHora']").value) || getLaborHourRate()
   }));
 }
 
@@ -1352,7 +1379,7 @@ function loadOrcamentoIntoForm(orcamento) {
   setValue("orcamentoData", orcamento.data);
   setValue("orcamentoValorFinal", orcamento.valorFinalManual || "");
   orcamentoPecasDraft = Array.isArray(orcamento.pecas) ? orcamento.pecas.map((peca) => ({ custoUnitario: 0, ...peca })) : [{ ...blankPeca(), nome: "Peças", quantidade: 1, valorUnitario: Number(orcamento.pecas) || 0 }];
-  orcamentoServicosDraft = Array.isArray(orcamento.servicos) ? orcamento.servicos : [{ ...blankServicoOrcamento(), descricao: "Mão de obra", horas: 1, valorHora: Number(orcamento.maoObra) || VALOR_HORA_PADRAO }];
+  orcamentoServicosDraft = Array.isArray(orcamento.servicos) ? orcamento.servicos : [{ ...blankServicoOrcamento(), descricao: "Mão de obra", horas: 1, valorHora: Number(orcamento.maoObra) || getLaborHourRate() }];
   renderOrcamentoDrafts();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }

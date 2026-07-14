@@ -51,6 +51,19 @@
           <label>Telefone
             <input id="meuCadastroTelefone" type="tel" placeholder="(31) 99999-9999" maxlength="15">
           </label>
+
+          <div class="span-2">
+            <span class="field-label">Valores padrão do orçamento</span>
+            <small>Estes valores são sugestões automáticas e poderão ser alterados em cada orçamento.</small>
+          </div>
+          <label>Margem de venda das peças (%)
+            <input id="meuCadastroMargemPecas" type="number" min="0" step="0.01" value="35" placeholder="35">
+            <small>Custo de R$ 100,00 com 35% sugere venda de R$ 135,00.</small>
+          </label>
+          <label>Valor da hora de mão de obra (R$)
+            <input id="meuCadastroValorHora" type="number" min="0" step="0.01" value="120" placeholder="120,00">
+            <small>Será preenchido automaticamente ao adicionar um serviço.</small>
+          </label>
           <div class="span-2">
             <span class="field-label">Documento</span>
             <div class="document-options">
@@ -117,8 +130,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=46"></script>
+  <script src="script.js?v=49"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=39"></script>
+  <script type="module" src="firebase-sync.js?v=40"></script>
 </body>
 </html>

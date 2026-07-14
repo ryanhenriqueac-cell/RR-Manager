@@ -26,6 +26,8 @@ const REGISTER_PREFILL_KEY = "rr_register_prefill";
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
 const DEFAULT_WORKSHOP_TAGLINE = "Manuten\u00e7\u00e3o Especializada | Paix\u00e3o por Carros";
 const DEFAULT_WORKSHOP_LOGO = "assets/logo-rr-manager.png";
+const DEFAULT_PARTS_MARKUP_PERCENT = 35;
+const DEFAULT_LABOR_HOUR_RATE = 120;
 const MAX_LOGO_DIMENSION = 2000;
 const MAX_LOGO_DATA_URL_LENGTH = 750000;
 const ONBOARDING_VERSION = "manager_intro_v1";
@@ -507,6 +509,8 @@ function setWorkspaceBrandingContext(workspace = {}) {
     pixKey: workspace.pixKey || "",
     pixName: workspace.pixName || "",
     pixCity: workspace.pixCity || "",
+    partsMarkupPercent: normalizePartsMarkupPercent(workspace.partsMarkupPercent),
+    laborHourRate: normalizeLaborHourRate(workspace.laborHourRate),
     registration
   }));
 }
@@ -597,6 +601,8 @@ function renderMeuCadastro(workspace = {}) {
   setValueIfExists("meuCadastroPixChave", workspace.pixKey || "");
   setValueIfExists("meuCadastroPixNome", workspace.pixName || "");
   setValueIfExists("meuCadastroPixCidade", workspace.pixCity || "");
+  document.getElementById("meuCadastroMargemPecas").value = normalizePartsMarkupPercent(workspace.partsMarkupPercent);
+  document.getElementById("meuCadastroValorHora").value = normalizeLaborHourRate(workspace.laborHourRate);
   const docTypeInput = document.querySelector(`input[name='meuCadastroDocType'][value='${docType}']`);
   if (docTypeInput) docTypeInput.checked = true;
   updateMeuCadastroDocumentPlaceholder();
@@ -780,6 +786,18 @@ async function saveMeuCadastro(event) {
   }
 }
 
+function normalizePartsMarkupPercent(value) {
+  if (value === "" || value === null || value === undefined) return DEFAULT_PARTS_MARKUP_PERCENT;
+  const percent = Number(value);
+  return Number.isFinite(percent) && percent >= 0 ? percent : DEFAULT_PARTS_MARKUP_PERCENT;
+}
+
+function normalizeLaborHourRate(value) {
+  if (value === "" || value === null || value === undefined) return DEFAULT_LABOR_HOUR_RATE;
+  const rate = Number(value);
+  return Number.isFinite(rate) && rate >= 0 ? rate : DEFAULT_LABOR_HOUR_RATE;
+}
+
 function getEmpresaPersonalizacaoPayload(fallbackName = "") {
   const reportName = document.getElementById("meuCadastroNomeOrcamento")?.value.trim() || fallbackName;
   return {
@@ -788,7 +806,9 @@ function getEmpresaPersonalizacaoPayload(fallbackName = "") {
     tagline: document.getElementById("meuCadastroTagline")?.value.trim() || DEFAULT_WORKSHOP_TAGLINE,
     pixKey: document.getElementById("meuCadastroPixChave")?.value.trim() || "",
     pixName: document.getElementById("meuCadastroPixNome")?.value.trim() || "",
-    pixCity: document.getElementById("meuCadastroPixCidade")?.value.trim() || ""
+    pixCity: document.getElementById("meuCadastroPixCidade")?.value.trim() || "",
+    partsMarkupPercent: normalizePartsMarkupPercent(document.getElementById("meuCadastroMargemPecas")?.value),
+    laborHourRate: normalizeLaborHourRate(document.getElementById("meuCadastroValorHora")?.value)
   };
 }
 
