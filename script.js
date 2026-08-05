@@ -838,6 +838,16 @@ function getPaymentDiscount(orcamento) {
   return getOrcamentoTotal(orcamento) * 0.03;
 }
 
+function getPaymentDiscountPercent(orcamento) {
+  if (orcamento.pagamento?.tipo !== "pix") return 0;
+  if (orcamento.pagamento?.descontoPercentual !== undefined) {
+    return parseDecimal(orcamento.pagamento.descontoPercentual);
+  }
+  const total = getOrcamentoTotal(orcamento);
+  const discount = getPaymentDiscount(orcamento);
+  return total > 0 && discount > 0 ? (discount / total) * 100 : 3;
+}
+
 function getOrcamentoReceita(orcamento) {
   return Math.max(0, getOrcamentoTotal(orcamento) - getPaymentDiscount(orcamento) + getPaymentSurcharge(orcamento));
 }
@@ -1608,6 +1618,8 @@ function buildOrcamentoPrintHtml(orcamento) {
   const totals = calculateOrcamentoTotals(pecas, servicos);
   const totalFinal = getOrcamentoTotal(orcamento);
   const descontoPix = getPaymentDiscount(orcamento);
+  const descontoPixPercentual = getPaymentDiscountPercent(orcamento);
+  const descontoPixLabel = String(Number(descontoPixPercentual.toFixed(2))).replace(".", ",");
   const acrescimoPagamento = getPaymentSurcharge(orcamento);
   const totalPix = Math.max(0, totalFinal - descontoPix);
   const totalComPagamento = Math.max(0, totalFinal + acrescimoPagamento);
@@ -1659,7 +1671,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         ${orcamento.valorFinalManual ? `<div><span>Total calculado</span><strong>${money(totals.total)}</strong></div>` : ""}
         <div><span>Total geral</span><strong>${money(totalFinal)}</strong></div>
         ${acrescimoPagamento > 0 ? `<div><span>Taxa de parcelamento</span><strong>+ ${money(acrescimoPagamento)}</strong></div><div><span>Total a pagar</span><strong>${money(totalComPagamento)}</strong></div>` : ""}
-        ${descontoPix > 0 ? `<div><span>Desconto Pix (3%)</span><strong>- ${money(descontoPix)}</strong></div><div><span>Total no Pix</span><strong>${money(totalPix)}</strong></div>` : ""}
+        ${descontoPix > 0 ? `<div><span>Desconto Pix (${descontoPixLabel}%)</span><strong>- ${money(descontoPix)}</strong></div><div><span>Total no Pix</span><strong>${money(totalPix)}</strong></div>` : ""}
         </div>
         ${buildPixPaymentHtml(orcamento, descontoPix > 0 ? totalPix : totalFinal)}
       </section>
