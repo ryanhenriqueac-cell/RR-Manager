@@ -1676,7 +1676,10 @@ function getInspectionStatusPrintHtml(status) {
     ["ok", "OK"],
     ["attention", "AT"],
     ["na", "N/A"]
-  ].map(([value, label]) => `<span class="inspection-print-check${status === value ? " checked" : ""}">${label}</span>`).join("");
+  ].map(([value, label]) => {
+    const checked = status === value;
+    return `<span class="inspection-print-check${checked ? " checked" : ""}"><span class="inspection-print-box" aria-hidden="true">${checked ? "&#9746;" : "&#9744;"}</span>${label}</span>`;
+  }).join("");
 }
 
 function buildInspectionSectionHtml(section, sectionIndex, draft) {

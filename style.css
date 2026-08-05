@@ -3057,7 +3057,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .inspection-result-cell .inspection-print-value {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: space-around;
     gap: 2px;
@@ -3068,20 +3068,16 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .inspection-print-check {
     display: inline-flex;
     align-items: center;
-    gap: 1px;
+    gap: 1.5px;
     white-space: nowrap;
   }
 
-  .inspection-print-check::before {
-    width: 7px;
-    height: 7px;
-    border: 0.7px solid #526174;
-    content: "";
-  }
-
-  .inspection-print-check.checked::before {
-    background: #062e55;
-    box-shadow: inset 0 0 0 1px #fff;
+  .inspection-print-box {
+    color: #111827;
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    line-height: 1;
   }
 
   .inspection-document .print-header {
