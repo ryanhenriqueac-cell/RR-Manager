@@ -1240,14 +1240,23 @@ async function renderAdminDashboard() {
     adminWorkspaces = dedupeWorkspaces(snap.docs
       .map((item) => ({ id: item.id, ...(item.data() || {}) }))
       .filter((item) => item.ownerEmail || item.ownerUid || item.owner)
-      .filter((item) => !ADMIN_EMAILS.includes(normalizeEmail(item.ownerEmail)))
-      .sort((a, b) => String(a.ownerEmail || a.id).localeCompare(String(b.ownerEmail || b.id))));
+      .filter((item) => !ADMIN_EMAILS.includes(normalizeEmail(item.ownerEmail))));
+    adminWorkspaces.sort(compareAdminWorkspacesByName);
 
     renderAdminWorkspaceList();
     if (search) search.oninput = renderAdminWorkspaceList;
   } catch (error) {
     message.textContent = firebaseError(error);
   }
+}
+
+function compareAdminWorkspacesByName(a, b) {
+  const nameA = a.businessName || a.registration?.empresa || a.ownerEmail || a.id;
+  const nameB = b.businessName || b.registration?.empresa || b.ownerEmail || b.id;
+  return String(nameA).localeCompare(String(nameB), 'pt-BR', {
+    sensitivity: 'base',
+    numeric: true
+  });
 }
 
 function renderAdminWorkspaceList() {
