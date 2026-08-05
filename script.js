@@ -1298,6 +1298,7 @@ function initOrcamentos() {
   inspectionButton.addEventListener("click", () => {
     if (!clienteSelect.value || !carroSelect.value) return;
     const params = new URLSearchParams({ cliente: clienteSelect.value, carro: carroSelect.value });
+    params.set("rev", "5");
     window.location.href = `inspecao.html?${params.toString()}`;
   });
   updateOrcamentoInspectionButton();
@@ -1695,7 +1696,7 @@ function buildInspectionSectionHtml(section, sectionIndex, draft) {
               const status = draft.items?.[id]?.status || "";
               const note = draft.items?.[id]?.note || "";
               return `
-                <tr>
+                <tr data-print-status="${status || "pending"}">
                   <td class="inspection-item-cell">
                     <span>${escapeHtml(item)}</span>
                     <span class="inspection-print-value inspection-item-print-status" data-inspection-status-print="${id}">${getInspectionStatusPrintHtml(status)}</span>
@@ -1746,6 +1747,7 @@ function prepareInspectionForExport(root) {
     });
   });
   root.querySelectorAll("[data-inspection-status]").forEach((select) => {
+    select.closest("tr")?.setAttribute("data-print-status", select.value || "pending");
     root.querySelectorAll(`[data-inspection-status-print="${select.dataset.inspectionStatus}"]`).forEach((output) => {
       output.innerHTML = getInspectionStatusPrintHtml(select.value);
     });

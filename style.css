@@ -3056,6 +3056,34 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     display: block;
     padding-left: 3px;
   }
+  .inspection-table th:first-child::after {
+    content: "RESULTADO";
+    display: block;
+    padding-left: 3px;
+  }
+
+  .inspection-item-cell::after {
+    content: "\2610  OK   \2610  AT   \2610  N/A";
+    display: block;
+    padding-left: 3px;
+    color: #111827;
+    font-family: Arial, sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .inspection-table tr[data-print-status="ok"] .inspection-item-cell::after {
+    content: "\2612  OK   \2610  AT   \2610  N/A";
+  }
+
+  .inspection-table tr[data-print-status="attention"] .inspection-item-cell::after {
+    content: "\2610  OK   \2612  AT   \2610  N/A";
+  }
+
+  .inspection-table tr[data-print-status="na"] .inspection-item-cell::after {
+    content: "\2610  OK   \2610  AT   \2612  N/A";
+  }
 
   .inspection-table th,
   .inspection-table td {
@@ -3078,13 +3106,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .inspection-item-print-status {
-    display: flex !important;
-    align-items: center;
-    justify-content: space-around;
-    gap: 2px;
-    padding-left: 3px;
-    font-weight: 800;
-    text-align: center;
+    display: none !important;
   }
 
   .inspection-result-cell .inspection-print-value {
