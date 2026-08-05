@@ -368,6 +368,7 @@ async function resetPassword() {
   button.disabled = true;
   showAuthMessage('Enviando link de recuperação...');
   try {
+    auth.languageCode = 'pt-BR';
     await sendPasswordResetEmail(auth, email);
     showAuthMessage(confirmation);
   } catch (error) {

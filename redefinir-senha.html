@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07192b">
+  <title>Redefinir senha | RR Manager</title>
+  <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=69">
+</head>
+<body class="reset-password-page">
+  <main class="reset-password-shell">
+    <section class="reset-password-card" aria-labelledby="resetTitle">
+      <div class="reset-password-brand">
+        <img src="assets/logo-rr-manager.png" alt="RR Manager">
+        <span>RR <strong>Manager</strong></span>
+      </div>
+      <p class="eyebrow">Acesso seguro</p>
+      <h1 id="resetTitle">Redefinir sua senha</h1>
+      <p id="resetDescription">Validando seu link de recupera&ccedil;&atilde;o...</p>
+      <form id="resetPasswordForm" hidden>
+        <div class="reset-account-email" id="resetAccountEmail"></div>
+        <label>Nova senha
+          <input id="resetNewPassword" type="password" minlength="8" autocomplete="new-password" placeholder="M&iacute;nimo de 8 caracteres" required>
+        </label>
+        <label>Confirme a nova senha
+          <input id="resetConfirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Digite novamente" required>
+        </label>
+        <button class="btn btn-primary" type="submit">Salvar nova senha</button>
+      </form>
+      <div id="resetPasswordMessage" class="reset-password-message" role="status" aria-live="polite"></div>
+      <a class="btn btn-muted reset-login-link" href="dashboard.html">Voltar para entrar</a>
+    </section>
+  </main>
+  <script src="firebase-config.js?v=13"></script>
+  <script type="module" src="firebase-reset.js?v=1"></script>
+</body>
+</html>

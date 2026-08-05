@@ -5910,3 +5910,110 @@ body[data-page="financeiro-print"] #firebaseLandingReturn {
     grid-template-columns: repeat(2, minmax(80px, 1fr));
   }
 }
+/* Recuperacao de senha com a identidade do RR Manager */
+.reset-password-page {
+  min-height: 100vh;
+  margin: 0;
+  color: #f4f7fb;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(47, 124, 246, .2), transparent 34rem),
+    radial-gradient(circle at 85% 85%, rgba(241, 199, 91, .12), transparent 30rem),
+    #061423;
+  font-family: 'Exo 2', sans-serif;
+}
+
+.reset-password-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.reset-password-card {
+  width: min(100%, 500px);
+  padding: clamp(28px, 6vw, 48px);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-top: 3px solid #f1c75b;
+  border-radius: 22px;
+  background: rgba(9, 28, 48, .96);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .4);
+}
+
+.reset-password-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 30px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.reset-password-brand img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.reset-password-card h1 {
+  margin: 6px 0 12px;
+  font-size: clamp(30px, 6vw, 44px);
+  line-height: 1.05;
+}
+
+.reset-password-card > p:not(.eyebrow) {
+  color: #b8c7d9;
+  line-height: 1.6;
+}
+
+.reset-password-card form {
+  display: grid;
+  gap: 18px;
+  margin-top: 26px;
+}
+
+.reset-password-card form[hidden] { display: none; }
+
+.reset-password-card label {
+  display: grid;
+  gap: 8px;
+  color: #dce6f2;
+  font-weight: 700;
+}
+
+.reset-password-card input {
+  width: 100%;
+  min-height: 52px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border: 1px solid #29445f;
+  border-radius: 10px;
+  color: #fff;
+  background: #071321;
+  font: inherit;
+}
+
+.reset-password-card input:focus {
+  outline: 2px solid #2f7cf6;
+  border-color: transparent;
+}
+
+.reset-account-email {
+  padding: 12px 14px;
+  border-radius: 9px;
+  color: #f1c75b;
+  background: rgba(241, 199, 91, .08);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.reset-password-message {
+  min-height: 24px;
+  margin: 18px 0 4px;
+  line-height: 1.5;
+}
+
+.reset-password-message.is-error { color: #ff9b9b; }
+.reset-password-message.is-success { color: #63ddb1; }
+.reset-login-link { width: 100%; margin-top: 12px; }
+.reset-login-link.is-highlighted { border-color: #f1c75b; color: #f1c75b; }
