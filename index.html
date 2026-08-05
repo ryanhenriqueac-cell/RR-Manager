@@ -275,7 +275,13 @@
     const hasLocalSession = Boolean(sessionStorage.getItem("rr_firebase_loaded_user"));
 
     function updateLandingAccessState(user) {
-      const isLogged = Boolean(user) || hasLocalSession;
+      const isLogged = Boolean(user);
+      const firebaseChecked = user !== true;
+      if (firebaseChecked && isLogged) {
+        sessionStorage.setItem("rr_firebase_loaded_user", user.uid);
+      } else if (firebaseChecked) {
+        sessionStorage.removeItem("rr_firebase_loaded_user");
+      }
       document.querySelectorAll('a[href="dashboard.html"]').forEach((link) => {
         if (!link.dataset.guestLabel) link.dataset.guestLabel = link.textContent.trim();
         link.textContent = isLogged ? "Voltar para sistema de gest\u00e3o" : link.dataset.guestLabel;
@@ -292,8 +298,10 @@
         const landingApp = initializeApp(landingConfig, "rr-manager-landing");
         onAuthStateChanged(getAuth(landingApp), updateLandingAccessState);
       } catch (error) {
-        updateLandingAccessState(hasLocalSession);
+        updateLandingAccessState(null);
       }
+    } else {
+      updateLandingAccessState(null);
     }
   </script>
   <script>
