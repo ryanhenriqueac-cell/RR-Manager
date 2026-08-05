@@ -13,9 +13,9 @@ const legacyKeys = {
 const VALOR_HORA_PADRAO = 120;
 const DEFAULT_PARTS_MARKUP_PERCENT = 35;
 const PIX_CONFIG = {
-  chave: "b1b2ecb6-a8f1-41b5-a705-7f5b375b1395",
-  nome: "Ryan Henrique Alves Costa",
-  cidade: "Belo Horizonte"
+  chave: "",
+  nome: "",
+  cidade: "BRASIL"
 };
 
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
@@ -389,7 +389,7 @@ function getDocumentBranding(source = {}) {
     reportName,
     tagline: incoming.tagline || stored.tagline || patch.tagline || DEFAULT_DOCUMENT_BRANDING.tagline,
     logoUrl: incoming.logoUrl || stored.logoUrl || patch.logoUrl || DEFAULT_DOCUMENT_BRANDING.logoUrl,
-    pixKey: incoming.pixKey || stored.pixKey || PIX_CONFIG.chave,
+    pixKey: incoming.pixKey || stored.pixKey || "",
     pixName: incoming.pixName || stored.pixName || companyName || PIX_CONFIG.nome,
     pixCity: incoming.pixCity || stored.pixCity || PIX_CONFIG.cidade,
     ownerEmail: email
@@ -537,9 +537,10 @@ function buildPublicOrcamentoData(orcamento) {
   const carro = getCarro(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId) || {};
   const pecas = Array.isArray(orcamento.pecas) ? orcamento.pecas : [];
   const servicos = Array.isArray(orcamento.servicos) ? orcamento.servicos : [];
+  const branding = getPublicDocumentBranding();
 
   return {
-    b: getPublicDocumentBranding(),
+    b: branding,
     c: {
       n: cliente.nome || "",
       t: cliente.telefone || "",
@@ -568,7 +569,8 @@ function buildPublicOrcamentoData(orcamento) {
       })),
       f: parseDecimal(orcamento.valorFinalManual),
       t: getOrcamentoTotal(orcamento),
-      pg: orcamento.status === "Aprovado"
+      pg: orcamento.status === "Aprovado",
+      pk: Boolean(branding.pixKey)
     }
   };
 }
@@ -579,7 +581,10 @@ function normalizePublicOrcamentoData(data) {
       branding: data.branding || data.b || {},
       cliente: data.cliente || {},
       carro: data.carro || {},
-      orcamento: data.orcamento || {}
+      orcamento: {
+        ...(data.orcamento || {}),
+        pixEnabled: data.orcamento?.pixConfigured === true
+      }
     };
   }
 
@@ -613,7 +618,7 @@ function normalizePublicOrcamentoData(data) {
       })),
       valorFinalManual: parseDecimal(data.o?.f),
       total: parseDecimal(data.o?.t),
-      pixEnabled: data.o?.pg === true
+      pixEnabled: data.o?.pg === true && data.o?.pk === true
     }
   };
 }
