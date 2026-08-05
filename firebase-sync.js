@@ -40,8 +40,8 @@ const DEFAULT_MACHINE_RATES = {
 const MAX_LOGO_DIMENSION = 2000;
 const MAX_LOGO_DATA_URL_LENGTH = 750000;
 const ONBOARDING_VERSION = "manager_intro_v1";
-const LEGAL_TERMS_VERSION = "1.0";
-const LEGAL_PRIVACY_VERSION = "1.0";
+const LEGAL_TERMS_VERSION = "1.1";
+const LEGAL_PRIVACY_VERSION = "1.1";
 const ACCESS_STATUS = {
   PENDING: "pending",
   ACTIVE: "active",
