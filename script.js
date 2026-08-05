@@ -1688,7 +1688,7 @@ function buildInspectionSectionHtml(section, sectionIndex, draft) {
       <h3>${escapeHtml(section.title)}</h3>
       <div class="inspection-table-wrap">
         <table class="inspection-table">
-          <thead><tr><th>Item verificado</th><th>Resultado</th><th>Observação</th></tr></thead>
+          <thead><tr><th><span>Item verificado</span><span class="inspection-print-result-heading">Resultado</span></th><th>Resultado</th><th>Observação</th></tr></thead>
           <tbody>
             ${section.items.map((item, itemIndex) => {
               const id = `${sectionIndex}-${itemIndex}`;
@@ -1696,7 +1696,10 @@ function buildInspectionSectionHtml(section, sectionIndex, draft) {
               const note = draft.items?.[id]?.note || "";
               return `
                 <tr>
-                  <td>${escapeHtml(item)}</td>
+                  <td class="inspection-item-cell">
+                    <span>${escapeHtml(item)}</span>
+                    <span class="inspection-print-value inspection-item-print-status" data-inspection-status-print="${id}">${getInspectionStatusPrintHtml(status)}</span>
+                  </td>
                   <td class="inspection-result-cell">
                     <select data-inspection-status="${id}" class="inspection-status status-${status || "pending"}" aria-label="Resultado de ${escapeHtml(item)}">
                       ${getInspectionStatusOptions(status)}
@@ -1743,8 +1746,9 @@ function prepareInspectionForExport(root) {
     });
   });
   root.querySelectorAll("[data-inspection-status]").forEach((select) => {
-    const output = root.querySelector(`[data-inspection-status-print="${select.dataset.inspectionStatus}"]`);
-    if (output) output.innerHTML = getInspectionStatusPrintHtml(select.value);
+    root.querySelectorAll(`[data-inspection-status-print="${select.dataset.inspectionStatus}"]`).forEach((output) => {
+      output.innerHTML = getInspectionStatusPrintHtml(select.value);
+    });
   });
   const notes = Array.from(root.querySelectorAll("[data-inspection-note]"))
     .map((input) => ({
