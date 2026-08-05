@@ -1771,15 +1771,16 @@ function initInspecao() {
       <section class="print-info-grid inspection-client-grid">
         <div><strong>Cliente</strong>${escapeHtml(cliente.nome || "")}<br>${escapeHtml(formatPhoneBR(cliente.telefone))}<br>${escapeHtml(cliente.email || "")}</div>
         <div><strong>Veículo</strong>${escapeHtml(vehicleName)}<br>${escapeHtml(carro.placa ? `Placa: ${carro.placa}` : "")}</div>
+      </section>
+
+      <section class="inspection-meta-grid">
         <label><strong>Data</strong><input type="date" data-inspection-field="date" value="${escapeHtml(fields.date || today())}"></label>
         <label><strong>Quilometragem</strong><input type="number" min="0" data-inspection-field="km" value="${escapeHtml(fields.km || carro.km || "")}" placeholder="Km atual"></label>
         <label><strong>Técnico responsável</strong><input data-inspection-field="technician" value="${escapeHtml(fields.technician || "")}" placeholder="Nome do técnico"></label>
-        <label><strong>Ordem de serviço</strong><input data-inspection-field="serviceOrder" value="${escapeHtml(fields.serviceOrder || "")}" placeholder="Opcional"></label>
       </section>
 
       <section class="inspection-opening">
         <label><strong>Reclamações relatadas pelo cliente</strong><textarea data-inspection-field="complaints" rows="2" placeholder="Descreva os sintomas informados pelo cliente">${escapeHtml(fields.complaints || "")}</textarea></label>
-        <label><strong>Histórico ou cuidados antes da inspeção</strong><textarea data-inspection-field="history" rows="2" placeholder="Serviços anteriores, alertas ou observações">${escapeHtml(fields.history || "")}</textarea></label>
       </section>
 
       <div class="inspection-legend">
