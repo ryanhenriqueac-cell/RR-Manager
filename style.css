@@ -2761,8 +2761,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 }
 
 .inspection-sections-grid {
-  column-count: 2;
-  column-gap: 12px;
+  column-count: 1;
 }
 
 .inspection-section h3,
@@ -2811,6 +2810,10 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .inspection-table input::placeholder {
   color: #8b97a8;
   font-size: 8px;
+}
+
+.inspection-print-value {
+  display: none;
 }
 
 .inspection-status.status-ok {
@@ -2975,12 +2978,14 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .inspection-document {
-    padding: 8mm;
+    padding: 5mm 7mm;
   }
 
   .inspection-sections-grid {
-    column-count: 2;
-    column-gap: 3mm;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.2mm;
+    column-count: initial;
   }
 
   .inspection-document input,
@@ -2992,26 +2997,134 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .inspection-section {
+    margin-bottom: 2.2mm;
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
+  .inspection-section h3 {
+    padding: 3px 5px;
+    font-size: 8px;
+    line-height: 1.1;
+  }
+
+  .inspection-table th:first-child { width: 52%; }
+  .inspection-table th:nth-child(2) { width: 15%; }
+  .inspection-table th:nth-child(3) { width: 33%; }
+
   .inspection-table th,
   .inspection-table td {
-    padding: 2.2px 3px;
-    font-size: 7.5px;
-    line-height: 1.15;
+    padding: 1.2px 2px;
+    font-size: 5.7px;
+    line-height: 1.05;
   }
 
   .inspection-table input,
   .inspection-table select {
-    min-height: 20px;
-    padding: 2px 3px;
-    font-size: 7.5px;
+    display: none !important;
   }
 
-  .inspection-table input::placeholder {
-    color: transparent;
+  .inspection-print-value {
+    display: block;
+    overflow-wrap: anywhere;
+    color: #172033;
+    font-size: 5.7px;
+    line-height: 1.05;
+  }
+
+  .inspection-result-cell .inspection-print-value {
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .inspection-document .print-header {
+    gap: 8px;
+    padding-bottom: 5px;
+  }
+
+  .inspection-document .print-header img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .inspection-document .print-header h1 {
+    font-size: 15px;
+  }
+
+  .inspection-document .print-header p {
+    margin-top: 2px;
+    font-size: 6px;
+  }
+
+  .inspection-document h2 {
+    margin: 6px 0 5px;
+    font-size: 11px;
+  }
+
+  .inspection-document .print-info-grid {
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .inspection-document .print-info-grid div,
+  .inspection-document .inspection-meta-grid label,
+  .inspection-document .inspection-opening label {
+    padding: 4px 5px;
+    font-size: 7px;
+  }
+
+  .inspection-document .print-info-grid strong,
+  .inspection-document label strong {
+    margin-bottom: 2px;
+  }
+
+  .inspection-document .inspection-meta-grid {
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .inspection-document .inspection-meta-grid input {
+    display: block !important;
+    min-height: 19px;
+    padding: 2px 3px;
+    font-size: 7px;
+  }
+
+  .inspection-document .inspection-opening {
+    margin-bottom: 4px;
+  }
+
+  .inspection-document .inspection-opening textarea,
+  .inspection-document .inspection-conclusion textarea {
+    min-height: 25px;
+    padding: 3px;
+    font-size: 7px;
+  }
+
+  .inspection-document .inspection-legend {
+    gap: 8px;
+    margin: 3px 0 5px;
+    padding: 4px 6px;
+    font-size: 6px;
+  }
+
+  .inspection-conclusion {
+    margin-top: 3px;
+  }
+
+  .inspection-conclusion h3 {
+    padding: 3px 5px;
+    font-size: 8px;
+  }
+
+  .inspection-signatures {
+    gap: 18px;
+    margin: 15px 10px 3px;
+  }
+
+  .inspection-signatures span,
+  .inspection-document .print-footer {
+    font-size: 6px;
   }
 
   .print-header,

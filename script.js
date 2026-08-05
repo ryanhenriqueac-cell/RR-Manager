@@ -1671,6 +1671,14 @@ function getInspectionStatusOptions(selected = "") {
   ].map(([value, label]) => `<option value="${value}"${selected === value ? " selected" : ""}>${label}</option>`).join("");
 }
 
+function getInspectionStatusPrintHtml(status) {
+  return [
+    ["ok", "OK"],
+    ["attention", "AT"],
+    ["na", "N/A"]
+  ].map(([value, label]) => `<span class="inspection-print-check${status === value ? " checked" : ""}">${label}</span>`).join("");
+}
+
 function buildInspectionSectionHtml(section, sectionIndex, draft) {
   return `
     <section class="inspection-section">
@@ -1686,12 +1694,15 @@ function buildInspectionSectionHtml(section, sectionIndex, draft) {
               return `
                 <tr>
                   <td>${escapeHtml(item)}</td>
-                  <td>
+                  <td class="inspection-result-cell">
                     <select data-inspection-status="${id}" class="inspection-status status-${status || "pending"}" aria-label="Resultado de ${escapeHtml(item)}">
                       ${getInspectionStatusOptions(status)}
                     </select>
+                    <span class="inspection-print-value inspection-print-status" data-inspection-status-print="${id}">${getInspectionStatusPrintHtml(status)}</span>
                   </td>
-                  <td><input data-inspection-note="${id}" value="${escapeHtml(note)}" placeholder="Detalhes, lado ou medida"></td>
+                  <td class="inspection-note-cell">
+                    <input data-inspection-note="${id}" value="${escapeHtml(note)}" placeholder="Detalhes, lado ou medida">
+                  </td>
                 </tr>
               `;
             }).join("")}
@@ -1728,6 +1739,22 @@ function prepareInspectionForExport(root) {
       else option.removeAttribute("selected");
     });
   });
+  root.querySelectorAll("[data-inspection-status]").forEach((select) => {
+    const output = root.querySelector(`[data-inspection-status-print="${select.dataset.inspectionStatus}"]`);
+    if (output) output.innerHTML = getInspectionStatusPrintHtml(select.value);
+  });
+  const notes = Array.from(root.querySelectorAll("[data-inspection-note]"))
+    .map((input) => ({
+      item: input.closest("tr")?.querySelector("td:first-child")?.textContent?.trim() || "",
+      note: input.value.trim()
+    }))
+    .filter((entry) => entry.note);
+  const summary = root.querySelector("[data-inspection-notes-summary]");
+  if (summary) {
+    summary.innerHTML = notes.length
+      ? notes.map((entry) => `<span><strong>${escapeHtml(entry.item)}:</strong> ${escapeHtml(entry.note)}</span>`).join("")
+      : `<span class="inspection-notes-empty">________________________________________________________________________________</span>`;
+  }
 }
 
 function initInspecao() {
@@ -1793,6 +1820,11 @@ function initInspecao() {
         ${INSPECTION_SECTIONS.map((section, index) => buildInspectionSectionHtml(section, index, draft)).join("")}
       </div>
 
+      <section class="inspection-print-notes">
+        <h3>Observações registradas</h3>
+        <div data-inspection-notes-summary></div>
+      </section>
+
       <section class="inspection-conclusion">
         <h3>Conclusão da inspeção</h3>
         <label><strong>Recomendações e observações gerais</strong><textarea data-inspection-field="conclusion" rows="4" placeholder="Serviços recomendados, prioridades e orientações ao cliente">${escapeHtml(fields.conclusion || "")}</textarea></label>
@@ -1806,14 +1838,17 @@ function initInspecao() {
     </article>
   `;
 
+  prepareInspectionForExport(root);
   const saveDraft = () => sessionStorage.setItem(draftKey, JSON.stringify(collectInspectionDraft(root)));
   root.addEventListener("input", saveDraft);
   root.addEventListener("change", (event) => {
     if (event.target.matches("[data-inspection-status]")) {
       event.target.className = `inspection-status status-${event.target.value || "pending"}`;
     }
+    prepareInspectionForExport(root);
     saveDraft();
   });
+  root.addEventListener("input", () => prepareInspectionForExport(root));
 
   const title = sanitizePrintTitle(`RR - Lista de inspeção ${cliente.nome} ${carro.placa || vehicleName}`);
   printButton?.addEventListener("click", () => {
