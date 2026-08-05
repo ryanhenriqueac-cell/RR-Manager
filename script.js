@@ -1753,7 +1753,7 @@ function prepareInspectionForExport(root) {
   if (summary) {
     summary.innerHTML = notes.length
       ? notes.map((entry) => `<span><strong>${escapeHtml(entry.item)}:</strong> ${escapeHtml(entry.note)}</span>`).join("")
-      : `<span class="inspection-notes-empty">________________________________________________________________________________</span>`;
+      : `<span class="inspection-notes-empty"></span>`;
   }
 }
 
@@ -2487,6 +2487,10 @@ async function sharePrintDocument(title) {
 }
 
 function handlePrintDocumentAction(title) {
+  if (page === "inspecao") {
+    printDocument(title);
+    return;
+  }
   if (isMobilePrintView()) {
     sharePrintDocument(title);
     return;
@@ -2499,7 +2503,7 @@ function setupMobilePrintButtonLabel() {
   if (!printButton) return;
   const mobileQuery = window.matchMedia("(max-width: 760px)");
   const updateLabel = () => {
-    printButton.textContent = mobileQuery.matches ? "Compartilhar PDF" : "Imprimir / Salvar PDF";
+    printButton.textContent = page === "inspecao" || !mobileQuery.matches ? "Imprimir / Salvar PDF" : "Compartilhar PDF";
   };
   updateLabel();
   mobileQuery.addEventListener?.("change", updateLabel);
