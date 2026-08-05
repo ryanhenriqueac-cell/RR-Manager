@@ -625,6 +625,8 @@ function normalizePublicOrcamentoData(data) {
 
 function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
   const branding = getDocumentBranding(orcamento);
+  const pixDiscountPercent = getPaymentRates().pix.discountPercent;
+  const pixDiscountLabel = String(pixDiscountPercent).replace(".", ",");
   const clienteNome = getClienteNome(orcamento.clienteId);
   const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
   const numero = String(orcamento.numero || "").padStart(4, "0");
@@ -636,7 +638,7 @@ function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
     `Veículo: ${carro}`,
     `Valor total: ${total}`,
     "Parcelado em até 3x NO CARTÃO SEM JUROS",
-    "Á vista 3% de DESCONTO",
+    pixDiscountPercent > 0 ? `À vista ${pixDiscountLabel}% de DESCONTO` : "À vista no Pix",
     "Aguardo 😉👍",
     "Não trabalho com peças fornecidas",
     ""
