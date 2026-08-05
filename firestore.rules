@@ -15,6 +15,12 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isWorkspaceActive(userId) {
+      let workspacePath = /databases/$(database)/documents/workspaces/$(userId);
+      return exists(workspacePath)
+        && (!('accessStatus' in get(workspacePath).data) || get(workspacePath).data.accessStatus == 'active');
+    }
+
     match /workspaces/{userId} {
       allow read: if isWorkspaceOwner(userId) || isAdmin();
 
@@ -24,20 +30,28 @@ service cloud.firestore {
         && request.resource.data.accessStatus == 'pending';
 
       allow update: if isWorkspaceOwner(userId)
-        && request.resource.data.owner == resource.data.owner
-        && request.resource.data.ownerUid == resource.data.ownerUid
-        && request.resource.data.accessStatus == resource.data.accessStatus;
+        && isWorkspaceActive(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasNone(['owner', 'ownerUid', 'accessStatus']);
 
       allow delete: if isAdmin();
       allow create, update: if isAdmin();
+    }
+
+    match /workspaces/{userId}/{subcollection}/{documentId} {
+      allow read, create, update, delete: if isAdmin()
+        || (isWorkspaceOwner(userId) && isWorkspaceActive(userId));
     }
 
     match /public_orcamentos/{shareId} {
       // O endereço aleatório funciona como link de visualização para o cliente.
       allow read: if true;
 
-      allow create: if isSignedIn()
-        && request.resource.data.ownerUid == request.auth.uid;
+      allow create: if isAdmin()
+        || (isSignedIn()
+          && request.resource.data.owner == request.auth.uid
+          && request.resource.data.ownerUid == request.auth.uid
+          && isWorkspaceActive(request.auth.uid));
 
       allow update, delete: if isSignedIn()
         && resource.data.ownerUid == request.auth.uid;

@@ -101,6 +101,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "financeiro-print") initFinanceiroPrint();
 });
 
+window.addEventListener("rr-cloud-data-updated", (event) => {
+  const key = event.detail?.key;
+  if (page === "dashboard") initDashboard();
+  if (page === "clientes" && (key === STORAGE_KEYS.clientes || key === STORAGE_KEYS.veiculos)) renderClientes();
+  if (page === "orcamentos" && key === STORAGE_KEYS.orcamentos) renderOrcamentos();
+  if (page === "financeiro" && key === STORAGE_KEYS.financeiro) refreshFinanceiro();
+});
+
 function readData(type) {
   return JSON.parse(localStorage.getItem(STORAGE_KEYS[type])) || [];
 }
@@ -1056,6 +1064,7 @@ async function updateOrcamentoStatus(id, status) {
     pagamento
   };
   writeData("orcamentos", orcamentos);
+  await persistSavedData();
   initDashboard();
 }
 
@@ -1700,29 +1709,37 @@ function initFinanceiro() {
   renderFinanceiroRelatorio();
 }
 
-function saveFinanceiro(event) {
+async function saveFinanceiro(event) {
   event.preventDefault();
-  const financeiro = readData("financeiro");
-  const id = getValue("financeiroId") || createId("fin");
-  const tipo = document.querySelector("input[name='financeiroTipo']:checked")?.value || "Despesa";
-  const lancamento = {
-    id,
-    tipo,
-    data: getValue("financeiroData"),
-    descricao: getValue("financeiroDescricao"),
-    categoria: getValue("financeiroCategoria"),
-    valor: Number(getValue("financeiroValor")) || 0
-  };
-  const index = financeiro.findIndex((item) => item.id === id);
-  if (index >= 0) financeiro[index] = lancamento;
-  else financeiro.push(lancamento);
-  writeData("financeiro", financeiro);
-  event.target.reset();
-  setValue("financeiroId", "");
-  setValue("financeiroData", today());
-  byId("financeiroTipoDespesa").checked = true;
-  renderFinanceiro();
-  renderFinanceiroRelatorio();
+  setFormSaving(event.target, true, "Salvando...");
+  try {
+    const financeiro = readData("financeiro");
+    const id = getValue("financeiroId") || createId("fin");
+    const tipo = document.querySelector("input[name='financeiroTipo']:checked")?.value || "Despesa";
+    const lancamento = {
+      id,
+      tipo,
+      data: getValue("financeiroData"),
+      descricao: getValue("financeiroDescricao"),
+      categoria: getValue("financeiroCategoria"),
+      valor: Number(getValue("financeiroValor")) || 0
+    };
+    const index = financeiro.findIndex((item) => item.id === id);
+    if (index >= 0) financeiro[index] = lancamento;
+    else financeiro.push(lancamento);
+    writeData("financeiro", financeiro);
+    await persistSavedData();
+    event.target.reset();
+    setValue("financeiroId", "");
+    setValue("financeiroData", today());
+    byId("financeiroTipoDespesa").checked = true;
+    renderFinanceiro();
+    renderFinanceiroRelatorio();
+  } catch (error) {
+    await rrAlert(error.message || "Não foi possível salvar o lançamento.", "Erro ao salvar");
+  } finally {
+    setFormSaving(event.target, false);
+  }
 }
 
 function renderFinanceiro() {
@@ -2316,5 +2333,6 @@ async function deleteItem(type, id, callback) {
   const confirmed = await rrConfirm("Deseja excluir este registro? Essa ação não pode ser desfeita.", "Excluir registro", true);
   if (!confirmed) return;
   writeData(type, readData(type).filter((item) => item.id !== id));
+  await persistSavedData();
   callback();
 }

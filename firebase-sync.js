@@ -13,16 +13,23 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import {
   collection,
+  deleteField,
   deleteDoc,
   doc,
+  getCountFromServer,
   getDoc,
   getDocs,
   getFirestore,
+  onSnapshot,
   serverTimestamp,
-  setDoc
+  setDoc,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
 const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro"];
+const APP_COLLECTIONS = { rr_clientes: "clientes", rr_veiculos: "veiculos", rr_servicos: "servicos", rr_orcamentos: "orcamentos", rr_financeiro: "financeiro" };
+const APP_SCHEMA_VERSION = 2;
+const MIGRATION_BATCH_SIZE = 400;
 const SYNC_FLAG = "rr_firebase_loaded_user";
 const REMEMBER_KEY = "rr_firebase_remember";
 const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
@@ -37,8 +44,8 @@ const DEFAULT_MACHINE_RATES = {
   debit: { 1: 1.37 },
   credit: { 1: 3.15, 2: 5.39, 3: 6.12, 4: 6.85, 5: 7.57, 6: 8.28, 7: 8.99, 8: 9.69, 9: 10.38, 10: 11.06, 11: 11.74, 12: 12.40 }
 };
-const MAX_LOGO_DIMENSION = 2000;
-const MAX_LOGO_DATA_URL_LENGTH = 750000;
+const MAX_LOGO_DIMENSION = 1000;
+const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v1";
 const LEGAL_TERMS_VERSION = "1.1";
 const LEGAL_PRIVACY_VERSION = "1.1";
@@ -64,6 +71,9 @@ let saveTimer = null;
 let saveQueue = Promise.resolve();
 let cloudReady = false;
 let syncingFromCloud = false;
+let workspaceSchemaVersion = 1;
+let collectionUnsubscribers = [];
+const pendingCollectionChanges = new Map();
 let adminWorkspaces = [];
 let pendingAuthMessage = "";
 let pendingAuthModal = null;
@@ -87,6 +97,9 @@ if (!configReady) {
     cloudReady = false;
 
     if (!user) {
+      stopCollectionListeners();
+      pendingCollectionChanges.clear();
+      workspaceSchemaVersion = 1;
       sessionStorage.removeItem(SYNC_FLAG);
       sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
       localStorage.removeItem(WORKSPACE_BRANDING_KEY);
@@ -153,6 +166,7 @@ if (!configReady) {
     cloudReady = true;
     window.rrFirebaseReady = true;
     setAppLocked(false);
+    startCollectionListeners(activeWorkspaceId);
 
     if (sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId) {
       sessionStorage.setItem(SYNC_FLAG, activeWorkspaceId);
@@ -493,7 +507,7 @@ async function loadCloudData(uid) {
     showAuthMessage("Sincronizando dados...");
     const snap = await getDoc(doc(db, "workspaces", uid));
     if (!snap.exists()) {
-      await saveCloudData();
+      await saveLegacyCloudData();
       const workspace = { ownerEmail: activeWorkspaceEmail || currentUser.email };
       setWorkspaceBrandingContext(workspace);
       renderMeuCadastro(workspace);
@@ -505,7 +519,24 @@ async function loadCloudData(uid) {
     activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
     setWorkspaceBrandingContext(cloudData);
     renderMeuCadastro(cloudData);
-    const data = cloudData.data || {};
+    let data = cloudData.data || {};
+    if (Number(cloudData.schemaVersion) >= APP_SCHEMA_VERSION) {
+      workspaceSchemaVersion = APP_SCHEMA_VERSION;
+      data = await loadV2Collections(uid);
+      try {
+        await cleanupVerifiedLegacyData(uid, cloudData, data);
+      } catch (cleanupError) {
+        console.warn("A limpeza dos dados antigos será tentada novamente no próximo acesso.", cleanupError);
+      }
+    } else {
+      try {
+        data = await migrateWorkspaceToV2(uid, cloudData);
+        workspaceSchemaVersion = APP_SCHEMA_VERSION;
+      } catch (migrationError) {
+        workspaceSchemaVersion = 1;
+        console.warn("Migração v2 adiada; usando sincronização compatível.", migrationError);
+      }
+    }
     syncingFromCloud = true;
     APP_KEYS.forEach((key) => {
       localStorage.setItem(key, JSON.stringify(Array.isArray(data[key]) ? data[key] : []));
@@ -520,7 +551,75 @@ async function loadCloudData(uid) {
   }
 }
 
-async function saveCloudData() {
+function getCollectionName(key) {
+  return APP_COLLECTIONS[key];
+}
+
+function getRecordDocumentId(item, index, key) {
+  return encodeURIComponent(String(item?.id || `${key}-${index + 1}`)).slice(0, 1200);
+}
+
+async function loadV2Collections(uid) {
+  const entries = await Promise.all(APP_KEYS.map(async (key) => {
+    const snap = await getDocs(collection(db, "workspaces", uid, getCollectionName(key)));
+    return [key, snap.docs.map((record) => record.data())];
+  }));
+  return Object.fromEntries(entries);
+}
+
+async function migrateWorkspaceToV2(uid, workspace) {
+  const legacyData = workspace.data || {};
+  const operations = [];
+  APP_KEYS.forEach((key) => {
+    const items = Array.isArray(legacyData[key]) ? legacyData[key] : [];
+    items.forEach((item, index) => {
+      const value = item?.id ? item : { ...item, id: getRecordDocumentId(item, index, key) };
+      operations.push({
+        ref: doc(db, "workspaces", uid, getCollectionName(key), getRecordDocumentId(value, index, key)),
+        value
+      });
+    });
+  });
+
+  for (let start = 0; start < operations.length; start += MIGRATION_BATCH_SIZE) {
+    const batch = writeBatch(db);
+    operations.slice(start, start + MIGRATION_BATCH_SIZE).forEach(({ ref, value }) => batch.set(ref, value));
+    await batch.commit();
+  }
+
+  const migratedData = await loadV2Collections(uid);
+  const stats = {};
+  for (const key of APP_KEYS) {
+    const expected = Array.isArray(legacyData[key]) ? legacyData[key].length : 0;
+    const received = migratedData[key].length;
+    if (received < expected) throw new Error(`Migração incompleta em ${key}: ${received} de ${expected}.`);
+    stats[getCollectionName(key)] = received;
+  }
+  await setDoc(doc(db, "workspaces", uid), {
+    schemaVersion: APP_SCHEMA_VERSION,
+    stats,
+    migration: { status: "verified", legacyDataRetained: true, verifiedAt: serverTimestamp() },
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+  return migratedData;
+}
+
+async function cleanupVerifiedLegacyData(uid, workspace, v2Data) {
+  if (!workspace.data || workspace.migration?.legacyDataRetained !== true) return;
+  const matches = APP_KEYS.every((key) => {
+    const migratedIds = new Set(v2Data[key].map((item, index) => getRecordDocumentId(item, index, key)));
+    const legacy = Array.isArray(workspace.data[key]) ? workspace.data[key] : [];
+    return legacy.every((item, index) => migratedIds.has(getRecordDocumentId(item, index, key)));
+  });
+  if (!matches) return;
+  await setDoc(doc(db, "workspaces", uid), {
+    data: deleteField(),
+    migration: { status: "complete", legacyDataRetained: false, completedAt: serverTimestamp() },
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+}
+
+async function saveLegacyCloudData() {
   if (!currentUser || !db || !activeWorkspaceId) return;
 
   const data = {};
@@ -538,9 +637,59 @@ async function saveCloudData() {
   }, { merge: true });
 }
 
+async function flushV2Changes() {
+  if (!currentUser || !db || !activeWorkspaceId || !pendingCollectionChanges.size) return;
+  const changes = Array.from(pendingCollectionChanges.entries());
+  pendingCollectionChanges.clear();
+  try {
+    for (const [key, change] of changes) {
+      const operations = [
+        ...Array.from(change.upserts.entries()).map(([id, value]) => ({ type: "set", id, value })),
+        ...Array.from(change.deletes).map((id) => ({ type: "delete", id }))
+      ];
+      for (let start = 0; start < operations.length; start += MIGRATION_BATCH_SIZE) {
+        const batch = writeBatch(db);
+        operations.slice(start, start + MIGRATION_BATCH_SIZE).forEach((operation) => {
+          const ref = doc(db, "workspaces", activeWorkspaceId, getCollectionName(key), operation.id);
+          if (operation.type === "set") batch.set(ref, operation.value);
+          else batch.delete(ref);
+        });
+        await batch.commit();
+      }
+      if (change.delta) {
+        const collectionRef = collection(db, "workspaces", activeWorkspaceId, getCollectionName(key));
+        const countSnapshot = await getCountFromServer(collectionRef);
+        await setDoc(doc(db, "workspaces", activeWorkspaceId), {
+          stats: { [getCollectionName(key)]: countSnapshot.data().count },
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      }
+    }
+  } catch (error) {
+    changes.forEach(([key, change]) => mergePendingChange(key, change));
+    throw error;
+  }
+}
+
+function mergePendingChange(key, incoming) {
+  const current = pendingCollectionChanges.get(key) || { upserts: new Map(), deletes: new Set(), delta: 0 };
+  incoming.upserts.forEach((value, id) => {
+    current.deletes.delete(id);
+    current.upserts.set(id, value);
+  });
+  incoming.deletes.forEach((id) => {
+    current.upserts.delete(id);
+    current.deletes.add(id);
+  });
+  current.delta += incoming.delta || 0;
+  pendingCollectionChanges.set(key, current);
+}
+
 function persistCloudData() {
   clearTimeout(saveTimer);
-  saveQueue = saveQueue.catch(() => {}).then(() => saveCloudData());
+  saveQueue = saveQueue.catch(() => {}).then(() => (
+    workspaceSchemaVersion >= APP_SCHEMA_VERSION ? flushV2Changes() : saveLegacyCloudData()
+  ));
   return saveQueue;
 }
 
@@ -1289,8 +1438,8 @@ function renderAdminWorkspaceList() {
   list.innerHTML = filtered.map((workspace) => {
     const email = workspace.ownerEmail || "Sem e-mail salvo";
     const businessName = workspace.businessName || workspace.registration?.empresa || "";
-    const clientes = Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0;
-    const orcamentos = Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0;
+    const clientes = Number(workspace.stats?.clientes ?? (Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0));
+    const orcamentos = Number(workspace.stats?.orcamentos ?? (Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0));
     const accessStatus = workspace.accessStatus || ACCESS_STATUS.ACTIVE;
     const statusClass = accessStatus === ACCESS_STATUS.BLOCKED ? "is-blocked" : accessStatus === ACCESS_STATUS.PENDING ? "is-pending" : "is-active";
     return `
@@ -1346,12 +1495,23 @@ async function deleteWorkspace(workspaceId, email) {
     `Deseja remover ${email || "este cadastro"} do painel admin? Essa ação apaga os dados salvos desse cadastro no Firestore.`
   );
   if (!confirmed) return;
+  for (const collectionName of Object.values(APP_COLLECTIONS)) {
+    const records = await getDocs(collection(db, "workspaces", workspaceId, collectionName));
+    for (let start = 0; start < records.docs.length; start += MIGRATION_BATCH_SIZE) {
+      const batch = writeBatch(db);
+      records.docs.slice(start, start + MIGRATION_BATCH_SIZE).forEach((record) => batch.delete(record.ref));
+      await batch.commit();
+    }
+  }
   await deleteDoc(doc(db, "workspaces", workspaceId));
   adminWorkspaces = adminWorkspaces.filter((item) => item.id !== workspaceId);
   renderAdminWorkspaceList();
 }
 
 function getWorkspaceDataScore(workspace) {
+  if (workspace.stats) {
+    return Object.values(APP_COLLECTIONS).reduce((total, name) => total + Number(workspace.stats[name] || 0), 0);
+  }
   return APP_KEYS.reduce((total, key) => {
     const items = workspace.data?.[key];
     return total + (Array.isArray(items) ? items.length : 0);
@@ -1403,9 +1563,57 @@ function escapeHtml(value) {
 function patchLocalStorageSync() {
   const originalSetItem = localStorage.setItem.bind(localStorage);
   localStorage.setItem = (key, value) => {
+    const previousValue = APP_KEYS.includes(key) ? localStorage.getItem(key) : null;
     originalSetItem(key, value);
-    if (APP_KEYS.includes(key) && cloudReady && !syncingFromCloud) scheduleCloudSave();
+    if (!APP_KEYS.includes(key) || !cloudReady || syncingFromCloud) return;
+    if (workspaceSchemaVersion >= APP_SCHEMA_VERSION) queueCollectionDiff(key, previousValue, value);
+    scheduleCloudSave();
   };
+}
+
+function queueCollectionDiff(key, previousJson, nextJson) {
+  const parsedPrevious = JSON.parse(previousJson || "[]");
+  const parsedNext = JSON.parse(nextJson || "[]");
+  const previous = Array.isArray(parsedPrevious) ? parsedPrevious : [];
+  const next = Array.isArray(parsedNext) ? parsedNext : [];
+  const previousById = new Map(previous.map((item, index) => [getRecordDocumentId(item, index, key), item]));
+  const nextById = new Map(next.map((item, index) => [getRecordDocumentId(item, index, key), item]));
+  const change = { upserts: new Map(), deletes: new Set(), delta: next.length - previous.length };
+  nextById.forEach((item, id) => {
+    if (!previousById.has(id) || JSON.stringify(previousById.get(id)) !== JSON.stringify(item)) change.upserts.set(id, item);
+  });
+  previousById.forEach((_item, id) => {
+    if (!nextById.has(id)) change.deletes.add(id);
+  });
+  if (change.upserts.size || change.deletes.size) mergePendingChange(key, change);
+}
+
+function stopCollectionListeners() {
+  collectionUnsubscribers.forEach((unsubscribe) => unsubscribe());
+  collectionUnsubscribers = [];
+}
+
+function startCollectionListeners(uid) {
+  stopCollectionListeners();
+  if (workspaceSchemaVersion < APP_SCHEMA_VERSION) return;
+  APP_KEYS.forEach((key) => {
+    const unsubscribe = onSnapshot(
+      collection(db, "workspaces", uid, getCollectionName(key)),
+      (snapshot) => {
+        if (!cloudReady || pendingCollectionChanges.has(key)) return;
+        const records = snapshot.docs.map((record) => record.data());
+        const current = localStorage.getItem(key) || "[]";
+        const next = JSON.stringify(records);
+        if (current === next) return;
+        syncingFromCloud = true;
+        localStorage.setItem(key, next);
+        syncingFromCloud = false;
+        window.dispatchEvent(new CustomEvent("rr-cloud-data-updated", { detail: { key } }));
+      },
+      (error) => console.warn(`Sincronização em tempo real indisponível para ${key}.`, error)
+    );
+    collectionUnsubscribers.push(unsubscribe);
+  });
 }
 
 function scheduleCloudSave() {
