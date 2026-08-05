@@ -2673,6 +2673,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .inspection-document input,
 .inspection-document textarea,
 .inspection-document select {
+  box-sizing: border-box;
   width: 100%;
   border: 1px solid #c8d1dc;
   border-radius: 6px;
@@ -2730,9 +2731,16 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .inspection-legend i.na { background: #7b8798; }
 
 .inspection-section {
+  display: inline-block;
+  width: 100%;
   margin: 0 0 14px;
   break-inside: avoid;
   page-break-inside: avoid;
+}
+
+.inspection-sections-grid {
+  column-count: 2;
+  column-gap: 12px;
 }
 
 .inspection-section h3,
@@ -2753,10 +2761,10 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
 .inspection-table th,
 .inspection-table td {
-  padding: 5px 7px;
+  padding: 4px 5px;
   border: 1px solid #d7dde6;
   color: #172033;
-  font-size: 11px;
+  font-size: 9px;
   vertical-align: middle;
 }
 
@@ -2767,15 +2775,20 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   text-transform: uppercase;
 }
 
-.inspection-table th:first-child { width: 43%; }
-.inspection-table th:nth-child(2) { width: 19%; }
-.inspection-table th:nth-child(3) { width: 38%; }
+.inspection-table th:first-child { width: 42%; }
+.inspection-table th:nth-child(2) { width: 26%; }
+.inspection-table th:nth-child(3) { width: 32%; }
 
 .inspection-table input,
 .inspection-table select {
-  min-height: 29px;
-  padding: 4px 6px;
-  font-size: 11px;
+  min-height: 25px;
+  padding: 3px 4px;
+  font-size: 9px;
+}
+
+.inspection-table input::placeholder {
+  color: #8b97a8;
+  font-size: 8px;
 }
 
 .inspection-status.status-ok {
@@ -2856,12 +2869,57 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     grid-template-columns: 1fr;
   }
 
+  .inspection-sections-grid {
+    column-count: 1;
+  }
+
   .inspection-table {
-    min-width: 660px;
+    min-width: 0;
   }
 
   .inspection-table-wrap {
-    overflow-x: auto;
+    overflow: visible;
+  }
+
+  .inspection-table thead {
+    display: none;
+  }
+
+  .inspection-table tbody,
+  .inspection-table tr {
+    display: block;
+  }
+
+  .inspection-table tr {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid #d7dde6;
+    border-top: 0;
+  }
+
+  .inspection-table td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .inspection-table td:first-child {
+    grid-column: 1 / -1;
+    color: #062e55;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .inspection-table input,
+  .inspection-table select {
+    min-height: 34px;
+    font-size: 12px;
+  }
+
+  .inspection-table input::placeholder {
+    font-size: 11px;
   }
 }
 
@@ -2897,6 +2955,11 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     padding: 8mm;
   }
 
+  .inspection-sections-grid {
+    column-count: 2;
+    column-gap: 3mm;
+  }
+
   .inspection-document input,
   .inspection-document textarea,
   .inspection-document select {
@@ -2908,6 +2971,24 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .inspection-section {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .inspection-table th,
+  .inspection-table td {
+    padding: 2.2px 3px;
+    font-size: 7.5px;
+    line-height: 1.15;
+  }
+
+  .inspection-table input,
+  .inspection-table select {
+    min-height: 20px;
+    padding: 2px 3px;
+    font-size: 7.5px;
+  }
+
+  .inspection-table input::placeholder {
+    color: transparent;
   }
 
   .print-header,

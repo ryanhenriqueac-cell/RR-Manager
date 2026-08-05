@@ -1788,7 +1788,9 @@ function initInspecao() {
         <span><i class="na"></i>Não se aplica</span>
       </div>
 
-      ${INSPECTION_SECTIONS.map((section, index) => buildInspectionSectionHtml(section, index, draft)).join("")}
+      <div class="inspection-sections-grid">
+        ${INSPECTION_SECTIONS.map((section, index) => buildInspectionSectionHtml(section, index, draft)).join("")}
+      </div>
 
       <section class="inspection-conclusion">
         <h3>Conclusão da inspeção</h3>
