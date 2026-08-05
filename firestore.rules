@@ -31,8 +31,8 @@ service cloud.firestore {
 
       allow update: if isWorkspaceOwner(userId)
         && isWorkspaceActive(userId)
-        && request.resource.data.diff(resource.data).affectedKeys()
-          .hasNone(['owner', 'ownerUid', 'accessStatus']);
+        && !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['owner', 'ownerUid', 'accessStatus']);
 
       allow delete: if isAdmin();
       allow create, update: if isAdmin();
