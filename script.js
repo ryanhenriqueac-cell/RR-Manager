@@ -25,6 +25,86 @@ const DEFAULT_DOCUMENT_BRANDING = {
   tagline: "Manuten\u00e7\u00e3o especializada | Paix\u00e3o por carros",
   logoUrl: "assets/logo-rr-manager.png"
 };
+const INSPECTION_SECTIONS = [
+  {
+    title: "1. Teste de rodagem",
+    items: [
+      "Funcionamento da embreagem",
+      "Direção alinhada e sem puxar",
+      "Freios sem ruídos ou trepidação",
+      "Ruídos na dianteira ou traseira",
+      "Motor sem falhas, engasgos ou ruídos",
+      "Ar-condicionado refrigerando",
+      "Luzes de aviso no painel",
+      "Temperatura de funcionamento normal"
+    ]
+  },
+  {
+    title: "2. Elétrica, interior e diagnóstico",
+    items: [
+      "Faróis, lanternas, setas e luzes de freio",
+      "Luzes internas e iluminação do painel",
+      "Buzina, rádio e alarme",
+      "Vidros, travas e limpadores",
+      "Palhetas do para-brisa",
+      "Filtro de cabine",
+      "Scanner e códigos de falha (DTC)",
+      "Aviso ou etiqueta de revisão"
+    ]
+  },
+  {
+    title: "3. Rodas, direção e suspensão",
+    items: [
+      "Pneus, desgaste e calibragem",
+      "Aperto e condição das rodas",
+      "Rolamentos de roda",
+      "Pivôs e terminais de direção",
+      "Caixa de direção e coifas",
+      "Amortecedores e kits dianteiros",
+      "Amortecedores e kits traseiros",
+      "Buchas, bieletas e barra estabilizadora"
+    ]
+  },
+  {
+    title: "4. Sistema de freios",
+    items: [
+      "Discos e pastilhas dianteiras",
+      "Discos, tambores, lonas ou pastilhas traseiras",
+      "Pinças, êmbolos e folgas",
+      "Flexíveis e tubulações",
+      "Cilindros de roda",
+      "Freio de estacionamento",
+      "Nível e condição do fluido de freio"
+    ]
+  },
+  {
+    title: "5. Cofre do motor",
+    items: [
+      "Bateria e terminais",
+      "Chicotes, mangueiras e abraçadeiras",
+      "Correia de acessórios e correia dentada",
+      "Filtro de ar e caixa do filtro",
+      "Velas, cabos e bobinas",
+      "Corpo de borboleta",
+      "Sistema de arrefecimento e reservatório",
+      "Óleo do motor, filtros e demais fluidos",
+      "Coxins e suportes do motor/câmbio"
+    ]
+  },
+  {
+    title: "6. Parte inferior e finalização",
+    items: [
+      "Vazamentos de óleo, combustível ou fluidos",
+      "Coifas internas e externas",
+      "Escapamento, suportes e defletores",
+      "Trincas, rupturas ou danos inferiores",
+      "Óleo do câmbio e possíveis vazamentos",
+      "Reaperto das rodas",
+      "Peças e acabamentos remontados",
+      "Teste final após a inspeção"
+    ]
+  }
+];
 const DOCUMENT_BRANDING_PATCHES = {
   "ryanhenriqueac@gmail.com": {
     companyName: "RR Repara\u00e7\u00e3o Automotiva",
@@ -99,6 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "orcamento-print") initOrcamentoPrint();
   if (page === "orcamento-publico") initOrcamentoPublico();
   if (page === "financeiro-print") initFinanceiroPrint();
+  if (page === "inspecao") initInspecao();
 });
 
 window.addEventListener("rr-cloud-data-updated", (event) => {
@@ -311,6 +392,8 @@ function bindClearButtons() {
       }
       if (button.dataset.clearForm === "orcamentoForm") {
         resetOrcamentoDrafts();
+        setValue("orcamentoData", today());
+        byId("orcamentoCliente")?.dispatchEvent(new Event("change"));
       }
     });
   });
@@ -1204,7 +1287,20 @@ function initOrcamentos() {
   hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro");
   setValue("orcamentoData", today());
   resetOrcamentoDrafts();
-  byId("orcamentoCliente").addEventListener("change", () => hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro"));
+  const clienteSelect = byId("orcamentoCliente");
+  const carroSelect = byId("orcamentoCarro");
+  const inspectionButton = byId("gerarInspecao");
+  clienteSelect.addEventListener("change", () => {
+    hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro");
+    updateOrcamentoInspectionButton();
+  });
+  carroSelect.addEventListener("change", updateOrcamentoInspectionButton);
+  inspectionButton.addEventListener("click", () => {
+    if (!clienteSelect.value || !carroSelect.value) return;
+    const params = new URLSearchParams({ cliente: clienteSelect.value, carro: carroSelect.value });
+    window.location.href = `inspecao.html?${params.toString()}`;
+  });
+  updateOrcamentoInspectionButton();
   byId("addPeca").addEventListener("click", () => {
     syncOrcamentoDrafts();
     orcamentoPecasDraft.push(blankPeca());
@@ -1222,6 +1318,12 @@ function initOrcamentos() {
 
   const editarId = new URLSearchParams(window.location.search).get("editar");
   if (editarId) editOrcamento(editarId);
+}
+
+function updateOrcamentoInspectionButton() {
+  const button = byId("gerarInspecao");
+  if (!button) return;
+  button.disabled = !(getValue("orcamentoCliente") && getValue("orcamentoCarro"));
 }
 
 function handleOrcamentoFormInput(event) {
@@ -1443,6 +1545,7 @@ async function saveOrcamento(event) {
   setValue("orcamentoId", "");
   setValue("orcamentoData", today());
   hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro");
+  updateOrcamentoInspectionButton();
   resetOrcamentoDrafts();
   renderOrcamentos();
   setFormSaving(form, false);
@@ -1491,6 +1594,7 @@ function loadOrcamentoIntoForm(orcamento) {
   setValue("orcamentoId", orcamento.id);
   setValue("orcamentoCliente", orcamento.clienteId);
   hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro", orcamento.carroId || orcamento.veiculoId);
+  updateOrcamentoInspectionButton();
   setValue("orcamentoData", orcamento.data);
   setValue("orcamentoValorFinal", orcamento.valorFinalManual || "");
   orcamentoPecasDraft = Array.isArray(orcamento.pecas) ? orcamento.pecas.map((peca) => ({ custoUnitario: 0, ...peca })) : [{ ...blankPeca(), nome: "Peças", quantidade: 1, valorUnitario: Number(orcamento.pecas) || 0 }];
@@ -1543,6 +1647,183 @@ async function restoreOrcamentoVersion(id) {
 
 function printOrcamento(id) {
   window.location.href = `orcamento-imprimir.html?id=${encodeURIComponent(id)}`;
+}
+
+function getInspectionDraftKey(clienteId, carroId, date = today()) {
+  return `rr_inspecao_draft_${clienteId}_${carroId}_${date}`;
+}
+
+function readInspectionDraft(key) {
+  try {
+    return JSON.parse(sessionStorage.getItem(key)) || {};
+  } catch (error) {
+    sessionStorage.removeItem(key);
+    return {};
+  }
+}
+
+function getInspectionStatusOptions(selected = "") {
+  return [
+    ["", "Não verificado"],
+    ["ok", "OK"],
+    ["attention", "Atenção"],
+    ["na", "Não se aplica"]
+  ].map(([value, label]) => `<option value="${value}"${selected === value ? " selected" : ""}>${label}</option>`).join("");
+}
+
+function buildInspectionSectionHtml(section, sectionIndex, draft) {
+  return `
+    <section class="inspection-section">
+      <h3>${escapeHtml(section.title)}</h3>
+      <div class="inspection-table-wrap">
+        <table class="inspection-table">
+          <thead><tr><th>Item verificado</th><th>Resultado</th><th>Observação</th></tr></thead>
+          <tbody>
+            ${section.items.map((item, itemIndex) => {
+              const id = `${sectionIndex}-${itemIndex}`;
+              const status = draft.items?.[id]?.status || "";
+              const note = draft.items?.[id]?.note || "";
+              return `
+                <tr>
+                  <td>${escapeHtml(item)}</td>
+                  <td>
+                    <select data-inspection-status="${id}" class="inspection-status status-${status || "pending"}" aria-label="Resultado de ${escapeHtml(item)}">
+                      ${getInspectionStatusOptions(status)}
+                    </select>
+                  </td>
+                  <td><input data-inspection-note="${id}" value="${escapeHtml(note)}" placeholder="Detalhes, lado ou medida"></td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+function collectInspectionDraft(root) {
+  const draft = { fields: {}, items: {} };
+  root.querySelectorAll("[data-inspection-field]").forEach((input) => {
+    draft.fields[input.dataset.inspectionField] = input.value;
+  });
+  root.querySelectorAll("[data-inspection-status]").forEach((select) => {
+    const id = select.dataset.inspectionStatus;
+    draft.items[id] = {
+      status: select.value,
+      note: root.querySelector(`[data-inspection-note="${id}"]`)?.value || ""
+    };
+  });
+  return draft;
+}
+
+function prepareInspectionForExport(root) {
+  root.querySelectorAll("input").forEach((input) => input.setAttribute("value", input.value));
+  root.querySelectorAll("textarea").forEach((textarea) => {
+    textarea.textContent = textarea.value;
+  });
+  root.querySelectorAll("select").forEach((select) => {
+    Array.from(select.options).forEach((option) => {
+      if (option.value === select.value) option.setAttribute("selected", "");
+      else option.removeAttribute("selected");
+    });
+  });
+}
+
+function initInspecao() {
+  const params = new URLSearchParams(window.location.search);
+  const clienteId = params.get("cliente") || "";
+  const carroId = params.get("carro") || "";
+  const cliente = getCliente(clienteId);
+  const carro = getCarro(clienteId, carroId);
+  const root = byId("printRoot");
+  const printButton = byId("printButton");
+  const clearButton = byId("clearInspectionButton");
+  setupMobilePrintButtonLabel();
+
+  if (!cliente || !carro) {
+    root.innerHTML = `<section class="print-document"><h1>Lista de inspeção indisponível</h1><p>Selecione novamente o cliente e o veículo na tela de orçamentos.</p></section>`;
+    if (printButton) printButton.disabled = true;
+    if (clearButton) clearButton.disabled = true;
+    return;
+  }
+
+  const branding = getDocumentBranding();
+  const logoUrl = new URL(branding.logoUrl, window.location.href).href;
+  const draftKey = getInspectionDraftKey(clienteId, carroId);
+  const draft = readInspectionDraft(draftKey);
+  const fields = draft.fields || {};
+  const vehicleName = [carro.marca, carro.modelo, carro.motor, carro.ano].filter(Boolean).join(" ");
+
+  root.innerHTML = `
+    <article class="print-document inspection-document">
+      <header class="print-header inspection-print-header">
+        <img src="${logoUrl}" alt="${escapeHtml(branding.companyName)}">
+        <div>
+          <h1>${escapeHtml(branding.companyName)}</h1>
+          <p>${escapeHtml(branding.tagline)}</p>
+          <p><strong>Inspeção preventiva do veículo</strong></p>
+        </div>
+      </header>
+
+      <h2>Lista de inspeção automotiva</h2>
+
+      <section class="print-info-grid inspection-client-grid">
+        <div><strong>Cliente</strong>${escapeHtml(cliente.nome || "")}<br>${escapeHtml(formatPhoneBR(cliente.telefone))}<br>${escapeHtml(cliente.email || "")}</div>
+        <div><strong>Veículo</strong>${escapeHtml(vehicleName)}<br>${escapeHtml(carro.placa ? `Placa: ${carro.placa}` : "")}</div>
+        <label><strong>Data</strong><input type="date" data-inspection-field="date" value="${escapeHtml(fields.date || today())}"></label>
+        <label><strong>Quilometragem</strong><input type="number" min="0" data-inspection-field="km" value="${escapeHtml(fields.km || carro.km || "")}" placeholder="Km atual"></label>
+        <label><strong>Técnico responsável</strong><input data-inspection-field="technician" value="${escapeHtml(fields.technician || "")}" placeholder="Nome do técnico"></label>
+        <label><strong>Ordem de serviço</strong><input data-inspection-field="serviceOrder" value="${escapeHtml(fields.serviceOrder || "")}" placeholder="Opcional"></label>
+      </section>
+
+      <section class="inspection-opening">
+        <label><strong>Reclamações relatadas pelo cliente</strong><textarea data-inspection-field="complaints" rows="2" placeholder="Descreva os sintomas informados pelo cliente">${escapeHtml(fields.complaints || "")}</textarea></label>
+        <label><strong>Histórico ou cuidados antes da inspeção</strong><textarea data-inspection-field="history" rows="2" placeholder="Serviços anteriores, alertas ou observações">${escapeHtml(fields.history || "")}</textarea></label>
+      </section>
+
+      <div class="inspection-legend">
+        <span><i class="ok"></i>OK</span>
+        <span><i class="attention"></i>Atenção</span>
+        <span><i class="na"></i>Não se aplica</span>
+      </div>
+
+      ${INSPECTION_SECTIONS.map((section, index) => buildInspectionSectionHtml(section, index, draft)).join("")}
+
+      <section class="inspection-conclusion">
+        <h3>Conclusão da inspeção</h3>
+        <label><strong>Recomendações e observações gerais</strong><textarea data-inspection-field="conclusion" rows="4" placeholder="Serviços recomendados, prioridades e orientações ao cliente">${escapeHtml(fields.conclusion || "")}</textarea></label>
+        <div class="inspection-signatures">
+          <span>Assinatura do técnico</span>
+          <span>Ciência do cliente</span>
+        </div>
+      </section>
+
+      <footer class="print-footer">Esta inspeção registra condições visíveis no momento da avaliação. Alguns defeitos podem exigir desmontagem ou diagnóstico complementar.</footer>
+    </article>
+  `;
+
+  const saveDraft = () => sessionStorage.setItem(draftKey, JSON.stringify(collectInspectionDraft(root)));
+  root.addEventListener("input", saveDraft);
+  root.addEventListener("change", (event) => {
+    if (event.target.matches("[data-inspection-status]")) {
+      event.target.className = `inspection-status status-${event.target.value || "pending"}`;
+    }
+    saveDraft();
+  });
+
+  const title = sanitizePrintTitle(`RR - Lista de inspeção ${cliente.nome} ${carro.placa || vehicleName}`);
+  printButton?.addEventListener("click", () => {
+    saveDraft();
+    prepareInspectionForExport(root);
+    handlePrintDocumentAction(title);
+  });
+  clearButton?.addEventListener("click", async () => {
+    const confirmed = await rrConfirm("Deseja limpar todas as marcações e observações desta inspeção?", "Limpar inspeção", true);
+    if (!confirmed) return;
+    sessionStorage.removeItem(draftKey);
+    window.location.reload();
+  });
 }
 
 function initOrcamentoPrint() {
