@@ -267,19 +267,17 @@
 
   <script src="firebase-config.js?v=13"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
     const landingConfig = window.firebaseConfig || {};
     const hasFirebaseConfig = landingConfig.apiKey && landingConfig.projectId && landingConfig.authDomain;
-    const hasLocalSession = Boolean(sessionStorage.getItem("rr_firebase_loaded_user"));
 
     function updateLandingAccessState(user) {
       const isLogged = Boolean(user);
-      const firebaseChecked = user !== true;
-      if (firebaseChecked && isLogged) {
+      if (isLogged) {
         sessionStorage.setItem("rr_firebase_loaded_user", user.uid);
-      } else if (firebaseChecked) {
+      } else {
         sessionStorage.removeItem("rr_firebase_loaded_user");
       }
       document.querySelectorAll('a[href="dashboard.html"]').forEach((link) => {
@@ -291,11 +289,9 @@
       });
     }
 
-    updateLandingAccessState(hasLocalSession);
-
     if (hasFirebaseConfig) {
       try {
-        const landingApp = initializeApp(landingConfig, "rr-manager-landing");
+        const landingApp = getApps().length ? getApp() : initializeApp(landingConfig);
         onAuthStateChanged(getAuth(landingApp), updateLandingAccessState);
       } catch (error) {
         updateLandingAccessState(null);
