@@ -114,6 +114,13 @@ async function persistSavedData() {
   await window.rrPersistAppData();
 }
 
+function compareClientesByName(a, b) {
+  return String(a?.nome || '').localeCompare(String(b?.nome || ''), 'pt-BR', {
+    sensitivity: 'base',
+    numeric: true
+  });
+}
+
 function setFormSaving(form, saving, label) {
   const button = form?.querySelector('button[type=submit]');
   if (!button) return;
@@ -1112,7 +1119,9 @@ async function saveCliente(event) {
 
 function renderClientes() {
   const termo = getValue("buscaClientes").toLowerCase();
-  const clientes = readData("clientes").filter((cliente) => JSON.stringify(cliente).toLowerCase().includes(termo));
+  const clientes = readData("clientes")
+    .filter((cliente) => JSON.stringify(cliente).toLowerCase().includes(termo))
+    .sort(compareClientesByName);
   byId("clientesTabela").innerHTML = clientes.length ? clientes.map((cliente) => {
     const carros = cliente.carros?.length
       ? cliente.carros.map((carro) => `<span class="mini-line">${escapeHtml([carro.marca, carro.modelo, carro.motor, carro.ano].filter(Boolean).join(" "))}</span>`).join("")
@@ -2251,7 +2260,7 @@ function refreshFinanceiro() {
 }
 
 function hydrateClienteCarroSelects(clienteSelectId, carroSelectId, selectedCarroId = "") {
-  const clientes = readData("clientes");
+  const clientes = readData("clientes").sort(compareClientesByName);
   const clienteSelect = byId(clienteSelectId);
   const selectedClienteId = clienteSelect?.value || "";
   fillSelect(clienteSelectId, clientes, "Selecione um cliente", (cliente) => cliente.nome);
