@@ -6,6 +6,7 @@ import {
   fetchSignInMethodsForEmail,
   getAuth,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
   signOut
@@ -199,6 +200,7 @@ function buildAuthShell() {
           <span>Lembrar meu acesso neste computador</span>
         </label>
         <button class="btn btn-primary" type="submit">Entrar</button>
+        <button class="btn btn-ghost" type="button" id="firebaseForgotPassword">Esqueci minha senha</button>
         <button class="btn btn-muted" type="button" id="firebaseCreateAccount">Criar acesso</button>
         <a class="btn btn-ghost" href="index.html">Voltar &agrave; p&aacute;gina principal</a>
       </form>
@@ -308,6 +310,7 @@ function bindAuthEvents() {
   });
 
   document.getElementById("firebaseCreateAccount").addEventListener("click", goToRegisterPage);
+  document.getElementById("firebaseForgotPassword").addEventListener("click", resetPassword);
   document.getElementById("firebaseBackToLogin").addEventListener("click", showLoginForm);
   document.getElementById("firebaseLogout").addEventListener("click", logout);
   document.getElementById("firebaseAdminLogout").addEventListener("click", logout);
@@ -350,6 +353,28 @@ function goToRegisterPage() {
   const email = normalizeEmail(document.getElementById("firebaseEmail").value);
   sessionStorage.setItem(REGISTER_PREFILL_KEY, JSON.stringify({ email }));
   window.location.href = "cadastro-acesso.html";
+}
+
+async function resetPassword() {
+  const emailInput = document.getElementById('firebaseEmail');
+  const email = normalizeEmail(emailInput?.value);
+  if (!email) {
+    showAuthMessage('Informe seu e-mail para recuperar a senha.');
+    emailInput?.focus();
+    return;
+  }
+  const button = document.getElementById('firebaseForgotPassword');
+  const confirmation = 'Se este e-mail estiver cadastrado, o link para criar uma nova senha será enviado. Confira também o spam.';
+  button.disabled = true;
+  showAuthMessage('Enviando link de recuperação...');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showAuthMessage(confirmation);
+  } catch (error) {
+    showAuthMessage(error?.code?.includes('auth/user-not-found') ? confirmation : firebaseError(error));
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function showLoginForm() {
@@ -1410,6 +1435,8 @@ function showAuthMessage(message) {
 
 function firebaseError(error) {
   const code = error?.code || "";
+  if (code.includes("auth/invalid-email")) return "Informe um e-mail valido.";
+  if (code.includes("auth/too-many-requests")) return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
   console.error("Firebase error:", error);
   if (code.includes("auth/unauthorized-domain")) return "Domínio não autorizado. Adicione ryanhenriqueac-cell.github.io no Firebase Authentication.";
   if (code.includes("auth/operation-not-allowed")) return "E-mail/senha não está ativo no Firebase Authentication.";
