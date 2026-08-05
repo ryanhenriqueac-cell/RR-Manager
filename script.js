@@ -962,6 +962,24 @@ function getFinancialSummary() {
   };
 }
 
+function getCurrentMonthFinancialSummary() {
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const summary = getFinanceiroLancamentos()
+    .filter((item) => String(item.data || "").slice(0, 7) === currentMonth)
+    .reduce((acc, item) => {
+      const impact = getLancamentoImpacto(item);
+      acc.receitas += impact.receitas;
+      acc.custos += impact.custos;
+      acc.despesas += impact.despesas;
+      return acc;
+    }, { receitas: 0, custos: 0, despesas: 0 });
+
+  summary.lucro = summary.receitas - summary.custos - summary.despesas;
+  summary.monthName = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(now);
+  return summary;
+}
+
 function getNextOrcamentoNumber(orcamentos) {
   return orcamentos.reduce((max, orcamento) => Math.max(max, Number(orcamento.numero) || 0), 0) + 1;
 }
@@ -975,11 +993,14 @@ function initDashboard() {
   const decididos = aprovados + naoAprovados;
   const pendentes = orcamentos.filter((item) => item.status === "Pré-orçamento");
   const financeiro = getFinancialSummary();
+  const financeiroMes = getCurrentMonthFinancialSummary();
 
   setText("totalClientes", clientes.length);
   setText("totalCarros", totalCarros);
   setText("totalPreDashboard", pendentes.length);
   setText("saldoFinanceiro", money(financeiro.lucro));
+  setText("saldoMesTitulo", `Saldo de ${financeiroMes.monthName}`);
+  setText("saldoFinanceiroMes", money(financeiroMes.lucro));
   setText("orcamentosPre", orcamentos.filter((item) => item.status === "Pré-orçamento").length);
   setText("orcamentosAprovados", aprovados);
   setText("orcamentosNaoAprovados", naoAprovados);

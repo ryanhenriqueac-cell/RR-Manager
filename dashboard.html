@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=68">
+  <link rel="stylesheet" href="style.css?v=70">
 </head>
 <body data-page="dashboard">
   <div class="app-shell">
@@ -37,7 +37,7 @@
         </div>
       </header>
 
-      <section class="stats-grid">
+      <section class="stats-grid dashboard-stats">
         <article class="stat-card">
           <span>Clientes</span>
           <strong id="totalClientes">0</strong>
@@ -54,9 +54,14 @@
           <small>Aguardando decisão</small>
         </article>
         <article class="stat-card highlight">
-          <span>Saldo</span>
+          <span>Saldo total</span>
           <strong id="saldoFinanceiro">R$ 0,00</strong>
-          <small>Receitas menos despesas</small>
+          <small>Todo o período</small>
+        </article>
+        <article class="stat-card highlight monthly-balance">
+          <span id="saldoMesTitulo">Saldo do mês</span>
+          <strong id="saldoFinanceiroMes">R$ 0,00</strong>
+          <small>Receitas menos custos e despesas</small>
         </article>
       </section>
 
@@ -90,7 +95,7 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=54"></script>
+  <script src="script.js?v=55"></script>
   <script src="firebase-config.js?v=13"></script>
   <script type="module" src="firebase-sync.js?v=46"></script>
 </body>
