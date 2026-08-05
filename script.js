@@ -109,6 +109,19 @@ function writeData(type, data) {
   localStorage.setItem(STORAGE_KEYS[type], JSON.stringify(data));
 }
 
+async function persistSavedData() {
+  if (typeof window.rrPersistAppData !== 'function') throw new Error('Firebase indisponivel.');
+  await window.rrPersistAppData();
+}
+
+function setFormSaving(form, saving, label) {
+  const button = form?.querySelector('button[type=submit]');
+  if (!button) return;
+  if (saving) button.dataset.originalLabel = button.textContent;
+  button.textContent = saving ? label : button.dataset.originalLabel;
+  button.disabled = saving;
+}
+
 function createId(prefix) {
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
@@ -334,8 +347,17 @@ function getLaborHourRate() {
 function getPaymentRates() {
   const stored = getStoredWorkspaceBranding();
   const custom = stored.paymentRates || {};
+  const pixDiscountPercent = Number(custom.pixDiscountPercent);
+  const discountPercent = Number.isFinite(pixDiscountPercent) && pixDiscountPercent >= 0
+    ? pixDiscountPercent
+    : PAYMENT_RATES.pix.discountPercent;
   return {
     ...PAYMENT_RATES,
+    pix: {
+      ...PAYMENT_RATES.pix,
+      label: discountPercent > 0 ? `Pix com ${String(discountPercent).replace(".", ",")}% de desconto` : "Pix",
+      discountPercent
+    },
     debit: {
       ...PAYMENT_RATES.debit,
       installments: { ...PAYMENT_RATES.debit.installments, ...(custom.debit || {}) }
@@ -1048,8 +1070,10 @@ function removeCarroCliente(index) {
   renderClienteCarrosDraft();
 }
 
-function saveCliente(event) {
+async function saveCliente(event) {
   event.preventDefault();
+  const form = event.currentTarget;
+  setFormSaving(form, true, 'Salvando...');
   syncClienteCarrosDraft();
 
   const clientes = readData("clientes");
@@ -1070,11 +1094,20 @@ function saveCliente(event) {
   else clientes.push(cliente);
 
   writeData("clientes", clientes);
-  event.target.reset();
+  try {
+    await persistSavedData();
+  } catch (error) {
+    setValue('clienteId', id);
+    await rrAlert('Falha ao confirmar o cliente na nuvem. Confira sua internet e tente novamente.', 'Cliente nao salvo');
+    setFormSaving(form, false);
+    return;
+  }
+  form.reset();
   setValue("clienteId", "");
   clienteCarrosDraft = [blankCarro()];
   renderClienteCarrosDraft();
   renderClientes();
+  setFormSaving(form, false);
 }
 
 function renderClientes() {
@@ -1299,8 +1332,10 @@ function isSameOrcamentoVersion(a, b) {
     && JSON.stringify(a.servicos || []) === JSON.stringify(b.servicos || []);
 }
 
-function saveOrcamento(event) {
+async function saveOrcamento(event) {
   event.preventDefault();
+  const form = event.currentTarget;
+  setFormSaving(form, true, 'Salvando...');
   syncOrcamentoDrafts();
   const pecas = orcamentoPecasDraft.filter((peca) => peca.nome || peca.quantidade || peca.custoUnitario || peca.valorUnitario);
   const servicos = orcamentoServicosDraft.filter((servico) => servico.descricao || servico.horas || servico.valorHora);
@@ -1340,12 +1375,21 @@ function saveOrcamento(event) {
   if (index >= 0) orcamentos[index] = orcamento;
   else orcamentos.push(orcamento);
   writeData("orcamentos", orcamentos);
-  event.target.reset();
+  try {
+    await persistSavedData();
+  } catch (error) {
+    setValue('orcamentoId', id);
+    await rrAlert('Falha ao confirmar o orcamento na nuvem. Confira sua internet e tente novamente.', 'Orcamento nao salvo');
+    setFormSaving(form, false);
+    return;
+  }
+  form.reset();
   setValue("orcamentoId", "");
   setValue("orcamentoData", today());
   hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro");
   resetOrcamentoDrafts();
   renderOrcamentos();
+  setFormSaving(form, false);
 }
 
 function renderOrcamentos() {

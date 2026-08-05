@@ -31,6 +31,7 @@ const DEFAULT_WORKSHOP_TAGLINE = "Manuten\u00e7\u00e3o Especializada | Paix\u00e
 const DEFAULT_WORKSHOP_LOGO = "assets/logo-rr-manager.png";
 const DEFAULT_PARTS_MARKUP_PERCENT = 35;
 const DEFAULT_LABOR_HOUR_RATE = 120;
+const DEFAULT_PIX_DISCOUNT_PERCENT = 3;
 const DEFAULT_MACHINE_RATES = {
   debit: { 1: 1.37 },
   credit: { 1: 3.15, 2: 5.39, 3: 6.12, 4: 6.85, 5: 7.57, 6: 8.28, 7: 8.99, 8: 9.69, 9: 10.38, 10: 11.06, 11: 11.74, 12: 12.40 }
@@ -59,6 +60,7 @@ let currentUser = null;
 let activeWorkspaceId = null;
 let activeWorkspaceEmail = "";
 let saveTimer = null;
+let saveQueue = Promise.resolve();
 let cloudReady = false;
 let syncingFromCloud = false;
 let adminWorkspaces = [];
@@ -141,11 +143,15 @@ if (!configReady) {
 
     setAdminSelecting(false);
     setUserStatus(user.email);
-    setAppLocked(false);
     const loadedWorkspace = await loadCloudData(activeWorkspaceId);
+    if (!loadedWorkspace) {
+      setAppLocked(true);
+      return;
+    }
     setUserStatus(user.email);
     cloudReady = true;
     window.rrFirebaseReady = true;
+    setAppLocked(false);
 
     if (sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId) {
       sessionStorage.setItem(SYNC_FLAG, activeWorkspaceId);
@@ -506,6 +512,17 @@ async function saveCloudData() {
   }, { merge: true });
 }
 
+function persistCloudData() {
+  clearTimeout(saveTimer);
+  saveQueue = saveQueue.catch(() => {}).then(() => saveCloudData());
+  return saveQueue;
+}
+
+window.rrPersistAppData = async () => {
+  if (cloudReady === false) throw new Error('A sincronizacao ainda nao esta pronta.');
+  await persistCloudData();
+};
+
 function setWorkspaceBrandingContext(workspace = {}) {
   const registration = workspace.registration || {};
   localStorage.setItem(WORKSPACE_BRANDING_KEY, JSON.stringify({
@@ -821,6 +838,7 @@ function normalizePaymentRates(value = {}) {
     credit[installment] = normalizeMachineRate(creditSource[installment], DEFAULT_MACHINE_RATES.credit[installment]);
   }
   return {
+    pixDiscountPercent: normalizeMachineRate(value.pixDiscountPercent, DEFAULT_PIX_DISCOUNT_PERCENT),
     debit: { 1: normalizeMachineRate(debitSource[1], DEFAULT_MACHINE_RATES.debit[1]) },
     credit
   };
@@ -828,6 +846,7 @@ function normalizePaymentRates(value = {}) {
 
 function renderPaymentRates(value = {}) {
   const rates = normalizePaymentRates(value);
+  setValueIfExists("meuCadastroDescontoPix", rates.pixDiscountPercent);
   setValueIfExists("meuCadastroTaxaDebito", rates.debit[1]);
   for (let installment = 1; installment <= 12; installment += 1) {
     setValueIfExists(`meuCadastroTaxaCredito${installment}`, rates.credit[installment]);
@@ -843,6 +862,7 @@ function getPaymentRatesPayload() {
     );
   }
   return {
+    pixDiscountPercent: normalizeMachineRate(document.getElementById("meuCadastroDescontoPix")?.value, DEFAULT_PIX_DISCOUNT_PERCENT),
     debit: {
       1: normalizeMachineRate(document.getElementById("meuCadastroTaxaDebito")?.value, DEFAULT_MACHINE_RATES.debit[1])
     },
@@ -1356,7 +1376,7 @@ function patchLocalStorageSync() {
 function scheduleCloudSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    saveCloudData().catch((error) => showAuthMessage(firebaseError(error)));
+    persistCloudData().catch((error) => showAuthMessage(firebaseError(error)));
   }, 450);
 }
 
