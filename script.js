@@ -2455,7 +2455,7 @@ async function createPdfFileFromDocument(title) {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = 210;
     const pageHeight = 297;
-    const pageHeightPx = Math.floor((canvas.width * pageHeight) / pageWidth);
+    const pageHeightPx = Math.ceil((canvas.width * pageHeight) / pageWidth);
     const canvasScale = canvas.width / clonedDocument.scrollWidth;
     const breakData = getPdfShareBreakData(clonedDocument, canvasScale);
     let sourceY = 0;
