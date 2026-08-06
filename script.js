@@ -1680,6 +1680,38 @@ function getInspectionStatusPrintHtml(status) {
   ];
   return options.map(([value, label]) => `${status === value ? "&#9746;" : "&#9744;"} ${label}`).join("&nbsp;&nbsp;");
 }
+function getInspectionStatusPrintText(status) {
+  return [
+    ["ok", "OK"],
+    ["attention", "AT"],
+    ["na", "N/A"]
+  ].map(([value, label]) => `${status === value ? "\u2612" : "\u2610"}${label}`).join(" ");
+}
+
+function toggleInspectionPrintLabels(enabled) {
+  document.querySelectorAll(".inspection-table tbody tr").forEach((row) => {
+    const label = row.querySelector(".inspection-item-cell > span:first-child");
+    const select = row.querySelector("[data-inspection-status]");
+    if (!label || !select) return;
+    if (enabled) {
+      label.dataset.screenText = label.textContent;
+      label.textContent = `${label.textContent} | ${getInspectionStatusPrintText(select.value)}`;
+    } else if (label.dataset.screenText) {
+      label.textContent = label.dataset.screenText;
+      delete label.dataset.screenText;
+    }
+  });
+
+  document.querySelectorAll(".inspection-table th:first-child > span:first-child").forEach((heading) => {
+    if (enabled) {
+      heading.dataset.screenText = heading.textContent;
+      heading.textContent = "Item verificado | Resultado";
+    } else if (heading.dataset.screenText) {
+      heading.textContent = heading.dataset.screenText;
+      delete heading.dataset.screenText;
+    }
+  });
+}
 function buildInspectionSectionHtml(section, sectionIndex, draft) {
   return `
     <section class="inspection-section">
@@ -2296,10 +2328,10 @@ function printDocument(title) {
   const originalTitle = document.title;
   const isInspectionPrint = page === "inspecao";
   document.title = sanitizePrintTitle(title) || originalTitle;
-  if (isInspectionPrint) document.body.classList.add("inspection-print-active");
+  if (isInspectionPrint) toggleInspectionPrintLabels(true);
   const restoreTitle = () => {
     document.title = originalTitle;
-    if (isInspectionPrint) document.body.classList.remove("inspection-print-active");
+    if (isInspectionPrint) toggleInspectionPrintLabels(false);
     window.removeEventListener("afterprint", restoreTitle);
   };
   window.addEventListener("afterprint", restoreTitle);

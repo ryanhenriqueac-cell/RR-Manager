@@ -2973,31 +2973,6 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 }
 
-body.inspection-print-active .inspection-table th:first-child,
-body.inspection-print-active .inspection-table td:first-child {
-  display: table-cell !important;
-  width: 58% !important;
-}
-
-body.inspection-print-active .inspection-table th:nth-child(2),
-body.inspection-print-active .inspection-table td:nth-child(2) {
-  display: table-cell !important;
-  width: 42% !important;
-}
-
-body.inspection-print-active .inspection-table th:nth-child(3),
-body.inspection-print-active .inspection-table td:nth-child(3),
-body.inspection-print-active .inspection-result-cell select {
-  display: none !important;
-}
-
-body.inspection-print-active .inspection-print-status {
-  display: block !important;
-  width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-  text-align: center;
-}
 @page {
   size: A4;
   margin: 0;
@@ -3061,15 +3036,12 @@ body.inspection-print-active .inspection-print-status {
 
   .inspection-table th:first-child,
   .inspection-table td:first-child {
-    width: 58%;
+    width: 100%;
+    white-space: nowrap;
   }
 
   .inspection-table th:nth-child(2),
-  .inspection-table td:nth-child(2) {
-    display: table-cell;
-    width: 42%;
-  }
-
+  .inspection-table td:nth-child(2),
   .inspection-table th:nth-child(3),
   .inspection-table td:nth-child(3) {
     display: none;
