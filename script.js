@@ -1672,17 +1672,6 @@ function getInspectionStatusOptions(selected = "") {
   ].map(([value, label]) => `<option value="${value}"${selected === value ? " selected" : ""}>${label}</option>`).join("");
 }
 
-function getInspectionStatusPrintHtml(status) {
-  return [
-    ["ok", "OK"],
-    ["attention", "AT"],
-    ["na", "N/A"]
-  ].map(([value, label]) => {
-    const checked = status === value;
-    return `<span class="inspection-print-check${checked ? " checked" : ""}"><span class="inspection-print-box" aria-hidden="true">${checked ? "&#9746;" : "&#9744;"}</span>${label}</span>`;
-  }).join("");
-}
-
 function buildInspectionSectionHtml(section, sectionIndex, draft) {
   return `
     <section class="inspection-section">
@@ -1699,13 +1688,11 @@ function buildInspectionSectionHtml(section, sectionIndex, draft) {
                 <tr data-print-status="${status || "pending"}">
                   <td class="inspection-item-cell">
                     <span>${escapeHtml(item)}</span>
-                    <span class="inspection-print-value inspection-item-print-status" data-inspection-status-print="${id}">${getInspectionStatusPrintHtml(status)}</span>
                   </td>
                   <td class="inspection-result-cell">
                     <select data-inspection-status="${id}" class="inspection-status status-${status || "pending"}" aria-label="Resultado de ${escapeHtml(item)}">
                       ${getInspectionStatusOptions(status)}
                     </select>
-                    <span class="inspection-print-value inspection-print-status" data-inspection-status-print="${id}">${getInspectionStatusPrintHtml(status)}</span>
                   </td>
                   <td class="inspection-note-cell">
                     <input data-inspection-note="${id}" value="${escapeHtml(note)}" placeholder="Detalhes, lado ou medida">
@@ -1748,9 +1735,6 @@ function prepareInspectionForExport(root) {
   });
   root.querySelectorAll("[data-inspection-status]").forEach((select) => {
     select.closest("tr")?.setAttribute("data-print-status", select.value || "pending");
-    root.querySelectorAll(`[data-inspection-status-print="${select.dataset.inspectionStatus}"]`).forEach((output) => {
-      output.innerHTML = getInspectionStatusPrintHtml(select.value);
-    });
   });
   const notes = Array.from(root.querySelectorAll("[data-inspection-note]"))
     .map((input) => ({
