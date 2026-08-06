@@ -2294,9 +2294,12 @@ function imprimirRelatorioFinanceiro() {
 
 function printDocument(title) {
   const originalTitle = document.title;
+  const isInspectionPrint = page === "inspecao";
   document.title = sanitizePrintTitle(title) || originalTitle;
+  if (isInspectionPrint) document.body.classList.add("inspection-print-active");
   const restoreTitle = () => {
     document.title = originalTitle;
+    if (isInspectionPrint) document.body.classList.remove("inspection-print-active");
     window.removeEventListener("afterprint", restoreTitle);
   };
   window.addEventListener("afterprint", restoreTitle);
