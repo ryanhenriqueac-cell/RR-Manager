@@ -2236,6 +2236,163 @@ body[data-page="inspecao"] #firebaseLandingReturn {
   line-height: 1.18 !important;
 }
 
+.pdf-share-render-host .inspection-document {
+  padding: 19px 26px !important;
+}
+
+.pdf-share-render-host .inspection-document .print-header {
+  gap: 8px !important;
+  padding-bottom: 5px !important;
+}
+
+.pdf-share-render-host .inspection-document .print-header img {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.pdf-share-render-host .inspection-document .print-header h1 {
+  font-size: 17px !important;
+}
+
+.pdf-share-render-host .inspection-document .print-header p {
+  margin-top: 2px !important;
+  font-size: 8px !important;
+}
+
+.pdf-share-render-host .inspection-document h2 {
+  margin: 6px 0 5px !important;
+  font-size: 13px !important;
+}
+
+.pdf-share-render-host .inspection-document .print-info-grid {
+  gap: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+.pdf-share-render-host .inspection-document .print-info-grid div,
+.pdf-share-render-host .inspection-document .inspection-meta-grid label,
+.pdf-share-render-host .inspection-document .inspection-opening label {
+  padding: 4px 5px !important;
+  font-size: 9px !important;
+}
+
+.pdf-share-render-host .inspection-document .inspection-meta-grid {
+  display: grid !important;
+  grid-template-columns: 0.75fr 0.85fr 1.4fr !important;
+  gap: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+.pdf-share-render-host .inspection-document .inspection-meta-grid input {
+  display: block !important;
+  min-height: 19px !important;
+  padding: 2px 3px !important;
+  font-size: 9px !important;
+}
+
+.pdf-share-render-host .inspection-document .inspection-opening {
+  margin-bottom: 4px !important;
+}
+
+.pdf-share-render-host .inspection-document .inspection-opening textarea,
+.pdf-share-render-host .inspection-document .inspection-conclusion textarea {
+  padding: 3px !important;
+  overflow: hidden !important;
+  font-size: 9px !important;
+  resize: none !important;
+}
+
+.pdf-share-render-host .inspection-document .inspection-opening textarea {
+  min-height: 23px !important;
+  height: 23px !important;
+}
+
+.pdf-share-render-host .inspection-document .inspection-conclusion textarea {
+  min-height: 42px !important;
+  height: 42px !important;
+}
+
+.pdf-share-render-host .inspection-document .inspection-legend {
+  gap: 8px !important;
+  margin: 3px 0 5px !important;
+  padding: 4px 6px !important;
+  font-size: 8px !important;
+}
+
+.pdf-share-render-host .inspection-sections-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  width: 100% !important;
+  column-count: initial !important;
+}
+
+.pdf-share-render-host .inspection-section {
+  display: block !important;
+  min-width: 0 !important;
+  margin-bottom: 5px !important;
+}
+
+.pdf-share-render-host .inspection-section h3,
+.pdf-share-render-host .inspection-conclusion h3 {
+  margin: 0 !important;
+  padding: 3px 5px !important;
+  border-radius: 3px 3px 0 0 !important;
+  font-size: 9.5px !important;
+  line-height: 1.08 !important;
+}
+
+.pdf-share-render-host .inspection-table {
+  display: table !important;
+  width: 100% !important;
+  margin: 0 !important;
+  table-layout: fixed !important;
+}
+
+.pdf-share-render-host .inspection-table th,
+.pdf-share-render-host .inspection-table td {
+  padding: 2.4px 3px !important;
+  font-size: 9.4px !important;
+  line-height: 1.08 !important;
+}
+
+.pdf-share-render-host .inspection-table th:first-child,
+.pdf-share-render-host .inspection-table td:first-child {
+  display: table-cell !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+}
+
+.pdf-share-render-host .inspection-table tr.has-print-note td:first-child {
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+}
+
+.pdf-share-render-host .inspection-table th:nth-child(2),
+.pdf-share-render-host .inspection-table td:nth-child(2),
+.pdf-share-render-host .inspection-table th:nth-child(3),
+.pdf-share-render-host .inspection-table td:nth-child(3),
+.pdf-share-render-host .inspection-print-result-heading {
+  display: none !important;
+}
+
+.pdf-share-render-host .inspection-conclusion {
+  margin-top: 3px !important;
+}
+
+.pdf-share-render-host .inspection-conclusion label {
+  padding: 5px !important;
+}
+
+.pdf-share-render-host .inspection-signatures {
+  gap: 18px !important;
+  margin: 10px 10px 3px !important;
+}
+
+.pdf-share-render-host .inspection-signatures span,
+.pdf-share-render-host .inspection-document .print-footer {
+  font-size: 7px !important;
+}
 @media screen and (max-width: 760px) {
   body[data-page="orcamento-print"].print-preview-page,
   body[data-page="orcamento-publico"].print-preview-page {

@@ -2433,7 +2433,14 @@ async function createPdfFileFromDocument(title) {
   const documentEl = document.querySelector(".print-document, .finance-report-document");
   if (!documentEl) throw new Error("Documento indisponivel.");
   const renderHost = document.createElement("div");
-  const clonedDocument = documentEl.cloneNode(true);
+  const isInspectionPdf = page === "inspecao";
+  let clonedDocument;
+  if (isInspectionPdf) toggleInspectionPrintLabels(true);
+  try {
+    clonedDocument = documentEl.cloneNode(true);
+  } finally {
+    if (isInspectionPdf) toggleInspectionPrintLabels(false);
+  }
   renderHost.className = "pdf-share-render-host";
   clonedDocument.classList.add("pdf-share-document");
   preparePdfShareDonut(clonedDocument);
@@ -2512,10 +2519,6 @@ async function sharePrintDocument(title) {
 }
 
 function handlePrintDocumentAction(title) {
-  if (page === "inspecao") {
-    printDocument(title);
-    return;
-  }
   if (isMobilePrintView()) {
     sharePrintDocument(title);
     return;
@@ -2528,7 +2531,7 @@ function setupMobilePrintButtonLabel() {
   if (!printButton) return;
   const mobileQuery = window.matchMedia("(max-width: 760px)");
   const updateLabel = () => {
-    printButton.textContent = page === "inspecao" || !mobileQuery.matches ? "Imprimir / Salvar PDF" : "Compartilhar PDF";
+    printButton.textContent = mobileQuery.matches ? "Compartilhar PDF" : "Imprimir / Salvar PDF";
   };
   updateLabel();
   mobileQuery.addEventListener?.("change", updateLabel);
