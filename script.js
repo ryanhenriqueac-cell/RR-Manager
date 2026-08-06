@@ -1789,7 +1789,8 @@ function prepareInspectionForExport(root) {
   if (summary) {
     summary.innerHTML = notes.length
       ? notes.map((entry) => `<span><strong>${escapeHtml(entry.item)}:</strong> ${escapeHtml(entry.note)}</span>`).join("")
-      : `<span class="inspection-notes-empty"></span>`;
+      : "";
+    summary.closest(".inspection-print-notes")?.classList.toggle("is-empty", notes.length === 0);
   }
 }
 
