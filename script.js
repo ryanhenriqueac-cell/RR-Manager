@@ -1688,6 +1688,7 @@ function buildInspectionSectionHtml(section, sectionIndex, draft) {
                 <tr data-print-status="${status || "pending"}">
                   <td class="inspection-item-cell">
                     <span>${escapeHtml(item)}</span>
+                    <span class="inspection-print-status" aria-hidden="true"></span>
                   </td>
                   <td class="inspection-result-cell">
                     <select data-inspection-status="${id}" class="inspection-status status-${status || "pending"}" aria-label="Resultado de ${escapeHtml(item)}">

@@ -3071,7 +3071,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     display: none !important;
   }
 
-  .inspection-item-cell::after {
+  .inspection-print-status::before {
     content: "\2610  OK   \2610  AT   \2610  N/A";
     display: block;
     min-width: 0;
@@ -3086,15 +3086,15 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     text-align: center;
   }
 
-  .inspection-table tr[data-print-status="ok"] .inspection-item-cell::after {
+  .inspection-table tr[data-print-status="ok"] .inspection-print-status::before {
     content: "\2612  OK   \2610  AT   \2610  N/A";
   }
 
-  .inspection-table tr[data-print-status="attention"] .inspection-item-cell::after {
+  .inspection-table tr[data-print-status="attention"] .inspection-print-status::before {
     content: "\2610  OK   \2612  AT   \2610  N/A";
   }
 
-  .inspection-table tr[data-print-status="na"] .inspection-item-cell::after {
+  .inspection-table tr[data-print-status="na"] .inspection-print-status::before {
     content: "\2610  OK   \2610  AT   \2612  N/A";
   }
   .inspection-document .print-header {
