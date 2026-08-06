@@ -1856,13 +1856,12 @@ function initInspecao() {
         ${INSPECTION_SECTIONS.map((section, index) => buildInspectionSectionHtml(section, index, draft)).join("")}
       </div>
 
-      <section class="inspection-print-notes">
-        <h3>Observações registradas</h3>
-        <div data-inspection-notes-summary></div>
-      </section>
-
       <section class="inspection-conclusion">
-        <h3>Conclusão da inspeção</h3>
+        <h3>Observações e conclusão da inspeção</h3>
+        <div class="inspection-print-notes">
+          <strong>Observações dos itens</strong>
+          <div data-inspection-notes-summary></div>
+        </div>
         <label><strong>Recomendações e observações gerais</strong><textarea data-inspection-field="conclusion" rows="4" placeholder="Serviços recomendados, prioridades e orientações ao cliente">${escapeHtml(fields.conclusion || "")}</textarea></label>
         <div class="inspection-signatures">
           <span>Assinatura do técnico</span>

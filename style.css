@@ -3023,14 +3023,14 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
   .inspection-section {
     min-width: 0;
-    margin-bottom: 2.2mm;
+    margin-bottom: 1.8mm;
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
   .inspection-section h3 {
-    padding: 3px 5px;
-    font-size: 8px;
+    padding: 3.5px 5px;
+    font-size: 9px;
     line-height: 1.1;
   }
 
@@ -3053,9 +3053,9 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
   .inspection-table th,
   .inspection-table td {
-    padding: 2.1px 3px;
-    font-size: 8.2px;
-    line-height: 1.12;
+    padding: 2.3px 3px;
+    font-size: 8.8px;
+    line-height: 1.1;
   }
 
   .inspection-table input,
@@ -3140,9 +3140,9 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
   .inspection-document .inspection-opening textarea,
   .inspection-document .inspection-conclusion textarea {
-    min-height: 25px;
+    min-height: 23px;
     padding: 3px;
-    font-size: 7px;
+    font-size: 7.5px;
   }
 
   .inspection-document .inspection-legend {
@@ -3158,25 +3158,23 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
   .inspection-print-notes {
     display: block;
-    margin-top: 3px;
+    margin: 0;
     break-inside: avoid;
   }
 
-  .inspection-print-notes h3 {
-    margin: 0;
-    padding: 3px 5px;
-    border-radius: 3px 3px 0 0;
-    background: #062e55;
-    color: #fff;
-    font-size: 8px;
+  .inspection-print-notes > strong {
+    display: block;
+    padding: 3px 5px 2px;
+    color: #062e55;
+    font-size: 7.5px;
   }
 
   .inspection-print-notes > div {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1px 8px;
-    min-height: 12px;
-    padding: 3px 5px;
+    min-height: 10px;
+    padding: 2px 5px;
     border: 1px solid #d7dde6;
     font-size: 6px;
     line-height: 1.15;
@@ -3193,13 +3191,13 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .inspection-conclusion h3 {
-    padding: 3px 5px;
-    font-size: 8px;
+    padding: 3.5px 5px;
+    font-size: 9px;
   }
 
   .inspection-signatures {
     gap: 18px;
-    margin: 15px 10px 3px;
+    margin: 12px 10px 3px;
   }
 
   .inspection-signatures span,
