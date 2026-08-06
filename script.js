@@ -2475,23 +2475,31 @@ async function createPdfFileFromDocument(title) {
     const pageHeightPx = Math.ceil((canvas.width * pageHeight) / pageWidth);
     const canvasScale = canvas.width / clonedDocument.scrollWidth;
     const breakData = getPdfShareBreakData(clonedDocument, canvasScale);
-    let sourceY = 0;
-    let pageIndex = 0;
+    if (isInspectionPdf) {
+      const fitScale = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+      const renderWidth = canvas.width * fitScale;
+      const renderHeight = canvas.height * fitScale;
+      const offsetX = (pageWidth - renderWidth) / 2;
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", offsetX, 0, renderWidth, renderHeight);
+    } else {
+      let sourceY = 0;
+      let pageIndex = 0;
 
-    while (sourceY < canvas.height) {
-      const sliceHeight = getPdfShareSliceHeight(sourceY, pageHeightPx, canvas.height, breakData);
-      const pageCanvas = document.createElement("canvas");
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = pageHeightPx;
-      const context = pageCanvas.getContext("2d");
-      context.fillStyle = "#ffffff";
-      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-      context.drawImage(canvas, 0, sourceY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+      while (sourceY < canvas.height) {
+        const sliceHeight = getPdfShareSliceHeight(sourceY, pageHeightPx, canvas.height, breakData);
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = pageHeightPx;
+        const context = pageCanvas.getContext("2d");
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        context.drawImage(canvas, 0, sourceY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
 
-      if (pageIndex > 0) pdf.addPage();
-      pdf.addImage(pageCanvas.toDataURL("image/png"), "PNG", 0, 0, pageWidth, pageHeight);
-      sourceY += sliceHeight;
-      pageIndex += 1;
+        if (pageIndex > 0) pdf.addPage();
+        pdf.addImage(pageCanvas.toDataURL("image/png"), "PNG", 0, 0, pageWidth, pageHeight);
+        sourceY += sliceHeight;
+        pageIndex += 1;
+      }
     }
 
     const fileName = `${sanitizePrintTitle(title) || "RR - Documento"}.pdf`;

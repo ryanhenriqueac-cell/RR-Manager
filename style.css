@@ -2361,7 +2361,8 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 .pdf-share-render-host .inspection-table td:first-child {
   display: table-cell !important;
   width: 100% !important;
-  white-space: nowrap !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
 }
 
 .pdf-share-render-host .inspection-table tr.has-print-note td:first-child {
