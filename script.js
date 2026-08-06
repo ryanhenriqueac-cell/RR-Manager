@@ -1692,13 +1692,16 @@ function toggleInspectionPrintLabels(enabled) {
   document.querySelectorAll(".inspection-table tbody tr").forEach((row) => {
     const label = row.querySelector(".inspection-item-cell > span:first-child");
     const select = row.querySelector("[data-inspection-status]");
+    const note = row.querySelector("[data-inspection-note]")?.value.trim() || "";
     if (!label || !select) return;
     if (enabled) {
       label.dataset.screenText = label.textContent;
-      label.textContent = `${label.textContent} | ${getInspectionStatusPrintText(select.value)}`;
+      label.textContent = `${label.textContent} | ${getInspectionStatusPrintText(select.value)}${note ? ` | ${note}` : ""}`;
+      row.classList.toggle("has-print-note", Boolean(note));
     } else if (label.dataset.screenText) {
       label.textContent = label.dataset.screenText;
       delete label.dataset.screenText;
+      row.classList.remove("has-print-note");
     }
   });
 
@@ -1779,19 +1782,6 @@ function prepareInspectionForExport(root) {
     const output = root.querySelector(`[data-inspection-status-print="${select.dataset.inspectionStatus}"]`);
     if (output) output.innerHTML = getInspectionStatusPrintHtml(select.value);
   });
-  const notes = Array.from(root.querySelectorAll("[data-inspection-note]"))
-    .map((input) => ({
-      item: input.closest("tr")?.querySelector("td:first-child")?.textContent?.trim() || "",
-      note: input.value.trim()
-    }))
-    .filter((entry) => entry.note);
-  const summary = root.querySelector("[data-inspection-notes-summary]");
-  if (summary) {
-    summary.innerHTML = notes.length
-      ? notes.map((entry) => `<span><strong>${escapeHtml(entry.item)}:</strong> ${escapeHtml(entry.note)}</span>`).join("")
-      : "";
-    summary.closest(".inspection-print-notes")?.classList.toggle("is-empty", notes.length === 0);
-  }
 }
 
 function initInspecao() {
@@ -1858,11 +1848,7 @@ function initInspecao() {
       </div>
 
       <section class="inspection-conclusion">
-        <h3>Observações e conclusão da inspeção</h3>
-        <div class="inspection-print-notes">
-          <strong>Observações dos itens</strong>
-          <div data-inspection-notes-summary></div>
-        </div>
+        <h3>Conclusão da inspeção</h3>
         <label><strong>Recomendações e observações gerais</strong><textarea data-inspection-field="conclusion" rows="4" placeholder="Serviços recomendados, prioridades e orientações ao cliente">${escapeHtml(fields.conclusion || "")}</textarea></label>
         <div class="inspection-signatures">
           <span>Assinatura do técnico</span>

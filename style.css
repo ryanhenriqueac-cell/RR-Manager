@@ -3040,6 +3040,10 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     white-space: nowrap;
   }
 
+  .inspection-table tr.has-print-note td:first-child {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
   .inspection-table th:nth-child(2),
   .inspection-table td:nth-child(2),
   .inspection-table th:nth-child(3),
