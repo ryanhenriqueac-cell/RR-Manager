@@ -2428,6 +2428,15 @@ function preparePdfShareDonut(documentEl) {
   donut.insertAdjacentHTML("afterbegin", `<svg class="report-donut-svg" viewBox="0 0 100 100" aria-hidden="true">${circles}<circle cx="50" cy="50" r="24" fill="#fff" stroke="#d4dce8" stroke-width="1"/></svg>`);
 }
 
+function prepareInspectionPdfClone(documentEl) {
+  const dateInput = documentEl.querySelector('[data-inspection-field="date"]');
+  if (dateInput) {
+    const formattedDate = formatDateBR(dateInput.value);
+    dateInput.type = "text";
+    dateInput.value = formattedDate;
+    dateInput.setAttribute("value", formattedDate);
+  }
+}
 async function createPdfFileFromDocument(title) {
   await ensurePdfShareLibraries();
   const documentEl = document.querySelector(".print-document, .finance-report-document");
@@ -2443,6 +2452,7 @@ async function createPdfFileFromDocument(title) {
   }
   renderHost.className = "pdf-share-render-host";
   clonedDocument.classList.add("pdf-share-document");
+  if (isInspectionPdf) prepareInspectionPdfClone(clonedDocument);
   preparePdfShareDonut(clonedDocument);
   renderHost.appendChild(clonedDocument);
   document.body.appendChild(renderHost);
