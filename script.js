@@ -1675,7 +1675,7 @@ function getInspectionStatusOptions(selected = "") {
 function getInspectionStatusPrintHtml(status) {
   const options = [
     ["ok", "OK"],
-    ["attention", "AT"],
+    ["attention", "ATENÇÃO"],
     ["na", "N/A"]
   ];
   return options.map(([value, label]) => `${status === value ? "&#9746;" : "&#9744;"} ${label}`).join("&nbsp;&nbsp;");
@@ -1683,9 +1683,9 @@ function getInspectionStatusPrintHtml(status) {
 function getInspectionStatusPrintText(status) {
   return [
     ["ok", "OK"],
-    ["attention", "AT"],
+    ["attention", "ATENÇÃO"],
     ["na", "N/A"]
-  ].map(([value, label]) => `${status === value ? "\u2612" : "\u2610"}${label}`).join(" ");
+  ].map(([value, label]) => `${status === value ? "\u2612" : "\u2610"} ${label}`).join(" ");
 }
 
 function toggleInspectionPrintLabels(enabled) {
