@@ -3086,17 +3086,17 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .inspection-document .print-header h1 {
-    font-size: 15px;
+    font-size: 17px;
   }
 
   .inspection-document .print-header p {
     margin-top: 2px;
-    font-size: 7px;
+    font-size: 8px;
   }
 
   .inspection-document h2 {
     margin: 6px 0 5px;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .inspection-document .print-info-grid {
@@ -3108,7 +3108,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .inspection-document .inspection-meta-grid label,
   .inspection-document .inspection-opening label {
     padding: 4px 5px;
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .inspection-document .print-info-grid strong,
@@ -3125,7 +3125,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     display: block !important;
     min-height: 19px;
     padding: 2px 3px;
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .inspection-document input::placeholder,
@@ -3142,14 +3142,14 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .inspection-document .inspection-conclusion textarea {
     min-height: 23px;
     padding: 3px;
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .inspection-document .inspection-legend {
     gap: 8px;
     margin: 3px 0 5px;
     padding: 4px 6px;
-    font-size: 7px;
+    font-size: 8px;
   }
 
   .inspection-conclusion {
