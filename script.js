@@ -2476,13 +2476,14 @@ async function createPdfFileFromDocument(title) {
 
   try {
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const captureHeight = clonedDocument.scrollHeight + (isInspectionPdf ? 24 : 0);
     const canvas = await window.html2canvas(clonedDocument, {
       backgroundColor: "#ffffff",
       scale: 2,
       useCORS: true,
       windowWidth: 794,
       width: clonedDocument.scrollWidth,
-      height: clonedDocument.scrollHeight
+      height: captureHeight
     });
 
     const { jsPDF } = window.jspdf;
