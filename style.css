@@ -2374,18 +2374,13 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 .pdf-share-render-host .inspection-table th:first-child,
 .pdf-share-render-host .inspection-table td:first-child {
   display: table-cell !important;
-  width: 58% !important;
+  width: 100% !important;
   overflow-wrap: anywhere !important;
   white-space: normal !important;
 }
 
 .pdf-share-render-host .inspection-table th:nth-child(2),
-.pdf-share-render-host .inspection-table td:nth-child(2) {
-  display: table-cell !important;
-  width: 42% !important;
-  text-align: center !important;
-}
-
+.pdf-share-render-host .inspection-table td:nth-child(2),
 .pdf-share-render-host .inspection-table th:nth-child(3),
 .pdf-share-render-host .inspection-table td:nth-child(3),
 .pdf-share-render-host .inspection-print-result-heading,
@@ -2393,15 +2388,15 @@ body[data-page="inspecao"] #firebaseLandingReturn {
   display: none !important;
 }
 
-.pdf-share-render-host .inspection-print-status {
+.pdf-share-render-host .inspection-pdf-result {
   display: block !important;
   width: 100% !important;
+  margin-top: 1px !important;
   color: #172033 !important;
-  font-size: 7.8px !important;
+  font-size: 8px !important;
   font-weight: 700 !important;
-  line-height: 1 !important;
+  line-height: 1.05 !important;
   white-space: nowrap !important;
-  text-align: center !important;
 }
 
 .pdf-share-render-host .inspection-pdf-note {

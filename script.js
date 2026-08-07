@@ -2438,14 +2438,20 @@ function prepareInspectionPdfClone(documentEl) {
   }
 
   documentEl.querySelectorAll(".inspection-table th:first-child > span:first-child").forEach((heading) => {
-    heading.textContent = "Item verificado";
+    heading.textContent = "Item verificado / Resultado";
   });
 
   documentEl.querySelectorAll(".inspection-table tbody tr").forEach((row) => {
     const label = row.querySelector(".inspection-item-cell > span:first-child");
     if (!label) return;
-    const [item, , ...noteParts] = label.textContent.split(" | ");
+    const [item, result, ...noteParts] = label.textContent.split(" | ");
     label.textContent = item;
+    if (result) {
+      const resultOutput = document.createElement("span");
+      resultOutput.className = "inspection-pdf-result";
+      resultOutput.textContent = result;
+      label.append(resultOutput);
+    }
     if (noteParts.length) {
       const noteOutput = document.createElement("span");
       noteOutput.className = "inspection-pdf-note";
