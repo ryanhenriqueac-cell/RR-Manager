@@ -2349,6 +2349,21 @@ body[data-page="inspecao"] #firebaseLandingReturn {
   table-layout: fixed !important;
 }
 
+.pdf-share-render-host .inspection-table thead {
+  display: table-header-group !important;
+}
+
+.pdf-share-render-host .inspection-table tbody {
+  display: table-row-group !important;
+}
+
+.pdf-share-render-host .inspection-table tr {
+  display: table-row !important;
+  grid-template-columns: none !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
 .pdf-share-render-host .inspection-table th,
 .pdf-share-render-host .inspection-table td {
   padding: 3.5px 4px !important;
