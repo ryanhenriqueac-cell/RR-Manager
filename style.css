@@ -2371,13 +2371,6 @@ body[data-page="inspecao"] #firebaseLandingReturn {
   line-height: 1.15 !important;
 }
 
-.pdf-share-render-host .inspection-item-cell > span:first-child {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  align-items: center !important;
-  column-gap: 5px !important;
-}
-
 .pdf-share-render-host .inspection-table th:first-child,
 .pdf-share-render-host .inspection-table td:first-child {
   display: table-cell !important;
@@ -2393,26 +2386,6 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 .pdf-share-render-host .inspection-print-result-heading,
 .pdf-share-render-host .inspection-result-cell select {
   display: none !important;
-}
-
-.pdf-share-render-host .inspection-pdf-result {
-  display: inline !important;
-  width: auto !important;
-  margin-top: 0 !important;
-  color: #172033 !important;
-  font-size: 8px !important;
-  font-weight: 700 !important;
-  line-height: 1.05 !important;
-  white-space: nowrap !important;
-}
-
-.pdf-share-render-host .inspection-pdf-note {
-  grid-column: 1 / -1 !important;
-  display: block !important;
-  margin-top: 2px !important;
-  font-size: 8px !important;
-  font-style: italic !important;
-  overflow-wrap: anywhere !important;
 }
 
 .pdf-share-render-host .inspection-conclusion {

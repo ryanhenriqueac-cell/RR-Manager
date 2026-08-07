@@ -2438,30 +2438,7 @@ function prepareInspectionPdfClone(documentEl) {
   }
 
   documentEl.querySelectorAll(".inspection-table th:first-child > span:first-child").forEach((heading) => {
-    heading.textContent = "Item verificado / Resultado";
-  });
-
-  documentEl.querySelectorAll(".inspection-table tbody tr").forEach((row) => {
-    const label = row.querySelector(".inspection-item-cell > span:first-child");
-    if (!label) return;
-    const [item, result, ...noteParts] = label.textContent.split(" | ");
-    label.textContent = "";
-    const itemOutput = document.createElement("span");
-    itemOutput.className = "inspection-pdf-item";
-    itemOutput.textContent = item;
-    label.append(itemOutput);
-    if (result) {
-      const resultOutput = document.createElement("span");
-      resultOutput.className = "inspection-pdf-result";
-      resultOutput.textContent = result;
-      label.append(resultOutput);
-    }
-    if (noteParts.length) {
-      const noteOutput = document.createElement("span");
-      noteOutput.className = "inspection-pdf-note";
-      noteOutput.textContent = noteParts.join(" | ");
-      label.append(noteOutput);
-    }
+    heading.textContent = "Item verificado | Resultado";
   });
 }
 async function createPdfFileFromDocument(title) {
@@ -2486,10 +2463,14 @@ async function createPdfFileFromDocument(title) {
 
   try {
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const captureHeight = clonedDocument.scrollHeight + (isInspectionPdf ? 24 : 0);
+    const documentRect = clonedDocument.getBoundingClientRect();
+    const contentBottom = isInspectionPdf
+      ? Math.max(...Array.from(clonedDocument.querySelectorAll("*")).map((element) => element.getBoundingClientRect().bottom - documentRect.top))
+      : 0;
+    const captureHeight = Math.ceil(Math.max(clonedDocument.scrollHeight, documentRect.height, contentBottom)) + (isInspectionPdf ? 24 : 0);
     const canvas = await window.html2canvas(clonedDocument, {
       backgroundColor: "#ffffff",
-      scale: 2,
+      scale: isInspectionPdf ? 1.25 : 2,
       useCORS: true,
       windowWidth: 794,
       width: clonedDocument.scrollWidth,
