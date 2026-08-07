@@ -2330,15 +2330,15 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 .pdf-share-render-host .inspection-section {
   display: block !important;
   min-width: 0 !important;
-  margin-bottom: 8px !important;
+  margin-bottom: 5px !important;
 }
 
 .pdf-share-render-host .inspection-section h3,
 .pdf-share-render-host .inspection-conclusion h3 {
   margin: 0 !important;
-  padding: 4px 6px !important;
+  padding: 3px 5px !important;
   border-radius: 3px 3px 0 0 !important;
-  font-size: 11px !important;
+  font-size: 9.5px !important;
   line-height: 1.1 !important;
 }
 
@@ -2366,9 +2366,9 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 }
 .pdf-share-render-host .inspection-table th,
 .pdf-share-render-host .inspection-table td {
-  padding: 2.5px 4px !important;
-  font-size: 9.2px !important;
-  line-height: 1.15 !important;
+  padding: 1.5px 3px !important;
+  font-size: 7.4px !important;
+  line-height: 1.08 !important;
 }
 
 .pdf-share-render-host .inspection-table th:first-child,
