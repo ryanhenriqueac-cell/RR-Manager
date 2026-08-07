@@ -2437,19 +2437,15 @@ function prepareInspectionPdfClone(documentEl) {
     dateInput.setAttribute("value", formattedDate);
   }
 
-  documentEl.querySelectorAll(".inspection-item-cell > span:first-child").forEach((label) => {
-    const [item, result, ...noteParts] = label.textContent.split(" | ");
-    if (!result) return;
-    const line = document.createElement("span");
-    line.className = "inspection-pdf-line";
-    const itemOutput = document.createElement("span");
-    itemOutput.className = "inspection-pdf-item";
-    itemOutput.textContent = item;
-    const resultOutput = document.createElement("span");
-    resultOutput.className = "inspection-pdf-result";
-    resultOutput.textContent = result;
-    line.append(itemOutput, resultOutput);
-    label.replaceChildren(line);
+  documentEl.querySelectorAll(".inspection-table th:first-child > span:first-child").forEach((heading) => {
+    heading.textContent = "Item verificado";
+  });
+
+  documentEl.querySelectorAll(".inspection-table tbody tr").forEach((row) => {
+    const label = row.querySelector(".inspection-item-cell > span:first-child");
+    if (!label) return;
+    const [item, , ...noteParts] = label.textContent.split(" | ");
+    label.textContent = item;
     if (noteParts.length) {
       const noteOutput = document.createElement("span");
       noteOutput.className = "inspection-pdf-note";
