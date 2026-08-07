@@ -2436,6 +2436,27 @@ function prepareInspectionPdfClone(documentEl) {
     dateInput.value = formattedDate;
     dateInput.setAttribute("value", formattedDate);
   }
+
+  documentEl.querySelectorAll(".inspection-item-cell > span:first-child").forEach((label) => {
+    const [item, result, ...noteParts] = label.textContent.split(" | ");
+    if (!result) return;
+    const line = document.createElement("span");
+    line.className = "inspection-pdf-line";
+    const itemOutput = document.createElement("span");
+    itemOutput.className = "inspection-pdf-item";
+    itemOutput.textContent = item;
+    const resultOutput = document.createElement("span");
+    resultOutput.className = "inspection-pdf-result";
+    resultOutput.textContent = result;
+    line.append(itemOutput, resultOutput);
+    label.replaceChildren(line);
+    if (noteParts.length) {
+      const noteOutput = document.createElement("span");
+      noteOutput.className = "inspection-pdf-note";
+      noteOutput.textContent = noteParts.join(" | ");
+      label.append(noteOutput);
+    }
+  });
 }
 async function createPdfFileFromDocument(title) {
   await ensurePdfShareLibraries();
