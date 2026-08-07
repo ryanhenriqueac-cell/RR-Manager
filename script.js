@@ -2445,7 +2445,11 @@ function prepareInspectionPdfClone(documentEl) {
     const label = row.querySelector(".inspection-item-cell > span:first-child");
     if (!label) return;
     const [item, result, ...noteParts] = label.textContent.split(" | ");
-    label.textContent = item;
+    label.textContent = "";
+    const itemOutput = document.createElement("span");
+    itemOutput.className = "inspection-pdf-item";
+    itemOutput.textContent = item;
+    label.append(itemOutput);
     if (result) {
       const resultOutput = document.createElement("span");
       resultOutput.className = "inspection-pdf-result";
