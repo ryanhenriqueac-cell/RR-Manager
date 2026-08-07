@@ -1685,7 +1685,7 @@ function getInspectionStatusPrintText(status) {
     ["ok", "OK"],
     ["attention", "ATENÇÃO"],
     ["na", "N/A"]
-  ].map(([value, label]) => `${status === value ? "\u2612" : "\u2610"} ${label}`).join(" ");
+  ].map(([value, label]) => `${status === value ? "\u2612" : "\u2610"}${label}`).join(" ");
 }
 
 function toggleInspectionPrintLabels(enabled) {
