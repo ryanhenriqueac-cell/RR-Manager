@@ -2437,6 +2437,11 @@ function prepareInspectionPdfClone(documentEl) {
     dateInput.setAttribute("value", formattedDate);
   }
 
+  ["km", "technician"].forEach((field) => {
+    const input = documentEl.querySelector(`[data-inspection-field="${field}"]`);
+    if (input && !input.value.trim()) input.removeAttribute("placeholder");
+  });
+
   documentEl.querySelectorAll(".inspection-table th:first-child > span:first-child").forEach((heading) => {
     heading.textContent = "Item verificado | Resultado";
   });
