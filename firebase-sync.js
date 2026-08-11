@@ -49,7 +49,7 @@ const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v1";
 const LEGAL_TERMS_VERSION = "1.1";
 const LEGAL_PRIVACY_VERSION = "1.1";
-const CONTRACT_PDF_URL = "assets/contrato-rr-manager.pdf";
+const CONTRACT_DOCUMENT_URL = "contrato.html";
 const ACCESS_STATUS = {
   PENDING: "pending",
   ACTIVE: "active",
@@ -512,6 +512,7 @@ async function loadCloudData(uid) {
       const workspace = { ownerEmail: activeWorkspaceEmail || currentUser.email };
       setWorkspaceBrandingContext(workspace);
       renderMeuCadastro(workspace);
+      renderContractDocument(workspace);
       showAuthMessage("");
       return workspace;
     }
@@ -520,6 +521,7 @@ async function loadCloudData(uid) {
     activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
     setWorkspaceBrandingContext(cloudData);
     renderMeuCadastro(cloudData);
+    renderContractDocument(cloudData);
     let data = cloudData.data || {};
     if (Number(cloudData.schemaVersion) >= APP_SCHEMA_VERSION) {
       workspaceSchemaVersion = APP_SCHEMA_VERSION;
@@ -812,6 +814,144 @@ function renderMeuCadastro(workspace = {}) {
   updatePersonalizacaoPreview();
   setMeuCadastroStatus("");
   setMeuCadastroPersonalizacaoStatus("");
+}
+
+function formatContractDate(value) {
+  const date = value ? new Date(value) : new Date();
+  if (Number.isNaN(date.getTime())) return "Não registrada";
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "long",
+    timeZone: "America/Sao_Paulo"
+  }).format(date);
+}
+
+function renderContractDocument(workspace = {}) {
+  const root = document.getElementById("contractDocumentRoot");
+  if (!root) return;
+  const registration = workspace.registration || {};
+  const acceptance = workspace.legalAcceptance || {};
+  const businessName = workspace.businessName || registration.empresa || "Oficina contratante";
+  const responsibleName = registration.nome || "Responsável legal não informado";
+  const documentLabel = registration.documentoTipo || "CPF/CNPJ";
+  const documentValue = registration.documento || "Não informado";
+  const phone = registration.telefone || "Não informado";
+  const email = workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "Não informado";
+  const issueDate = formatContractDate();
+  const acceptanceDate = acceptance.acceptedAtClient
+    ? formatContractDate(acceptance.acceptedAtClient)
+    : "Pendente de aceite";
+  const contractNumber = `RRM-${String(activeWorkspaceId || currentUser?.uid || "CONTRATO").slice(0, 8).toUpperCase()}-${new Date().getFullYear()}`;
+
+  root.innerHTML = `
+    <article class="print-document contract-document">
+      <header class="print-brand contract-brand">
+        <img src="assets/logo-rr-manager.png" alt="RR Manager">
+        <div>
+          <h1>RR Manager</h1>
+          <p>Contrato de licenciamento de uso do software e prestação de serviços</p>
+        </div>
+      </header>
+
+      <section class="contract-title-block">
+        <span>CONTRATO Nº ${escapeHtml(contractNumber)}</span>
+        <h2>Licenciamento do RR Manager</h2>
+        <p>Versão do documento 1.1 · Emitido em ${escapeHtml(issueDate)}</p>
+      </section>
+
+      <section class="contract-section">
+        <h3>1. Identificação da contratante</h3>
+        <div class="contract-data-grid">
+          <div><strong>Oficina / empresa</strong><span>${escapeHtml(businessName)}</span></div>
+          <div><strong>Responsável</strong><span>${escapeHtml(responsibleName)}</span></div>
+          <div><strong>${escapeHtml(documentLabel)}</strong><span>${escapeHtml(documentValue)}</span></div>
+          <div><strong>Telefone / WhatsApp</strong><span>${escapeHtml(phone)}</span></div>
+          <div class="wide"><strong>E-mail de acesso</strong><span>${escapeHtml(email)}</span></div>
+        </div>
+      </section>
+
+      <section class="contract-section contract-commercial">
+        <h3>2. Condição comercial contratada</h3>
+        <div class="contract-commercial-grid">
+          <div><strong>Plano</strong><span>Mensal · condição de lançamento</span></div>
+          <div><strong>Primeiros 12 meses</strong><span>R$ 59,90 por mês</span></div>
+          <div><strong>Após o 12º mês</strong><span>R$ 79,90 por mês</span></div>
+          <div><strong>Fidelidade</strong><span>Sem fidelidade no plano mensal</span></div>
+        </div>
+        <p>A cobrança segue o vencimento informado na contratação. O cancelamento pode ser solicitado a qualquer momento e produz efeitos ao final do período já pago, sem devolução proporcional.</p>
+      </section>
+
+      <section class="contract-section">
+        <h3>3. Objeto e funcionalidades</h3>
+        <p>A RR Automotive concede à contratante licença limitada, não exclusiva, intransferível e revogável para utilizar o RR Manager durante a vigência da assinatura.</p>
+        <div class="contract-feature-grid">
+          <span>Cadastro de clientes e veículos</span>
+          <span>Cadastro de peças e serviços</span>
+          <span>Orçamentos personalizados</span>
+          <span>Compartilhamento pelo WhatsApp</span>
+          <span>Lista de inspeção automotiva</span>
+          <span>Controle e relatórios financeiros</span>
+          <span>Documentos em PDF</span>
+          <span>Sincronização de dados na nuvem</span>
+        </div>
+      </section>
+
+      <section class="contract-section contract-page-break">
+        <h3>4. Acesso, suporte e atualizações</h3>
+        <p>O acesso depende de internet, navegador compatível e credenciais válidas. A RR Automotive poderá realizar manutenções, correções, melhorias e alterações de segurança. O suporte será prestado pelos canais oficiais, dentro da disponibilidade informada ao cliente.</p>
+      </section>
+
+      <section class="contract-section">
+        <h3>5. Obrigações da contratante</h3>
+        <ul>
+          <li>Fornecer informações verdadeiras e manter o cadastro atualizado.</li>
+          <li>Proteger login e senha e não compartilhar o acesso com terceiros não autorizados.</li>
+          <li>Revisar orçamentos, inspeções, valores e documentos antes de enviá-los.</li>
+          <li>Possuir base legal para cadastrar dados de clientes e utilizar somente informações necessárias.</li>
+          <li>Efetuar os pagamentos nas condições e vencimentos contratados.</li>
+        </ul>
+      </section>
+
+      <section class="contract-section">
+        <h3>6. Segurança, privacidade e dados</h3>
+        <p>Os dados são tratados conforme a Política de Privacidade vigente. Cada oficina possui ambiente próprio no banco de dados. A contratante é responsável pelos dados de seus clientes inseridos no sistema e pelos destinatários dos links e documentos compartilhados.</p>
+      </section>
+
+      <section class="contract-section">
+        <h3>7. Propriedade intelectual e usos proibidos</h3>
+        <p>O software, a marca, o código, o design e os conteúdos do RR Manager pertencem à RR Automotive. É proibido copiar, revender, sublicenciar, realizar engenharia reversa, tentar invadir, contornar controles de acesso ou usar a plataforma para finalidade ilícita.</p>
+      </section>
+
+      <section class="contract-section">
+        <h3>8. Pagamento, reajuste e inadimplência</h3>
+        <p>Os preços poderão ser reajustados anualmente mediante comunicação prévia. A inadimplência poderá resultar em bloqueio do acesso após comunicação, sem afastar valores vencidos. Condições promocionais têm a duração apresentada na contratação.</p>
+      </section>
+
+      <section class="contract-section">
+        <h3>9. Limitação de responsabilidade</h3>
+        <p>O RR Manager é uma ferramenta de apoio à gestão. A contratante permanece responsável por diagnósticos, serviços automotivos, cálculos, decisões comerciais, obrigações fiscais e conferência das informações. A RR Automotive não responde por falhas de terceiros, internet, uso incorreto ou dados inseridos de forma inexata.</p>
+      </section>
+
+      <section class="contract-section">
+        <h3>10. Cancelamento, rescisão e disposições finais</h3>
+        <p>O plano mensal pode ser cancelado sem fidelidade. O contrato poderá ser rescindido por inadimplência, violação destes termos, uso indevido ou risco à segurança. Aplicam-se as leis brasileiras. Eventual invalidade de uma cláusula não prejudica as demais. Comunicações deverão ocorrer pelos canais oficiais.</p>
+      </section>
+
+      <section class="contract-acceptance-record">
+        <h3>Registro eletrônico do aceite</h3>
+        <div><strong>Versão dos Termos:</strong> ${escapeHtml(acceptance.termsVersion || LEGAL_TERMS_VERSION)}</div>
+        <div><strong>Versão da Privacidade:</strong> ${escapeHtml(acceptance.privacyVersion || LEGAL_PRIVACY_VERSION)}</div>
+        <div><strong>Data registrada:</strong> ${escapeHtml(acceptanceDate)}</div>
+        <div><strong>Usuário:</strong> ${escapeHtml(acceptance.acceptedByEmail || email)}</div>
+      </section>
+
+      <section class="contract-signatures">
+        <div><span></span><strong>RR Automotive</strong><small>Contratada</small></div>
+        <div><span></span><strong>${escapeHtml(responsibleName)}</strong><small>Responsável pela contratante</small></div>
+      </section>
+
+      <footer class="print-footer">RR Manager · rrreparacaomanager.com.br · (31) 99785-1561 · rrreparacaomanager@gmail.com</footer>
+    </article>
+  `;
 }
 
 function setValueIfExists(id, value) {
@@ -1154,7 +1294,7 @@ function showLegalAcceptanceModal() {
     termsCheckbox.addEventListener("change", updateButton);
     privacyCheckbox.addEventListener("change", updateButton);
     contractButton.addEventListener("click", () => {
-      window.open(CONTRACT_PDF_URL, "_blank", "noopener");
+      window.open(CONTRACT_DOCUMENT_URL, "_blank", "noopener");
     });
     logoutButton.addEventListener("click", async () => {
       overlay.remove();

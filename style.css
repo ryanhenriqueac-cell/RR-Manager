@@ -6259,6 +6259,192 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   margin-top: 22px;
 }
 
+/* Contrato interno gerado pelo RR Manager */
+.contract-document {
+  box-sizing: border-box;
+  color: #24364a;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.contract-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-bottom: 4px solid #f26a2e;
+  border-radius: 10px 10px 0 0;
+  color: #fff;
+  background: #062e55;
+}
+
+.contract-brand img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.contract-brand h1 {
+  margin: 0;
+  color: #fff;
+  font-size: 25px;
+}
+
+.contract-brand p {
+  margin: 3px 0 0;
+  color: #dbe8f5;
+}
+
+.contract-title-block {
+  padding: 22px 4px 14px;
+  text-align: center;
+}
+
+.contract-title-block > span {
+  color: #f26a2e;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .09em;
+}
+
+.contract-title-block h2 {
+  margin: 5px 0 2px;
+  font-size: 24px;
+  text-transform: none;
+}
+
+.contract-title-block p,
+.contract-section p {
+  margin: 5px 0;
+}
+
+.contract-section {
+  margin: 0 0 15px;
+  break-inside: avoid;
+}
+
+.contract-section h3,
+.contract-acceptance-record h3 {
+  margin: 0 0 8px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #f26a2e;
+  color: #062e55;
+  font-size: 15px;
+}
+
+.contract-data-grid,
+.contract-commercial-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.contract-data-grid > div,
+.contract-commercial-grid > div {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid #d7e0e9;
+  border-radius: 7px;
+  background: #f7f9fb;
+}
+
+.contract-data-grid .wide {
+  grid-column: 1 / -1;
+}
+
+.contract-data-grid strong,
+.contract-commercial-grid strong {
+  color: #062e55;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.contract-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 18px;
+  margin-top: 9px;
+}
+
+.contract-feature-grid span::before {
+  content: "\2713";
+  margin-right: 7px;
+  color: #159b67;
+  font-weight: 900;
+}
+
+.contract-section ul {
+  margin: 5px 0 0;
+  padding-left: 20px;
+}
+
+.contract-acceptance-record {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 16px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px solid #b9c9d8;
+  border-radius: 8px;
+  background: #eef4f8;
+  break-inside: avoid;
+}
+
+.contract-acceptance-record h3 {
+  grid-column: 1 / -1;
+}
+
+.contract-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin: 45px 8px 25px;
+  text-align: center;
+  break-inside: avoid;
+}
+
+.contract-signatures div {
+  display: grid;
+}
+
+.contract-signatures span {
+  border-top: 1px solid #60758a;
+}
+
+.contract-signatures strong {
+  margin-top: 6px;
+  color: #062e55;
+}
+
+.contract-signatures small {
+  color: #60758a;
+}
+
+@media (max-width: 620px) {
+  .contract-document {
+    padding: 22px;
+  }
+
+  .contract-data-grid,
+  .contract-commercial-grid,
+  .contract-feature-grid,
+  .contract-acceptance-record {
+    grid-template-columns: 1fr;
+  }
+
+  .contract-data-grid .wide,
+  .contract-acceptance-record h3 {
+    grid-column: auto;
+  }
+
+  .contract-brand {
+    align-items: flex-start;
+  }
+}
+
 .contract-access-panel p {
   max-width: 760px;
   margin: 0 0 16px;

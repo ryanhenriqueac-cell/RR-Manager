@@ -180,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "orcamento-publico") initOrcamentoPublico();
   if (page === "financeiro-print") initFinanceiroPrint();
   if (page === "inspecao") initInspecao();
+  if (page === "contrato") initContrato();
 });
 
 window.addEventListener("rr-cloud-data-updated", (event) => {
@@ -2567,6 +2568,12 @@ function setupMobilePrintButtonLabel() {
   };
   updateLabel();
   mobileQuery.addEventListener?.("change", updateLabel);
+}
+
+function initContrato() {
+  const printButton = byId("printButton");
+  setupMobilePrintButtonLabel();
+  printButton?.addEventListener("click", () => handlePrintDocumentAction("RR - Contrato RR Manager"));
 }
 
 function initFinanceiroPrint() {
