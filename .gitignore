@@ -10,6 +10,3 @@ rr-reparacao-backup-*.json
 
 # Logs
 *.log
-
-# Dependências das funções do Firebase
-functions/node_modules/

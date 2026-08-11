@@ -14,6 +14,7 @@ import {
 import {
   collection,
   deleteField,
+  deleteDoc,
   doc,
   getCountFromServer,
   getDoc,
@@ -24,10 +25,6 @@ import {
   setDoc,
   writeBatch
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-import {
-  getFunctions,
-  httpsCallable
-} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-functions.js";
 
 const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro"];
 const APP_COLLECTIONS = { rr_clientes: "clientes", rr_veiculos: "veiculos", rr_servicos: "servicos", rr_orcamentos: "orcamentos", rr_financeiro: "financeiro" };
@@ -69,7 +66,6 @@ const isRegisterPage = document.body.dataset.page === "cadastro-acesso";
 
 let auth;
 let db;
-let functions;
 let currentUser = null;
 let activeWorkspaceId = null;
 let activeWorkspaceEmail = "";
@@ -95,7 +91,6 @@ if (!configReady) {
   const app = initializeApp(config);
   auth = getAuth(app);
   db = getFirestore(app);
-  functions = getFunctions(app, "southamerica-east1");
   patchLocalStorageSync();
   bindAuthEvents();
 
@@ -752,7 +747,7 @@ async function saveAccessRequest(user) {
 
 async function getWorkspaceAccessStatus(workspaceId) {
   const snap = await getDoc(doc(db, "workspaces", workspaceId));
-  if (!snap.exists()) return ACCESS_STATUS.BLOCKED;
+  if (!snap.exists()) return ACCESS_STATUS.ACTIVE;
   return snap.data().accessStatus || ACCESS_STATUS.ACTIVE;
 }
 
@@ -1819,35 +1814,21 @@ async function updateWorkspaceAccess(workspaceId, status) {
 
 async function deleteWorkspace(workspaceId, email) {
   const confirmed = await showAuthConfirmModal(
-    "Excluir conta definitivamente",
-    `Deseja excluir ${email || "esta conta"}? Essa ação apaga o login do Firebase Authentication, os dados da oficina e os links públicos. Não será possível desfazer.`
+    "Excluir cadastro",
+    `Deseja remover ${email || "este cadastro"} do painel admin? Essa ação apaga os dados salvos desse cadastro no Firestore.`
   );
   if (!confirmed) return;
-  if (!functions || !currentUser || !isAdminUser(currentUser)) return;
-  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
-  if (!workspace) return;
-  const deleteButton = document.querySelector(`[data-delete-workspace="${CSS.escape(workspaceId)}"]`);
-  if (deleteButton) {
-    deleteButton.disabled = true;
-    deleteButton.textContent = "Excluindo...";
-  }
-  try {
-    const deleteCustomerAccount = httpsCallable(functions, "deleteCustomerAccount");
-    await deleteCustomerAccount({ workspaceId, email: email || workspace.ownerEmail || "" });
-    adminWorkspaces = adminWorkspaces.filter((item) => item.id !== workspaceId);
-    renderAdminWorkspaceList();
-    await showAuthStatusModal("Conta excluída", `${email || "A conta"} foi removida do painel, do banco de dados e do Firebase Authentication.`);
-  } catch (error) {
-    console.error("Erro ao excluir conta completa:", error);
-    const message = error?.code === "functions/not-found"
-      ? "A função administrativa ainda não está publicada no Firebase."
-      : error?.message || "Não foi possível concluir a exclusão.";
-    await showAuthStatusModal("Conta não excluída", message);
-    if (deleteButton) {
-      deleteButton.disabled = false;
-      deleteButton.textContent = "Excluir cadastro";
+  for (const collectionName of Object.values(APP_COLLECTIONS)) {
+    const records = await getDocs(collection(db, "workspaces", workspaceId, collectionName));
+    for (let start = 0; start < records.docs.length; start += MIGRATION_BATCH_SIZE) {
+      const batch = writeBatch(db);
+      records.docs.slice(start, start + MIGRATION_BATCH_SIZE).forEach((record) => batch.delete(record.ref));
+      await batch.commit();
     }
   }
+  await deleteDoc(doc(db, "workspaces", workspaceId));
+  adminWorkspaces = adminWorkspaces.filter((item) => item.id !== workspaceId);
+  renderAdminWorkspaceList();
 }
 
 function getWorkspaceDataScore(workspace) {
