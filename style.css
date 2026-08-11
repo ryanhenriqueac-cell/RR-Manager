@@ -6259,6 +6259,17 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   margin-top: 22px;
 }
 
+.contract-access-panel p {
+  max-width: 760px;
+  margin: 0 0 16px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.contract-access-panel .btn {
+  width: fit-content;
+}
+
 .personalization-preview {
   display: grid;
   gap: 10px;
@@ -6546,6 +6557,10 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .legal-acceptance-actions .btn {
+    width: 100%;
+  }
+
+  .contract-access-panel .btn {
     width: 100%;
   }
 }

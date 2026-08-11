@@ -49,6 +49,7 @@ const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v1";
 const LEGAL_TERMS_VERSION = "1.1";
 const LEGAL_PRIVACY_VERSION = "1.1";
+const CONTRACT_PDF_URL = "assets/contrato-rr-manager.pdf";
 const ACCESS_STATUS = {
   PENDING: "pending",
   ACTIVE: "active",
@@ -1131,6 +1132,7 @@ function showLegalAcceptanceModal() {
         <p class="legal-acceptance-status" role="status"></p>
         <div class="legal-acceptance-actions">
           <button class="btn btn-muted" type="button" data-legal-logout>Sair</button>
+          <button class="btn btn-muted" type="button" data-legal-contract disabled>Imprimir / gerar PDF do contrato</button>
           <button class="btn btn-primary" type="button" data-legal-accept disabled>Aceitar e continuar</button>
         </div>
       </div>
@@ -1139,15 +1141,21 @@ function showLegalAcceptanceModal() {
     const termsCheckbox = overlay.querySelector("[data-legal-terms]");
     const privacyCheckbox = overlay.querySelector("[data-legal-privacy]");
     const acceptButton = overlay.querySelector("[data-legal-accept]");
+    const contractButton = overlay.querySelector("[data-legal-contract]");
     const logoutButton = overlay.querySelector("[data-legal-logout]");
     const status = overlay.querySelector(".legal-acceptance-status");
 
     function updateButton() {
-      acceptButton.disabled = !(termsCheckbox.checked && privacyCheckbox.checked);
+      const confirmed = termsCheckbox.checked && privacyCheckbox.checked;
+      acceptButton.disabled = !confirmed;
+      contractButton.disabled = !confirmed;
     }
 
     termsCheckbox.addEventListener("change", updateButton);
     privacyCheckbox.addEventListener("change", updateButton);
+    contractButton.addEventListener("click", () => {
+      window.open(CONTRACT_PDF_URL, "_blank", "noopener");
+    });
     logoutButton.addEventListener("click", async () => {
       overlay.remove();
       document.body.classList.remove("legal-acceptance-pending");
