@@ -2363,7 +2363,7 @@ function getPdfShareBreakData(documentEl, scale) {
   const rootRect = documentEl.getBoundingClientRect();
   const offsetElements = Array.from(documentEl.querySelectorAll(".print-info-grid, section, h3, thead, tr, .print-payment-title, .print-payment-row, .print-totals, .pix-payment, .print-footer, .report-print-summary, .report-chart-card"));
   const avoidElements = Array.from(documentEl.querySelectorAll("tr, .print-totals, .pix-payment, .print-footer, .report-chart-card"));
-  const forcedElements = Array.from(documentEl.querySelectorAll(".has-many-parts .print-services-section, .has-many-parts .print-payment-section"));
+  const forcedElements = Array.from(documentEl.querySelectorAll(".has-many-parts .print-services-section, .has-many-parts .print-payment-section, [data-pdf-page]"));
   const toRange = (element) => {
     const rect = element.getBoundingClientRect();
     return {
@@ -2383,6 +2383,8 @@ function getPdfShareSliceHeight(sourceY, pageHeightPx, canvasHeight, breakData) 
   const targetY = Math.min(sourceY + pageHeightPx, canvasHeight);
   if (targetY >= canvasHeight) return canvasHeight - sourceY;
   const minY = sourceY + Math.round(pageHeightPx * 0.78);
+  const pageBoundary = breakData.forcedOffsets.find((offset) => Math.abs(offset - targetY) <= 32);
+  if (pageBoundary) return Math.max(1, pageBoundary - sourceY);
   const forcedBreak = breakData.forcedOffsets
     .filter((offset) => offset > sourceY + Math.round(pageHeightPx * 0.52) && offset < targetY - 24)
     .pop();

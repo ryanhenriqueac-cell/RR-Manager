@@ -840,116 +840,197 @@ function renderContractDocument(workspace = {}) {
   const acceptanceDate = acceptance.acceptedAtClient
     ? formatContractDate(acceptance.acceptedAtClient)
     : "Pendente de aceite";
-  const contractNumber = `RRM-${String(activeWorkspaceId || currentUser?.uid || "CONTRATO").slice(0, 8).toUpperCase()}-${new Date().getFullYear()}`;
+  const acceptanceYear = acceptance.acceptedAtClient
+    ? new Date(acceptance.acceptedAtClient).getFullYear()
+    : new Date().getFullYear();
+  const contractNumber = `RRM-${String(activeWorkspaceId || currentUser?.uid || "CONTRATO").slice(0, 8).toUpperCase()}-${acceptanceYear}`;
+
+  const pageHeader = (page, title) => `
+    <header class="contract-page-header">
+      <img src="assets/logo-rr-manager.png" alt="RR Manager">
+      <div><strong>RR Manager</strong><span>Contrato de licenciamento de uso do software<br>e prestação de serviços</span></div>
+      <b>${String(page).padStart(2, "0")}<small>de 08</small></b>
+    </header>
+    <div class="contract-page-heading"><span>${String(page).padStart(2, "0")}</span><h2>${title}</h2></div>
+  `;
+  const pageFooter = (page) => `
+    <footer class="contract-page-footer">
+      <strong>RR Automotive</strong>
+      <span>rrreparacaomanager.com.br · (31) 99785-1561 · rrreparacaomanager@gmail.com · @rr.automotive</span>
+      <b>Página ${page} de 8</b>
+    </footer>
+  `;
 
   root.innerHTML = `
     <article class="print-document contract-document">
-      <header class="print-brand contract-brand">
-        <img src="assets/logo-rr-manager.png" alt="RR Manager">
-        <div>
-          <h1>RR Manager</h1>
-          <p>Contrato de licenciamento de uso do software e prestação de serviços</p>
+      <section class="contract-sheet contract-cover">
+        ${pageHeader(1, "Contrato RR Manager")}
+        <div class="contract-cover-hero">
+          <img src="assets/logo-rr-manager.png" alt="RR Automotive">
+          <p>Software de gestão para oficinas</p>
+          <h1>RR <span>Manager</span></h1>
+          <h3>Contrato de licenciamento de uso do software<br>e prestação de serviços</h3>
         </div>
-      </header>
-
-      <section class="contract-title-block">
-        <span>CONTRATO Nº ${escapeHtml(contractNumber)}</span>
-        <h2>Licenciamento do RR Manager</h2>
-        <p>Versão do documento 1.1 · Emitido em ${escapeHtml(issueDate)}</p>
+        <div class="contract-pillars">
+          <div><b>✓</b><strong>Organização</strong><span>Informações centralizadas</span></div>
+          <div><b>▥</b><strong>Gestão</strong><span>Controle para decidir melhor</span></div>
+          <div><b>↗</b><strong>Agilidade</strong><span>Menos retrabalho na rotina</span></div>
+          <div><b>◇</b><strong>Segurança</strong><span>Acesso individual à conta</span></div>
+        </div>
+        <div class="contract-cover-data">
+          <div><strong>Número do contrato</strong><span>${escapeHtml(contractNumber)}</span></div>
+          <div><strong>Versão do documento</strong><span>1.1</span></div>
+          <div><strong>Data de emissão</strong><span>${escapeHtml(issueDate)}</span></div>
+          <div><strong>Início da licença</strong><span>${escapeHtml(acceptanceDate)}</span></div>
+          <small>O número usa o prefixo RRM, os 8 primeiros caracteres do identificador interno da conta e o ano de emissão.</small>
+        </div>
+        <blockquote>“Simplificar a gestão da oficina para que você tenha mais tempo, controle e clareza.”</blockquote>
+        ${pageFooter(1)}
       </section>
 
-      <section class="contract-section">
-        <h3>1. Identificação da contratante</h3>
-        <div class="contract-data-grid">
-          <div><strong>Oficina / empresa</strong><span>${escapeHtml(businessName)}</span></div>
-          <div><strong>Responsável</strong><span>${escapeHtml(responsibleName)}</span></div>
-          <div><strong>${escapeHtml(documentLabel)}</strong><span>${escapeHtml(documentValue)}</span></div>
-          <div><strong>Telefone / WhatsApp</strong><span>${escapeHtml(phone)}</span></div>
-          <div class="wide"><strong>E-mail de acesso</strong><span>${escapeHtml(email)}</span></div>
+      <section class="contract-sheet" data-pdf-page>
+        ${pageHeader(2, "Dados da contratação")}
+        <p class="contract-lead">Identificação da oficina contratante e da condição comercial vinculada a esta licença.</p>
+        <div class="contract-two-columns">
+          <div class="contract-section">
+            <h3>2.1 Dados da oficina</h3>
+            <div class="contract-data-grid single">
+              <div><strong>Oficina / empresa</strong><span>${escapeHtml(businessName)}</span></div>
+              <div><strong>Responsável legal</strong><span>${escapeHtml(responsibleName)}</span></div>
+              <div><strong>${escapeHtml(documentLabel)}</strong><span>${escapeHtml(documentValue)}</span></div>
+              <div><strong>Telefone / WhatsApp</strong><span>${escapeHtml(phone)}</span></div>
+              <div><strong>E-mail de acesso</strong><span>${escapeHtml(email)}</span></div>
+            </div>
+          </div>
+          <div class="contract-section contract-plan-card">
+            <h3>2.2 Dados do plano</h3>
+            <div><strong>Plano contratado</strong><span>Mensal · condição de lançamento</span></div>
+            <div><strong>Valor inicial</strong><span>R$ 59,90 por mês durante 12 meses</span></div>
+            <div><strong>Valor posterior</strong><span>R$ 79,90 por mês</span></div>
+            <div><strong>Renovação</strong><span>Automática a cada 30 dias</span></div>
+            <div><strong>Fidelidade</strong><span>Não há no plano mensal</span></div>
+          </div>
         </div>
+        <div class="contract-notice"><b>Importante:</b> ao concluir o aceite eletrônico, o cliente declara que leu os Termos de Uso, a Política de Privacidade e as condições deste contrato.</div>
+        ${pageFooter(2)}
       </section>
 
-      <section class="contract-section contract-commercial">
-        <h3>2. Condição comercial contratada</h3>
+      <section class="contract-sheet" data-pdf-page>
+        ${pageHeader(3, "Sobre o RR Manager")}
+        <p class="contract-lead">O RR Manager é uma plataforma web desenvolvida pela RR Automotive para centralizar informações e apoiar a rotina administrativa de oficinas automotivas.</p>
+        <div class="contract-highlight">Mais organização, mais controle e mais tempo para atender seus clientes.</div>
+        <h3 class="contract-grid-title">Recursos disponíveis atualmente</h3>
+        <div class="contract-resource-grid">
+          <div><b>CL</b><strong>Clientes</strong><span>Cadastro e consulta dos dados de atendimento.</span></div>
+          <div><b>VE</b><strong>Veículos</strong><span>Dados técnicos e vínculo com seus proprietários.</span></div>
+          <div><b>PS</b><strong>Peças e serviços</strong><span>Catálogo para agilizar a criação de orçamentos.</span></div>
+          <div><b>OR</b><strong>Orçamentos</strong><span>Cálculos, personalização e acompanhamento de status.</span></div>
+          <div><b>WA</b><strong>WhatsApp</strong><span>Compartilhamento de propostas e documentos.</span></div>
+          <div><b>IN</b><strong>Inspeção</strong><span>Checklist automotivo com geração de PDF.</span></div>
+          <div><b>FI</b><strong>Financeiro</strong><span>Registro de receitas, custos e despesas.</span></div>
+          <div><b>RE</b><strong>Relatórios</strong><span>Resumo financeiro por períodos selecionados.</span></div>
+          <div><b>NU</b><strong>Nuvem</strong><span>Sincronização dos dados da conta autenticada.</span></div>
+        </div>
+        ${pageFooter(3)}
+      </section>
+
+      <section class="contract-sheet" data-pdf-page>
+        ${pageHeader(4, "Objeto e serviços")}
+        <div class="contract-section"><h3>4.1 Objeto do contrato</h3><p>A RR Automotive concede à contratante licença limitada, não exclusiva, intransferível e revogável para acessar e utilizar o RR Manager durante a vigência da assinatura, conforme os limites deste documento.</p></div>
+        <div class="contract-section"><h3>4.2 Serviços e funcionalidades incluídas</h3><div class="contract-feature-grid detailed">
+          <span><strong>Gestão cadastral</strong> Clientes, veículos, peças e serviços.</span>
+          <span><strong>Orçamentos</strong> Criação, cálculo e personalização.</span>
+          <span><strong>Compartilhamento</strong> Envio pelo WhatsApp e links públicos.</span>
+          <span><strong>Inspeções</strong> Checklist e relatório visual em PDF.</span>
+          <span><strong>Financeiro</strong> Lançamentos e visão de resultados.</span>
+          <span><strong>Documentos</strong> Impressão, PDF e compartilhamento móvel.</span>
+          <span><strong>Personalização</strong> Logo, dados da empresa, Pix e taxas.</span>
+          <span><strong>Sincronização</strong> Dados vinculados ao ambiente da oficina.</span>
+        </div></div>
+        <div class="contract-notice"><b>Limites do escopo:</b> funcionalidades futuras, integrações, emissão fiscal, estoque e ordem de serviço somente integrarão o contrato quando estiverem efetivamente disponibilizadas e comunicadas pela RR Automotive.</div>
+        ${pageFooter(4)}
+      </section>
+
+      <section class="contract-sheet" data-pdf-page>
+        ${pageHeader(5, "Cláusulas contratuais")}
+        <div class="contract-clause-grid">
+          <div><b>1</b><p><strong>Objeto</strong>Licenciamento do RR Manager e serviços associados descritos neste contrato.</p></div>
+          <div><b>2</b><p><strong>Licenciamento</strong>Acesso não exclusivo, intransferível e limitado ao plano contratado.</p></div>
+          <div><b>3</b><p><strong>Pagamento</strong>Valores, vencimentos e meios seguem a condição comercial vigente.</p></div>
+          <div><b>4</b><p><strong>Suporte</strong>Atendimento pelos canais oficiais dentro da disponibilidade informada.</p></div>
+          <div><b>5</b><p><strong>Segurança</strong>Medidas técnicas e administrativas compatíveis com a operação.</p></div>
+          <div><b>6</b><p><strong>Atualizações</strong>Correções, melhorias e mudanças de segurança poderão ser realizadas.</p></div>
+          <div><b>7</b><p><strong>Proteção de dados</strong>Tratamento conforme a LGPD, Termos e Política de Privacidade.</p></div>
+          <div><b>8</b><p><strong>Propriedade intelectual</strong>Marca, código, design e conteúdos pertencem à RR Automotive.</p></div>
+          <div><b>9</b><p><strong>Responsabilidade</strong>A oficina confere dados, cálculos, serviços e decisões comerciais.</p></div>
+          <div><b>10</b><p><strong>Rescisão</strong>Permitida nos casos previstos neste contrato e na legislação.</p></div>
+          <div class="wide"><b>11</b><p><strong>Legislação e foro</strong>Aplicam-se as leis brasileiras, respeitados os direitos legais de escolha de foro do consumidor quando aplicáveis.</p></div>
+        </div>
+        ${pageFooter(5)}
+      </section>
+
+      <section class="contract-sheet" data-pdf-page>
+        ${pageHeader(6, "Condições comerciais")}
+        <div class="contract-section"><h3>6.1 Licenciamento e cobrança</h3><p>O plano mensal concede acesso por períodos sucessivos de 30 dias. A condição promocional custa R$ 59,90 mensais durante os primeiros 12 meses. Depois desse período, passa a vigorar o preço oficial de R$ 79,90 mensais, sem prejuízo de reajustes futuros comunicados previamente.</p></div>
         <div class="contract-commercial-grid">
-          <div><strong>Plano</strong><span>Mensal · condição de lançamento</span></div>
-          <div><strong>Primeiros 12 meses</strong><span>R$ 59,90 por mês</span></div>
-          <div><strong>Após o 12º mês</strong><span>R$ 79,90 por mês</span></div>
-          <div><strong>Fidelidade</strong><span>Sem fidelidade no plano mensal</span></div>
+          <div><strong>Pagamento</strong><span>Pelos meios disponibilizados pela RR Automotive.</span></div>
+          <div><strong>Vencimento</strong><span>Na data informada durante a contratação.</span></div>
+          <div><strong>Reajuste</strong><span>Poderá ocorrer anualmente mediante comunicação prévia.</span></div>
+          <div><strong>Inadimplência</strong><span>Poderá causar bloqueio após comunicação ao cliente.</span></div>
         </div>
-        <p>A cobrança segue o vencimento informado na contratação. O cancelamento pode ser solicitado a qualquer momento e produz efeitos ao final do período já pago, sem devolução proporcional.</p>
+        <div class="contract-section"><h3>6.2 Cancelamento e rescisão</h3><p>O cliente pode cancelar o plano mensal a qualquer momento. O cancelamento produz efeitos ao final do período já pago, sem devolução proporcional. A RR Automotive poderá rescindir ou suspender o acesso por inadimplência, uso indevido, risco à segurança ou violação contratual, observada comunicação quando cabível.</p></div>
+        <div class="contract-section"><h3>6.3 Disponibilidade</h3><p>O funcionamento depende de internet, navegador, serviços de hospedagem, autenticação e banco de dados de terceiros. Manutenções e indisponibilidades poderão ocorrer; a RR Automotive buscará restabelecer o serviço e comunicar intervenções programadas relevantes.</p></div>
+        ${pageFooter(6)}
       </section>
 
-      <section class="contract-section">
-        <h3>3. Objeto e funcionalidades</h3>
-        <p>A RR Automotive concede à contratante licença limitada, não exclusiva, intransferível e revogável para utilizar o RR Manager durante a vigência da assinatura.</p>
-        <div class="contract-feature-grid">
-          <span>Cadastro de clientes e veículos</span>
-          <span>Cadastro de peças e serviços</span>
-          <span>Orçamentos personalizados</span>
-          <span>Compartilhamento pelo WhatsApp</span>
-          <span>Lista de inspeção automotiva</span>
-          <span>Controle e relatórios financeiros</span>
-          <span>Documentos em PDF</span>
-          <span>Sincronização de dados na nuvem</span>
+      <section class="contract-sheet" data-pdf-page>
+        ${pageHeader(7, "Direitos e obrigações")}
+        <div class="contract-two-columns obligations">
+          <div class="contract-section"><h3>7.1 RR Automotive</h3><ul>
+            <li>Disponibilizar acesso às funções incluídas no plano.</li>
+            <li>Realizar correções e manutenções necessárias.</li>
+            <li>Prestar orientação pelos canais oficiais.</li>
+            <li>Adotar medidas razoáveis de proteção dos dados.</li>
+            <li>Informar alterações contratuais ou comerciais relevantes.</li>
+          </ul></div>
+          <div class="contract-section"><h3>7.2 Cliente</h3><ul>
+            <li>Usar a plataforma de forma legal e conforme este contrato.</li>
+            <li>Manter cadastro e pagamentos atualizados.</li>
+            <li>Proteger login, senha e acesso à conta.</li>
+            <li>Conferir documentos antes de enviá-los.</li>
+            <li>Possuir base legal para tratar dados de seus clientes.</li>
+          </ul></div>
         </div>
+        <div class="contract-section"><h3>7.3 Práticas proibidas</h3><div class="contract-prohibited-grid">
+          <span>Compartilhar ou ceder acesso a terceiros não autorizados.</span><span>Realizar engenharia reversa ou distribuir o software.</span><span>Utilizar a plataforma para fraude ou finalidade ilícita.</span><span>Remover marcas ou tentar contornar controles de acesso.</span>
+        </div></div>
+        ${pageFooter(7)}
       </section>
 
-      <section class="contract-section contract-page-break">
-        <h3>4. Acesso, suporte e atualizações</h3>
-        <p>O acesso depende de internet, navegador compatível e credenciais válidas. A RR Automotive poderá realizar manutenções, correções, melhorias e alterações de segurança. O suporte será prestado pelos canais oficiais, dentro da disponibilidade informada ao cliente.</p>
+      <section class="contract-sheet" data-pdf-page>
+        ${pageHeader(8, "Disposições finais")}
+        <div class="contract-clause-grid final">
+          <div><b>8.1</b><p><strong>Legislação</strong>Este contrato é regido pelas leis da República Federativa do Brasil.</p></div>
+          <div><b>8.2</b><p><strong>Alterações</strong>Mudanças específicas poderão ser formalizadas por escrito entre as partes.</p></div>
+          <div><b>8.3</b><p><strong>Comunicações</strong>Serão realizadas por e-mail, sistema ou canais oficiais informados.</p></div>
+          <div><b>8.4</b><p><strong>Independência</strong>Este contrato não cria vínculo empregatício ou societário.</p></div>
+          <div><b>8.5</b><p><strong>Nulidade parcial</strong>A invalidade de uma disposição não prejudica as demais.</p></div>
+          <div><b>8.6</b><p><strong>Integralidade</strong>Contrato, Termos e Política formam o acordo aplicável à licença.</p></div>
+        </div>
+        <section class="contract-acceptance-record">
+          <h3>Registro eletrônico do aceite</h3>
+          <div><strong>Contrato:</strong> ${escapeHtml(contractNumber)}</div>
+          <div><strong>Data registrada:</strong> ${escapeHtml(acceptanceDate)}</div>
+          <div><strong>Versão dos Termos:</strong> ${escapeHtml(acceptance.termsVersion || LEGAL_TERMS_VERSION)}</div>
+          <div><strong>Versão da Privacidade:</strong> ${escapeHtml(acceptance.privacyVersion || LEGAL_PRIVACY_VERSION)}</div>
+          <div class="wide"><strong>Usuário:</strong> ${escapeHtml(acceptance.acceptedByEmail || email)}</div>
+        </section>
+        <section class="contract-signatures">
+          <div><span></span><strong>RR Automotive</strong><small>Contratada</small></div>
+          <div><span></span><strong>${escapeHtml(responsibleName)}</strong><small>Responsável pela contratante</small></div>
+        </section>
+        ${pageFooter(8)}
       </section>
-
-      <section class="contract-section">
-        <h3>5. Obrigações da contratante</h3>
-        <ul>
-          <li>Fornecer informações verdadeiras e manter o cadastro atualizado.</li>
-          <li>Proteger login e senha e não compartilhar o acesso com terceiros não autorizados.</li>
-          <li>Revisar orçamentos, inspeções, valores e documentos antes de enviá-los.</li>
-          <li>Possuir base legal para cadastrar dados de clientes e utilizar somente informações necessárias.</li>
-          <li>Efetuar os pagamentos nas condições e vencimentos contratados.</li>
-        </ul>
-      </section>
-
-      <section class="contract-section">
-        <h3>6. Segurança, privacidade e dados</h3>
-        <p>Os dados são tratados conforme a Política de Privacidade vigente. Cada oficina possui ambiente próprio no banco de dados. A contratante é responsável pelos dados de seus clientes inseridos no sistema e pelos destinatários dos links e documentos compartilhados.</p>
-      </section>
-
-      <section class="contract-section">
-        <h3>7. Propriedade intelectual e usos proibidos</h3>
-        <p>O software, a marca, o código, o design e os conteúdos do RR Manager pertencem à RR Automotive. É proibido copiar, revender, sublicenciar, realizar engenharia reversa, tentar invadir, contornar controles de acesso ou usar a plataforma para finalidade ilícita.</p>
-      </section>
-
-      <section class="contract-section">
-        <h3>8. Pagamento, reajuste e inadimplência</h3>
-        <p>Os preços poderão ser reajustados anualmente mediante comunicação prévia. A inadimplência poderá resultar em bloqueio do acesso após comunicação, sem afastar valores vencidos. Condições promocionais têm a duração apresentada na contratação.</p>
-      </section>
-
-      <section class="contract-section">
-        <h3>9. Limitação de responsabilidade</h3>
-        <p>O RR Manager é uma ferramenta de apoio à gestão. A contratante permanece responsável por diagnósticos, serviços automotivos, cálculos, decisões comerciais, obrigações fiscais e conferência das informações. A RR Automotive não responde por falhas de terceiros, internet, uso incorreto ou dados inseridos de forma inexata.</p>
-      </section>
-
-      <section class="contract-section">
-        <h3>10. Cancelamento, rescisão e disposições finais</h3>
-        <p>O plano mensal pode ser cancelado sem fidelidade. O contrato poderá ser rescindido por inadimplência, violação destes termos, uso indevido ou risco à segurança. Aplicam-se as leis brasileiras. Eventual invalidade de uma cláusula não prejudica as demais. Comunicações deverão ocorrer pelos canais oficiais.</p>
-      </section>
-
-      <section class="contract-acceptance-record">
-        <h3>Registro eletrônico do aceite</h3>
-        <div><strong>Versão dos Termos:</strong> ${escapeHtml(acceptance.termsVersion || LEGAL_TERMS_VERSION)}</div>
-        <div><strong>Versão da Privacidade:</strong> ${escapeHtml(acceptance.privacyVersion || LEGAL_PRIVACY_VERSION)}</div>
-        <div><strong>Data registrada:</strong> ${escapeHtml(acceptanceDate)}</div>
-        <div><strong>Usuário:</strong> ${escapeHtml(acceptance.acceptedByEmail || email)}</div>
-      </section>
-
-      <section class="contract-signatures">
-        <div><span></span><strong>RR Automotive</strong><small>Contratada</small></div>
-        <div><span></span><strong>${escapeHtml(responsibleName)}</strong><small>Responsável pela contratante</small></div>
-      </section>
-
-      <footer class="print-footer">RR Manager · rrreparacaomanager.com.br · (31) 99785-1561 · rrreparacaomanager@gmail.com</footer>
     </article>
   `;
 }
