@@ -50,6 +50,16 @@ const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v2";
 const LEGAL_TERMS_VERSION = "1.1";
 const LEGAL_PRIVACY_VERSION = "1.1";
+const CONTRACT_VERSION = "2.0";
+const CONTRACT_PLAN = {
+  code: "monthly_launch",
+  name: "Mensal · condição de lançamento",
+  promotionalPrice: 59.90,
+  promotionalMonths: 12,
+  regularPrice: 79.90,
+  renewal: "Períodos sucessivos de 30 dias",
+  loyalty: "Sem fidelidade no plano mensal"
+};
 const CONTRACT_DOCUMENT_URL = "contrato.html";
 const ACCESS_STATUS = {
   PENDING: "pending",
@@ -826,25 +836,73 @@ function formatContractDate(value) {
   }).format(date);
 }
 
+function buildContractNumber(acceptedAtClient = "") {
+  const acceptedDate = acceptedAtClient ? new Date(acceptedAtClient) : new Date();
+  const year = Number.isNaN(acceptedDate.getTime()) ? new Date().getFullYear() : acceptedDate.getFullYear();
+  const accountId = String(activeWorkspaceId || currentUser?.uid || "CONTRATO").slice(0, 8).toUpperCase();
+  return `RRM-${accountId}-${year}`;
+}
+
+function buildContractSnapshot(workspace = {}, acceptedAtClient = "") {
+  const registration = workspace.registration || {};
+  const acceptedAt = acceptedAtClient || new Date().toISOString();
+  return {
+    contractVersion: CONTRACT_VERSION,
+    contractNumber: buildContractNumber(acceptedAt),
+    issuedAtClient: acceptedAt,
+    contractor: {
+      businessName: workspace.businessName || registration.empresa || "Oficina contratante",
+      responsibleName: registration.nome || "Responsável legal não informado",
+      documentType: registration.documentoTipo || "CPF/CNPJ",
+      documentValue: registration.documento || "Não informado",
+      phone: registration.telefone || "Não informado",
+      email: workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "Não informado"
+    },
+    provider: {
+      tradeName: "RR Automotive",
+      productName: "RR Manager",
+      productLegalName: "RR Manager — Software de Gestão de Oficinas",
+      representativeName: "Ryan Henrique Alves Costa",
+      nationality: "brasileiro",
+      maritalStatus: "solteiro",
+      profession: "engenheiro eletrônico e de telecomunicações",
+      documentType: "CPF",
+      documentValue: "***.181.376-**",
+      address: "Rua Santo Amaro, 46, Sagrada Família, Belo Horizonte/MG, CEP 31035-320, Brasil",
+      website: "rrreparacaomanager.com.br",
+      email: "rrreparacaomanager@gmail.com",
+      phone: "(31) 99785-1561",
+      supportHours: "segunda a sexta-feira, das 8h às 18h, exceto feriados",
+      paymentMethods: "cartão de crédito, boleto bancário e Pix",
+      venue: "Belo Horizonte/MG"
+    },
+    plan: { ...CONTRACT_PLAN }
+  };
+}
+
 function renderContractDocument(workspace = {}) {
   const root = document.getElementById("contractDocumentRoot");
   if (!root) return;
-  const registration = workspace.registration || {};
   const acceptance = workspace.legalAcceptance || {};
-  const businessName = workspace.businessName || registration.empresa || "Oficina contratante";
-  const responsibleName = registration.nome || "Responsável legal não informado";
-  const documentLabel = registration.documentoTipo || "CPF/CNPJ";
-  const documentValue = registration.documento || "Não informado";
-  const phone = registration.telefone || "Não informado";
-  const email = workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "Não informado";
-  const issueDate = formatContractDate();
-  const acceptanceDate = acceptance.acceptedAtClient
+  const hasCurrentContractSnapshot = acceptance.contractSnapshot?.contractVersion === CONTRACT_VERSION;
+  const snapshot = hasCurrentContractSnapshot
+    ? acceptance.contractSnapshot
+    : buildContractSnapshot(workspace, "");
+  const contractor = snapshot.contractor || {};
+  const plan = snapshot.plan || CONTRACT_PLAN;
+  const provider = snapshot.provider || {};
+  const businessName = contractor.businessName || "Oficina contratante";
+  const responsibleName = contractor.responsibleName || "Responsável legal não informado";
+  const documentLabel = contractor.documentType || "CPF/CNPJ";
+  const documentValue = contractor.documentValue || "Não informado";
+  const phone = contractor.phone || "Não informado";
+  const email = contractor.email || "Não informado";
+  const issueDate = formatContractDate(snapshot.issuedAtClient);
+  const acceptanceDate = hasCurrentContractSnapshot && acceptance.acceptedAtClient
     ? formatContractDate(acceptance.acceptedAtClient)
     : "Pendente de aceite";
-  const acceptanceYear = acceptance.acceptedAtClient
-    ? new Date(acceptance.acceptedAtClient).getFullYear()
-    : new Date().getFullYear();
-  const contractNumber = `RRM-${String(activeWorkspaceId || currentUser?.uid || "CONTRATO").slice(0, 8).toUpperCase()}-${acceptanceYear}`;
+  const contractNumber = snapshot.contractNumber
+    || buildContractNumber(hasCurrentContractSnapshot ? acceptance.acceptedAtClient : "");
 
   const pageHeader = (page, title) => `
     <header class="contract-page-header">
@@ -880,7 +938,7 @@ function renderContractDocument(workspace = {}) {
         </div>
         <div class="contract-cover-data">
           <div><strong>Número do contrato</strong><span>${escapeHtml(contractNumber)}</span></div>
-          <div><strong>Versão do documento</strong><span>1.1</span></div>
+          <div><strong>Versão do documento</strong><span>${CONTRACT_VERSION}</span></div>
           <div><strong>Data de emissão</strong><span>${escapeHtml(issueDate)}</span></div>
           <div><strong>Início da licença</strong><span>${escapeHtml(acceptanceDate)}</span></div>
           <small>O número usa o prefixo RRM, os 8 primeiros caracteres do identificador interno da conta e o ano de emissão.</small>
@@ -905,40 +963,34 @@ function renderContractDocument(workspace = {}) {
           </div>
           <div class="contract-section contract-plan-card">
             <h3>2.2 Dados do plano</h3>
-            <div><strong>Plano contratado</strong><span>Mensal · condição de lançamento</span></div>
-            <div><strong>Valor inicial</strong><span>R$ 59,90 por mês durante 12 meses</span></div>
-            <div><strong>Valor posterior</strong><span>R$ 79,90 por mês</span></div>
-            <div><strong>Renovação</strong><span>Automática a cada 30 dias</span></div>
-            <div><strong>Fidelidade</strong><span>Não há no plano mensal</span></div>
+            <div><strong>Plano contratado</strong><span>${escapeHtml(plan.name)}</span></div>
+            <div><strong>Valor inicial</strong><span>R$ ${plan.promotionalPrice.toFixed(2).replace(".", ",")} por mês durante ${plan.promotionalMonths} meses</span></div>
+            <div><strong>Valor posterior</strong><span>R$ ${plan.regularPrice.toFixed(2).replace(".", ",")} por mês</span></div>
+            <div><strong>Renovação</strong><span>${escapeHtml(plan.renewal)}</span></div>
+            <div><strong>Fidelidade</strong><span>${escapeHtml(plan.loyalty)}</span></div>
           </div>
+        </div>
+        <div class="contract-section">
+          <h3>2.3 Identificação da contratada</h3>
+          <p><strong>${escapeHtml(provider.representativeName || "Ryan Henrique Alves Costa")}</strong>, ${escapeHtml(provider.nationality || "brasileiro")}, ${escapeHtml(provider.maritalStatus || "solteiro")}, ${escapeHtml(provider.profession || "engenheiro eletrônico e de telecomunicações")}, inscrito no ${escapeHtml(provider.documentType || "CPF")} sob o nº ${escapeHtml(provider.documentValue || "***.181.376-**")}, atuando comercialmente sob o nome <strong>${escapeHtml(provider.tradeName || "RR Automotive")}</strong>, com endereço em ${escapeHtml(provider.address || "Belo Horizonte/MG")}.</p>
         </div>
         <div class="contract-notice"><b>Importante:</b> ao concluir o aceite eletrônico, o cliente declara que leu os Termos de Uso, a Política de Privacidade e as condições deste contrato.</div>
         ${pageFooter(2)}
       </section>
 
       <section class="contract-sheet" data-pdf-page>
-        ${pageHeader(3, "Sobre o RR Manager")}
-        <p class="contract-lead">O RR Manager é uma plataforma web desenvolvida pela RR Automotive para centralizar informações e apoiar a rotina administrativa de oficinas automotivas.</p>
-        <div class="contract-highlight">Mais organização, mais controle e mais tempo para atender seus clientes.</div>
-        <h3 class="contract-grid-title">Recursos disponíveis atualmente</h3>
-        <div class="contract-resource-grid">
-          <div><b>CL</b><strong>Clientes</strong><span>Cadastro e consulta dos dados de atendimento.</span></div>
-          <div><b>VE</b><strong>Veículos</strong><span>Dados técnicos e vínculo com seus proprietários.</span></div>
-          <div><b>PS</b><strong>Peças e serviços</strong><span>Catálogo para agilizar a criação de orçamentos.</span></div>
-          <div><b>OR</b><strong>Orçamentos</strong><span>Cálculos, personalização e acompanhamento de status.</span></div>
-          <div><b>WA</b><strong>WhatsApp</strong><span>Compartilhamento de propostas e documentos.</span></div>
-          <div><b>IN</b><strong>Inspeção</strong><span>Checklist automotivo com geração de PDF.</span></div>
-          <div><b>FI</b><strong>Financeiro</strong><span>Registro de receitas, custos e despesas.</span></div>
-          <div><b>RE</b><strong>Relatórios</strong><span>Resumo financeiro por períodos selecionados.</span></div>
-          <div><b>NU</b><strong>Nuvem</strong><span>Sincronização dos dados da conta autenticada.</span></div>
-        </div>
+        ${pageHeader(3, "Objeto e licença de uso")}
+        <div class="contract-section"><h3>1. Identificação e formação do contrato</h3><p><strong>${escapeHtml(provider.representativeName || "Ryan Henrique Alves Costa")}</strong>, atuando comercialmente sob o nome <strong>${escapeHtml(provider.tradeName || "RR Automotive")}</strong> e responsável pelo produto <strong>${escapeHtml(provider.productLegalName || "RR Manager — Software de Gestão de Oficinas")}</strong>, doravante denominado <strong>CONTRATADA</strong>, e <strong>${escapeHtml(businessName)}</strong>, identificada na página anterior, doravante denominada <strong>CONTRATANTE</strong>, celebram este Contrato de Licenciamento de Uso de Software e Prestação de Serviços.</p></div>
+        <div class="contract-section"><h3>2. Objeto</h3><p>A CONTRATADA concede à CONTRATANTE licença de uso do <strong>${escapeHtml(provider.productLegalName || "RR Manager — Software de Gestão de Oficinas")}</strong>, plataforma eletrônica destinada ao apoio da gestão administrativa e comercial de oficinas e estabelecimentos automotivos. O sistema não executa serviços mecânicos, diagnósticos ou reparos e não substitui avaliação técnica profissional.</p></div>
+        <div class="contract-section"><h3>3. Licença de uso</h3><p>A licença é limitada, não exclusiva, pessoal, intransferível e condicionada à vigência da assinatura. A contratação não transfere código-fonte, marca, tecnologia ou qualquer direito de propriedade intelectual.</p></div>
+        <div class="contract-section"><h3>4. Usos proibidos</h3><ul><li>Copiar, modificar, distribuir, revender ou sublicenciar o software.</li><li>Realizar engenharia reversa ou tentar obter o código-fonte.</li><li>Burlar mecanismos de segurança, acessar dados de terceiros ou utilizar o sistema para fraude ou finalidade ilícita.</li><li>Compartilhar credenciais com pessoas não autorizadas.</li></ul></div>
+        <div class="contract-notice"><b>Resumo:</b> a oficina recebe o direito de usar o RR Manager durante a assinatura; o software e sua tecnologia continuam pertencendo à RR Automotive.</div>
         ${pageFooter(3)}
       </section>
 
       <section class="contract-sheet" data-pdf-page>
-        ${pageHeader(4, "Objeto e serviços")}
-        <div class="contract-section"><h3>4.1 Objeto do contrato</h3><p>A RR Automotive concede à contratante licença limitada, não exclusiva, intransferível e revogável para acessar e utilizar o RR Manager durante a vigência da assinatura, conforme os limites deste documento.</p></div>
-        <div class="contract-section"><h3>4.2 Serviços e funcionalidades incluídas</h3><div class="contract-feature-grid detailed">
+        ${pageHeader(4, "Funcionalidades e operação")}
+        <div class="contract-section"><h3>5. Funcionalidades efetivamente disponíveis</h3><p>Integram o serviço somente as funcionalidades disponibilizadas no plano e acessíveis à CONTRATANTE no momento da utilização:</p><div class="contract-feature-grid detailed">
           <span><strong>Gestão cadastral</strong> Clientes, veículos, peças e serviços.</span>
           <span><strong>Orçamentos</strong> Criação, cálculo e personalização.</span>
           <span><strong>Compartilhamento</strong> Envio pelo WhatsApp e links públicos.</span>
@@ -948,83 +1000,58 @@ function renderContractDocument(workspace = {}) {
           <span><strong>Personalização</strong> Logo, dados da empresa, Pix e taxas.</span>
           <span><strong>Sincronização</strong> Dados vinculados ao ambiente da oficina.</span>
         </div></div>
-        <div class="contract-notice"><b>Limites do escopo:</b> funcionalidades futuras, integrações, emissão fiscal, estoque e ordem de serviço somente integrarão o contrato quando estiverem efetivamente disponibilizadas e comunicadas pela RR Automotive.</div>
+        <div class="contract-section"><h3>6. Atualizações</h3><p>A CONTRATADA poderá corrigir, aprimorar, modificar ou atualizar o sistema para melhorar segurança, desempenho e usabilidade. Recursos futuros somente integrarão o serviço quando forem efetivamente disponibilizados. Funções obsoletas ou incompatíveis com fornecedores externos poderão ser descontinuadas, com comunicação prévia quando razoavelmente possível.</p></div>
+        <div class="contract-section"><h3>7. Disponibilidade e suporte</h3><p>A CONTRATADA empregará esforços razoáveis para manter o serviço funcional. Poderão ocorrer manutenções, falhas de internet, indisponibilidade de hospedagem, autenticação, banco de dados, comunicação ou outros fornecedores, incidentes de segurança e eventos fora de seu controle. O suporte oferece orientação sobre as funções disponíveis pelos canais oficiais, de <strong>${escapeHtml(provider.supportHours || "segunda a sexta-feira, das 8h às 18h, exceto feriados")}</strong>, em prazos compatíveis com a natureza e complexidade da solicitação.</p></div>
+        <div class="contract-notice"><b>Limites do escopo:</b> emissão fiscal, estoque, ordem de serviço, múltiplos usuários e outras funções futuras não integram este contrato enquanto não estiverem disponíveis e comunicadas.</div>
         ${pageFooter(4)}
       </section>
 
       <section class="contract-sheet" data-pdf-page>
-        ${pageHeader(5, "Cláusulas contratuais")}
-        <div class="contract-clause-grid">
-          <div><b>1</b><p><strong>Objeto</strong>Licenciamento do RR Manager e serviços associados descritos neste contrato.</p></div>
-          <div><b>2</b><p><strong>Licenciamento</strong>Acesso não exclusivo, intransferível e limitado ao plano contratado.</p></div>
-          <div><b>3</b><p><strong>Pagamento</strong>Valores, vencimentos e meios seguem a condição comercial vigente.</p></div>
-          <div><b>4</b><p><strong>Suporte</strong>Atendimento pelos canais oficiais dentro da disponibilidade informada.</p></div>
-          <div><b>5</b><p><strong>Segurança</strong>Medidas técnicas e administrativas compatíveis com a operação.</p></div>
-          <div><b>6</b><p><strong>Atualizações</strong>Correções, melhorias e mudanças de segurança poderão ser realizadas.</p></div>
-          <div><b>7</b><p><strong>Proteção de dados</strong>Tratamento conforme a LGPD, Termos e Política de Privacidade.</p></div>
-          <div><b>8</b><p><strong>Propriedade intelectual</strong>Marca, código, design e conteúdos pertencem à RR Automotive.</p></div>
-          <div><b>9</b><p><strong>Responsabilidade</strong>A oficina confere dados, cálculos, serviços e decisões comerciais.</p></div>
-          <div><b>10</b><p><strong>Rescisão</strong>Permitida nos casos previstos neste contrato e na legislação.</p></div>
-          <div class="wide"><b>11</b><p><strong>Legislação e foro</strong>Aplicam-se as leis brasileiras, respeitados os direitos legais de escolha de foro do consumidor quando aplicáveis.</p></div>
-        </div>
+        ${pageHeader(5, "Condições comerciais")}
+        <div class="contract-section"><h3>8. Plano, preço e renovação</h3><p>A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>R$ ${plan.promotionalPrice.toFixed(2).replace(".", ",")} mensais durante os primeiros ${plan.promotionalMonths} meses</strong>. Encerrado o período promocional, o valor passa a <strong>R$ ${plan.regularPrice.toFixed(2).replace(".", ",")} mensais</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.</p></div>
+        <div class="contract-section"><h3>9. Pagamento e reajuste</h3><p>O pagamento ocorrerá por <strong>${escapeHtml(provider.paymentMethods || "cartão de crédito, boleto bancário ou Pix")}</strong>, conforme a opção disponibilizada, e no vencimento informado na contratação. Valores vencidos permanecem devidos. Os preços poderão ser reajustados anualmente mediante comunicação prévia, podendo ser utilizado o IPCA ou índice oficial equivalente como referência. Mudanças de plano ou serviços opcionais serão apresentadas antes da contratação.</p></div>
+        <div class="contract-section"><h3>10. Inadimplência</h3><p>O atraso poderá resultar em comunicação de cobrança e suspensão do acesso após prazo razoável para regularização. A suspensão não cancela valores já constituídos. Situações de fraude, risco à segurança ou uso ilícito poderão gerar bloqueio imediato.</p></div>
+        <div class="contract-section"><h3>11. Cancelamento</h3><p>O plano mensal não possui fidelidade e pode ser cancelado pelos canais oficiais. O cancelamento produz efeitos ao final do período já pago e, salvo cobrança indevida ou hipótese legal, não gera devolução proporcional. Valores vencidos e obrigações anteriores permanecem exigíveis.</p></div>
+        <div class="contract-section"><h3>12. Rescisão</h3><p>O contrato poderá ser encerrado por cancelamento, acordo entre as partes, inadimplência, uso ilícito, violação grave, comprometimento da segurança, infração à propriedade intelectual ou demais hipóteses legais.</p></div>
         ${pageFooter(5)}
       </section>
 
       <section class="contract-sheet" data-pdf-page>
-        ${pageHeader(6, "Condições comerciais")}
-        <div class="contract-section"><h3>6.1 Licenciamento e cobrança</h3><p>O plano mensal concede acesso por períodos sucessivos de 30 dias. A condição promocional custa R$ 59,90 mensais durante os primeiros 12 meses. Depois desse período, passa a vigorar o preço oficial de R$ 79,90 mensais, sem prejuízo de reajustes futuros comunicados previamente.</p></div>
-        <div class="contract-commercial-grid">
-          <div><strong>Pagamento</strong><span>Pelos meios disponibilizados pela RR Automotive.</span></div>
-          <div><strong>Vencimento</strong><span>Na data informada durante a contratação.</span></div>
-          <div><strong>Reajuste</strong><span>Poderá ocorrer anualmente mediante comunicação prévia.</span></div>
-          <div><strong>Inadimplência</strong><span>Poderá causar bloqueio após comunicação ao cliente.</span></div>
-        </div>
-        <div class="contract-section"><h3>6.2 Cancelamento e rescisão</h3><p>O cliente pode cancelar o plano mensal a qualquer momento. O cancelamento produz efeitos ao final do período já pago, sem devolução proporcional. A RR Automotive poderá rescindir ou suspender o acesso por inadimplência, uso indevido, risco à segurança ou violação contratual, observada comunicação quando cabível.</p></div>
-        <div class="contract-section"><h3>6.3 Disponibilidade</h3><p>O funcionamento depende de internet, navegador, serviços de hospedagem, autenticação e banco de dados de terceiros. Manutenções e indisponibilidades poderão ocorrer; a RR Automotive buscará restabelecer o serviço e comunicar intervenções programadas relevantes.</p></div>
+        ${pageHeader(6, "Responsabilidades e documentos")}
+        <div class="contract-section"><h3>13. Responsabilidades da contratante</h3><p>A CONTRATANTE é responsável pela veracidade, necessidade, atualização e legalidade das informações inseridas, pela proteção de suas credenciais e pela conferência de orçamentos, peças, serviços, valores, taxas, descontos, documentos, diagnósticos e relatórios antes de utilizá-los ou enviá-los.</p></div>
+        <div class="contract-section"><h3>14. Serviços automotivos</h3><p>A CONTRATANTE permanece exclusivamente responsável pela avaliação, qualidade, segurança, preço e execução dos serviços prestados aos seus clientes. O RR Manager é ferramenta de apoio e não toma decisões técnicas ou comerciais de forma autônoma.</p></div>
+        <div class="contract-section"><h3>15. Orçamentos, inspeções e financeiro</h3><p>Os resultados dependem dos dados e parâmetros configurados pela oficina. A CONTRATADA não garante preços de peças, mão de obra, tributos, descontos ou diagnósticos. A emissão do orçamento não representa aprovação automática pelo cliente final. As inspeções registram informações inseridas pela oficina e não substituem desmontagem ou diagnóstico especializado. Os controles financeiros não constituem serviço contábil, fiscal ou financeiro.</p></div>
+        <div class="contract-section"><h3>16. WhatsApp, links e terceiros</h3><p>Compartilhamentos dependem das regras e disponibilidade do WhatsApp, navegador, Firebase e outros fornecedores. A CONTRATANTE deve conferir destinatários, evitar dados desnecessários e utilizar links públicos de forma lícita. A CONTRATADA não responde por bloqueios ou falhas de terceiros que não decorram de conduta própria.</p></div>
+        <div class="contract-notice"><b>Responsabilidade operacional:</b> antes de enviar qualquer documento, a oficina deve revisar cliente, veículo, itens, valores, forma de pagamento e destinatário.</div>
         ${pageFooter(6)}
       </section>
 
       <section class="contract-sheet" data-pdf-page>
-        ${pageHeader(7, "Direitos e obrigações")}
-        <div class="contract-two-columns obligations">
-          <div class="contract-section"><h3>7.1 RR Automotive</h3><ul>
-            <li>Disponibilizar acesso às funções incluídas no plano.</li>
-            <li>Realizar correções e manutenções necessárias.</li>
-            <li>Prestar orientação pelos canais oficiais.</li>
-            <li>Adotar medidas razoáveis de proteção dos dados.</li>
-            <li>Informar alterações contratuais ou comerciais relevantes.</li>
-          </ul></div>
-          <div class="contract-section"><h3>7.2 Cliente</h3><ul>
-            <li>Usar a plataforma de forma legal e conforme este contrato.</li>
-            <li>Manter cadastro e pagamentos atualizados.</li>
-            <li>Proteger login, senha e acesso à conta.</li>
-            <li>Conferir documentos antes de enviá-los.</li>
-            <li>Possuir base legal para tratar dados de seus clientes.</li>
-          </ul></div>
-        </div>
-        <div class="contract-section"><h3>7.3 Práticas proibidas</h3><div class="contract-prohibited-grid">
-          <span>Compartilhar ou ceder acesso a terceiros não autorizados.</span><span>Realizar engenharia reversa ou distribuir o software.</span><span>Utilizar a plataforma para fraude ou finalidade ilícita.</span><span>Remover marcas ou tentar contornar controles de acesso.</span>
-        </div></div>
+        ${pageHeader(7, "Dados, segurança e propriedade")}
+        <div class="contract-section"><h3>17. Titularidade dos dados</h3><p>Os dados inseridos permanecem pertencentes à CONTRATANTE ou aos respectivos titulares. A CONTRATADA não adquire sua propriedade e os utiliza somente para fornecer, manter, proteger, desenvolver e prestar suporte ao RR Manager, conforme a Política de Privacidade.</p></div>
+        <div class="contract-section"><h3>18. LGPD</h3><p>As partes observarão a Lei nº 13.709/2018. Em relação aos dados de clientes, funcionários e fornecedores inseridos pela oficina, a CONTRATANTE atuará, em regra, como Controladora e a CONTRATADA como Operadora. A oficina deve possuir base legal, informar os titulares quando necessário, limitar os dados ao necessário e atender solicitações sob sua responsabilidade.</p></div>
+        <div class="contract-section"><h3>19. Segurança e incidentes</h3><p>A CONTRATADA adotará medidas técnicas e administrativas razoáveis considerando a natureza dos dados e os riscos envolvidos. A CONTRATANTE deverá proteger senhas, dispositivos e acessos. As partes cooperarão na avaliação e contenção de incidentes relevantes e nas providências legalmente exigidas.</p></div>
+        <div class="contract-section"><h3>20. Cópia, retenção e exclusão</h3><p>Antes do encerramento definitivo, a CONTRATANTE poderá solicitar uma cópia de seus dados dentro das possibilidades técnicas e legais. Após o cancelamento, informações poderão ser eliminadas ou anonimizadas quando não forem mais necessárias, ressalvadas obrigações legais, prevenção a fraudes, exercício de direitos e ciclos técnicos de segurança.</p></div>
+        <div class="contract-section"><h3>21. Propriedade intelectual e confidencialidade</h3><p>Código, marca, interface, design, documentação e funcionalidades pertencem à CONTRATADA. As partes preservarão informações comerciais, técnicas e estratégicas não públicas, exceto quando a divulgação for autorizada ou legalmente exigida.</p></div>
         ${pageFooter(7)}
       </section>
 
       <section class="contract-sheet" data-pdf-page>
         ${pageHeader(8, "Disposições finais")}
-        <div class="contract-clause-grid final">
-          <div><b>8.1</b><p><strong>Legislação</strong>Este contrato é regido pelas leis da República Federativa do Brasil.</p></div>
-          <div><b>8.2</b><p><strong>Alterações</strong>Mudanças específicas poderão ser formalizadas por escrito entre as partes.</p></div>
-          <div><b>8.3</b><p><strong>Comunicações</strong>Serão realizadas por e-mail, sistema ou canais oficiais informados.</p></div>
-          <div><b>8.4</b><p><strong>Independência</strong>Este contrato não cria vínculo empregatício ou societário.</p></div>
-          <div><b>8.5</b><p><strong>Nulidade parcial</strong>A invalidade de uma disposição não prejudica as demais.</p></div>
-          <div><b>8.6</b><p><strong>Integralidade</strong>Contrato, Termos e Política formam o acordo aplicável à licença.</p></div>
-        </div>
+        <div class="contract-section contract-final-compact"><h3>22. Limitação de responsabilidade</h3><p>Na extensão permitida por lei, a CONTRATADA não responde por informações incorretas, decisões e serviços da oficina, preços definidos pela CONTRATANTE, credenciais compartilhadas, uso inadequado ou falhas externas. Esta cláusula não exclui responsabilidades que não possam ser afastadas pela legislação.</p></div>
+        <div class="contract-section contract-final-compact"><h3>23. Documentos integrantes e prevalência</h3><p>Integram a contratação: (i) condição comercial específica registrada; (ii) este Contrato; (iii) Termos de Uso; e (iv) Política de Privacidade nas matérias de dados. Essa é a ordem de prevalência em caso de conflito, respeitada a legislação.</p></div>
+        <div class="contract-section contract-final-compact"><h3>24. Alterações e comunicações</h3><p>Mudanças relevantes serão identificadas por versão e comunicadas pelo sistema, e-mail ou canais oficiais, podendo exigir novo aceite. Alterações de preço serão informadas previamente. A CONTRATANTE deve manter seus contatos atualizados.</p></div>
+        <div class="contract-section contract-final-compact"><h3>25. Vigência e efeitos do encerramento</h3><p>A vigência começa no aceite eletrônico e permanece enquanto houver assinatura ativa. Obrigações de pagamento, propriedade intelectual, confidencialidade, dados e responsabilidades sobrevivem pelo período necessário.</p></div>
+        <div class="contract-section contract-final-compact"><h3>26. Disposições gerais e foro</h3><p>Eventos inevitáveis fora do controle razoável afastam responsabilidade na medida legal. O contrato não cria sociedade, franquia, representação ou vínculo trabalhista. A invalidade de uma cláusula não prejudica as demais. Aplicam-se as leis brasileiras. Fica eleito o foro de <strong>${escapeHtml(provider.venue || "Belo Horizonte/MG")}</strong>, sem prejuízo de outro foro que seja obrigatório pela legislação aplicável.</p></div>
         <section class="contract-acceptance-record">
           <h3>Registro eletrônico do aceite</h3>
           <div><strong>Contrato:</strong> ${escapeHtml(contractNumber)}</div>
+          <div><strong>Versão:</strong> ${escapeHtml(acceptance.contractVersion || CONTRACT_VERSION)}</div>
           <div><strong>Data registrada:</strong> ${escapeHtml(acceptanceDate)}</div>
           <div><strong>Versão dos Termos:</strong> ${escapeHtml(acceptance.termsVersion || LEGAL_TERMS_VERSION)}</div>
           <div><strong>Versão da Privacidade:</strong> ${escapeHtml(acceptance.privacyVersion || LEGAL_PRIVACY_VERSION)}</div>
           <div class="wide"><strong>Usuário:</strong> ${escapeHtml(acceptance.acceptedByEmail || email)}</div>
+          <div class="wide"><strong>Método:</strong> ${escapeHtml(acceptance.acceptanceMethod || "Aceite eletrônico autenticado")}</div>
         </section>
         <section class="contract-signatures">
           <div><span></span><strong>RR Automotive</strong><small>Contratada</small></div>
@@ -1320,15 +1347,17 @@ function setMeuCadastroPersonalizacaoStatus(message) {
 function hasCurrentLegalAcceptance(workspace = {}) {
   const acceptance = workspace.legalAcceptance || {};
   return acceptance.termsVersion === LEGAL_TERMS_VERSION
-    && acceptance.privacyVersion === LEGAL_PRIVACY_VERSION;
+    && acceptance.privacyVersion === LEGAL_PRIVACY_VERSION
+    && acceptance.contractVersion === CONTRACT_VERSION
+    && acceptance.contractSnapshot?.contractVersion === CONTRACT_VERSION;
 }
 
 async function ensureLegalAcceptance(workspace = {}) {
   if (!currentUser || isAdminUser(currentUser) || !isOnboardingPage() || hasCurrentLegalAcceptance(workspace)) return;
-  await showLegalAcceptanceModal();
+  await showLegalAcceptanceModal(workspace);
 }
 
-function showLegalAcceptanceModal() {
+function showLegalAcceptanceModal(workspace = {}) {
   return new Promise((resolve) => {
     document.querySelector(".legal-acceptance-overlay")?.remove();
     document.body.classList.add("legal-acceptance-pending");
@@ -1344,11 +1373,13 @@ function showLegalAcceptanceModal() {
             <h2 id="legalAcceptanceTitle">Privacidade e Termos de Uso</h2>
           </div>
         </div>
-        <p>Antes do tutorial, leia os documentos que explicam as regras do RR Manager e como os dados pessoais são tratados.</p>
+        <p>Antes do tutorial, leia os documentos que explicam a contratação, as regras do RR Manager e como os dados pessoais são tratados.</p>
         <div class="legal-acceptance-links">
+          <a href="contrato.html" target="_blank" rel="noopener">Ler Contrato <small>versão ${CONTRACT_VERSION}</small></a>
           <a href="termos.html" target="_blank" rel="noopener">Ler Termos de Uso <small>versão ${LEGAL_TERMS_VERSION}</small></a>
           <a href="privacidade.html" target="_blank" rel="noopener">Ler Política de Privacidade <small>versão ${LEGAL_PRIVACY_VERSION}</small></a>
         </div>
+        <label class="legal-acceptance-check"><input type="checkbox" data-legal-contract-accept><span>Li e aceito o Contrato de Licenciamento.</span></label>
         <label class="legal-acceptance-check"><input type="checkbox" data-legal-terms><span>Li e aceito os Termos de Uso.</span></label>
         <label class="legal-acceptance-check"><input type="checkbox" data-legal-privacy><span>Li e estou ciente da Política de Privacidade.</span></label>
         <p class="legal-acceptance-status" role="status"></p>
@@ -1360,6 +1391,7 @@ function showLegalAcceptanceModal() {
       </div>
     `;
 
+    const contractCheckbox = overlay.querySelector("[data-legal-contract-accept]");
     const termsCheckbox = overlay.querySelector("[data-legal-terms]");
     const privacyCheckbox = overlay.querySelector("[data-legal-privacy]");
     const acceptButton = overlay.querySelector("[data-legal-accept]");
@@ -1368,11 +1400,12 @@ function showLegalAcceptanceModal() {
     const status = overlay.querySelector(".legal-acceptance-status");
 
     function updateButton() {
-      const confirmed = termsCheckbox.checked && privacyCheckbox.checked;
+      const confirmed = contractCheckbox.checked && termsCheckbox.checked && privacyCheckbox.checked;
       acceptButton.disabled = !confirmed;
       contractButton.disabled = !confirmed;
     }
 
+    contractCheckbox.addEventListener("change", updateButton);
     termsCheckbox.addEventListener("change", updateButton);
     privacyCheckbox.addEventListener("change", updateButton);
     contractButton.addEventListener("click", () => {
@@ -1384,19 +1417,24 @@ function showLegalAcceptanceModal() {
       await logout();
     });
     acceptButton.addEventListener("click", async () => {
-      if (!termsCheckbox.checked || !privacyCheckbox.checked || !currentUser || !db || !activeWorkspaceId) return;
+      if (!contractCheckbox.checked || !termsCheckbox.checked || !privacyCheckbox.checked || !currentUser || !db || !activeWorkspaceId) return;
       acceptButton.disabled = true;
       logoutButton.disabled = true;
       status.textContent = "Registrando seu aceite...";
       try {
+        const acceptedAtClient = new Date().toISOString();
+        const contractSnapshot = buildContractSnapshot(workspace, acceptedAtClient);
         await setDoc(doc(db, "workspaces", activeWorkspaceId), {
           legalAcceptance: {
+            contractVersion: CONTRACT_VERSION,
             termsVersion: LEGAL_TERMS_VERSION,
             privacyVersion: LEGAL_PRIVACY_VERSION,
             acceptedAt: serverTimestamp(),
-            acceptedAtClient: new Date().toISOString(),
+            acceptedAtClient,
             acceptedByUid: currentUser.uid,
-            acceptedByEmail: currentUser.email || ""
+            acceptedByEmail: currentUser.email || "",
+            acceptanceMethod: "Authenticated checkbox confirmation",
+            contractSnapshot
           },
           updatedAt: serverTimestamp()
         }, { merge: true });
@@ -1411,7 +1449,7 @@ function showLegalAcceptanceModal() {
     });
 
     document.body.appendChild(overlay);
-    termsCheckbox.focus();
+    contractCheckbox.focus();
   });
 }
 

@@ -7040,6 +7040,24 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   font-size: 14px;
 }
 
+.contract-sheet .contract-section {
+  margin-bottom: 11px;
+}
+
+.contract-sheet .contract-section p,
+.contract-sheet .contract-section li {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.contract-final-compact {
+  margin-bottom: 8px;
+}
+
+.contract-final-compact p {
+  margin: 4px 0;
+}
+
 .contract-highlight {
   padding: 11px 14px;
   border: 1px solid #cbd5e1;
@@ -7339,7 +7357,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
 .legal-acceptance-links {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin: 22px 0;
 }
