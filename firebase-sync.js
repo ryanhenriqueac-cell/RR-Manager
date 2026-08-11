@@ -35,6 +35,7 @@ const REMEMBER_KEY = "rr_firebase_remember";
 const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
 const REGISTER_PREFILL_KEY = "rr_register_prefill";
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
+const ONBOARDING_EXPLORE_KEY = "rr_onboarding_explore_page";
 const DEFAULT_WORKSHOP_TAGLINE = "Manuten\u00e7\u00e3o Especializada | Paix\u00e3o por Carros";
 const DEFAULT_WORKSHOP_LOGO = "assets/logo-rr-manager.png";
 const DEFAULT_PARTS_MARKUP_PERCENT = 35;
@@ -46,7 +47,7 @@ const DEFAULT_MACHINE_RATES = {
 };
 const MAX_LOGO_DIMENSION = 1000;
 const MAX_LOGO_DATA_URL_LENGTH = 120000;
-const ONBOARDING_VERSION = "manager_intro_v1";
+const ONBOARDING_VERSION = "manager_intro_v2";
 const LEGAL_TERMS_VERSION = "1.1";
 const LEGAL_PRIVACY_VERSION = "1.1";
 const CONTRACT_DOCUMENT_URL = "contrato.html";
@@ -1418,61 +1419,112 @@ function isOnboardingPage() {
   return ["dashboard", "clientes", "orcamentos", "financeiro", "meu-cadastro", "servicos", "veiculos"].includes(document.body.dataset.page || "");
 }
 
+function isTutorialAvailablePage() {
+  return isOnboardingPage() || document.body.dataset.page === "inspecao";
+}
+
 function getOnboardingLocalKey() {
   return `rr_onboarding_${ONBOARDING_VERSION}_${activeWorkspaceId || currentUser?.uid || "local"}`;
 }
 
+function getOnboardingStepKey() {
+  return `${getOnboardingLocalKey()}_step`;
+}
+
 function maybeShowOnboarding(workspace = {}) {
   if (!currentUser || isAdminUser(currentUser) || !isOnboardingPage()) return;
+  const explorePage = sessionStorage.getItem(ONBOARDING_EXPLORE_KEY);
+  if (explorePage && window.location.pathname.endsWith(`/${explorePage}`)) {
+    sessionStorage.removeItem(ONBOARDING_EXPLORE_KEY);
+    return;
+  }
   const onboarding = workspace?.onboarding || {};
-  const completed = onboarding.managerIntroCompleted || localStorage.getItem(getOnboardingLocalKey()) === "done";
+  const completedInCloud = onboarding.version === ONBOARDING_VERSION && onboarding.managerIntroCompleted === true;
+  const completed = completedInCloud || localStorage.getItem(getOnboardingLocalKey()) === "done";
   if (completed) return;
-  setTimeout(() => showOnboarding(false), 650);
+  const cloudStep = onboarding.version === ONBOARDING_VERSION ? Number(onboarding.managerIntroCurrentStep) : 0;
+  setTimeout(() => showOnboarding(false, cloudStep), 650);
 }
 
 function getOnboardingSteps() {
   return [
     {
       title: "Bem-vindo ao RR Manager",
-      text: "Vamos passar pelo fluxo ideal para sua oficina sentir valor logo no primeiro uso.",
-      action: "Comecar"
+      text: "Conheça o fluxo completo para configurar sua oficina, atender o cliente e acompanhar o resultado financeiro.",
+      details: ["O tutorial pode ser pausado e retomado.", "Use o botão Tutorial no topo sempre que quiser rever."],
+      action: "Começar"
     },
     {
-      title: "1. Complete cadastro, logo e Pix",
-      text: "Em Meu cadastro, configure dados da empresa, logo, frase do orcamento e chave Pix usada no QR Code.",
+      title: "1. Configure sua oficina",
+      text: "Em Meu cadastro, deixe os cálculos e documentos prontos antes do primeiro atendimento.",
+      details: ["Dados, logo, frase e chave Pix.", "Margem das peças e valor da mão de obra.", "Desconto no Pix e taxas de débito e crédito."],
       href: "meu-cadastro.html",
-      action: "Abrir meu cadastro"
+      action: "Explorar Meu cadastro"
     },
     {
-      title: "2. Cadastre o primeiro cliente",
-      text: "Todo orcamento comeca por um cliente. Salve os dados principais para encontrar tudo depois.",
+      title: "2. Cadastre clientes e veículos",
+      text: "O cliente e o veículo formam a base dos orçamentos, inspeções e registros da oficina.",
+      details: ["Cadastre telefone, documento, endereço e observações.", "Vincule marca, modelo, motor, ano, placa e detalhes do veículo."],
       href: "clientes.html",
-      action: "Cadastrar cliente"
+      action: "Explorar Clientes"
     },
     {
-      title: "3. Vincule o veiculo ao cliente",
-      text: "No cadastro do cliente, adicione carro, placa, modelo e observacoes importantes.",
-      href: "clientes.html",
-      action: "Adicionar veiculo"
-    },
-    {
-      title: "4. Crie o primeiro orcamento",
-      text: "Selecione cliente e veiculo, adicione pecas, servicos, horas e valor final.",
+      title: "3. Faça a inspeção automotiva",
+      text: "Selecione cliente e veículo no orçamento para liberar a lista de inspeção.",
+      details: ["Marque OK, Atenção ou Não se aplica.", "Registre reclamações, quilometragem, técnico e recomendações.", "No celular, compartilhe a inspeção diretamente em PDF."],
       href: "orcamentos.html",
-      action: "Criar orcamento"
+      action: "Abrir área de Orçamentos"
     },
     {
-      title: "5. Aprove e acompanhe o financeiro",
-      text: "Quando um orcamento e aprovado, a receita entra no financeiro e voce acompanha saldo, custos e despesas.",
+      title: "4. Monte o orçamento",
+      text: "Adicione peças e serviços enquanto o RR Manager calcula venda, custo e lucro estimado.",
+      details: ["A margem configurada sugere o preço de venda da peça.", "Horas multiplicam o valor da mão de obra.", "O valor final manual é opcional e prevalece sobre o cálculo."],
+      href: "orcamentos.html",
+      action: "Explorar Orçamentos"
+    },
+    {
+      title: "5. Envie e acompanhe a proposta",
+      text: "Compartilhe uma apresentação profissional e acompanhe o orçamento até a decisão.",
+      details: ["Envio pelo WhatsApp com link público.", "Impressão ou PDF personalizado.", "Histórico de versões para recuperar alterações anteriores."],
+      href: "orcamentos.html",
+      action: "Ver propostas"
+    },
+    {
+      title: "6. Aprove e escolha o pagamento",
+      text: "Ao aprovar, informe como o cliente pagará para calcular descontos, acréscimos e taxas.",
+      details: ["Pix, débito, crédito parcelado ou link de pagamento.", "Decida se a taxa da maquininha será absorvida ou repassada."],
+      href: "dashboard.html",
+      action: "Explorar Dashboard"
+    },
+    {
+      title: "7. Acompanhe o financeiro",
+      text: "Orçamentos aprovados alimentam automaticamente receitas, custos das peças e taxas de pagamento.",
+      details: ["Adicione também receitas, custos e despesas manuais.", "Use filtros por período para analisar o resultado."],
       href: "financeiro.html",
-      action: "Ver financeiro"
+      action: "Explorar Financeiro"
+    },
+    {
+      title: "8. Leia os indicadores e relatórios",
+      text: "Use os números para entender a operação e tomar decisões com mais segurança.",
+      details: ["Dashboard com saldo total, saldo mensal e conversão.", "Relatório financeiro com gráficos e geração de PDF."],
+      href: "dashboard.html",
+      action: "Ver indicadores"
+    },
+    {
+      title: "9. Seus documentos e dados",
+      text: "O RR Manager mantém os dados da oficina sincronizados na conta e reúne os documentos da assinatura.",
+      details: ["Termos, Privacidade e contrato ficam vinculados ao aceite.", "O contrato pode ser consultado em Meu cadastro.", "Você pode rever este tutorial pelo botão Tutorial."],
+      href: "meu-cadastro.html",
+      action: "Ver documentos"
     }
   ];
 }
-function showOnboarding(force = false) {
+function showOnboarding(force = false, cloudStep = 0) {
   if (!force && document.querySelector(".onboarding-overlay")) return;
   const steps = getOnboardingSteps();
-  let currentStep = 0;
+  const savedStepValue = localStorage.getItem(getOnboardingStepKey());
+  const savedStep = savedStepValue === null ? Number.NaN : Number(savedStepValue);
+  let currentStep = force ? 0 : Math.max(0, Math.min(steps.length - 1, Number.isFinite(savedStep) ? savedStep : cloudStep));
   const overlay = document.createElement("div");
   overlay.className = "onboarding-overlay";
   overlay.innerHTML = `
@@ -1485,28 +1537,35 @@ function showOnboarding(force = false) {
         </div>
       </div>
       <p id="onboardingText"></p>
+      <ul class="onboarding-details" id="onboardingDetails"></ul>
       <div class="onboarding-progress" aria-hidden="true"></div>
+      <div class="onboarding-step-label" id="onboardingStepLabel"></div>
       <ol class="onboarding-checklist"></ol>
       <div class="onboarding-actions">
         <button class="btn btn-muted" type="button" data-onboarding-skip>Pular tutorial</button>
+        <button class="btn btn-muted" type="button" data-onboarding-later>Continuar depois</button>
         <button class="btn btn-muted" type="button" data-onboarding-back>Voltar</button>
         <a class="btn btn-ghost" data-onboarding-link hidden></a>
-        <button class="btn btn-primary" type="button" data-onboarding-next>Proximo</button>
+        <button class="btn btn-primary" type="button" data-onboarding-next>Próximo</button>
       </div>
     </div>
   `;
 
   const title = overlay.querySelector("#onboardingTitle");
   const text = overlay.querySelector("#onboardingText");
+  const details = overlay.querySelector("#onboardingDetails");
   const progress = overlay.querySelector(".onboarding-progress");
+  const stepLabel = overlay.querySelector("#onboardingStepLabel");
   const checklist = overlay.querySelector(".onboarding-checklist");
   const back = overlay.querySelector("[data-onboarding-back]");
   const next = overlay.querySelector("[data-onboarding-next]");
   const skip = overlay.querySelector("[data-onboarding-skip]");
+  const later = overlay.querySelector("[data-onboarding-later]");
   const link = overlay.querySelector("[data-onboarding-link]");
 
   async function finish(skipped = false) {
     localStorage.setItem(getOnboardingLocalKey(), "done");
+    localStorage.removeItem(getOnboardingStepKey());
     overlay.remove();
     if (!currentUser || !db || !activeWorkspaceId) return;
     await setDoc(doc(db, "workspaces", activeWorkspaceId), {
@@ -1514,7 +1573,24 @@ function showOnboarding(force = false) {
         version: ONBOARDING_VERSION,
         managerIntroCompleted: true,
         managerIntroSkipped: skipped,
+        managerIntroCurrentStep: steps.length - 1,
         managerIntroCompletedAt: new Date().toISOString()
+      },
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  async function continueLater() {
+    localStorage.setItem(getOnboardingStepKey(), String(currentStep));
+    overlay.remove();
+    if (!currentUser || !db || !activeWorkspaceId) return;
+    await setDoc(doc(db, "workspaces", activeWorkspaceId), {
+      onboarding: {
+        version: ONBOARDING_VERSION,
+        managerIntroCompleted: false,
+        managerIntroSkipped: false,
+        managerIntroCurrentStep: currentStep,
+        managerIntroUpdatedAt: new Date().toISOString()
       },
       updatedAt: serverTimestamp()
     }, { merge: true });
@@ -1522,9 +1598,12 @@ function showOnboarding(force = false) {
 
   function render() {
     const step = steps[currentStep];
+    localStorage.setItem(getOnboardingStepKey(), String(currentStep));
     title.textContent = step.title;
     text.textContent = step.text;
+    details.innerHTML = (step.details || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
     progress.style.setProperty("--onboarding-progress", `${((currentStep + 1) / steps.length) * 100}%`);
+    stepLabel.textContent = `Etapa ${currentStep + 1} de ${steps.length}`;
     checklist.innerHTML = steps.map((item, index) => `
       <li class="${index < currentStep ? "done" : index === currentStep ? "active" : ""}">
         <span>${index + 1}</span>${escapeHtml(item.title.replace(/^\d+\.\s*/, ""))}
@@ -1535,11 +1614,17 @@ function showOnboarding(force = false) {
     if (step.href) {
       link.hidden = false;
       link.href = step.href;
+      link.target = "_blank";
+      link.rel = "noopener";
       link.textContent = step.action;
+      link.dataset.onboardingHref = step.href;
     } else {
       link.hidden = true;
       link.removeAttribute("href");
+      link.removeAttribute("target");
+      link.removeAttribute("rel");
       link.textContent = "";
+      delete link.dataset.onboardingHref;
     }
   }
 
@@ -1547,6 +1632,11 @@ function showOnboarding(force = false) {
     currentStep = Math.max(0, currentStep - 1);
     render();
   });
+  link.addEventListener("click", () => {
+    const href = link.dataset.onboardingHref;
+    if (href) sessionStorage.setItem(ONBOARDING_EXPLORE_KEY, href);
+  });
+  later.addEventListener("click", continueLater);
   next.addEventListener("click", async () => {
     if (currentStep === steps.length - 1) {
       await finish(false);
@@ -1557,7 +1647,7 @@ function showOnboarding(force = false) {
   });
   skip.addEventListener("click", () => finish(true));
   overlay.addEventListener("click", (event) => {
-    if (event.target === overlay) finish(true);
+    if (event.target === overlay) continueLater();
   });
 
   document.body.appendChild(overlay);
@@ -1871,7 +1961,7 @@ function setUserStatus(email) {
     status.textContent = email ? detail : "";
   }
   if (adminBack) adminBack.hidden = !adminViewing;
-  if (onboardingReplay) onboardingReplay.hidden = !email || adminViewing || !isOnboardingPage();
+  if (onboardingReplay) onboardingReplay.hidden = !email || adminViewing || !isTutorialAvailablePage();
   document.body.classList.toggle("firebase-logged-in", Boolean(email));
 }
 

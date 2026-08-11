@@ -7629,3 +7629,51 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .reset-password-message.is-success { color: #63ddb1; }
 .reset-login-link { width: 100%; margin-top: 12px; }
 .reset-login-link.is-highlighted { border-color: #f1c75b; color: #f1c75b; }
+
+/* Tutorial guiado v2 */
+.onboarding-details {
+  display: grid;
+  gap: 7px;
+  margin: 14px 0 0;
+  padding: 0;
+  color: #dce5ef;
+  list-style: none;
+}
+
+.onboarding-details li {
+  position: relative;
+  padding-left: 22px;
+  line-height: 1.4;
+}
+
+.onboarding-details li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: 900;
+}
+
+.onboarding-step-label {
+  margin: -10px 0 12px;
+  color: var(--gold-2);
+  font-size: 11px;
+  font-weight: 900;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .onboarding-checklist li {
+    display: none;
+    min-height: 46px;
+  }
+
+  .onboarding-checklist li.active {
+    display: flex;
+  }
+
+  .onboarding-step-label {
+    margin-bottom: 8px;
+  }
+}
