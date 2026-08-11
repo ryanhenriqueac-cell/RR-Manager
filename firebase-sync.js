@@ -1524,7 +1524,11 @@ function showOnboarding(force = false, cloudStep = 0) {
   const steps = getOnboardingSteps();
   const savedStepValue = localStorage.getItem(getOnboardingStepKey());
   const savedStep = savedStepValue === null ? Number.NaN : Number(savedStepValue);
-  let currentStep = force ? 0 : Math.max(0, Math.min(steps.length - 1, Number.isFinite(savedStep) ? savedStep : cloudStep));
+  const normalizedCloudStep = Number(cloudStep);
+  const resumableStep = Number.isFinite(savedStep)
+    ? savedStep
+    : Number.isFinite(normalizedCloudStep) ? normalizedCloudStep : 0;
+  let currentStep = force ? 0 : Math.max(0, Math.min(steps.length - 1, resumableStep));
   const overlay = document.createElement("div");
   overlay.className = "onboarding-overlay";
   overlay.innerHTML = `
