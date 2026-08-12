@@ -86,6 +86,7 @@ let syncingFromCloud = false;
 let workspaceSchemaVersion = 1;
 let collectionUnsubscribers = [];
 const pendingCollectionChanges = new Map();
+const confirmedCollectionState = new Map();
 let adminWorkspaces = [];
 let pendingAuthMessage = "";
 let pendingAuthModal = null;
@@ -517,6 +518,7 @@ function togglePasswordVisibility(inputId = "firebasePassword", buttonId = "togg
 async function loadCloudData(uid) {
   try {
     showAuthMessage("Sincronizando dados...");
+    confirmedCollectionState.clear();
     const snap = await getDoc(doc(db, "workspaces", uid));
     if (!snap.exists()) {
       await saveLegacyCloudData();
@@ -553,7 +555,9 @@ async function loadCloudData(uid) {
     }
     syncingFromCloud = true;
     APP_KEYS.forEach((key) => {
-      localStorage.setItem(key, JSON.stringify(Array.isArray(data[key]) ? data[key] : []));
+      const serialized = JSON.stringify(Array.isArray(data[key]) ? data[key] : []);
+      localStorage.setItem(key, serialized);
+      confirmedCollectionState.set(key, serialized);
     });
     syncingFromCloud = false;
     showAuthMessage("");
@@ -678,6 +682,7 @@ async function flushV2Changes() {
           updatedAt: serverTimestamp()
         }, { merge: true });
       }
+      confirmedCollectionState.set(key, localStorage.getItem(key) || "[]");
     }
   } catch (error) {
     changes.forEach(([key, change]) => mergePendingChange(key, change));
@@ -707,8 +712,19 @@ function persistCloudData() {
   return saveQueue;
 }
 
-window.rrPersistAppData = async () => {
+window.rrPersistAppData = async (storageKey = "") => {
   if (cloudReady === false) throw new Error('A sincronizacao ainda nao esta pronta.');
+  if (workspaceSchemaVersion >= APP_SCHEMA_VERSION) {
+    const keys = APP_KEYS.includes(storageKey) ? [storageKey] : APP_KEYS;
+    keys.forEach((key) => {
+      if (pendingCollectionChanges.has(key)) return;
+      queueCollectionDiff(
+        key,
+        confirmedCollectionState.get(key) || "[]",
+        localStorage.getItem(key) || "[]"
+      );
+    });
+  }
   await persistCloudData();
 };
 
@@ -1966,6 +1982,7 @@ function startCollectionListeners(uid) {
         const current = localStorage.getItem(key) || "[]";
         const next = JSON.stringify(records);
         if (current === next) return;
+        confirmedCollectionState.set(key, next);
         syncingFromCloud = true;
         localStorage.setItem(key, next);
         syncingFromCloud = false;

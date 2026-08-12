@@ -199,9 +199,9 @@ function writeData(type, data) {
   localStorage.setItem(STORAGE_KEYS[type], JSON.stringify(data));
 }
 
-async function persistSavedData() {
+async function persistSavedData(type = "") {
   if (typeof window.rrPersistAppData !== 'function') throw new Error('Firebase indisponivel.');
-  await window.rrPersistAppData();
+  await window.rrPersistAppData(STORAGE_KEYS[type] || "");
 }
 
 function compareClientesByName(a, b) {
@@ -1148,7 +1148,7 @@ async function updateOrcamentoStatus(id, status) {
     pagamento
   };
   writeData("orcamentos", orcamentos);
-  await persistSavedData();
+  await persistSavedData("orcamentos");
   initDashboard();
 }
 
@@ -1233,7 +1233,7 @@ async function saveCliente(event) {
 
   writeData("clientes", clientes);
   try {
-    await persistSavedData();
+    await persistSavedData("clientes");
   } catch (error) {
     setValue('clienteId', id);
     await rrAlert('Falha ao confirmar o cliente na nuvem. Confira sua internet e tente novamente.', 'Cliente nao salvo');
@@ -1536,7 +1536,7 @@ async function saveOrcamento(event) {
   else orcamentos.push(orcamento);
   writeData("orcamentos", orcamentos);
   try {
-    await persistSavedData();
+    await persistSavedData("orcamentos");
   } catch (error) {
     setValue('orcamentoId', id);
     await rrAlert('Falha ao confirmar o orcamento na nuvem. Confira sua internet e tente novamente.', 'Orcamento nao salvo');
@@ -2070,7 +2070,7 @@ async function saveFinanceiro(event) {
     if (index >= 0) financeiro[index] = lancamento;
     else financeiro.push(lancamento);
     writeData("financeiro", financeiro);
-    await persistSavedData();
+    await persistSavedData("financeiro");
     event.target.reset();
     setValue("financeiroId", "");
     setValue("financeiroData", today());
@@ -2725,6 +2725,6 @@ async function deleteItem(type, id, callback) {
   const confirmed = await rrConfirm("Deseja excluir este registro? Essa ação não pode ser desfeita.", "Excluir registro", true);
   if (!confirmed) return;
   writeData(type, readData(type).filter((item) => item.id !== id));
-  await persistSavedData();
+  await persistSavedData(type);
   callback();
 }
