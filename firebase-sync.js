@@ -1110,7 +1110,7 @@ async function handleMeuCadastroLogoImport(event) {
     const logoDataUrl = await resizeLogoFile(file);
     setValueIfExists("meuCadastroLogoUrl", logoDataUrl);
     updatePersonalizacaoPreview();
-    setMeuCadastroPersonalizacaoStatus("Logo importada. Clique em Salvar personalizacao.");
+    setMeuCadastroPersonalizacaoStatus("Logo importada. Clique em Salvar personalização.");
   } catch (error) {
     setMeuCadastroPersonalizacaoStatus("Nao foi possivel importar a logo.");
   } finally {
@@ -1344,7 +1344,7 @@ async function saveEmpresaPersonalizacao(event) {
       registration: { empresa: businessName }
     });
     updatePersonalizacaoPreview();
-    setMeuCadastroPersonalizacaoStatus("Personalizacao salva.");
+    setMeuCadastroPersonalizacaoStatus("Personalização salva.");
   } catch (error) {
     setMeuCadastroPersonalizacaoStatus(firebaseError(error));
   }
