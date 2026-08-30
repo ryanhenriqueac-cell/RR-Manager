@@ -954,7 +954,7 @@ function getServiceCosts(orcamento) {
   return getPecasCusto(orcamento) + getPaymentFee(orcamento);
 }
 
-function buildPaymentInfo(type, installments, total, taxaRepassada = false) {
+function buildPaymentInfo(type, installments, total, taxaRepassada = false, descontoAplicado = true) {
   const config = getPaymentRates()[type];
   if (!config) return null;
 
@@ -968,7 +968,8 @@ function buildPaymentInfo(type, installments, total, taxaRepassada = false) {
   const totalCobrado = podeRepassar ? valorTotal / (1 - taxaDecimal) : valorTotal;
   const acrescimoValor = Math.max(0, totalCobrado - valorTotal);
   const taxaValor = (totalCobrado * taxaPercentual) / 100;
-  const descontoPercentual = Number(config.discountPercent || 0);
+  const descontoPercentualConfigurado = Number(config.discountPercent || 0);
+  const descontoPercentual = type === "pix" && !descontoAplicado ? 0 : descontoPercentualConfigurado;
   const descontoValor = (valorTotal * descontoPercentual) / 100;
   return {
     tipo: type,
@@ -980,8 +981,30 @@ function buildPaymentInfo(type, installments, total, taxaRepassada = false) {
     totalCobrado,
     descontoPercentual,
     descontoValor,
-    label: type === "pix" || type === "debit" ? config.label : `${config.label} ${parcelas}x`
+    label: type === "pix"
+      ? (descontoPercentual > 0 ? config.label : "Pix sem desconto")
+      : type === "debit" ? config.label : `${config.label} ${parcelas}x`
   };
+}
+
+async function askPixDiscount(total) {
+  const discountPercent = Number(getPaymentRates().pix.discountPercent || 0);
+  if (discountPercent <= 0) return false;
+  const discountLabel = String(discountPercent).replace(".", ",");
+  const discountValue = (parseDecimal(total) * discountPercent) / 100;
+  return rrModal({
+    title: "Desconto no Pix",
+    eyebrow: "Pagamento",
+    message: `
+      <p>Deseja aplicar o desconto de ${escapeHtml(discountLabel)}% ao cliente?</p>
+      <div class="rr-modal-note">Com desconto: <strong>${money(Math.max(0, total - discountValue))}</strong> | Valor integral: <strong>${money(total)}</strong></div>
+    `,
+    options: [
+      { label: "Aplicar desconto", value: true, variant: "primary" },
+      { label: "Manter valor integral", value: false, variant: "muted" },
+      { label: "Cancelar", value: null, variant: "muted" }
+    ]
+  });
 }
 
 async function askTaxPassThrough(type, installments) {
@@ -1018,6 +1041,10 @@ async function askInstallments(type) {
 }
 
 async function askPaymentInfo(total) {
+  const pixDiscountPercent = Number(getPaymentRates().pix.discountPercent || 0);
+  const pixOptionLabel = pixDiscountPercent > 0
+    ? `Pix (${String(pixDiscountPercent).replace(".", ",")}% desc.)`
+    : "Pix";
   const option = await rrModal({
     title: "Forma de pagamento",
     eyebrow: "Aprovação",
@@ -1026,7 +1053,7 @@ async function askPaymentInfo(total) {
       <div class="rr-modal-note">Total do orçamento: <strong>${money(total)}</strong></div>
     `,
     options: [
-      { label: "Pix (3% desc.)", value: "1", variant: "primary" },
+      { label: pixOptionLabel, value: "1", variant: "primary" },
       { label: "Débito", value: "2", variant: "muted" },
       { label: "Crédito", value: "3", variant: "muted" },
       { label: "Link pagamento", value: "4", variant: "muted" },
@@ -1035,7 +1062,10 @@ async function askPaymentInfo(total) {
   });
   if (option === null) return null;
 
-  if (option === "1") return buildPaymentInfo("pix", 1, total);
+  if (option === "1") {
+    const descontoAplicado = await askPixDiscount(total);
+    return descontoAplicado === null ? null : buildPaymentInfo("pix", 1, total, false, descontoAplicado);
+  }
   if (option === "2") {
     const taxaRepassada = await askTaxPassThrough("debit", 1);
     return taxaRepassada === null ? null : buildPaymentInfo("debit", 1, total, taxaRepassada);
