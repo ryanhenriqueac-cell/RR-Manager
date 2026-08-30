@@ -1523,6 +1523,32 @@ body[data-page="inspecao"] #firebaseLandingReturn {
   color: inherit;
 }
 
+.public-budget-decision-result .btn {
+  border: 1px solid #166534;
+  background: #fff;
+  color: #166534;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.12);
+}
+
+.public-budget-decision-result.is-rejected .btn {
+  border-color: #9f1239;
+  color: #9f1239;
+  box-shadow: 0 2px 8px rgba(159, 18, 57, 0.12);
+}
+
+.public-budget-decision-result .btn:hover,
+.public-budget-decision-result .btn:focus-visible {
+  background: #166534;
+  color: #fff;
+}
+
+.public-budget-decision-result.is-rejected .btn:hover,
+.public-budget-decision-result.is-rejected .btn:focus-visible {
+  background: #9f1239;
+  color: #fff;
+}
+
 .print-document {
   width: min(210mm, calc(100% - 24px));
   min-height: 297mm;
