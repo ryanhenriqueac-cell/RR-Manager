@@ -196,9 +196,9 @@ function createPublicShareId() {
   return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
-window.rrPublishPublicOrcamento = async (data) => {
+window.rrPublishPublicOrcamento = async (data, existingId = "") => {
   if (!currentUser || !db) throw new Error("Login indisponível para publicar orçamento.");
-  const id = createPublicShareId();
+  const id = existingId || createPublicShareId();
   await setDoc(doc(db, "public_orcamentos", id), {
     owner: activeWorkspaceId || currentUser.uid,
     ownerUid: currentUser.uid,
@@ -207,6 +207,18 @@ window.rrPublishPublicOrcamento = async (data) => {
   });
   return id;
 };
+
+window.rrWatchPublicOrcamentoResponse = (id, callback) => {
+  if (!db || !id || typeof callback !== "function") return () => {};
+  return onSnapshot(doc(db, "public_orcamentos", id), (snapshot) => {
+    const value = snapshot.exists() ? snapshot.data() : {};
+    callback({
+      response: value.clientResponse || "",
+      respondedAt: value.clientRespondedAt?.toDate?.()?.toISOString?.() || ""
+    });
+  }, (error) => console.warn("Não foi possível acompanhar a indicação do cliente.", error));
+};
+window.dispatchEvent(new CustomEvent("rr-public-response-api-ready"));
 
 function buildAuthShell() {
   const shell = document.createElement("div");

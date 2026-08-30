@@ -9,15 +9,27 @@
   <meta property="og:image" content="">
   <meta name="twitter:card" content="summary">
   <title>Orçamento do Serviço Automotivo</title>
-  <link rel="stylesheet" href="style.css?v=68">
+  <link rel="stylesheet" href="style.css?v=69">
 </head>
 <body data-page="orcamento-publico" class="print-preview-page public-budget-page">
   <div class="print-toolbar">
     <button class="btn btn-primary" type="button" id="printButton">Imprimir / Salvar PDF</button>
   </div>
+  <section class="public-budget-decision" id="publicBudgetDecision" hidden aria-live="polite">
+    <div id="publicBudgetDecisionPrompt">
+      <span>Este orçamento atende ao que você precisa?</span>
+      <strong>Indique sua decisão para a oficina</strong>
+      <div class="public-budget-decision-actions">
+        <button class="btn btn-primary" type="button" data-public-response="approved">Aprovar</button>
+        <button class="btn btn-danger" type="button" data-public-response="rejected">Não aprovado</button>
+      </div>
+      <small>Esta é uma indicação. A oficina fará a confirmação final no sistema.</small>
+    </div>
+    <div class="public-budget-decision-result" id="publicBudgetDecisionResult" hidden></div>
+  </section>
   <main id="printRoot"></main>
-  <script src="script.js?v=59"></script>
+  <script src="script.js?v=60"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-public.js?v=1"></script>
+  <script type="module" src="firebase-public.js?v=2"></script>
 </body>
 </html>

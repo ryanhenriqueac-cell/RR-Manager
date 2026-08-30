@@ -53,7 +53,12 @@ service cloud.firestore {
           && request.resource.data.ownerUid == request.auth.uid
           && isWorkspaceActive(request.auth.uid));
 
-      allow update, delete: if isSignedIn()
+      allow update: if (isSignedIn() && resource.data.ownerUid == request.auth.uid)
+        || (request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['clientResponse', 'clientRespondedAt'])
+          && request.resource.data.clientResponse in ['approved', 'rejected']);
+
+      allow delete: if isSignedIn()
         && resource.data.ownerUid == request.auth.uid;
     }
 

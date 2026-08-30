@@ -163,6 +163,8 @@ const formatCurrency = new Intl.NumberFormat("pt-BR", {
 
 const page = document.body.dataset.page;
 let clienteCarrosDraft = [];
+const publicOrcamentoResponses = new Map();
+const publicOrcamentoResponseWatchers = new Map();
 let orcamentoPecasDraft = [];
 let orcamentoServicosDraft = [];
 let ultimoRelatorioFinanceiro = null;
@@ -802,8 +804,12 @@ async function sendOrcamentoWhatsApp(id) {
   try {
     const publishPublicOrcamento = await waitForPublicOrcamentoPublisher();
     if (publishPublicOrcamento) {
-      const publicId = await publishPublicOrcamento(buildPublicOrcamentoData(orcamento));
+      const publicId = await publishPublicOrcamento(buildPublicOrcamentoData(orcamento), orcamento.publicShareId || "");
+      orcamento.publicShareId = publicId;
+      writeData("orcamentos", readData("orcamentos").map((item) => item.id === orcamento.id ? { ...item, publicShareId: publicId } : item));
+      await persistSavedData("orcamentos");
       publicUrl = new URL(`orcamento-publico.html?id=${encodeURIComponent(publicId)}`, window.location.href).href;
+      if (document.body.dataset.page === "dashboard") initDashboard();
     }
   } catch (error) {
     console.error("Erro ao publicar link curto do orçamento:", error);
@@ -1122,6 +1128,7 @@ function renderDashboardOrcamentos(pendentes) {
       <div class="timeline-item action-item">
         <strong>${escapeHtml(getClienteNome(orcamento.clienteId))}</strong>
         <span>${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))} | ${money(getOrcamentoTotal(orcamento))}</span>
+        ${getPublicOrcamentoResponseHtml(orcamento)}
         <div class="actions">
           <button class="btn btn-primary" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Aprovado')">Aprovar</button>
           <button class="btn btn-danger" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Não aprovado')">Não aprovado</button>
@@ -1132,7 +1139,37 @@ function renderDashboardOrcamentos(pendentes) {
       </div>
     `).join("")
     : `<div class="empty-state muted">Nenhum pré-orçamento aguardando decisão.</div>`;
+
+  watchPublicOrcamentoResponses(pendentes);
 }
+
+function getPublicOrcamentoResponseHtml(orcamento) {
+  const response = publicOrcamentoResponses.get(orcamento.publicShareId)?.response;
+  if (!response) return "";
+  const approved = response === "approved";
+  return `<div class="client-response-hint ${approved ? "is-approved" : "is-rejected"}">
+    <span>Indicação do cliente</span>
+    <strong>${approved ? "Quer aprovar" : "Não quer aprovar"}</strong>
+    <small>Confirme a decisão nos botões abaixo.</small>
+  </div>`;
+}
+
+function watchPublicOrcamentoResponses(orcamentos) {
+  if (typeof window.rrWatchPublicOrcamentoResponse !== "function") return;
+  orcamentos.forEach((orcamento) => {
+    const shareId = orcamento.publicShareId;
+    if (!shareId || publicOrcamentoResponseWatchers.has(shareId)) return;
+    const unsubscribe = window.rrWatchPublicOrcamentoResponse(shareId, (value) => {
+      publicOrcamentoResponses.set(shareId, value);
+      if (document.body.dataset.page === "dashboard") renderDashboardOrcamentos(readData("orcamentos").filter((item) => item.status === "Pré-orçamento"));
+    });
+    publicOrcamentoResponseWatchers.set(shareId, unsubscribe);
+  });
+}
+
+window.addEventListener("rr-public-response-api-ready", () => {
+  if (document.body.dataset.page === "dashboard") initDashboard();
+});
 
 async function updateOrcamentoStatus(id, status) {
   const orcamentos = readData("orcamentos");
@@ -1915,7 +1952,11 @@ function initOrcamentoPublico() {
   const publicId = new URLSearchParams(window.location.search).get("id");
 
   window.renderPublicOrcamentoData = renderPublicOrcamentoData;
+  window.renderPublicOrcamentoResponse = renderPublicOrcamentoResponse;
   window.showPublicOrcamentoError = showPublicOrcamentoError;
+  document.querySelectorAll("[data-public-response]").forEach((button) => {
+    button.addEventListener("click", () => submitPublicOrcamentoResponse(button.dataset.publicResponse));
+  });
 
   if (dataParam) {
     try {
@@ -2570,6 +2611,45 @@ function setupMobilePrintButtonLabel() {
   };
   updateLabel();
   mobileQuery.addEventListener?.("change", updateLabel);
+}
+
+function renderPublicOrcamentoResponse(response = "") {
+  const panel = byId("publicBudgetDecision");
+  const prompt = byId("publicBudgetDecisionPrompt");
+  const result = byId("publicBudgetDecisionResult");
+  if (!panel || !prompt || !result) return;
+  panel.hidden = false;
+  const approved = response === "approved";
+  const rejected = response === "rejected";
+  prompt.hidden = approved || rejected;
+  result.hidden = !approved && !rejected;
+  if (approved || rejected) {
+    result.className = `public-budget-decision-result ${approved ? "is-approved" : "is-rejected"}`;
+    result.innerHTML = `<strong>${approved ? "Você indicou que deseja aprovar" : "Você indicou que não deseja aprovar"}</strong>
+      <span>Sua resposta foi enviada para a oficina. A confirmação final será feita por ela.</span>
+      <button class="btn btn-muted" type="button" data-change-public-response>Alterar resposta</button>`;
+    result.querySelector("[data-change-public-response]")?.addEventListener("click", () => {
+      result.hidden = true;
+      prompt.hidden = false;
+    });
+  }
+}
+
+async function submitPublicOrcamentoResponse(response) {
+  const buttons = [...document.querySelectorAll("[data-public-response]")];
+  const panel = byId("publicBudgetDecision");
+  buttons.forEach((button) => { button.disabled = true; });
+  panel?.classList.add("is-saving");
+  try {
+    if (typeof window.rrSubmitPublicOrcamentoResponse !== "function") throw new Error("Serviço indisponível.");
+    await window.rrSubmitPublicOrcamentoResponse(response);
+    renderPublicOrcamentoResponse(response);
+  } catch (error) {
+    await rrAlert("Não foi possível enviar sua indicação. Confira a internet e tente novamente.", "Resposta não enviada");
+  } finally {
+    buttons.forEach((button) => { button.disabled = false; });
+    panel?.classList.remove("is-saving");
+  }
 }
 
 function initContrato() {
