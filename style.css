@@ -1505,16 +1505,17 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 }
 
 .public-budget-decision-actions .btn-danger {
-  border-color: #b91c35;
-  background: #c92f46;
-  color: #fff;
-  box-shadow: 0 10px 22px rgba(185, 28, 53, 0.22);
+  border-color: rgba(239, 98, 98, 0.42);
+  background: #2b2939;
+  color: #ffb6b6;
+  box-shadow: 0 8px 18px rgba(43, 41, 57, 0.16);
 }
 
 .public-budget-decision-actions .btn-danger:hover,
 .public-budget-decision-actions .btn-danger:focus-visible {
-  border-color: #991b2f;
-  background: #a91f37;
+  border-color: rgba(239, 98, 98, 0.68);
+  background: #353044;
+  color: #ffd0d0;
 }
 
 .public-budget-decision.is-saving { opacity: 0.7; }
