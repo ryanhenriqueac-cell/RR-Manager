@@ -10,3 +10,9 @@ rr-reparacao-backup-*.json
 
 # Logs
 *.log
+
+# Credenciais locais
+senhas manager.txt
+.env
+.env.*
+!.env.example
