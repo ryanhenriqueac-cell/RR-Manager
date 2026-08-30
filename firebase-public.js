@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import {
+  deleteField,
   doc,
   getDoc,
   getFirestore,
@@ -23,6 +24,13 @@ if (id && config.apiKey && config.projectId) {
       clientRespondedAt: serverTimestamp()
     });
     return response;
+  };
+
+  window.rrClearPublicOrcamentoResponse = async () => {
+    await updateDoc(publicRef, {
+      clientResponse: deleteField(),
+      clientRespondedAt: deleteField()
+    });
   };
 
   getDoc(publicRef)

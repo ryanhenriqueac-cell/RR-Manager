@@ -2628,10 +2628,27 @@ function renderPublicOrcamentoResponse(response = "") {
     result.innerHTML = `<strong>${approved ? "Você indicou que deseja aprovar" : "Você indicou que não deseja aprovar"}</strong>
       <span>Sua resposta foi enviada para a oficina. A confirmação final será feita por ela.</span>
       <button class="btn btn-muted" type="button" data-change-public-response>Alterar resposta</button>`;
-    result.querySelector("[data-change-public-response]")?.addEventListener("click", () => {
-      result.hidden = true;
-      prompt.hidden = false;
-    });
+    result.querySelector("[data-change-public-response]")?.addEventListener("click", clearPublicOrcamentoResponse);
+  }
+}
+
+async function clearPublicOrcamentoResponse(event) {
+  const button = event.currentTarget;
+  const panel = byId("publicBudgetDecision");
+  const prompt = byId("publicBudgetDecisionPrompt");
+  const result = byId("publicBudgetDecisionResult");
+  button.disabled = true;
+  panel?.classList.add("is-saving");
+  try {
+    if (typeof window.rrClearPublicOrcamentoResponse !== "function") throw new Error("Serviço indisponível.");
+    await window.rrClearPublicOrcamentoResponse();
+    result.hidden = true;
+    prompt.hidden = false;
+  } catch (error) {
+    button.disabled = false;
+    await rrAlert("Não foi possível limpar a resposta anterior. Confira a internet e tente novamente.", "Resposta não alterada");
+  } finally {
+    panel?.classList.remove("is-saving");
   }
 }
 
