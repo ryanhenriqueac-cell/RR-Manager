@@ -924,12 +924,17 @@ td {
 }
 
 .peca-item,
-.servico-orcamento-item {
+.servico-orcamento-item,
+.terceirizado-item {
   grid-template-columns: minmax(220px, 2fr) minmax(90px, 0.6fr) minmax(130px, 0.8fr) minmax(130px, 0.8fr) minmax(110px, 0.7fr) auto;
 }
 
 .servico-orcamento-item {
   grid-template-columns: minmax(220px, 2fr) minmax(90px, 0.6fr) minmax(130px, 0.8fr) minmax(110px, 0.7fr) auto;
+}
+
+.terceirizado-item {
+  grid-template-columns: minmax(220px, 2fr) minmax(130px, 0.8fr) minmax(130px, 0.8fr) minmax(110px, 0.7fr) auto;
 }
 
 .action-item .actions {
@@ -1688,6 +1693,7 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 }
 
 .print-services-section,
+.print-outsourced-section,
 .print-payment-section {
   break-inside: avoid;
   page-break-inside: avoid;
@@ -3818,7 +3824,8 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
   .nested-item,
   .peca-item,
-  .servico-orcamento-item {
+  .servico-orcamento-item,
+  .terceirizado-item {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -3918,7 +3925,8 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
   .nested-item,
   .peca-item,
-  .servico-orcamento-item {
+  .servico-orcamento-item,
+  .terceirizado-item {
     grid-template-columns: 1fr;
   }
 

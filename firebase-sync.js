@@ -1543,8 +1543,8 @@ function getOnboardingSteps() {
     },
     {
       title: "4. Monte o orçamento",
-      text: "Adicione peças e serviços enquanto o RR Manager calcula venda, custo e lucro estimado.",
-      details: ["A margem configurada sugere o preço de venda da peça.", "Horas multiplicam o valor da mão de obra.", "O valor final manual é opcional e prevalece sobre o cálculo."],
+      text: "Adicione peças, mão de obra e serviços terceirizados enquanto o RR Manager calcula venda, custo e lucro estimado.",
+      details: ["A margem configurada sugere o preço de venda da peça.", "Horas multiplicam o valor da mão de obra.", "Nos terceirizados, informe o custo e o valor cobrado.", "O valor final manual é opcional e prevalece sobre o cálculo."],
       href: "orcamentos.html",
       action: "Explorar Orçamentos"
     },
@@ -1564,7 +1564,7 @@ function getOnboardingSteps() {
     },
     {
       title: "7. Acompanhe o financeiro",
-      text: "Orçamentos aprovados alimentam automaticamente receitas, custos das peças e taxas de pagamento.",
+      text: "Orçamentos aprovados alimentam automaticamente receitas, custos das peças, serviços terceirizados e taxas de pagamento.",
       details: ["Adicione também receitas, custos e despesas manuais.", "Use filtros por período para analisar o resultado."],
       href: "financeiro.html",
       action: "Explorar Financeiro"
