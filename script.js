@@ -1472,13 +1472,16 @@ function updateOrcamentoInspectionButton() {
 }
 
 function handleOrcamentoFormInput(event) {
+  const manuallyEditedSale = event.target.closest("[data-field='valorUnitario']");
+  if (manuallyEditedSale) manuallyEditedSale.dataset.priceMode = "manual";
   const costInput = event.target.closest("[data-field='custoUnitario']");
   if (costInput) {
     const row = costInput.closest("[data-peca-index]");
     const saleInput = row?.querySelector("[data-field='valorUnitario']");
-    if (saleInput && String(costInput.value).trim()) {
+    if (saleInput && saleInput.dataset.priceMode !== "manual" && String(costInput.value).trim()) {
       const saleValue = parseDecimal(costInput.value) * (1 + getPartsMarkupPercent() / 100);
       saleInput.value = saleValue.toFixed(2);
+      saleInput.dataset.priceMode = "auto";
       markZeroInput(saleInput);
     }
   }
@@ -1528,7 +1531,8 @@ function wasMoneyFieldInformed(item, flag, value) {
 function moneyDraftInput(field, value, informed) {
   const numericValue = parseDecimal(value);
   const isInformed = informed === true;
-  return `<input class="money-draft-input${isInformed ? zeroInputClass(numericValue) : ""}" data-field="${field}" type="number" min="0" step="0.01" value="${isInformed ? numericValue : ""}" placeholder="0,00" oninput="markZeroInput(this)">`;
+  const priceMode = field === "valorUnitario" ? ` data-price-mode="${isInformed ? "manual" : "empty"}"` : "";
+  return `<input class="money-draft-input${isInformed ? zeroInputClass(numericValue) : ""}" data-field="${field}"${priceMode} type="number" min="0" step="0.01" value="${isInformed ? numericValue : ""}" placeholder="0,00" oninput="markZeroInput(this)">`;
 }
 
 function markZeroInput(input) {
@@ -1732,6 +1736,44 @@ function isSameOrcamentoVersion(a, b) {
     && JSON.stringify(a.terceirizados || []) === JSON.stringify(b.terceirizados || []);
 }
 
+function getOrcamentoCustomerSignature(orcamento) {
+  const parts = (Array.isArray(orcamento?.pecas) ? orcamento.pecas : []).map((item) => ({ nome: String(item.nome || "").trim(), quantidade: parseInteger(item.quantidade), valorUnitario: parseDecimal(item.valorUnitario), cortesia: item.cortesia === true }));
+  const labor = (Array.isArray(orcamento?.servicos) ? orcamento.servicos : []).map((item) => ({ descricao: String(item.descricao || "").trim(), horas: parseDecimal(item.horas), valorHora: parseDecimal(item.valorHora), cortesia: item.cortesia === true }));
+  const outsourced = (Array.isArray(orcamento?.terceirizados) ? orcamento.terceirizados : []).map((item) => ({ descricao: String(item.descricao || "").trim(), valor: parseDecimal(item.valor), cortesia: item.cortesia === true }));
+  return JSON.stringify({ clienteId: orcamento?.clienteId || "", carroId: orcamento?.carroId || orcamento?.veiculoId || "", data: orcamento?.data || "", valorFinalManual: parseDecimal(orcamento?.valorFinalManual), parts, labor, outsourced });
+}
+
+function getRecoverableApprovalDate(orcamento) {
+  const historicalDates = (Array.isArray(orcamento?.historicoVersoes) ? orcamento.historicoVersoes : [])
+    .filter((version) => version.status === "Aprovado" && version.decidedAt)
+    .map((version) => version.decidedAt)
+    .filter(Boolean)
+    .sort();
+  if (!historicalDates.length) return "";
+  const current = orcamento.decidedAt || "";
+  return !current || historicalDates[0] < current ? historicalDates[0] : "";
+}
+
+async function repairOrcamentoApprovalDates() {
+  const orcamentos = readData("orcamentos");
+  let changed = false;
+  const repaired = orcamentos.map((orcamento) => {
+    if (orcamento.status !== "Aprovado") return orcamento;
+    const recovered = getRecoverableApprovalDate(orcamento);
+    if (!recovered) return orcamento;
+    changed = true;
+    return { ...orcamento, decidedAt: recovered, approvalDateRecoveredAt: new Date().toISOString() };
+  });
+  if (!changed) return false;
+  writeData("orcamentos", repaired);
+  try {
+    await persistSavedData("orcamentos");
+  } catch (error) {
+    console.warn("Não foi possível confirmar na nuvem a recuperação das datas de aprovação.", error);
+  }
+  return true;
+}
+
 async function saveOrcamento(event) {
   event.preventDefault();
   const form = event.currentTarget;
@@ -1746,14 +1788,14 @@ async function saveOrcamento(event) {
   const existente = orcamentos.find((item) => item.id === id);
   const valorFinalManual = parseDecimal(getValue("orcamentoValorFinal"));
   const totalFinal = resolveOrcamentoFinalTotal(totals, valorFinalManual);
-  const status = existente?.status === "Aprovado" ? "Pré-orçamento" : existente?.status || "Pré-orçamento";
   const orcamento = {
+    ...(existente || {}),
     id,
     numero: existente?.numero || getNextOrcamentoNumber(orcamentos),
     clienteId: getValue("orcamentoCliente"),
     carroId: getValue("orcamentoCarro"),
     data: getValue("orcamentoData"),
-    status,
+    status: existente?.status || "Pré-orçamento",
     pecas,
     servicos,
     terceirizados,
@@ -1768,13 +1810,18 @@ async function saveOrcamento(event) {
     lucroEstimado: totalFinal - totals.totalCustoPecas - totals.totalCustoTerceirizados,
     historicoVersoes: existente?.historicoVersoes || []
   };
+  const customerFacingChanged = existente?.status === "Aprovado" && getOrcamentoCustomerSignature(existente) !== getOrcamentoCustomerSignature(orcamento);
+  if (customerFacingChanged) {
+    orcamento.status = "Pré-orçamento";
+    orcamento.pagamento = null;
+  }
   if (existente && !isSameOrcamentoVersion(existente, orcamento)) {
     orcamento.historicoVersoes = [
       cloneOrcamentoVersion(existente),
       ...(existente.historicoVersoes || [])
     ].filter(Boolean).slice(0, 12);
   }
-  if (existente?.status && existente.status !== "Aprovado") orcamento.decidedAt = existente.decidedAt;
+  if (existente?.decidedAt) orcamento.decidedAt = existente.decidedAt;
   const index = orcamentos.findIndex((item) => item.id === id);
   if (index >= 0) orcamentos[index] = orcamento;
   else orcamentos.push(orcamento);
@@ -3271,6 +3318,7 @@ async function applyDrePlanAccess(event) {
   if (byId("dreUpgrade")) byId("dreUpgrade").hidden = allowed;
   if (byId("dreContent")) byId("dreContent").hidden = !allowed;
   if (allowed) {
+    await repairOrcamentoApprovalDates();
     await processRecurringFinancialEntries();
     renderDre();
   }
