@@ -183,8 +183,32 @@ const FINANCE_CATEGORIES = {
     "Outras despesas": ["Outras despesas"]
   }
 };
+const FINANCE_CATEGORY_ALIASES = {
+  servico: "Serviços",
+  servicos: "Serviços",
+  salario: "Salários e encargos",
+  salarios: "Salários e encargos",
+  imposto: "Impostos e taxas",
+  impostos: "Impostos e taxas",
+  conta: "Contas",
+  contas: "Contas",
+  ferramenta: "Ferramentas e equipamentos",
+  ferramentas: "Ferramentas e equipamentos",
+  software: "Software e assinaturas",
+  softwares: "Software e assinaturas"
+};
 const DRE_CATEGORY_COLORS = ["#f1c75b", "#4fd1a1", "#5ba8ff", "#b58cff", "#ff8f8f", "#ffad5b", "#67d6dc", "#d98ecb", "#9fc968", "#e9d66b"];
 let pendingVariableRecurrence = null;
+
+function normalizeFinanceCategory(category, type = "Despesa") {
+  const value = String(category || "").trim();
+  if (!value) return type === "Receita" ? "Outras receitas" : "Outras despesas";
+  const normalizeKey = (text) => String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const key = normalizeKey(value);
+  if (FINANCE_CATEGORY_ALIASES[key]) return FINANCE_CATEGORY_ALIASES[key];
+  const canonical = Object.values(FINANCE_CATEGORIES[type] || {}).flat().find((item) => normalizeKey(item) === key);
+  return canonical || value;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   migrateLegacyData();
@@ -2362,7 +2386,7 @@ async function saveFinanceiro(event) {
       data: getValue("financeiroData"),
       descricao: getValue("financeiroDescricao"),
       grupo: getValue("financeiroGrupo"),
-      categoria,
+      categoria: normalizeFinanceCategory(categoria, tipo),
       valor: Number(getValue("financeiroValor")) || 0
     };
     if (pendingVariableRecurrence) {
@@ -2956,12 +2980,12 @@ function getDreData(start, end) {
   const margemLiquida = receitaLiquida > 0 ? (resultado / receitaLiquida) * 100 : 0;
   const ticketMedio = aprovados.length ? aprovados.reduce((sum, item) => sum + getOrcamentoReceita(item), 0) / aprovados.length : 0;
   const categorias = despesasItems.reduce((acc, item) => {
-    const categoria = String(item.categoria || "Outras despesas").trim() || "Outras despesas";
+    const categoria = normalizeFinanceCategory(item.categoria, item.tipo);
     acc[categoria] = (acc[categoria] || 0) + parseDecimal(item.valor);
     return acc;
   }, {});
   const categoriasItens = despesasItems.reduce((acc, item) => {
-    const categoria = String(item.categoria || "Outras despesas").trim() || "Outras despesas";
+    const categoria = normalizeFinanceCategory(item.categoria, item.tipo);
     (acc[categoria] ||= []).push(item);
     return acc;
   }, {});
