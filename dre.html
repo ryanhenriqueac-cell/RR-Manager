@@ -26,10 +26,9 @@
       </section>
       <div id="dreContent" hidden>
         <section class="panel">
-          <div class="panel-header"><div><p class="eyebrow">Regime de competência</p><h2>Demonstrativo de serviços realizados / faturados</h2></div></div>
+          <div class="panel-header"><div><p class="eyebrow">Período de análise</p><h2>Demonstrativo de resultado</h2></div></div>
           <form id="dreForm" class="form-grid report-form"><label>Data inicial<input id="dreInicio" type="date"></label><label>Data final<input id="dreFim" type="date"></label><div class="form-actions span-2"><button class="btn btn-primary" type="submit">Gerar DRE</button><button class="btn btn-muted" type="button" id="dreMesAtual">Mês atual</button><button class="btn btn-ghost" type="button" id="drePdf">Gerar PDF</button></div></form>
           <p class="report-status" id="dreStatus"></p>
-          <p class="muted">O serviço entra no mês em que foi realizado/faturado, mesmo que o cliente pague depois. Aprovação comercial sozinha não gera receita no DRE.</p>
         </section>
         <section class="stats-grid compact" id="dreCards"></section>
         <section class="content-grid dre-grid"><article class="panel"><div class="panel-header"><div><p class="eyebrow">Resultado</p><h2>DRE do período</h2></div></div><div id="dreStatement" class="dre-statement"></div></article><article class="panel"><div class="panel-header"><div><p class="eyebrow">Evolução</p><h2>Comparação com período anterior</h2></div></div><div id="dreComparison"></div></article></section>
@@ -38,6 +37,6 @@
       </div>
     </main>
   </div>
-  <script src="script.js?v=92"></script><script src="firebase-config.js?v=13"></script><script type="module" src="firebase-sync.js?v=58"></script>
+  <script src="script.js?v=91"></script><script src="firebase-config.js?v=13"></script><script type="module" src="firebase-sync.js?v=58"></script>
 </body>
 </html>

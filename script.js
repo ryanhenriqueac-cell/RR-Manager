@@ -672,8 +672,6 @@ function buildPublicOrcamentoData(orcamento) {
       n: orcamento.numero,
       d: orcamento.data,
       st: orcamento.status,
-      ex: getExecutionStatus(orcamento),
-      cd: getOrcamentoCompetenceDate(orcamento),
       p: pecas.map((peca) => ({
         n: peca.nome || "",
         q: parseInteger(peca.quantidade),
@@ -727,8 +725,6 @@ function normalizePublicOrcamentoData(data) {
       numero: data.o?.n,
       data: data.o?.d,
       status: data.o?.st,
-      executionStatus: data.o?.ex || "",
-      faturamento: data.o?.cd ? { competenciaData: data.o.cd, valorFaturado: parseDecimal(data.o?.t) } : null,
       pecas: (data.o?.p || []).map((peca) => ({
         nome: peca.n || "",
         quantidade: parseInteger(peca.q),
@@ -948,27 +944,6 @@ function getApprovedOrcamentos() {
   return readData("orcamentos").filter((orcamento) => orcamento.status === "Aprovado");
 }
 
-function getExecutionStatus(orcamento) {
-  if (orcamento?.status !== "Aprovado") return "";
-  return orcamento.executionStatus || "Aguardando execução";
-}
-
-function getRealizedOrcamentos() {
-  return getApprovedOrcamentos().filter((orcamento) => getExecutionStatus(orcamento) === "Realizado/Faturado" && orcamento.faturamento?.competenciaData);
-}
-
-function getOrcamentoCompetenceDate(orcamento) {
-  return orcamento.faturamento?.competenciaData || "";
-}
-
-function getOrcamentoBilledValue(orcamento) {
-  return parseDecimal(orcamento.faturamento?.valorFaturado ?? getOrcamentoReceita(orcamento));
-}
-
-function getOrcamentoReceivedValue(orcamento) {
-  return Math.min(getOrcamentoBilledValue(orcamento), parseDecimal(orcamento.recebimento?.valorRecebido));
-}
-
 function getPecasCusto(orcamento) {
   const pecas = Array.isArray(orcamento.pecas) ? orcamento.pecas : [];
   return pecas.filter((peca) => String(peca.nome || "").trim()).reduce((sum, peca) => sum + parseInteger(peca.quantidade) * parseDecimal(peca.custoUnitario), 0);
@@ -1141,11 +1116,14 @@ async function askPaymentInfo(total) {
 }
 
 function getFinancialSummary() {
-  const lancamentos = getFinanceiroLancamentos();
-  const receitasAutomaticas = lancamentos.filter((item) => item.tipo.includes("Receita") && item.automatico).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
-  const receitasExtras = lancamentos.filter((item) => item.tipo.includes("Receita") && !item.automatico).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
-  const custosServicos = lancamentos.filter((item) => item.tipo.includes("Custo")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
-  const despesas = lancamentos.filter((item) => !item.tipo.includes("Receita") && !item.tipo.includes("Custo")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const manual = readData("financeiro");
+  const aprovados = getApprovedOrcamentos();
+  const receitasManuais = manual.filter((item) => item.tipo === "Receita");
+  const despesasManuais = manual.filter((item) => item.tipo === "Despesa");
+  const receitasAutomaticas = aprovados.reduce((sum, orcamento) => sum + getOrcamentoReceita(orcamento), 0);
+  const receitasExtras = receitasManuais.reduce((sum, item) => sum + Number(item.valor || 0), 0);
+  const custosServicos = aprovados.reduce((sum, orcamento) => sum + getServiceCosts(orcamento), 0);
+  const despesas = despesasManuais.reduce((sum, item) => sum + Number(item.valor || 0), 0);
   const receitas = receitasAutomaticas + receitasExtras;
   return {
     receitas,
@@ -1203,7 +1181,6 @@ function initDashboard() {
   setText("taxaConversao", decididos ? `${Math.round((aprovados / decididos) * 100)}%` : "0%");
 
   renderDashboardOrcamentos(pendentes);
-  renderDashboardExecucao(orcamentos.filter((item) => item.status === "Aprovado" && getExecutionStatus(item) !== "Realizado/Faturado"));
 }
 
 function renderDashboardOrcamentos(pendentes) {
@@ -1228,11 +1205,6 @@ function renderDashboardOrcamentos(pendentes) {
     : `<div class="empty-state muted">Nenhum pré-orçamento aguardando decisão.</div>`;
 
   watchPublicOrcamentoResponses(pendentes);
-}
-
-function renderDashboardExecucao(items) {
-  const container = byId("dashboardExecucao"); if (!container) return;
-  container.innerHTML = items.length ? items.map((orcamento) => `<div class="timeline-item action-item"><strong>${escapeHtml(getClienteNome(orcamento.clienteId))}</strong><span>${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))} · ${money(getOrcamentoTotal(orcamento))}</span><span class="badge warning">${escapeHtml(getExecutionStatus(orcamento))}</span><div class="actions">${getExecutionStatus(orcamento) === "Em execução" ? `<button class="btn btn-primary" onclick="completeOrcamentoExecution('${orcamento.id}')">Realizar / faturar</button>` : `<button class="btn btn-primary" onclick="startOrcamentoExecution('${orcamento.id}')">Iniciar serviço</button>`}<a class="btn btn-muted" href="orcamentos.html?editar=${orcamento.id}">Abrir</a></div></div>`).join("") : `<div class="empty-state muted">Nenhum serviço aprovado aguardando execução.</div>`;
 }
 
 function getPublicOrcamentoResponseHtml(orcamento) {
@@ -1274,57 +1246,11 @@ async function updateOrcamentoStatus(id, status) {
     ...orcamentos[index],
     status,
     decidedAt: new Date().toISOString(),
-    pagamento,
-    executionStatus: status === "Aprovado" ? "Aguardando execução" : ""
+    pagamento
   };
   writeData("orcamentos", orcamentos);
   await persistSavedData("orcamentos");
   initDashboard();
-}
-
-async function startOrcamentoExecution(id) {
-  const orcamentos = readData("orcamentos"); const index = orcamentos.findIndex((item) => item.id === id);
-  if (index < 0 || orcamentos[index].status !== "Aprovado") return;
-  orcamentos[index] = { ...orcamentos[index], executionStatus: "Em execução", executionStartedAt: new Date().toISOString() };
-  writeData("orcamentos", orcamentos); await persistSavedData("orcamentos"); refreshOrcamentoViews();
-}
-
-function askOrcamentoCompletion(orcamento) {
-  return new Promise((resolve) => {
-    const overlay = document.createElement("div"); overlay.className = "rr-modal-overlay";
-    const billed = getOrcamentoBilledValue(orcamento) || getOrcamentoReceita(orcamento);
-    const currentReceiptStatus = orcamento.recebimento?.status || "pending";
-    overlay.innerHTML = `<div class="rr-modal"><div class="rr-modal-head"><span>Competência</span><h2>Realizar e faturar serviço</h2></div><div class="form-grid"><label>Data da competência<input data-completion="date" type="date" value="${orcamento.faturamento?.competenciaData || today()}" required></label><label>Valor faturado<input data-completion="billed" type="number" min="0" step="0.01" value="${billed.toFixed(2)}"></label><label>Situação do recebimento<select data-completion="status"><option value="pending"${currentReceiptStatus === "pending" ? " selected" : ""}>Pendente</option><option value="partial"${currentReceiptStatus === "partial" ? " selected" : ""}>Parcial</option><option value="received"${currentReceiptStatus === "received" ? " selected" : ""}>Recebido</option></select></label><label>Valor recebido acumulado<input data-completion="received" type="number" min="0" step="0.01" value="${parseDecimal(orcamento.recebimento?.valorRecebido).toFixed(2)}"><small>Total já recebido deste serviço.</small></label><label>Data do último recebimento<input data-completion="received-date" type="date" value="${orcamento.recebimento?.recebidoEm || today()}"></label><label>Número da nota fiscal (opcional)<input data-completion="invoice" value="${escapeHtml(orcamento.faturamento?.notaFiscalNumero || "")}"></label></div><div class="rr-modal-actions"><button class="btn btn-muted" data-completion-cancel>Cancelar</button><button class="btn btn-primary" data-completion-save>Confirmar realização</button></div></div>`;
-    const status = overlay.querySelector("[data-completion='status']"); const received = overlay.querySelector("[data-completion='received']");
-    status.addEventListener("change", () => { if (status.value === "received") received.value = overlay.querySelector("[data-completion='billed']").value; if (status.value === "pending") received.value = "0"; });
-    overlay.querySelector("[data-completion-cancel]").onclick = () => { overlay.remove(); resolve(null); };
-    overlay.querySelector("[data-completion-save]").onclick = () => {
-      const competenciaData = overlay.querySelector("[data-completion='date']").value; const valorFaturado = parseDecimal(overlay.querySelector("[data-completion='billed']").value); const recebimentoStatus = status.value; const valorRecebido = parseDecimal(received.value);
-      const invalidReceipt = (recebimentoStatus === "pending" && valorRecebido !== 0)
-        || (recebimentoStatus === "partial" && (valorRecebido <= 0 || valorRecebido >= valorFaturado))
-        || (recebimentoStatus === "received" && valorRecebido !== valorFaturado);
-      if (!competenciaData || valorFaturado <= 0 || valorRecebido > valorFaturado || invalidReceipt) {
-        rrAlert("Confira a competência, o valor faturado e o total recebido. Pendente deve ficar zerado; parcial deve ser menor que o faturado; recebido deve ser igual ao faturado.", "Dados inconsistentes");
-        return;
-      }
-      const result = { competenciaData, valorFaturado, notaFiscalNumero: overlay.querySelector("[data-completion='invoice']").value.trim(), recebimentoStatus, valorRecebido, recebidoEm: valorRecebido > 0 ? overlay.querySelector("[data-completion='received-date']").value || today() : "" };
-      overlay.remove(); resolve(result);
-    };
-    document.body.appendChild(overlay);
-  });
-}
-
-async function completeOrcamentoExecution(id) {
-  const orcamentos = readData("orcamentos"); const index = orcamentos.findIndex((item) => item.id === id); if (index < 0) return;
-  const info = await askOrcamentoCompletion(orcamentos[index]); if (!info) return;
-  const timestamp = new Date().toISOString();
-  orcamentos[index] = { ...orcamentos[index], executionStatus: "Realizado/Faturado", completedAt: orcamentos[index].completedAt || timestamp, faturamento: { competenciaData: info.competenciaData, valorFaturado: info.valorFaturado, notaFiscalNumero: info.notaFiscalNumero, faturadoAt: orcamentos[index].faturamento?.faturadoAt || timestamp }, recebimento: { status: info.recebimentoStatus, valorRecebido: info.valorRecebido, recebidoEm: info.recebidoEm } };
-  writeData("orcamentos", orcamentos); await persistSavedData("orcamentos"); refreshOrcamentoViews();
-}
-
-function refreshOrcamentoViews() {
-  if (page === "dashboard") initDashboard();
-  if (page === "orcamentos") renderOrcamentos();
 }
 
 function initClientes() {
@@ -1727,7 +1653,7 @@ async function saveOrcamento(event) {
   const existente = orcamentos.find((item) => item.id === id);
   const valorFinalManual = parseDecimal(getValue("orcamentoValorFinal"));
   const totalFinal = valorFinalManual > 0 ? valorFinalManual : totals.total;
-  const status = existente?.status || "Pré-orçamento";
+  const status = existente?.status === "Aprovado" ? "Pré-orçamento" : existente?.status || "Pré-orçamento";
   const orcamento = {
     id,
     numero: existente?.numero || getNextOrcamentoNumber(orcamentos),
@@ -1735,13 +1661,6 @@ async function saveOrcamento(event) {
     carroId: getValue("orcamentoCarro"),
     data: getValue("orcamentoData"),
     status,
-    executionStatus: existente?.executionStatus || "",
-    executionStartedAt: existente?.executionStartedAt || "",
-    completedAt: existente?.completedAt || "",
-    faturamento: existente?.faturamento || null,
-    recebimento: existente?.recebimento || null,
-    pagamento: existente?.pagamento || null,
-    publicShareId: existente?.publicShareId || "",
     pecas,
     servicos,
     terceirizados,
@@ -1762,7 +1681,7 @@ async function saveOrcamento(event) {
       ...(existente.historicoVersoes || [])
     ].filter(Boolean).slice(0, 12);
   }
-  if (existente?.decidedAt) orcamento.decidedAt = existente.decidedAt;
+  if (existente?.status && existente.status !== "Aprovado") orcamento.decidedAt = existente.decidedAt;
   const index = orcamentos.findIndex((item) => item.id === id);
   if (index >= 0) orcamentos[index] = orcamento;
   else orcamentos.push(orcamento);
@@ -1793,16 +1712,13 @@ function renderOrcamentos() {
       <td><strong>${String(orcamento.numero || "").padStart(4, "0")}</strong></td>
       <td>${escapeHtml(getClienteNome(orcamento.clienteId))}</td>
       <td>${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))}</td>
-      <td><span class="badge ${badgeClass(orcamento.status)}">${escapeHtml(orcamento.status)}</span>${orcamento.status === "Aprovado" ? `<br><small class="muted">${escapeHtml(getExecutionStatus(orcamento))}</small>` : ""}</td>
+      <td><span class="badge ${badgeClass(orcamento.status)}">${escapeHtml(orcamento.status)}</span></td>
       <td>${money(getOrcamentoTotal(orcamento))}</td>
       <td>${escapeHtml(formatDateBR(orcamento.data) || "-")}</td>
       <td class="actions">
         <button class="btn btn-muted" onclick="editOrcamento('${orcamento.id}')">Editar</button>
         ${(orcamento.historicoVersoes || []).length ? `<button class="btn btn-ghost" onclick="restoreOrcamentoVersion('${orcamento.id}')">Versões</button>` : ""}
         <a class="btn btn-ghost" href="orcamento-imprimir.html?id=${orcamento.id}">Imprimir</a>
-        ${orcamento.status === "Aprovado" && getExecutionStatus(orcamento) === "Aguardando execução" ? `<button class="btn btn-primary" onclick="startOrcamentoExecution('${orcamento.id}')">Iniciar serviço</button>` : ""}
-        ${orcamento.status === "Aprovado" && getExecutionStatus(orcamento) === "Em execução" ? `<button class="btn btn-primary" onclick="completeOrcamentoExecution('${orcamento.id}')">Realizar / faturar</button>` : ""}
-        ${getExecutionStatus(orcamento) === "Realizado/Faturado" ? `<button class="btn btn-muted" onclick="completeOrcamentoExecution('${orcamento.id}')">Faturamento / recebimento</button>` : ""}
         <button class="btn btn-danger" onclick="deleteItem('orcamentos','${orcamento.id}', renderOrcamentos)">Excluir</button>
       </td>
     </tr>`).join("") : emptyRow(7, "Nenhum orçamento encontrado.");
@@ -2228,7 +2144,6 @@ function buildOrcamentoPrintHtml(orcamento) {
           <h1>${escapeHtml(branding.companyName)}</h1>
           <p>${escapeHtml(branding.tagline)}</p>
           <p>Status: <strong>${escapeHtml(orcamento.status)}</strong></p>
-          ${orcamento.status === "Aprovado" ? `<p>Execução: <strong>${escapeHtml(getExecutionStatus(orcamento))}</strong></p>` : ""}
         </div>
       </header>
 
@@ -2513,43 +2428,45 @@ function renderFinanceiro() {
 
 function getFinanceiroLancamentos() {
   const manuais = readData("financeiro");
-  const realizados = getRealizedOrcamentos();
-  const receitasAutomaticas = realizados.map((orcamento) => ({
+  const aprovados = getApprovedOrcamentos();
+  const receitasAutomaticas = aprovados.map((orcamento) => ({
     id: `receita_${orcamento.id}`,
     tipo: "Receita automática",
-    data: orcamento.recebimento?.recebidoEm || getOrcamentoCompetenceDate(orcamento),
-    descricao: `Recebimento do serviço faturado - ${getClienteNome(orcamento.clienteId)}`,
+    data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
+    descricao: getPaymentDiscount(orcamento) > 0
+      ? `Orçamento aprovado (${orcamento.pagamento?.label || "Pix com 3% de desconto"}) - ${getClienteNome(orcamento.clienteId)}`
+      : `Orçamento aprovado - ${getClienteNome(orcamento.clienteId)}`,
     categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
-    valor: getOrcamentoReceivedValue(orcamento),
+    valor: getOrcamentoReceita(orcamento),
     automatico: true
-  })).filter((item) => item.valor > 0);
-  const custosAutomaticos = realizados
+  }));
+  const custosAutomaticos = aprovados
     .map((orcamento) => ({
       id: `custo_${orcamento.id}`,
       tipo: "Custo de serviços",
-      data: getOrcamentoCompetenceDate(orcamento),
+      data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
       descricao: `Peças do serviço - ${getClienteNome(orcamento.clienteId)}`,
       categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
       valor: getPecasCusto(orcamento),
       automatico: true
     }))
     .filter((item) => item.valor > 0);
-  const custosTerceirizadosAutomaticos = realizados
+  const custosTerceirizadosAutomaticos = aprovados
     .map((orcamento) => ({
       id: `terceirizados_${orcamento.id}`,
       tipo: "Custo de serviços",
-      data: getOrcamentoCompetenceDate(orcamento),
+      data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
       descricao: `Serviços terceirizados - ${getClienteNome(orcamento.clienteId)}`,
       categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
       valor: getTerceirizadosCusto(orcamento),
       automatico: true
     }))
     .filter((item) => item.valor > 0);
-  const taxasAutomaticas = realizados
+  const taxasAutomaticas = aprovados
     .map((orcamento) => ({
       id: `taxa_${orcamento.id}`,
       tipo: "Custo de serviços",
-      data: getOrcamentoCompetenceDate(orcamento),
+      data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
       descricao: `Taxa de pagamento (${orcamento.pagamento?.label || "forma não informada"}${orcamento.pagamento?.taxaRepassada ? " - repassada ao cliente" : ""}) - ${getClienteNome(orcamento.clienteId)}`,
       categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
       valor: getPaymentFee(orcamento),
@@ -2634,10 +2551,10 @@ function renderFinanceiroRelatorio() {
   setText("financeiroRelatorioStatus", `${periodo} | ${lancamentos.length} lançamento(s) analisado(s)`);
 
   byId("financeiroRelatorioResumo").innerHTML = `
-    <article class="mini-stat"><span>Entradas</span><strong>${money(resumo.receitas)}</strong></article>
+    <article class="mini-stat"><span>Receitas</span><strong>${money(resumo.receitas)}</strong></article>
     <article class="mini-stat"><span>Custos</span><strong>${money(resumo.custos)}</strong></article>
     <article class="mini-stat"><span>Despesas</span><strong>${money(resumo.despesas)}</strong></article>
-    <article class="mini-stat highlight"><span>Saldo</span><strong>${money(resumo.lucro)}</strong></article>
+    <article class="mini-stat highlight"><span>Lucro</span><strong>${money(resumo.lucro)}</strong></article>
   `;
 
   byId("financeiroRelatorioMeses").innerHTML = meses.map((valores) => `
@@ -2656,7 +2573,7 @@ function renderFinanceiroRelatorio() {
 function renderFinanceiroGraficos(relatorio) {
   const { resumo, meses } = relatorio;
   const valoresDonut = [
-    { label: "Entradas", valor: resumo.receitas, color: "#4fd1a1" },
+    { label: "Receitas", valor: resumo.receitas, color: "#4fd1a1" },
     { label: "Custos", valor: resumo.custos, color: "#f1c75b" },
     { label: "Despesas", valor: resumo.despesas, color: "#ef6262" }
   ];
@@ -2672,7 +2589,7 @@ function renderFinanceiroGraficos(relatorio) {
   byId("financeiroDonut").style.background = totalDonut
     ? `conic-gradient(${segmentos})`
     : "conic-gradient(rgba(255,255,255,0.12) 0deg 360deg)";
-  byId("financeiroDonut").innerHTML = `<span>${money(resumo.lucro)}<small>Saldo gerencial</small></span>`;
+  byId("financeiroDonut").innerHTML = `<span>${money(resumo.lucro)}<small>Lucro líquido</small></span>`;
   byId("financeiroLegenda").innerHTML = valoresDonut.map((item) => `
     <div>
       <i style="background:${item.color}"></i>
@@ -2682,10 +2599,10 @@ function renderFinanceiroGraficos(relatorio) {
   `).join("");
 
   const series = [
-    { key: "receitas", label: "Entradas", colorClass: "income" },
+    { key: "receitas", label: "Receitas", colorClass: "income" },
     { key: "custos", label: "Custos", colorClass: "cost" },
     { key: "despesas", label: "Despesas", colorClass: "expense" },
-    { key: "lucro", label: "Saldo", colorClass: "profit" }
+    { key: "lucro", label: "Lucro", colorClass: "profit" }
   ];
   const maiorValor = Math.max(
     ...meses.flatMap((mes) => series.map((serie) => Math.abs(mes[serie.key]) || 0)),
@@ -2987,18 +2904,16 @@ function setupMobilePrintButtonLabel() {
 }
 
 function getDreData(start, end) {
-  const manuais = readData("financeiro").filter((item) => isDateInRange(item.data, start, end));
-  const realizados = getRealizedOrcamentos().filter((orcamento) => isDateInRange(getOrcamentoCompetenceDate(orcamento), start, end));
-  const receitasManuais = manuais.filter((item) => item.tipo.includes("Receita")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
-  const receitasFaturadas = realizados.reduce((sum, orcamento) => sum + getOrcamentoBilledValue(orcamento), 0);
-  const receitasLiquidas = receitasManuais + receitasFaturadas;
-  const custoPecas = realizados.reduce((sum, orcamento) => sum + getPecasCusto(orcamento), 0);
-  const custoTerceirizados = realizados.reduce((sum, orcamento) => sum + getTerceirizadosCusto(orcamento), 0);
-  const taxas = realizados.reduce((sum, orcamento) => sum + getPaymentFee(orcamento), 0);
-  const despesasItems = manuais.filter((item) => !item.tipo.includes("Receita") && !item.tipo.includes("Custo"));
+  const lancamentos = getFinanceiroLancamentos().filter((item) => isDateInRange(item.data, start, end));
+  const receitasLiquidas = lancamentos.filter((item) => item.tipo.includes("Receita")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const custoPecas = lancamentos.filter((item) => String(item.id).startsWith("custo_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const custoTerceirizados = lancamentos.filter((item) => String(item.id).startsWith("terceirizados_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const taxas = lancamentos.filter((item) => String(item.id).startsWith("taxa_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const despesasItems = lancamentos.filter((item) => !item.tipo.includes("Receita") && !item.tipo.includes("Custo"));
   const despesas = despesasItems.reduce((sum, item) => sum + parseDecimal(item.valor), 0);
-  const descontos = realizados.reduce((sum, orcamento) => sum + getPaymentDiscount(orcamento), 0);
-  const acrescimos = realizados.reduce((sum, orcamento) => sum + getPaymentSurcharge(orcamento), 0);
+  const aprovados = getApprovedOrcamentos().filter((orcamento) => isDateInRange(orcamento.decidedAt?.slice(0, 10) || orcamento.data, start, end));
+  const descontos = aprovados.reduce((sum, orcamento) => sum + getPaymentDiscount(orcamento), 0);
+  const acrescimos = aprovados.reduce((sum, orcamento) => sum + getPaymentSurcharge(orcamento), 0);
   const receitaBruta = Math.max(0, receitasLiquidas + descontos - acrescimos);
   const receitaLiquida = receitaBruta - descontos + acrescimos;
   const custosDiretos = custoPecas + custoTerceirizados + taxas;
@@ -3011,7 +2926,7 @@ function getDreData(start, end) {
     acc[categoria] = (acc[categoria] || 0) + parseDecimal(item.valor);
     return acc;
   }, {});
-  return { start, end, receitaBruta, descontos, acrescimos, receitaLiquida, custoPecas, custoTerceirizados, taxas, custosDiretos, lucroBruto, despesas, resultado, margemBruta, margemLiquida, categorias, lancamentos: [...manuais, ...realizados] };
+  return { start, end, receitaBruta, descontos, acrescimos, receitaLiquida, custoPecas, custoTerceirizados, taxas, custosDiretos, lucroBruto, despesas, resultado, margemBruta, margemLiquida, categorias, lancamentos };
 }
 
 function getPreviousDrePeriod(start, end) {
@@ -3065,9 +2980,7 @@ function renderDre() {
   const dre = getDreData(start, end);
   const previousPeriod = getPreviousDrePeriod(start, end);
   const previous = getDreData(previousPeriod.start, previousPeriod.end);
-  const pendentesClassificacao = getApprovedOrcamentos().filter((item) => getExecutionStatus(item) !== "Realizado/Faturado").length;
-  const avisoPendentes = pendentesClassificacao ? ` · ${pendentesClassificacao} aprovado(s) ainda não entram no DRE por aguardarem realização/faturamento` : "";
-  setText("dreStatus", `${formatDateBR(start)} até ${formatDateBR(end)} · ${dre.lancamentos.length} lançamento(s) por competência${avisoPendentes}`);
+  setText("dreStatus", `${formatDateBR(start)} até ${formatDateBR(end)} · ${dre.lancamentos.length} lançamento(s)`);
   byId("dreCards").innerHTML = `<article class="stat-card"><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong><small>${percentChange(dre.receitaLiquida, previous.receitaLiquida).toFixed(1).replace(".", ",")}% vs. período anterior</small></article><article class="stat-card"><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong><small>Margem de ${dre.margemBruta.toFixed(1).replace(".", ",")}%</small></article><article class="stat-card"><span>Despesas operacionais</span><strong>${money(dre.despesas)}</strong><small>Saídas manuais do período</small></article><article class="stat-card highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong><small>Margem de ${dre.margemLiquida.toFixed(1).replace(".", ",")}%</small></article>`;
   byId("dreStatement").innerHTML = buildDreStatementRows(dre);
   const change = percentChange(dre.resultado, previous.resultado);
@@ -3171,7 +3084,7 @@ function buildFinanceiroReportHtml(relatorio) {
   const branding = getDocumentBranding();
   const logoUrl = branding.logoUrl;
   const valoresDonut = [
-    { label: "Entradas", valor: resumo.receitas, color: "#4fd1a1" },
+    { label: "Receitas", valor: resumo.receitas, color: "#4fd1a1" },
     { label: "Custos", valor: resumo.custos, color: "#f1c75b" },
     { label: "Despesas", valor: resumo.despesas, color: "#ef6262" }
   ];
@@ -3184,10 +3097,10 @@ function buildFinanceiroReportHtml(relatorio) {
     return `${item.color} ${inicio}deg ${fim}deg`;
   }).join(", ");
   const series = [
-    { key: "receitas", label: "Entradas", className: "income" },
+    { key: "receitas", label: "Receitas", className: "income" },
     { key: "custos", label: "Custos", className: "cost" },
     { key: "despesas", label: "Despesas", className: "expense" },
-    { key: "lucro", label: "Saldo", className: "profit" }
+    { key: "lucro", label: "Lucro", className: "profit" }
   ];
   const maiorValor = Math.max(
     ...meses.flatMap((mes) => series.map((serie) => Math.abs(mes[serie.key]) || 0)),
@@ -3206,17 +3119,17 @@ function buildFinanceiroReportHtml(relatorio) {
       </header>
 
       <section class="report-print-summary">
-        <div><span>Entradas</span><strong>${money(resumo.receitas)}</strong></div>
+        <div><span>Receitas</span><strong>${money(resumo.receitas)}</strong></div>
         <div><span>Custos</span><strong>${money(resumo.custos)}</strong></div>
         <div><span>Despesas</span><strong>${money(resumo.despesas)}</strong></div>
-        <div class="highlight"><span>Saldo</span><strong>${money(resumo.lucro)}</strong></div>
+        <div class="highlight"><span>Lucro</span><strong>${money(resumo.lucro)}</strong></div>
       </section>
 
       <section class="report-print-charts">
         <div class="report-chart-card">
           <h2>Distribuição do período</h2>
           <div class="report-donut" style="background:${totalDonut ? `conic-gradient(${segmentos})` : "#edf2f7"}">
-            <span>${money(resumo.lucro)}<small>Saldo gerencial</small></span>
+            <span>${money(resumo.lucro)}<small>Lucro líquido</small></span>
           </div>
           <div class="report-legend">
             ${valoresDonut.map((item) => `<div><i style="background:${item.color}"></i><span>${item.label}</span><strong>${money(item.valor)}</strong></div>`).join("")}
@@ -3244,7 +3157,7 @@ function buildFinanceiroReportHtml(relatorio) {
       <section class="report-table-section">
         <h2>Resultado por mês</h2>
         <table class="print-table">
-          <thead><tr><th>Mês</th><th>Entradas</th><th>Custos</th><th>Despesas</th><th>Saldo</th></tr></thead>
+          <thead><tr><th>Mês</th><th>Receitas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead>
           <tbody>${meses.map((mes) => `<tr><td>${escapeHtml(mes.label)}</td><td>${money(mes.receitas)}</td><td>${money(mes.custos)}</td><td>${money(mes.despesas)}</td><td>${money(mes.lucro)}</td></tr>`).join("") || `<tr><td colspan="5">Sem lançamentos no período.</td></tr>`}</tbody>
         </table>
       </section>
@@ -3332,5 +3245,5 @@ function initDrePrint() {
 function buildDrePrintHtml(dre) {
   const branding = getDocumentBranding();
   const categories = Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]);
-  return `<article class="finance-report-document dre-print-document"><header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial por competência</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p></div></header><section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Margem bruta</span><strong>${dre.margemBruta.toFixed(1).replace(".", ",")}%</strong></div><div class="highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section><section class="report-table-section"><h2>Demonstração do resultado</h2><div class="dre-statement print-dre-statement">${buildDreStatementRows(dre)}</div></section><section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>Participação</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${dre.despesas ? ((value / dre.despesas) * 100).toFixed(1).replace(".", ",") : "0,0"}%</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="3">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section><footer class="print-footer">Regime de competência: serviços entram quando realizados/faturados, independentemente do recebimento. DRE gerencial para apoio à gestão; não substitui demonstrações contábeis elaboradas por profissional habilitado.</footer></article>`;
+  return `<article class="finance-report-document dre-print-document"><header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p></div></header><section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Margem bruta</span><strong>${dre.margemBruta.toFixed(1).replace(".", ",")}%</strong></div><div class="highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section><section class="report-table-section"><h2>Demonstração do resultado</h2><div class="dre-statement print-dre-statement">${buildDreStatementRows(dre)}</div></section><section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>Participação</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${dre.despesas ? ((value / dre.despesas) * 100).toFixed(1).replace(".", ",") : "0,0"}%</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="3">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section><footer class="print-footer">DRE gerencial para apoio à gestão. Não substitui demonstrações contábeis elaboradas por profissional habilitado.</footer></article>`;
 }

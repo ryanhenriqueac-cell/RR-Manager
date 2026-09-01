@@ -33,10 +33,10 @@
       </header>
 
       <section class="stats-grid compact">
-        <article class="stat-card"><span>Recebimentos</span><strong id="totalReceitas">R$ 0,00</strong><small>Serviços recebidos e entradas manuais</small></article>
-        <article class="stat-card"><span>Custo de serviços</span><strong id="totalCustoPecas">R$ 0,00</strong><small>Peças, terceirizados e taxas dos realizados</small></article>
+        <article class="stat-card"><span>Receitas</span><strong id="totalReceitas">R$ 0,00</strong><small>Orçamentos aprovados e entradas manuais</small></article>
+        <article class="stat-card"><span>Custo de serviços</span><strong id="totalCustoPecas">R$ 0,00</strong><small>Peças, terceirizados e taxas dos aprovados</small></article>
         <article class="stat-card"><span>Despesas</span><strong id="totalDespesas">R$ 0,00</strong><small>Saídas manuais</small></article>
-        <article class="stat-card highlight"><span>Saldo gerencial</span><strong id="saldoFinanceiroPagina">R$ 0,00</strong><small>Entradas menos custos e despesas</small></article>
+        <article class="stat-card highlight"><span>Lucro</span><strong id="saldoFinanceiroPagina">R$ 0,00</strong><small>Receitas menos custos e despesas</small></article>
       </section>
 
       <section class="form-panel">
@@ -114,7 +114,7 @@
           <div class="chart-box distribution-card">
             <div class="chart-heading">
               <h3>Distribuição do período</h3>
-              <span>Entradas x custos x despesas</span>
+              <span>Receitas x custos x despesas</span>
             </div>
             <div class="donut-chart" id="financeiroDonut"></div>
             <div class="chart-legend" id="financeiroLegenda"></div>
@@ -122,14 +122,14 @@
           <div class="chart-box monthly-card">
             <div class="chart-heading">
               <h3>Evolução mensal</h3>
-              <span>Entradas, custos, despesas e saldo</span>
+              <span>Receitas, custos, despesas e lucro</span>
             </div>
             <div class="bar-chart" id="financeiroBarras"></div>
           </div>
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Mês</th><th>Entradas</th><th>Custos</th><th>Despesas</th><th>Saldo</th></tr></thead>
+            <thead><tr><th>Mês</th><th>Receitas</th><th>Custos</th><th>Despesas</th><th>Lucro</th></tr></thead>
             <tbody id="financeiroRelatorioMeses"></tbody>
           </table>
         </div>
@@ -137,7 +137,7 @@
 
       <section class="panel">
         <div class="panel-header">
-          <div><p class="eyebrow">Caixa</p><h2>Entradas, custos e despesas</h2></div>
+          <div><p class="eyebrow">Caixa</p><h2>Receitas, custos e despesas</h2></div>
           <input class="search-input" id="buscaFinanceiro" placeholder="Buscar lançamento">
         </div>
         <div class="table-wrap">
@@ -149,7 +149,7 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=92"></script>
+  <script src="script.js?v=91"></script>
   <script src="firebase-config.js?v=13"></script>
   <script type="module" src="firebase-sync.js?v=58"></script>
 </body>
