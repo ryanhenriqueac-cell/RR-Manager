@@ -1510,6 +1510,11 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 .dre-compare-bars { display: grid; gap: 8px; margin: 18px 0; }.dre-compare-bars div { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid var(--line); }
 .dre-categories { display: grid; gap: 12px; }.dre-categories > div { display: grid; grid-template-columns: minmax(160px,1fr) auto; gap: 6px 16px; }.dre-categories > div > span { display: flex; align-items: center; gap: 8px; }.dre-category-dot { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; background: var(--category-color); }.dre-categories strong small { margin-left: 6px; color: var(--muted); font-size: 11px; }.dre-category-track { grid-column: 1 / -1; height: 7px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.08); }.dre-category-track b { display: block; height: 100%; border-radius: inherit; background: var(--category-color); }
 .form-grid [hidden] { display: none !important; }
+.recurring-config { padding: 14px; border: 1px solid rgba(241,199,91,.22); border-radius: 8px; background: rgba(241,199,91,.05); }
+.recurring-toggle { display: flex !important; grid-template-columns: none !important; align-items: center; gap: 12px; cursor: pointer; }
+.recurring-toggle input { width: 20px; height: 20px; }.recurring-toggle span { display: grid; gap: 2px; }.recurring-toggle small { color: var(--muted); }
+.recurring-fields { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.08); }
+.recurring-list { display: grid; gap: 10px; }.recurring-item { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.035); }.recurring-item > div:first-child { display: grid; gap: 4px; }.recurring-item span,.recurring-item small { color: var(--muted); }
 .dre-disclaimer { margin: 18px 0; color: var(--muted); font-size: 12px; text-align: center; }
 .print-dre-statement > div { color: #1d2939; border-color: #d8dee8; }.print-dre-statement .dre-total { color: #8a6500; }.print-dre-statement .dre-final { color: #176b4a; background: #eaf8f1; }
 
@@ -7883,4 +7888,6 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 @media (max-width: 760px) {
   .dre-upgrade-features, .dre-grid { grid-template-columns: 1fr; }
   .dre-upgrade { padding: 26px 18px; }
+  .recurring-fields { grid-template-columns: 1fr; }
+  .recurring-item { align-items: stretch; flex-direction: column; }
 }

@@ -184,6 +184,7 @@ const FINANCE_CATEGORIES = {
   }
 };
 const DRE_CATEGORY_COLORS = ["#f1c75b", "#4fd1a1", "#5ba8ff", "#b58cff", "#ff8f8f", "#ffad5b", "#67d6dc", "#d98ecb", "#9fc968", "#e9d66b"];
+let pendingVariableRecurrence = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   migrateLegacyData();
@@ -2229,10 +2230,104 @@ function getFinanceiroCategoriaValue() {
   return getValue("financeiroCategoria") === "__other__" ? getValue("financeiroCategoriaOutra").trim() : getValue("financeiroCategoria");
 }
 
+function getRecurringMonthKey(date) {
+  return String(date || "").slice(0, 7);
+}
+
+function getRecurringDate(monthKey, day) {
+  const [year, month] = monthKey.split("-").map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  return `${year}-${String(month).padStart(2, "0")}-${String(Math.min(Math.max(Number(day) || 1, 1), lastDay)).padStart(2, "0")}`;
+}
+
+function getRecurringMonths(template, throughDate = today()) {
+  const recurrence = template.recorrencia || {};
+  const start = recurrence.start || template.data;
+  const end = recurrence.end && recurrence.end < throughDate ? recurrence.end : throughDate;
+  if (!start || !end || start > end) return [];
+  const months = [];
+  let [year, month] = getRecurringMonthKey(start).split("-").map(Number);
+  const endKey = getRecurringMonthKey(end);
+  for (let guard = 0; guard < 240; guard += 1) {
+    const key = `${year}-${String(month).padStart(2, "0")}`;
+    const occurrenceDate = getRecurringDate(key, recurrence.day);
+    if (key > endKey || (recurrence.end && occurrenceDate > recurrence.end)) break;
+    if (occurrenceDate >= start && occurrenceDate <= throughDate) months.push({ key, date: occurrenceDate });
+    month += 1; if (month > 12) { month = 1; year += 1; }
+  }
+  return months;
+}
+
+async function processRecurringFinancialEntries() {
+  if (window.rrHasPlanFeature?.("recorrencias") !== true) return false;
+  const financeiro = readData("financeiro");
+  const existingKeys = new Set(financeiro.map((item) => item.recurrenceOccurrenceKey).filter(Boolean));
+  const generated = [];
+  financeiro.filter((item) => item.recorrencia?.active && item.recorrencia.mode === "fixed").forEach((template) => {
+    getRecurringMonths(template).forEach((occurrence) => {
+      const key = `${template.id}_${occurrence.key}`;
+      if (existingKeys.has(key)) return;
+      existingKeys.add(key);
+      generated.push({ ...template, id: createId("fin"), data: occurrence.date, recorrencia: undefined, recurrenceTemplateId: template.id, recurrenceOccurrenceKey: key, automaticoRecorrencia: true });
+    });
+  });
+  if (!generated.length) return false;
+  writeData("financeiro", [...financeiro, ...generated]);
+  await persistSavedData("financeiro");
+  return true;
+}
+
+function getVariableRecurrencePending(template) {
+  if (!template.recorrencia?.active || template.recorrencia.mode !== "variable") return null;
+  const occurrence = getRecurringMonths(template).at(-1);
+  if (!occurrence) return null;
+  const key = `${template.id}_${occurrence.key}`;
+  return readData("financeiro").some((item) => item.recurrenceOccurrenceKey === key) ? null : { ...occurrence, key };
+}
+
+function applyFinanceRecurringAccess(event) {
+  const allowed = event?.detail?.features?.recorrencias === true;
+  byId("financeiroRecorrenciaPro").hidden = !allowed;
+  byId("financeiroRecorrenciasPanel").hidden = !allowed;
+  if (!allowed) return;
+  processRecurringFinancialEntries().finally(() => { renderFinanceiro(); renderFinanceiroRelatorio(); renderFinanceiroRecorrencias(); });
+}
+
+function renderFinanceiroRecorrencias() {
+  const root = byId("financeiroRecorrenciasLista");
+  if (!root) return;
+  const templates = readData("financeiro").filter((item) => item.recorrencia);
+  root.innerHTML = templates.map((item) => {
+    const pending = getVariableRecurrencePending(item);
+    return `<article class="recurring-item"><div><strong>${escapeHtml(item.descricao)}</strong><span>${escapeHtml(item.categoria || "-")} · dia ${item.recorrencia.day} · ${item.recorrencia.mode === "fixed" ? "valor fixo" : "valor variável"}</span><small>${money(item.valor)} · ${item.recorrencia.active ? "Ativo" : "Pausado"}</small></div><div class="actions">${pending ? `<button class="btn btn-primary" type="button" onclick="launchVariableRecurrence('${item.id}','${pending.key}','${pending.date}')">Informar valor do mês</button>` : ""}<button class="btn btn-muted" type="button" onclick="toggleFinanceRecurrence('${item.id}')">${item.recorrencia.active ? "Pausar" : "Reativar"}</button></div></article>`;
+  }).join("") || `<div class="empty-state muted">Nenhum lançamento recorrente configurado.</div>`;
+}
+
+function launchVariableRecurrence(templateId, key, date) {
+  const item = readData("financeiro").find((entry) => entry.id === templateId);
+  if (!item) return;
+  pendingVariableRecurrence = { templateId, key };
+  setValue("financeiroId", ""); setValue("financeiroData", date); setValue("financeiroDescricao", item.descricao); setValue("financeiroValor", item.valor);
+  byId(item.tipo === "Receita" ? "financeiroTipoReceita" : "financeiroTipoDespesa").checked = true;
+  hydrateFinanceiroClassificacao(item.grupo || "", item.categoria || "");
+  byId("financeiroRepetir").checked = false; byId("financeiroRecorrenciaCampos").hidden = true;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function toggleFinanceRecurrence(templateId) {
+  const financeiro = readData("financeiro"); const item = financeiro.find((entry) => entry.id === templateId);
+  if (!item?.recorrencia) return;
+  item.recorrencia.active = !item.recorrencia.active;
+  writeData("financeiro", financeiro); await persistSavedData("financeiro"); renderFinanceiroRecorrencias();
+}
+
 function initFinanceiro() {
   setValue("financeiroData", today());
   setDefaultReportDates();
   hydrateFinanceiroClassificacao();
+  setValue("financeiroRecorrenciaInicio", today());
+  byId("financeiroRepetir").addEventListener("change", () => { byId("financeiroRecorrenciaCampos").hidden = !byId("financeiroRepetir").checked; });
+  window.addEventListener("rr-workspace-ready", applyFinanceRecurringAccess);
   document.querySelectorAll("input[name='financeiroTipo']").forEach((input) => input.addEventListener("change", () => hydrateFinanceiroClassificacao()));
   byId("financeiroGrupo").addEventListener("change", () => hydrateFinanceiroClassificacao(getValue("financeiroGrupo")));
   byId("financeiroCategoria").addEventListener("change", updateFinanceiroOutraCategoria);
@@ -2270,18 +2365,38 @@ async function saveFinanceiro(event) {
       categoria,
       valor: Number(getValue("financeiroValor")) || 0
     };
+    if (pendingVariableRecurrence) {
+      lancamento.recurrenceTemplateId = pendingVariableRecurrence.templateId;
+      lancamento.recurrenceOccurrenceKey = pendingVariableRecurrence.key;
+    }
+    if (byId("financeiroRepetir")?.checked && window.rrHasPlanFeature?.("recorrencias") === true) {
+      const existingTemplate = financeiro.find((item) => item.id === id)?.recorrencia;
+      lancamento.recorrencia = {
+        active: existingTemplate?.active !== false,
+        mode: getValue("financeiroRecorrenciaModo") || "fixed",
+        day: Math.min(31, Math.max(1, parseInteger(getValue("financeiroRecorrenciaDia")) || 1)),
+        start: getValue("financeiroRecorrenciaInicio") || lancamento.data,
+        end: getValue("financeiroRecorrenciaFim") || ""
+      };
+      lancamento.recurrenceOccurrenceKey = `${id}_${getRecurringMonthKey(lancamento.data)}`;
+    }
     const index = financeiro.findIndex((item) => item.id === id);
     if (index >= 0) financeiro[index] = lancamento;
     else financeiro.push(lancamento);
     writeData("financeiro", financeiro);
     await persistSavedData("financeiro");
+    if (lancamento.recorrencia?.mode === "fixed") await processRecurringFinancialEntries();
     event.target.reset();
     setValue("financeiroId", "");
     setValue("financeiroData", today());
     byId("financeiroTipoDespesa").checked = true;
+    pendingVariableRecurrence = null;
     hydrateFinanceiroClassificacao();
+    setValue("financeiroRecorrenciaInicio", today());
+    byId("financeiroRecorrenciaCampos").hidden = true;
     renderFinanceiro();
     renderFinanceiroRelatorio();
+    renderFinanceiroRecorrencias();
   } catch (error) {
     await rrAlert(error.message || "Não foi possível salvar o lançamento.", "Erro ao salvar");
   } finally {
@@ -2848,12 +2963,15 @@ function setDefaultDreDates() {
   setValue("dreFim", `${year}-${month}-${String(new Date(year, now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`);
 }
 
-function applyDrePlanAccess(event) {
+async function applyDrePlanAccess(event) {
   const allowed = event?.detail?.features?.dre === true || window.rrHasPlanFeature?.("dre") === true;
   if (byId("dreLoading")) byId("dreLoading").hidden = true;
   if (byId("dreUpgrade")) byId("dreUpgrade").hidden = allowed;
   if (byId("dreContent")) byId("dreContent").hidden = !allowed;
-  if (allowed) renderDre();
+  if (allowed) {
+    await processRecurringFinancialEntries();
+    renderDre();
+  }
 }
 
 function renderDre() {
@@ -3064,12 +3182,20 @@ function editFinanceiro(id) {
   setValue("financeiroValor", item.valor);
   byId(item.tipo === "Receita" ? "financeiroTipoReceita" : "financeiroTipoDespesa").checked = true;
   hydrateFinanceiroClassificacao(item.grupo || "", item.categoria || "");
+  const recurrence = item.recorrencia;
+  byId("financeiroRepetir").checked = Boolean(recurrence);
+  byId("financeiroRecorrenciaCampos").hidden = !recurrence;
+  setValue("financeiroRecorrenciaModo", recurrence?.mode || "fixed");
+  setValue("financeiroRecorrenciaDia", recurrence?.day || 1);
+  setValue("financeiroRecorrenciaInicio", recurrence?.start || item.data || today());
+  setValue("financeiroRecorrenciaFim", recurrence?.end || "");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function refreshFinanceiro() {
   renderFinanceiro();
   renderFinanceiroRelatorio();
+  renderFinanceiroRecorrencias();
 }
 
 function hydrateClienteCarroSelects(clienteSelectId, carroSelectId, selectedCarroId = "") {

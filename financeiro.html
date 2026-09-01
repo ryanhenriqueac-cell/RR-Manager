@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financeiro | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=101">
+  <link rel="stylesheet" href="style.css?v=103">
 </head>
 <body data-page="financeiro">
   <div class="app-shell">
@@ -69,11 +69,27 @@
           <label class="span-2">Descrição<input id="financeiroDescricao" required placeholder="Ex.: retirada pró-labore, entrada no caixa, prejuízo, fornecedor..."></label>
           <label>Valor<input id="financeiroValor" type="number" min="0" step="0.01" required placeholder="0,00"></label>
 
+          <div id="financeiroRecorrenciaPro" class="span-2 recurring-config" hidden>
+            <label class="recurring-toggle"><input id="financeiroRepetir" type="checkbox"><span><strong>Repetir mensalmente</strong><small>Automação disponível no Plano Pro</small></span></label>
+            <div id="financeiroRecorrenciaCampos" class="recurring-fields" hidden>
+              <label>Modalidade<select id="financeiroRecorrenciaModo"><option value="fixed">Valor fixo — lançar automaticamente</option><option value="variable">Valor variável — lembrar todo mês</option></select></label>
+              <label>Dia do mês<input id="financeiroRecorrenciaDia" type="number" min="1" max="31" value="1"></label>
+              <label>Início<input id="financeiroRecorrenciaInicio" type="date"></label>
+              <label>Término opcional<input id="financeiroRecorrenciaFim" type="date"></label>
+            </div>
+          </div>
+
           <div class="form-actions span-2">
             <button class="btn btn-primary" type="submit">Salvar lançamento</button>
             <button class="btn btn-muted" type="button" data-clear-form="financeiroForm">Limpar</button>
           </div>
         </form>
+      </section>
+
+      <section id="financeiroRecorrenciasPanel" class="panel" hidden>
+        <div class="panel-header"><div><p class="eyebrow">Plano Pro</p><h2>Lançamentos recorrentes</h2></div></div>
+        <p class="report-status">Valores fixos são lançados automaticamente. Valores variáveis aparecem como lembrete para confirmação.</p>
+        <div id="financeiroRecorrenciasLista" class="recurring-list"></div>
       </section>
 
       <section class="panel">
@@ -133,8 +149,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=89"></script>
+  <script src="script.js?v=91"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=56"></script>
+  <script type="module" src="firebase-sync.js?v=58"></script>
 </body>
 </html>

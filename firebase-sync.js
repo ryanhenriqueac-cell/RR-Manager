@@ -63,11 +63,11 @@ const CONTRACT_PLAN = {
 const PLAN_CATALOG = {
   essential: {
     name: "Essencial",
-    features: { core: true, financeiroBasico: true, dre: false, financeiroAvancado: false, notaFiscal: false, exportacaoContador: false, estoque: false }
+    features: { core: true, financeiroBasico: true, dre: false, financeiroAvancado: false, recorrencias: false, notaFiscal: false, exportacaoContador: false, estoque: false }
   },
   pro: {
     name: "Pro",
-    features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, notaFiscal: true, exportacaoContador: true, estoque: true }
+    features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: true, exportacaoContador: true, estoque: true }
   }
 };
 const DEFAULT_SUBSCRIPTION = {
