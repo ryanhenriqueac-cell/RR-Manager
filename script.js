@@ -2932,7 +2932,8 @@ function getDreCostAlerts(orcamentos) {
 function getDreData(start, end) {
   const lancamentos = getFinanceiroLancamentos().filter((item) => isDateInRange(item.data, start, end));
   const manuais = readData("financeiro").filter((item) => isDateInRange(item.data, start, end));
-  const outrasReceitas = manuais.filter((item) => item.tipo.includes("Receita")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const receitasManuaisItems = manuais.filter((item) => item.tipo.includes("Receita"));
+  const outrasReceitas = receitasManuaisItems.reduce((sum, item) => sum + parseDecimal(item.valor), 0);
   const custoPecas = lancamentos.filter((item) => String(item.id).startsWith("custo_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
   const custoTerceirizados = lancamentos.filter((item) => String(item.id).startsWith("terceirizados_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
   const taxas = lancamentos.filter((item) => String(item.id).startsWith("taxa_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
@@ -2959,11 +2960,16 @@ function getDreData(start, end) {
     acc[categoria] = (acc[categoria] || 0) + parseDecimal(item.valor);
     return acc;
   }, {});
+  const categoriasItens = despesasItems.reduce((acc, item) => {
+    const categoria = String(item.categoria || "Outras despesas").trim() || "Outras despesas";
+    (acc[categoria] ||= []).push(item);
+    return acc;
+  }, {});
   const detalhes = aprovados.map((orcamento) => {
     const receita = getOrcamentoReceita(orcamento); const custos = getServiceCosts(orcamento); const lucro = receita - custos;
     return { orcamento, receita, custos, lucro, margem: receita > 0 ? (lucro / receita) * 100 : 0, data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "" };
   }).sort((a, b) => String(b.data).localeCompare(String(a.data)));
-  return { start, end, receitaBruta, receitasPorArea, outrasReceitas, descontos, acrescimos, receitaLiquida, custoPecas, custoTerceirizados, taxas, custosDiretos, lucroBruto, despesas, resultado, margemBruta, margemLiquida, ticketMedio, categorias, lancamentos, aprovados, detalhes, alertas: getDreCostAlerts(aprovados) };
+  return { start, end, receitaBruta, receitasPorArea, outrasReceitas, receitasManuaisItems, descontos, acrescimos, receitaLiquida, custoPecas, custoTerceirizados, taxas, custosDiretos, lucroBruto, despesas, resultado, margemBruta, margemLiquida, ticketMedio, categorias, categoriasItens, lancamentos, aprovados, detalhes, alertas: getDreCostAlerts(aprovados) };
 }
 
 function getPreviousDrePeriod(start, end) {
@@ -2985,11 +2991,12 @@ function percentChange(current, previous) {
 function initDre() {
   setDefaultDreDates();
   byId("dreForm")?.addEventListener("submit", (event) => { event.preventDefault(); renderDre(); });
-  byId("dreMesAtual")?.addEventListener("click", () => { setDefaultDreDates(); renderDre(); });
+  document.querySelectorAll("[data-dre-period]").forEach((button) => button.addEventListener("click", () => setDreQuickPeriod(button.dataset.drePeriod)));
   byId("drePdf")?.addEventListener("click", () => {
     const params = new URLSearchParams({ inicio: getValue("dreInicio"), fim: getValue("dreFim") });
     window.location.href = `dre-imprimir.html?${params.toString()}`;
   });
+  byId("dreCsv")?.addEventListener("click", exportDreCsv);
   window.addEventListener("rr-workspace-ready", applyDrePlanAccess);
 }
 
@@ -3018,7 +3025,7 @@ function renderDre() {
   const previousPeriod = getPreviousDrePeriod(start, end);
   const previous = getDreData(previousPeriod.start, previousPeriod.end);
   setText("dreStatus", `${formatDateBR(start)} até ${formatDateBR(end)} · ${dre.aprovados.length} orçamento(s) aprovado(s) · ${dre.lancamentos.length} lançamento(s)`);
-  byId("dreCards").innerHTML = `<article class="stat-card"><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong><small>${percentChange(dre.receitaLiquida, previous.receitaLiquida).toFixed(1).replace(".", ",")}% vs. período anterior</small></article><article class="stat-card"><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong><small>Margem de ${dre.margemBruta.toFixed(1).replace(".", ",")}%</small></article><article class="stat-card"><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong><small>${dre.aprovados.length} orçamento(s) aprovado(s)</small></article><article class="stat-card"><span>Despesas operacionais</span><strong>${money(dre.despesas)}</strong><small>Saídas manuais do período</small></article><article class="stat-card highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong><small>Margem de ${dre.margemLiquida.toFixed(1).replace(".", ",")}%</small></article>`;
+  byId("dreCards").innerHTML = `<article class="stat-card"><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong><small>${percentChange(dre.receitaLiquida, previous.receitaLiquida).toFixed(1).replace(".", ",")}% vs. período anterior</small></article><article class="stat-card"><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong><small>Margem de ${dre.margemBruta.toFixed(1).replace(".", ",")}%</small></article><article class="stat-card"><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong><small>${dre.aprovados.length} orçamento(s) aprovado(s)</small></article><article class="stat-card"><span>Despesas operacionais</span><strong>${money(dre.despesas)}</strong><small>Saídas manuais do período</small></article><article class="stat-card highlight ${dre.resultado < 0 ? "negative-result" : ""}"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong><small>${dre.resultado < 0 ? "Prejuízo" : "Margem"} de ${dre.margemLiquida.toFixed(1).replace(".", ",")}%</small></article>`;
   byId("dreStatement").innerHTML = buildDreStatementRows(dre);
   const change = percentChange(dre.resultado, previous.resultado);
   byId("dreComparison").innerHTML = `<div class="dre-comparison-value ${change >= 0 ? "positive" : "negative"}"><strong>${change >= 0 ? "+" : ""}${change.toFixed(1).replace(".", ",")}%</strong><span>Resultado comparado ao período anterior</span></div><div class="dre-compare-bars"><div><span>Período anterior</span><b>${money(previous.resultado)}</b></div><div><span>Período atual</span><b>${money(dre.resultado)}</b></div></div><small>${formatDateBR(previousPeriod.start)} até ${formatDateBR(previousPeriod.end)}</small>`;
@@ -3026,15 +3033,57 @@ function renderDre() {
   byId("dreCategories").innerHTML = categories.map(([name, value], index) => {
     const percent = dre.despesas ? (value / dre.despesas) * 100 : 0;
     const color = DRE_CATEGORY_COLORS[index % DRE_CATEGORY_COLORS.length];
-    return `<div style="--category-color:${color}"><span><i class="dre-category-dot"></i>${escapeHtml(name)}</span><strong>${money(value)} <small>${percent.toFixed(1).replace(".", ",")}%</small></strong><i class="dre-category-track"><b style="width:${Math.max(2, percent)}%"></b></i></div>`;
+    return `<button type="button" class="dre-category-item" data-dre-category="${escapeHtml(name)}" style="--category-color:${color}"><span><i class="dre-category-dot"></i>${escapeHtml(name)}</span><strong>${money(value)} <small>${percent.toFixed(1).replace(".", ",")}% do total</small></strong><i class="dre-category-track"><b style="width:${Math.max(2, percent)}%"></b></i></button>`;
   }).join("") || `<p class="muted">Nenhuma despesa operacional no período.</p>`;
+  byId("dreCategoryDetails").hidden = true;
+  byId("dreCategoryDetails").innerHTML = "";
+  document.querySelectorAll("[data-dre-category]").forEach((button) => button.addEventListener("click", () => renderDreCategoryDetails(button.dataset.dreCategory, dre.categoriasItens[button.dataset.dreCategory] || [])));
   byId("dreOrcamentos").innerHTML = dre.detalhes.map(({ orcamento, receita, custos, margem, data }) => `<tr><td>${escapeHtml(formatDateBR(data) || "-")}</td><td><strong>${String(orcamento.numero || "").padStart(4, "0")}</strong></td><td><strong>${escapeHtml(getClienteNome(orcamento.clienteId))}</strong><br><small class="muted">${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))}</small></td><td>${money(receita)}</td><td>${money(custos)}</td><td class="${margem >= 0 ? "dre-margin-positive" : "dre-margin-negative"}">${margem.toFixed(1).replace(".", ",")}%</td><td><a class="btn btn-muted" href="orcamento-imprimir.html?id=${encodeURIComponent(orcamento.id)}">Abrir orçamento</a></td></tr>`).join("") || emptyRow(7, "Nenhum orçamento aprovado no período.");
   byId("dreAlerts").innerHTML = dre.alertas.length ? dre.alertas.map((alerta) => `<div class="dre-alert-item"><div><strong>${escapeHtml(alerta.message)}</strong><br><span>${escapeHtml(alerta.reference)}</span></div><a class="btn btn-muted" href="orcamentos.html?editar=${encodeURIComponent(alerta.orcamentoId)}">Corrigir</a></div>`).join("") : `<div class="dre-alert-ok">Todos os custos de peças e serviços terceirizados estão preenchidos neste período.</div>`;
 }
 
+function renderDreCategoryDetails(category, items) {
+  const container = byId("dreCategoryDetails"); if (!container) return;
+  const total = items.reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  container.hidden = false;
+  container.innerHTML = `<h3>${escapeHtml(category)} · ${money(total)}</h3><div class="table-wrap"><table><thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead><tbody>${items.map((item) => `<tr><td>${escapeHtml(formatDateBR(item.data) || "-")}</td><td>${escapeHtml(item.descricao || "Sem descrição")}</td><td>${money(item.valor)}</td></tr>`).join("") || emptyRow(3, "Nenhum lançamento nesta categoria.")}</tbody></table></div>`;
+}
+
+function setDreQuickPeriod(period) {
+  const now = new Date(); let start; let end;
+  if (period === "previous-month") {
+    start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0);
+  } else if (period === "quarter") {
+    start = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1); end = now;
+  } else if (period === "year") {
+    start = new Date(now.getFullYear(), 0, 1); end = now;
+  } else {
+    start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  }
+  const iso = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  setValue("dreInicio", iso(start)); setValue("dreFim", iso(end)); renderDre();
+}
+
+function csvCell(value) {
+  const raw = String(value ?? "");
+  const safe = /^[=+\-@]/.test(raw) ? `'${raw}` : raw;
+  return `"${safe.replaceAll('"', '""')}"`;
+}
+
+function exportDreCsv() {
+  const dre = getDreData(getValue("dreInicio"), getValue("dreFim"));
+  const rows = [["Tipo", "Data", "Referência", "Categoria", "Descrição", "Receita", "Custo/Despesa", "Resultado"]];
+  dre.detalhes.forEach(({ orcamento, receita, custos, lucro, data }) => rows.push(["Orçamento aprovado", formatDateBR(data), String(orcamento.numero || "").padStart(4, "0"), "Serviço", getClienteNome(orcamento.clienteId), receita.toFixed(2), custos.toFixed(2), lucro.toFixed(2)]));
+  dre.receitasManuaisItems.forEach((item) => rows.push(["Receita manual", formatDateBR(item.data), item.id || "", item.categoria || "Outras receitas", item.descricao || "", parseDecimal(item.valor).toFixed(2), "0.00", parseDecimal(item.valor).toFixed(2)]));
+  Object.entries(dre.categoriasItens).forEach(([categoria, items]) => items.forEach((item) => rows.push(["Despesa operacional", formatDateBR(item.data), item.id || "", categoria, item.descricao || "", "0.00", parseDecimal(item.valor).toFixed(2), (-parseDecimal(item.valor)).toFixed(2)])));
+  const content = `\uFEFF${rows.map((row) => row.map(csvCell).join(";")).join("\r\n")}`;
+  const url = URL.createObjectURL(new Blob([content], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a"); link.href = url; link.download = `DRE-${dre.start || "inicio"}-a-${dre.end || "fim"}.csv`; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function buildDreStatementRows(dre) {
   const row = (label, value, className = "") => `<div class="${className}"><span>${label}</span><strong>${money(value)}</strong></div>`;
-  return row("Receita com peças", dre.receitasPorArea.pecas) + row("Receita com mão de obra", dre.receitasPorArea.maoObra) + row("Receita com serviços terceirizados", dre.receitasPorArea.terceirizados) + row("Outras receitas e ajustes", dre.receitasPorArea.outros + dre.outrasReceitas) + row("Receita bruta", dre.receitaBruta, "dre-total") + row("(-) Descontos concedidos", -dre.descontos) + row("(+) Acréscimos repassados", dre.acrescimos) + row("Receita líquida", dre.receitaLiquida, "dre-total") + row("(-) Custo das peças", -dre.custoPecas) + row("(-) Serviços terceirizados", -dre.custoTerceirizados) + row("(-) Taxas de pagamento", -dre.taxas) + row("Lucro bruto", dre.lucroBruto, "dre-total") + row("(-) Despesas operacionais", -dre.despesas) + row("Resultado líquido", dre.resultado, "dre-final");
+  return row("Receita com peças", dre.receitasPorArea.pecas) + row("Receita com mão de obra", dre.receitasPorArea.maoObra) + row("Receita com serviços terceirizados", dre.receitasPorArea.terceirizados) + row("Outras receitas e ajustes", dre.receitasPorArea.outros + dre.outrasReceitas) + row("Receita bruta", dre.receitaBruta, "dre-total") + row("(-) Descontos concedidos", -dre.descontos) + row("(+) Acréscimos repassados", dre.acrescimos) + row("Receita líquida", dre.receitaLiquida, "dre-total") + row("(-) Custo das peças", -dre.custoPecas) + row("(-) Serviços terceirizados", -dre.custoTerceirizados) + row("(-) Taxas de pagamento", -dre.taxas) + row("Lucro bruto", dre.lucroBruto, "dre-total") + row("(-) Despesas operacionais", -dre.despesas) + row("Resultado líquido", dre.resultado, `dre-final${dre.resultado < 0 ? " negative-result" : ""}`);
 }
 
 function renderPublicOrcamentoResponse(response = "") {
@@ -3284,14 +3333,15 @@ function initDrePrint() {
 function buildDrePrintHtml(dre) {
   const branding = getDocumentBranding();
   const categories = Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]);
+  const generatedAt = new Date().toLocaleString("pt-BR");
   const budgetRows = dre.detalhes.map(({ orcamento, receita, custos, lucro, margem, data }) => `<tr><td>${escapeHtml(formatDateBR(data) || "-")}</td><td>${String(orcamento.numero || "").padStart(4, "0")}</td><td>${escapeHtml(getClienteNome(orcamento.clienteId))}</td><td>${money(receita)}</td><td>${money(custos)}</td><td>${money(lucro)} (${margem.toFixed(1).replace(".", ",")}%)</td></tr>`).join("") || `<tr><td colspan="6">Sem orçamentos aprovados no período.</td></tr>`;
   const alertRows = dre.alertas.map((alerta) => `<tr><td>${escapeHtml(alerta.reference)}</td><td>${escapeHtml(alerta.message)}</td></tr>`).join("");
   return `<article class="finance-report-document dre-print-document">
-    <header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial realizado</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p></div></header>
-    <section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong></div><div class="highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section>
+    <header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial realizado</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p><p>Gerado em: <strong>${escapeHtml(generatedAt)}</strong> · ${dre.aprovados.length} orçamento(s) considerado(s)</p></div></header>
+    <section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong></div><div class="highlight ${dre.resultado < 0 ? "negative-result" : ""}"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section>
     <section class="report-table-section"><h2>Demonstração do resultado</h2><div class="dre-statement print-dre-statement">${buildDreStatementRows(dre)}</div></section>
     <section class="report-table-section"><h2>Orçamentos que formam o resultado</h2><table class="print-table"><thead><tr><th>Data</th><th>Orçamento</th><th>Cliente</th><th>Receita</th><th>Custos</th><th>Lucro / margem</th></tr></thead><tbody>${budgetRows}</tbody></table></section>
-    <section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>Participação</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${dre.despesas ? ((value / dre.despesas) * 100).toFixed(1).replace(".", ",") : "0,0"}%</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="3">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section>
+    <section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>% do total de despesas</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${dre.despesas ? ((value / dre.despesas) * 100).toFixed(1).replace(".", ",") : "0,0"}%</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="3">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section>
     ${alertRows ? `<section class="report-table-section"><h2>Avisos de custos não informados</h2><table class="print-table"><thead><tr><th>Orçamento</th><th>Aviso</th></tr></thead><tbody>${alertRows}</tbody></table></section>` : ""}
     <footer class="print-footer">Critério gerencial adotado: orçamento aprovado representa serviço realizado e valor recebido na data da aprovação. Não substitui demonstrações contábeis elaboradas por profissional habilitado.</footer>
   </article>`;
