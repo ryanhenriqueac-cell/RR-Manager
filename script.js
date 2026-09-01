@@ -2988,7 +2988,7 @@ function initDre() {
   byId("dreMesAtual")?.addEventListener("click", () => { setDefaultDreDates(); renderDre(); });
   byId("drePdf")?.addEventListener("click", () => {
     const params = new URLSearchParams({ inicio: getValue("dreInicio"), fim: getValue("dreFim") });
-    window.open(`dre-imprimir.html?${params.toString()}`, "_blank", "noopener");
+    window.location.href = `dre-imprimir.html?${params.toString()}`;
   });
   window.addEventListener("rr-workspace-ready", applyDrePlanAccess);
 }
@@ -3028,7 +3028,7 @@ function renderDre() {
     const color = DRE_CATEGORY_COLORS[index % DRE_CATEGORY_COLORS.length];
     return `<div style="--category-color:${color}"><span><i class="dre-category-dot"></i>${escapeHtml(name)}</span><strong>${money(value)} <small>${percent.toFixed(1).replace(".", ",")}%</small></strong><i class="dre-category-track"><b style="width:${Math.max(2, percent)}%"></b></i></div>`;
   }).join("") || `<p class="muted">Nenhuma despesa operacional no período.</p>`;
-  byId("dreOrcamentos").innerHTML = dre.detalhes.map(({ orcamento, receita, custos, margem, data }) => `<tr><td>${escapeHtml(formatDateBR(data) || "-")}</td><td><strong>${String(orcamento.numero || "").padStart(4, "0")}</strong></td><td><strong>${escapeHtml(getClienteNome(orcamento.clienteId))}</strong><br><small class="muted">${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))}</small></td><td>${money(receita)}</td><td>${money(custos)}</td><td class="${margem >= 0 ? "dre-margin-positive" : "dre-margin-negative"}">${margem.toFixed(1).replace(".", ",")}%</td><td><a class="btn btn-muted" href="orcamento-imprimir.html?id=${encodeURIComponent(orcamento.id)}" target="_blank" rel="noopener">Abrir orçamento</a></td></tr>`).join("") || emptyRow(7, "Nenhum orçamento aprovado no período.");
+  byId("dreOrcamentos").innerHTML = dre.detalhes.map(({ orcamento, receita, custos, margem, data }) => `<tr><td>${escapeHtml(formatDateBR(data) || "-")}</td><td><strong>${String(orcamento.numero || "").padStart(4, "0")}</strong></td><td><strong>${escapeHtml(getClienteNome(orcamento.clienteId))}</strong><br><small class="muted">${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))}</small></td><td>${money(receita)}</td><td>${money(custos)}</td><td class="${margem >= 0 ? "dre-margin-positive" : "dre-margin-negative"}">${margem.toFixed(1).replace(".", ",")}%</td><td><a class="btn btn-muted" href="orcamento-imprimir.html?id=${encodeURIComponent(orcamento.id)}">Abrir orçamento</a></td></tr>`).join("") || emptyRow(7, "Nenhum orçamento aprovado no período.");
   byId("dreAlerts").innerHTML = dre.alertas.length ? dre.alertas.map((alerta) => `<div class="dre-alert-item"><div><strong>${escapeHtml(alerta.message)}</strong><br><span>${escapeHtml(alerta.reference)}</span></div><a class="btn btn-muted" href="orcamentos.html?editar=${encodeURIComponent(alerta.orcamentoId)}">Corrigir</a></div>`).join("") : `<div class="dre-alert-ok">Todos os custos de peças e serviços terceirizados estão preenchidos neste período.</div>`;
 }
 
