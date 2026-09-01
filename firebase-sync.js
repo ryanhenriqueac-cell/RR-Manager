@@ -60,6 +60,24 @@ const CONTRACT_PLAN = {
   renewal: "Períodos sucessivos de 30 dias",
   loyalty: "Sem fidelidade no plano mensal"
 };
+const PLAN_CATALOG = {
+  essential: {
+    name: "Essencial",
+    features: { core: true, financeiroBasico: true, dre: false, financeiroAvancado: false, notaFiscal: false, exportacaoContador: false, estoque: false }
+  },
+  pro: {
+    name: "Pro",
+    features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, notaFiscal: true, exportacaoContador: true, estoque: true }
+  }
+};
+const DEFAULT_SUBSCRIPTION = {
+  planId: "essential",
+  billingCycle: "monthly",
+  agreedPrice: 59.90,
+  promotionalPrice: 59.90,
+  promotionalMonths: 12,
+  regularPrice: 79.90
+};
 const CONTRACT_DOCUMENT_URL = "contrato.html";
 const ACCESS_STATUS = {
   PENDING: "pending",
@@ -88,6 +106,32 @@ let collectionUnsubscribers = [];
 const pendingCollectionChanges = new Map();
 const confirmedCollectionState = new Map();
 let adminWorkspaces = [];
+let activeWorkspaceSubscription = null;
+
+function normalizeSubscription(subscription = {}) {
+  const planId = PLAN_CATALOG[subscription.planId] ? subscription.planId : DEFAULT_SUBSCRIPTION.planId;
+  const billingCycle = subscription.billingCycle === "annual" ? "annual" : "monthly";
+  const annualDefault = billingCycle === "annual" ? 799 : DEFAULT_SUBSCRIPTION.agreedPrice;
+  return {
+    ...DEFAULT_SUBSCRIPTION,
+    ...subscription,
+    planId,
+    billingCycle,
+    agreedPrice: Number(subscription.agreedPrice ?? annualDefault),
+    features: { ...PLAN_CATALOG[planId].features, ...(subscription.features || {}) }
+  };
+}
+
+function getWorkspaceSubscription(workspace = {}) {
+  return normalizeSubscription(workspace.subscription || {});
+}
+
+function getPlanName(subscription = {}) {
+  return PLAN_CATALOG[normalizeSubscription(subscription).planId].name;
+}
+
+window.rrHasPlanFeature = (feature) => Boolean(activeWorkspaceSubscription?.features?.[feature]);
+window.rrGetActivePlan = () => activeWorkspaceSubscription ? { ...activeWorkspaceSubscription } : null;
 let pendingAuthMessage = "";
 let pendingAuthModal = null;
 let creatingAccessRequest = false;
@@ -742,6 +786,8 @@ window.rrPersistAppData = async (storageKey = "") => {
 
 function setWorkspaceBrandingContext(workspace = {}) {
   const registration = workspace.registration || {};
+  activeWorkspaceSubscription = getWorkspaceSubscription(workspace);
+  document.body.dataset.plan = activeWorkspaceSubscription.planId;
   localStorage.setItem(WORKSPACE_BRANDING_KEY, JSON.stringify({
     ownerEmail: workspace.ownerEmail || activeWorkspaceEmail || currentUser?.email || "",
     businessName: workspace.businessName || registration.empresa || "",
@@ -754,7 +800,8 @@ function setWorkspaceBrandingContext(workspace = {}) {
     partsMarkupPercent: normalizePartsMarkupPercent(workspace.partsMarkupPercent),
     laborHourRate: normalizeLaborHourRate(workspace.laborHourRate),
     paymentRates: normalizePaymentRates(workspace.paymentRates),
-    registration
+    registration,
+    subscription: activeWorkspaceSubscription
   }));
 }
 
@@ -766,6 +813,7 @@ async function saveAccessRequest(user) {
     ownerEmail: user.email,
     businessName: document.getElementById("registerBusinessName").value.trim(),
     accessStatus: ACCESS_STATUS.PENDING,
+    subscription: normalizeSubscription(),
     onboarding: {
       version: ONBOARDING_VERSION,
       managerIntroCompleted: false
@@ -871,6 +919,33 @@ function buildContractNumber(acceptedAtClient = "") {
   return `RRM-${accountId}-${year}`;
 }
 
+function buildWorkspaceContractPlan(workspace = {}) {
+  const subscription = getWorkspaceSubscription(workspace);
+  const planName = `RR Manager ${getPlanName(subscription)}`;
+  if (subscription.billingCycle === "annual") {
+    return {
+      code: `${subscription.planId}_annual`,
+      name: `${planName} · anual`,
+      billingCycle: "annual",
+      agreedPrice: subscription.agreedPrice,
+      renewal: "Períodos sucessivos de 12 meses",
+      loyalty: "Vigência anual contratada"
+    };
+  }
+  const hasLaunchCondition = subscription.planId === "essential" && Number(subscription.promotionalMonths) > 0;
+  return {
+    code: `${subscription.planId}_monthly`,
+    name: `${planName} · mensal${hasLaunchCondition ? " · condição de lançamento" : ""}`,
+    billingCycle: "monthly",
+    agreedPrice: subscription.agreedPrice,
+    promotionalPrice: hasLaunchCondition ? subscription.promotionalPrice : subscription.agreedPrice,
+    promotionalMonths: hasLaunchCondition ? subscription.promotionalMonths : 0,
+    regularPrice: hasLaunchCondition ? subscription.regularPrice : subscription.agreedPrice,
+    renewal: "Períodos sucessivos de 30 dias",
+    loyalty: "Sem fidelidade no plano mensal"
+  };
+}
+
 function buildContractSnapshot(workspace = {}, acceptedAtClient = "") {
   const registration = workspace.registration || {};
   const acceptedAt = acceptedAtClient || new Date().toISOString();
@@ -904,7 +979,7 @@ function buildContractSnapshot(workspace = {}, acceptedAtClient = "") {
       paymentMethods: "cartão de crédito, boleto bancário e Pix",
       venue: "Belo Horizonte/MG"
     },
-    plan: { ...CONTRACT_PLAN }
+    plan: buildWorkspaceContractPlan(workspace)
   };
 }
 
@@ -912,7 +987,9 @@ function renderContractDocument(workspace = {}) {
   const root = document.getElementById("contractDocumentRoot");
   if (!root) return;
   const acceptance = workspace.legalAcceptance || {};
-  const hasCurrentContractSnapshot = acceptance.contractSnapshot?.contractVersion === CONTRACT_VERSION;
+  const subscriptionRevision = workspace.subscription?.revision || "";
+  const hasCurrentContractSnapshot = acceptance.contractSnapshot?.contractVersion === CONTRACT_VERSION
+    && (!subscriptionRevision || acceptance.subscriptionRevision === subscriptionRevision);
   const snapshot = hasCurrentContractSnapshot
     ? acceptance.contractSnapshot
     : buildContractSnapshot(workspace, "");
@@ -931,6 +1008,22 @@ function renderContractDocument(workspace = {}) {
     : "Pendente de aceite";
   const contractNumber = snapshot.contractNumber
     || buildContractNumber(hasCurrentContractSnapshot ? acceptance.acceptedAtClient : "");
+  const isAnnualPlan = plan.billingCycle === "annual";
+  const planInitialValue = isAnnualPlan
+    ? `R$ ${Number(plan.agreedPrice || 0).toFixed(2).replace(".", ",")} por ano`
+    : plan.promotionalMonths > 0
+      ? `R$ ${Number(plan.promotionalPrice || 0).toFixed(2).replace(".", ",")} por mês durante ${plan.promotionalMonths} meses`
+      : `R$ ${Number(plan.agreedPrice || plan.regularPrice || 0).toFixed(2).replace(".", ",")} por mês`;
+  const planLaterValue = isAnnualPlan
+    ? "Renovação pelo valor anual vigente, mediante comunicação prévia de reajuste"
+    : plan.promotionalMonths > 0
+      ? `R$ ${Number(plan.regularPrice || 0).toFixed(2).replace(".", ",")} por mês`
+      : "Mantém o valor contratado, sujeito aos reajustes previstos";
+  const planCommercialClause = isAnnualPlan
+    ? `A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>${escapeHtml(planInitialValue)}</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.`
+    : plan.promotionalMonths > 0
+      ? `A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>${escapeHtml(planInitialValue)}</strong>. Encerrado o período promocional, o valor passa a <strong>${escapeHtml(planLaterValue)}</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.`
+      : `A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>${escapeHtml(planInitialValue)}</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.`;
 
   const pageHeader = (page, title) => `
     <header class="contract-page-header">
@@ -992,8 +1085,8 @@ function renderContractDocument(workspace = {}) {
           <div class="contract-section contract-plan-card">
             <h3>2.2 Dados do plano</h3>
             <div><strong>Plano contratado</strong><span>${escapeHtml(plan.name)}</span></div>
-            <div><strong>Valor inicial</strong><span>R$ ${plan.promotionalPrice.toFixed(2).replace(".", ",")} por mês durante ${plan.promotionalMonths} meses</span></div>
-            <div><strong>Valor posterior</strong><span>R$ ${plan.regularPrice.toFixed(2).replace(".", ",")} por mês</span></div>
+            <div><strong>Valor contratado</strong><span>${escapeHtml(planInitialValue)}</span></div>
+            <div><strong>Condição posterior</strong><span>${escapeHtml(planLaterValue)}</span></div>
             <div><strong>Renovação</strong><span>${escapeHtml(plan.renewal)}</span></div>
             <div><strong>Fidelidade</strong><span>${escapeHtml(plan.loyalty)}</span></div>
           </div>
@@ -1036,7 +1129,7 @@ function renderContractDocument(workspace = {}) {
 
       <section class="contract-sheet" data-pdf-page>
         ${pageHeader(5, "Condições comerciais")}
-        <div class="contract-section"><h3>8. Plano, preço e renovação</h3><p>A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>R$ ${plan.promotionalPrice.toFixed(2).replace(".", ",")} mensais durante os primeiros ${plan.promotionalMonths} meses</strong>. Encerrado o período promocional, o valor passa a <strong>R$ ${plan.regularPrice.toFixed(2).replace(".", ",")} mensais</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.</p></div>
+        <div class="contract-section"><h3>8. Plano, preço e renovação</h3><p>${planCommercialClause}</p></div>
         <div class="contract-section"><h3>9. Pagamento e reajuste</h3><p>O pagamento ocorrerá por <strong>${escapeHtml(provider.paymentMethods || "cartão de crédito, boleto bancário ou Pix")}</strong>, conforme a opção disponibilizada, e no vencimento informado na contratação. Valores vencidos permanecem devidos. Os preços poderão ser reajustados anualmente mediante comunicação prévia, podendo ser utilizado o IPCA ou índice oficial equivalente como referência. Mudanças de plano ou serviços opcionais serão apresentadas antes da contratação.</p></div>
         <div class="contract-section"><h3>10. Inadimplência</h3><p>O atraso poderá resultar em comunicação de cobrança e suspensão do acesso após prazo razoável para regularização. A suspensão não cancela valores já constituídos. Situações de fraude, risco à segurança ou uso ilícito poderão gerar bloqueio imediato.</p></div>
         <div class="contract-section"><h3>11. Cancelamento</h3><p>O plano mensal não possui fidelidade e pode ser cancelado pelos canais oficiais. O cancelamento produz efeitos ao final do período já pago e, salvo cobrança indevida ou hipótese legal, não gera devolução proporcional. Valores vencidos e obrigações anteriores permanecem exigíveis.</p></div>
@@ -1374,10 +1467,12 @@ function setMeuCadastroPersonalizacaoStatus(message) {
 
 function hasCurrentLegalAcceptance(workspace = {}) {
   const acceptance = workspace.legalAcceptance || {};
+  const subscriptionRevision = workspace.subscription?.revision || "";
   return acceptance.termsVersion === LEGAL_TERMS_VERSION
     && acceptance.privacyVersion === LEGAL_PRIVACY_VERSION
     && acceptance.contractVersion === CONTRACT_VERSION
-    && acceptance.contractSnapshot?.contractVersion === CONTRACT_VERSION;
+    && acceptance.contractSnapshot?.contractVersion === CONTRACT_VERSION
+    && (!subscriptionRevision || acceptance.subscriptionRevision === subscriptionRevision);
 }
 
 async function ensureLegalAcceptance(workspace = {}) {
@@ -1462,6 +1557,7 @@ function showLegalAcceptanceModal(workspace = {}) {
             acceptedByUid: currentUser.uid,
             acceptedByEmail: currentUser.email || "",
             acceptanceMethod: "Authenticated checkbox confirmation",
+            subscriptionRevision: workspace.subscription?.revision || "",
             contractSnapshot
           },
           updatedAt: serverTimestamp()
@@ -1831,6 +1927,7 @@ function renderAdminWorkspaceList() {
     const orcamentos = Number(workspace.stats?.orcamentos ?? (Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0));
     const accessStatus = workspace.accessStatus || ACCESS_STATUS.ACTIVE;
     const statusClass = accessStatus === ACCESS_STATUS.BLOCKED ? "is-blocked" : accessStatus === ACCESS_STATUS.PENDING ? "is-pending" : "is-active";
+    const subscription = getWorkspaceSubscription(workspace);
     return `
       <div class="admin-workspace-item">
         <button class="admin-workspace-open" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
@@ -1840,6 +1937,24 @@ function renderAdminWorkspaceList() {
           </span>
           <span>${clientes} clientes | ${orcamentos} orçamentos</span>
         </button>
+        <div class="admin-plan-row" data-plan-workspace="${escapeHtml(workspace.id)}">
+          <label>Plano
+            <select data-plan-field="planId">
+              <option value="essential"${subscription.planId === "essential" ? " selected" : ""}>Essencial</option>
+              <option value="pro"${subscription.planId === "pro" ? " selected" : ""}>Pro</option>
+            </select>
+          </label>
+          <label>Cobrança
+            <select data-plan-field="billingCycle">
+              <option value="monthly"${subscription.billingCycle === "monthly" ? " selected" : ""}>Mensal</option>
+              <option value="annual"${subscription.billingCycle === "annual" ? " selected" : ""}>Anual</option>
+            </select>
+          </label>
+          <label>Valor contratado
+            <input data-plan-field="agreedPrice" type="number" min="0.01" step="0.01" value="${Number(subscription.agreedPrice).toFixed(2)}">
+          </label>
+          <button class="btn btn-ghost" type="button" data-save-plan="${escapeHtml(workspace.id)}">Salvar plano</button>
+        </div>
         <div class="admin-access-row">
           <span class="admin-access-status ${statusClass}">${getAccessStatusText(accessStatus)}</span>
           <button class="btn btn-primary" type="button" data-access-action="${ACCESS_STATUS.ACTIVE}" data-workspace-id="${escapeHtml(workspace.id)}">Liberar acesso</button>
@@ -1855,6 +1970,16 @@ function renderAdminWorkspaceList() {
   });
   list.querySelectorAll("[data-access-action]").forEach((button) => {
     button.addEventListener("click", () => updateWorkspaceAccess(button.dataset.workspaceId, button.dataset.accessAction));
+  });
+  list.querySelectorAll("[data-save-plan]").forEach((button) => {
+    button.addEventListener("click", () => updateWorkspacePlan(button.dataset.savePlan));
+  });
+  list.querySelectorAll("[data-plan-field='billingCycle']").forEach((select) => {
+    select.addEventListener("change", () => {
+      const row = select.closest("[data-plan-workspace]");
+      const price = row?.querySelector("[data-plan-field='agreedPrice']");
+      if (price) price.value = select.value === "annual" ? "799.00" : "59.90";
+    });
   });
   list.querySelectorAll("[data-delete-workspace]").forEach((button) => {
     button.addEventListener("click", () => deleteWorkspace(button.dataset.deleteWorkspace, button.dataset.workspaceEmail));
@@ -1875,6 +2000,37 @@ async function updateWorkspaceAccess(workspaceId, status) {
   }, { merge: true });
   const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
   if (workspace) workspace.accessStatus = status;
+  renderAdminWorkspaceList();
+}
+
+async function updateWorkspacePlan(workspaceId) {
+  const row = document.querySelector(`[data-plan-workspace="${workspaceId}"]`);
+  if (!row) return;
+  const planId = row.querySelector("[data-plan-field='planId']")?.value;
+  const billingCycle = row.querySelector("[data-plan-field='billingCycle']")?.value;
+  const agreedPrice = Number(row.querySelector("[data-plan-field='agreedPrice']")?.value);
+  if (!PLAN_CATALOG[planId] || !Number.isFinite(agreedPrice) || agreedPrice <= 0) {
+    await showAuthStatusModal("Plano inválido", "Selecione o plano e informe um valor contratado maior que zero.");
+    return;
+  }
+  const previous = adminWorkspaces.find((item) => item.id === workspaceId);
+  const revision = new Date().toISOString();
+  const subscription = normalizeSubscription({
+    ...(previous?.subscription || {}),
+    planId,
+    billingCycle,
+    agreedPrice,
+    features: PLAN_CATALOG[planId].features,
+    revision,
+    updatedAtClient: revision,
+    updatedBy: currentUser.email || ""
+  });
+  await setDoc(doc(db, "workspaces", workspaceId), {
+    subscription,
+    subscriptionUpdatedAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+  if (previous) previous.subscription = subscription;
   renderAdminWorkspaceList();
 }
 
@@ -2028,7 +2184,8 @@ function setUserStatus(email) {
   const onboardingReplay = document.getElementById("rrOnboardingReplay");
   const adminViewing = currentUser && isAdminUser(currentUser) && activeWorkspaceId;
   if (status) {
-    const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId}` : "Status: Online";
+    const planName = activeWorkspaceSubscription ? getPlanName(activeWorkspaceSubscription) : "Essencial";
+    const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId} · Plano ${planName}` : `Plano ${planName} · Online`;
     status.textContent = email ? detail : "";
   }
   if (adminBack) adminBack.hidden = !adminViewing;
