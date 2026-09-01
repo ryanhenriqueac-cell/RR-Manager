@@ -1474,7 +1474,7 @@ function handleOrcamentoFormInput(event) {
   if (costInput) {
     const row = costInput.closest("[data-peca-index]");
     const saleInput = row?.querySelector("[data-field='valorUnitario']");
-    if (saleInput) {
+    if (saleInput && String(costInput.value).trim()) {
       const saleValue = parseDecimal(costInput.value) * (1 + getPartsMarkupPercent() / 100);
       saleInput.value = saleValue.toFixed(2);
       markZeroInput(saleInput);
@@ -1491,7 +1491,7 @@ function resetOrcamentoDrafts() {
 }
 
 function blankPeca() {
-  return { id: createId("pec"), nome: "", quantidade: 1, custoUnitario: 0, valorUnitario: 0, cortesia: false };
+  return { id: createId("pec"), nome: "", quantidade: 1, custoUnitario: 0, custoUnitarioInformado: false, valorUnitario: 0, valorUnitarioInformado: false, cortesia: false };
 }
 
 function getCourtesyPartsCost(orcamento) {
@@ -1507,66 +1507,79 @@ function getOrcamentoCourtesyTotals(orcamento) {
 }
 
 function blankServicoOrcamento() {
-  return { id: createId("mao"), descricao: "", horas: 1, valorHora: getLaborHourRate(), cortesia: false };
+  return { id: createId("mao"), descricao: "", horas: 1, valorHora: getLaborHourRate(), valorHoraInformado: true, cortesia: false };
 }
 
 function blankServicoTerceirizado() {
-  return { id: createId("ter"), descricao: "", custo: 0, valor: 0, cortesia: false };
+  return { id: createId("ter"), descricao: "", custo: 0, custoInformado: false, valor: 0, valorInformado: false, cortesia: false };
 }
 
 function zeroInputClass(value) {
   return parseDecimal(value) === 0 ? " zero-value" : "";
 }
 
-function moneyDraftInput(field, value) {
+function wasMoneyFieldInformed(item, flag, value) {
+  if (typeof item?.[flag] === "boolean") return item[flag];
+  return parseDecimal(value) > 0;
+}
+
+function moneyDraftInput(field, value, informed) {
   const numericValue = parseDecimal(value);
-  return `<input class="money-draft-input${zeroInputClass(numericValue)}" data-field="${field}" type="number" min="0" step="0.01" value="${numericValue}" onfocus="clearZeroInput(this)" onblur="restoreZeroInput(this)" oninput="markZeroInput(this)">`;
-}
-
-function clearZeroInput(input) {
-  if (parseDecimal(input.value) !== 0) return;
-  input.value = "";
-  input.classList.remove("zero-value");
-}
-
-function restoreZeroInput(input) {
-  if (String(input.value).trim()) {
-    markZeroInput(input);
-    return;
-  }
-  input.value = "0";
-  input.classList.add("zero-value");
+  const isInformed = informed === true;
+  return `<input class="money-draft-input${isInformed ? zeroInputClass(numericValue) : ""}" data-field="${field}" type="number" min="0" step="0.01" value="${isInformed ? numericValue : ""}" placeholder="0,00" oninput="markZeroInput(this)">`;
 }
 
 function markZeroInput(input) {
-  input.classList.toggle("zero-value", parseDecimal(input.value) === 0);
+  input.classList.toggle("zero-value", String(input.value).trim() !== "" && parseDecimal(input.value) === 0);
+}
+
+function isMoneyInputInformed(input) {
+  if (!input) return false;
+  if (input.type === "hidden") return input.dataset.informed === "true";
+  return String(input.value).trim() !== "";
 }
 
 function syncOrcamentoDrafts() {
-  orcamentoPecasDraft = [...document.querySelectorAll("[data-peca-index]")].map((row) => ({
+  orcamentoPecasDraft = [...document.querySelectorAll("[data-peca-index]")].map((row) => {
+    const custoInput = row.querySelector("[data-field='custoUnitario']");
+    const vendaInput = row.querySelector("[data-field='valorUnitario']");
+    return {
     id: row.dataset.pecaId || createId("pec"),
     nome: row.querySelector("[data-field='nome']").value.trim(),
     quantidade: parseInteger(row.querySelector("[data-field='quantidade']").value),
-    custoUnitario: parseDecimal(row.querySelector("[data-field='custoUnitario']").value),
-    valorUnitario: parseDecimal(row.querySelector("[data-field='valorUnitario']").value),
+    custoUnitario: parseDecimal(custoInput.value),
+    custoUnitarioInformado: isMoneyInputInformed(custoInput),
+    valorUnitario: parseDecimal(vendaInput.value),
+    valorUnitarioInformado: isMoneyInputInformed(vendaInput),
     cortesia: row.querySelector("[data-field='cortesia']")?.checked === true
-  }));
+    };
+  });
 
-  orcamentoServicosDraft = [...document.querySelectorAll("[data-servico-orcamento-index]")].map((row) => ({
+  orcamentoServicosDraft = [...document.querySelectorAll("[data-servico-orcamento-index]")].map((row) => {
+    const valorHoraInput = row.querySelector("[data-field='valorHora']");
+    return {
     id: row.dataset.servicoId || createId("mao"),
     descricao: row.querySelector("[data-field='descricao']").value.trim(),
     horas: parseDecimal(row.querySelector("[data-field='horas']").value),
-    valorHora: parseDecimal(row.querySelector("[data-field='valorHora']").value) || getLaborHourRate(),
+    valorHora: parseDecimal(valorHoraInput.value),
+    valorHoraInformado: isMoneyInputInformed(valorHoraInput),
     cortesia: row.querySelector("[data-field='cortesia']")?.checked === true
-  }));
+    };
+  });
 
-  orcamentoTerceirizadosDraft = [...document.querySelectorAll("[data-terceirizado-index]")].map((row) => ({
+  orcamentoTerceirizadosDraft = [...document.querySelectorAll("[data-terceirizado-index]")].map((row) => {
+    const custoInput = row.querySelector("[data-field='custo']");
+    const vendaInput = row.querySelector("[data-field='valor']");
+    return {
     id: row.dataset.terceirizadoId || createId("ter"),
     descricao: row.querySelector("[data-field='descricao']").value.trim(),
-    custo: parseDecimal(row.querySelector("[data-field='custo']").value),
-    valor: parseDecimal(row.querySelector("[data-field='valor']").value),
+    custo: parseDecimal(custoInput.value),
+    custoInformado: isMoneyInputInformed(custoInput),
+    valor: parseDecimal(vendaInput.value),
+    valorInformado: isMoneyInputInformed(vendaInput),
     cortesia: row.querySelector("[data-field='cortesia']")?.checked === true
-  }));
+    };
+  });
 }
 
 function renderOrcamentoDrafts() {
@@ -1579,8 +1592,8 @@ function renderOrcamentoDrafts() {
     <div class="nested-item peca-item" data-peca-index="${index}" data-peca-id="${escapeHtml(peca.id)}">
       <label>Peça<input data-field="nome" value="${escapeHtml(peca.nome)}" placeholder="Ex: Pastilha de freio"></label>
       <label>Qtd<input data-field="quantidade" type="number" min="0" step="1" value="${parseInteger(peca.quantidade)}"></label>
-      <label>Custo unitário${moneyDraftInput("custoUnitario", peca.custoUnitario)}</label>
-      <label>Venda unitária${saleOrCourtesyInput("valorUnitario", peca.valorUnitario, peca.cortesia)}</label>
+      <label>Custo unitário${moneyDraftInput("custoUnitario", peca.custoUnitario, wasMoneyFieldInformed(peca, "custoUnitarioInformado", peca.custoUnitario))}</label>
+      <label>Venda unitária${saleOrCourtesyInput("valorUnitario", peca.valorUnitario, peca.cortesia, wasMoneyFieldInformed(peca, "valorUnitarioInformado", peca.valorUnitario))}</label>
       <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${peca.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('peca',${index},this.checked)"><span>Cortesia</span></label>
       <strong class="line-total ${peca.cortesia ? "is-courtesy" : ""}">${peca.cortesia ? "CORTESIA" : money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</strong>
       <button class="btn btn-danger" type="button" onclick="removePeca(${index})">Remover</button>
@@ -1591,7 +1604,7 @@ function renderOrcamentoDrafts() {
     <div class="nested-item servico-orcamento-item" data-servico-orcamento-index="${index}" data-servico-id="${escapeHtml(servico.id)}">
       <label>Serviço<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Revisão de freios"></label>
       <label>Horas<input data-field="horas" type="number" min="0" step="0.01" value="${parseDecimal(servico.horas)}"></label>
-      <label>Valor/hora${saleOrCourtesyInput("valorHora", servico.valorHora, servico.cortesia)}</label>
+      <label>Valor/hora${saleOrCourtesyInput("valorHora", servico.valorHora, servico.cortesia, wasMoneyFieldInformed(servico, "valorHoraInformado", servico.valorHora))}</label>
       <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${servico.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('servico',${index},this.checked)"><span>Cortesia</span></label>
       <strong class="line-total ${servico.cortesia ? "is-courtesy" : ""}">${servico.cortesia ? "CORTESIA" : money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</strong>
       <button class="btn btn-danger" type="button" onclick="removeServicoOrcamento(${index})">Remover</button>
@@ -1601,8 +1614,8 @@ function renderOrcamentoDrafts() {
   terceirizadosContainer.innerHTML = orcamentoTerceirizadosDraft.map((servico, index) => `
     <div class="nested-item terceirizado-item" data-terceirizado-index="${index}" data-terceirizado-id="${escapeHtml(servico.id)}">
       <label>Serviço terceirizado<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Retífica do cabeçote"></label>
-      <label>Custo${moneyDraftInput("custo", servico.custo)}</label>
-      <label>Valor cobrado${saleOrCourtesyInput("valor", servico.valor, servico.cortesia)}</label>
+      <label>Custo${moneyDraftInput("custo", servico.custo, wasMoneyFieldInformed(servico, "custoInformado", servico.custo))}</label>
+      <label>Valor cobrado${saleOrCourtesyInput("valor", servico.valor, servico.cortesia, wasMoneyFieldInformed(servico, "valorInformado", servico.valor))}</label>
       <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${servico.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('terceirizado',${index},this.checked)"><span>Cortesia</span></label>
       <strong class="line-total ${servico.cortesia ? "is-courtesy" : ""}">${servico.cortesia ? "CORTESIA" : money(parseDecimal(servico.valor))}</strong>
       <button class="btn btn-danger" type="button" onclick="removeServicoTerceirizado(${index})">Remover</button>
@@ -1612,10 +1625,10 @@ function renderOrcamentoDrafts() {
   updateOrcamentoPreview();
 }
 
-function saleOrCourtesyInput(field, value, courtesy) {
+function saleOrCourtesyInput(field, value, courtesy, informed) {
   return courtesy
-    ? `<input data-field="${field}" type="hidden" value="${parseDecimal(value)}"><span class="courtesy-price">CORTESIA</span>`
-    : moneyDraftInput(field, value);
+    ? `<input data-field="${field}" data-informed="${informed === true}" type="hidden" value="${parseDecimal(value)}"><span class="courtesy-price">CORTESIA</span>`
+    : moneyDraftInput(field, value, informed);
 }
 
 function toggleOrcamentoCortesia(type, index, checked) {
@@ -1830,7 +1843,7 @@ function loadOrcamentoIntoForm(orcamento) {
   updateOrcamentoInspectionButton();
   setValue("orcamentoData", orcamento.data);
   setValue("orcamentoValorFinal", orcamento.valorFinalManual || "");
-  orcamentoPecasDraft = Array.isArray(orcamento.pecas) ? orcamento.pecas.map((peca) => ({ custoUnitario: 0, ...peca })) : [{ ...blankPeca(), nome: "Peças", quantidade: 1, valorUnitario: Number(orcamento.pecas) || 0 }];
+  orcamentoPecasDraft = Array.isArray(orcamento.pecas) ? orcamento.pecas.map((peca) => ({ custoUnitario: 0, ...peca })) : [{ ...blankPeca(), nome: "Peças", quantidade: 1, valorUnitario: Number(orcamento.pecas) || 0, valorUnitarioInformado: Number(orcamento.pecas) > 0 }];
   orcamentoServicosDraft = Array.isArray(orcamento.servicos) ? orcamento.servicos : [{ ...blankServicoOrcamento(), descricao: "Mão de obra", horas: 1, valorHora: Number(orcamento.maoObra) || getLaborHourRate() }];
   orcamentoTerceirizadosDraft = Array.isArray(orcamento.terceirizados) && orcamento.terceirizados.length ? orcamento.terceirizados : [blankServicoTerceirizado()];
   renderOrcamentoDrafts();
@@ -2998,13 +3011,25 @@ function getDreRevenueBreakdown(orcamento) {
 function getDreCostAlerts(orcamentos) {
   return orcamentos.flatMap((orcamento) => {
     const reference = `Orçamento ${String(orcamento.numero || "").padStart(4, "0")} · ${getClienteNome(orcamento.clienteId)}`;
-    const parts = (Array.isArray(orcamento.pecas) ? orcamento.pecas : [])
-      .filter((item) => String(item.nome || "").trim() && parseDecimal(item.custoUnitario) <= 0)
-      .map((item) => ({ orcamentoId: orcamento.id, reference, message: `Peça sem custo: ${item.nome}` }));
-    const outsourced = (Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : [])
-      .filter((item) => String(item.descricao || "").trim() && parseDecimal(item.custo) <= 0)
-      .map((item) => ({ orcamentoId: orcamento.id, reference, message: `Serviço terceirizado sem custo: ${item.descricao}` }));
-    return [...parts, ...outsourced];
+    const parts = (Array.isArray(orcamento.pecas) ? orcamento.pecas : []).flatMap((item) => {
+      if (!String(item.nome || "").trim()) return [];
+      const alerts = [];
+      if (!wasMoneyFieldInformed(item, "custoUnitarioInformado", item.custoUnitario)) alerts.push({ orcamentoId: orcamento.id, reference, message: `Custo da peça não informado: ${item.nome}` });
+      if (!item.cortesia && !wasMoneyFieldInformed(item, "valorUnitarioInformado", item.valorUnitario)) alerts.push({ orcamentoId: orcamento.id, reference, message: `Venda da peça não informada: ${item.nome}` });
+      return alerts;
+    });
+    const labor = (Array.isArray(orcamento.servicos) ? orcamento.servicos : []).flatMap((item) => {
+      if (!String(item.descricao || "").trim() || item.cortesia || wasMoneyFieldInformed(item, "valorHoraInformado", item.valorHora)) return [];
+      return [{ orcamentoId: orcamento.id, reference, message: `Valor da mão de obra não informado: ${item.descricao}` }];
+    });
+    const outsourced = (Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []).flatMap((item) => {
+      if (!String(item.descricao || "").trim()) return [];
+      const alerts = [];
+      if (!wasMoneyFieldInformed(item, "custoInformado", item.custo)) alerts.push({ orcamentoId: orcamento.id, reference, message: `Custo do serviço terceirizado não informado: ${item.descricao}` });
+      if (!item.cortesia && !wasMoneyFieldInformed(item, "valorInformado", item.valor)) alerts.push({ orcamentoId: orcamento.id, reference, message: `Venda do serviço terceirizado não informada: ${item.descricao}` });
+      return alerts;
+    });
+    return [...parts, ...labor, ...outsourced];
   });
 }
 
@@ -3125,7 +3150,7 @@ function renderDre() {
   byId("dreCategoryDetails").innerHTML = "";
   document.querySelectorAll("[data-dre-category]").forEach((button) => button.addEventListener("click", () => renderDreCategoryDetails(button.dataset.dreCategory, dre.categoriasItens[button.dataset.dreCategory] || [])));
   byId("dreOrcamentos").innerHTML = dre.detalhes.map(({ orcamento, receita, custos, margem, data }) => `<tr><td>${escapeHtml(formatDateBR(data) || "-")}</td><td><strong>${String(orcamento.numero || "").padStart(4, "0")}</strong></td><td><strong>${escapeHtml(getClienteNome(orcamento.clienteId))}</strong><br><small class="muted">${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))}</small></td><td>${money(receita)}</td><td>${money(custos)}</td><td class="${margem >= 0 ? "dre-margin-positive" : "dre-margin-negative"}">${margem.toFixed(1).replace(".", ",")}%</td><td><a class="btn btn-muted" href="orcamento-imprimir.html?id=${encodeURIComponent(orcamento.id)}">Abrir orçamento</a></td></tr>`).join("") || emptyRow(7, "Nenhum orçamento aprovado no período.");
-  byId("dreAlerts").innerHTML = dre.alertas.length ? dre.alertas.map((alerta) => `<div class="dre-alert-item"><div><strong>${escapeHtml(alerta.message)}</strong><br><span>${escapeHtml(alerta.reference)}</span></div><a class="btn btn-muted" href="orcamentos.html?editar=${encodeURIComponent(alerta.orcamentoId)}">Corrigir</a></div>`).join("") : `<div class="dre-alert-ok">Todos os custos de peças e serviços terceirizados estão preenchidos neste período.</div>`;
+  byId("dreAlerts").innerHTML = dre.alertas.length ? dre.alertas.map((alerta) => `<div class="dre-alert-item"><div><strong>${escapeHtml(alerta.message)}</strong><br><span>${escapeHtml(alerta.reference)}</span></div><a class="btn btn-muted" href="orcamentos.html?editar=${encodeURIComponent(alerta.orcamentoId)}">Corrigir</a></div>`).join("") : `<div class="dre-alert-ok">Todos os valores de custo e venda dos orçamentos deste período foram revisados.</div>`;
 }
 
 function renderDreCategoryDetails(category, items) {
