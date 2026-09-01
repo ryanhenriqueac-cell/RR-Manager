@@ -582,6 +582,7 @@ async function loadCloudData(uid) {
       setWorkspaceBrandingContext(workspace);
       renderMeuCadastro(workspace);
       renderContractDocument(workspace);
+      dispatchWorkspaceReady();
       showAuthMessage("");
       return workspace;
     }
@@ -616,6 +617,7 @@ async function loadCloudData(uid) {
       confirmedCollectionState.set(key, serialized);
     });
     syncingFromCloud = false;
+    dispatchWorkspaceReady();
     showAuthMessage("");
     return cloudData;
   } catch (error) {
@@ -803,6 +805,12 @@ function setWorkspaceBrandingContext(workspace = {}) {
     registration,
     subscription: activeWorkspaceSubscription
   }));
+  window.dispatchEvent(new CustomEvent("rr-plan-ready", { detail: { ...activeWorkspaceSubscription } }));
+}
+
+function dispatchWorkspaceReady() {
+  if (!activeWorkspaceSubscription) return;
+  window.dispatchEvent(new CustomEvent("rr-workspace-ready", { detail: { ...activeWorkspaceSubscription } }));
 }
 
 async function saveAccessRequest(user) {
@@ -1578,7 +1586,7 @@ function showLegalAcceptanceModal(workspace = {}) {
 }
 
 function isOnboardingPage() {
-  return ["dashboard", "clientes", "orcamentos", "financeiro", "meu-cadastro", "servicos", "veiculos"].includes(document.body.dataset.page || "");
+  return ["dashboard", "clientes", "orcamentos", "financeiro", "dre", "meu-cadastro", "servicos", "veiculos"].includes(document.body.dataset.page || "");
 }
 
 function isTutorialAvailablePage() {

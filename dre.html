@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DRE gerencial | RR Manager</title>
+  <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
+  <link rel="stylesheet" href="style.css?v=102">
+</head>
+<body data-page="dre">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html"><img class="brand-logo" src="assets/logo-rr-manager.png" alt="RR Manager"><span><strong>RR Manager</strong></span></a>
+      <nav class="nav-menu" aria-label="Menu principal">
+        <a href="dashboard.html">Dashboard</a><a href="clientes.html">Clientes</a><a href="orcamentos.html">Orçamentos</a><a href="financeiro.html">Financeiro</a><a href="dre.html" data-nav="dre">DRE <small>PRO</small></a><a href="meu-cadastro.html">Meu cadastro</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar"><div><p class="eyebrow">Plano Pro</p><h1>DRE gerencial</h1></div></header>
+      <section id="dreLoading" class="panel"><p class="muted">Carregando informações do plano...</p></section>
+      <section id="dreUpgrade" class="panel dre-upgrade" hidden>
+        <span class="dre-pro-badge">RR MANAGER PRO</span><h2>Entenda o resultado real da sua oficina</h2>
+        <p>O DRE organiza receitas, custos e despesas, calcula suas margens e compara períodos para apoiar decisões.</p>
+        <div class="dre-upgrade-features"><span>✓ Lucro bruto e líquido</span><span>✓ Margens em percentual</span><span>✓ Comparação entre períodos</span><span>✓ PDF gerencial</span></div>
+        <a class="btn btn-primary" href="https://wa.me/5531997851561?text=Ola!%20Quero%20conhecer%20o%20Plano%20Pro%20do%20RR%20Manager" target="_blank" rel="noopener">Conhecer o Plano Pro</a>
+      </section>
+      <div id="dreContent" hidden>
+        <section class="panel">
+          <div class="panel-header"><div><p class="eyebrow">Período de análise</p><h2>Demonstrativo de resultado</h2></div></div>
+          <form id="dreForm" class="form-grid report-form"><label>Data inicial<input id="dreInicio" type="date"></label><label>Data final<input id="dreFim" type="date"></label><div class="form-actions span-2"><button class="btn btn-primary" type="submit">Gerar DRE</button><button class="btn btn-muted" type="button" id="dreMesAtual">Mês atual</button><button class="btn btn-ghost" type="button" id="drePdf">Gerar PDF</button></div></form>
+          <p class="report-status" id="dreStatus"></p>
+        </section>
+        <section class="stats-grid compact" id="dreCards"></section>
+        <section class="content-grid dre-grid"><article class="panel"><div class="panel-header"><div><p class="eyebrow">Resultado</p><h2>DRE do período</h2></div></div><div id="dreStatement" class="dre-statement"></div></article><article class="panel"><div class="panel-header"><div><p class="eyebrow">Evolução</p><h2>Comparação com período anterior</h2></div></div><div id="dreComparison"></div></article></section>
+        <section class="panel"><div class="panel-header"><div><p class="eyebrow">Despesas operacionais</p><h2>Distribuição por categoria</h2></div></div><div id="dreCategories" class="dre-categories"></div></section>
+        <p class="dre-disclaimer">DRE gerencial para apoio à gestão. Não substitui demonstrações contábeis elaboradas por profissional habilitado.</p>
+      </div>
+    </main>
+  </div>
+  <script src="script.js?v=90"></script><script src="firebase-config.js?v=13"></script><script type="module" src="firebase-sync.js?v=57"></script>
+</body>
+</html>

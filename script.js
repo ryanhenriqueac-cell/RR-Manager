@@ -179,9 +179,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "clientes") initClientes();
   if (page === "orcamentos") initOrcamentos();
   if (page === "financeiro") initFinanceiro();
+  if (page === "dre") initDre();
   if (page === "orcamento-print") initOrcamentoPrint();
   if (page === "orcamento-publico") initOrcamentoPublico();
   if (page === "financeiro-print") initFinanceiroPrint();
+  if (page === "dre-print") initDrePrint();
   if (page === "inspecao") initInspecao();
   if (page === "contrato") initContrato();
 });
@@ -192,6 +194,7 @@ window.addEventListener("rr-cloud-data-updated", (event) => {
   if (page === "clientes" && (key === STORAGE_KEYS.clientes || key === STORAGE_KEYS.veiculos)) renderClientes();
   if (page === "orcamentos" && key === STORAGE_KEYS.orcamentos) renderOrcamentos();
   if (page === "financeiro" && key === STORAGE_KEYS.financeiro) refreshFinanceiro();
+  if (page === "dre" && (key === STORAGE_KEYS.financeiro || key === STORAGE_KEYS.orcamentos)) renderDre();
 });
 
 function readData(type) {
@@ -2731,6 +2734,94 @@ function setupMobilePrintButtonLabel() {
   mobileQuery.addEventListener?.("change", updateLabel);
 }
 
+function getDreData(start, end) {
+  const lancamentos = getFinanceiroLancamentos().filter((item) => isDateInRange(item.data, start, end));
+  const receitasLiquidas = lancamentos.filter((item) => item.tipo.includes("Receita")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const custoPecas = lancamentos.filter((item) => String(item.id).startsWith("custo_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const custoTerceirizados = lancamentos.filter((item) => String(item.id).startsWith("terceirizados_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const taxas = lancamentos.filter((item) => String(item.id).startsWith("taxa_")).reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const despesasItems = lancamentos.filter((item) => !item.tipo.includes("Receita") && !item.tipo.includes("Custo"));
+  const despesas = despesasItems.reduce((sum, item) => sum + parseDecimal(item.valor), 0);
+  const aprovados = getApprovedOrcamentos().filter((orcamento) => isDateInRange(orcamento.decidedAt?.slice(0, 10) || orcamento.data, start, end));
+  const descontos = aprovados.reduce((sum, orcamento) => sum + getPaymentDiscount(orcamento), 0);
+  const acrescimos = aprovados.reduce((sum, orcamento) => sum + getPaymentSurcharge(orcamento), 0);
+  const receitaBruta = Math.max(0, receitasLiquidas + descontos - acrescimos);
+  const receitaLiquida = receitaBruta - descontos + acrescimos;
+  const custosDiretos = custoPecas + custoTerceirizados + taxas;
+  const lucroBruto = receitaLiquida - custosDiretos;
+  const resultado = lucroBruto - despesas;
+  const margemBruta = receitaLiquida > 0 ? (lucroBruto / receitaLiquida) * 100 : 0;
+  const margemLiquida = receitaLiquida > 0 ? (resultado / receitaLiquida) * 100 : 0;
+  const categorias = despesasItems.reduce((acc, item) => {
+    const categoria = String(item.categoria || "Outras despesas").trim() || "Outras despesas";
+    acc[categoria] = (acc[categoria] || 0) + parseDecimal(item.valor);
+    return acc;
+  }, {});
+  return { start, end, receitaBruta, descontos, acrescimos, receitaLiquida, custoPecas, custoTerceirizados, taxas, custosDiretos, lucroBruto, despesas, resultado, margemBruta, margemLiquida, categorias, lancamentos };
+}
+
+function getPreviousDrePeriod(start, end) {
+  const startDate = new Date(`${start}T12:00:00`);
+  const endDate = new Date(`${end}T12:00:00`);
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return { start: "", end: "" };
+  const days = Math.max(1, Math.round((endDate - startDate) / 86400000) + 1);
+  const previousEnd = new Date(startDate); previousEnd.setDate(previousEnd.getDate() - 1);
+  const previousStart = new Date(previousEnd); previousStart.setDate(previousStart.getDate() - days + 1);
+  const iso = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  return { start: iso(previousStart), end: iso(previousEnd) };
+}
+
+function percentChange(current, previous) {
+  if (!previous) return current ? 100 : 0;
+  return ((current - previous) / Math.abs(previous)) * 100;
+}
+
+function initDre() {
+  setDefaultDreDates();
+  byId("dreForm")?.addEventListener("submit", (event) => { event.preventDefault(); renderDre(); });
+  byId("dreMesAtual")?.addEventListener("click", () => { setDefaultDreDates(); renderDre(); });
+  byId("drePdf")?.addEventListener("click", () => {
+    const params = new URLSearchParams({ inicio: getValue("dreInicio"), fim: getValue("dreFim") });
+    window.open(`dre-imprimir.html?${params.toString()}`, "_blank", "noopener");
+  });
+  window.addEventListener("rr-workspace-ready", applyDrePlanAccess);
+}
+
+function setDefaultDreDates() {
+  const now = new Date();
+  const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, "0");
+  setValue("dreInicio", `${year}-${month}-01`);
+  setValue("dreFim", `${year}-${month}-${String(new Date(year, now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`);
+}
+
+function applyDrePlanAccess(event) {
+  const allowed = event?.detail?.features?.dre === true || window.rrHasPlanFeature?.("dre") === true;
+  if (byId("dreLoading")) byId("dreLoading").hidden = true;
+  if (byId("dreUpgrade")) byId("dreUpgrade").hidden = allowed;
+  if (byId("dreContent")) byId("dreContent").hidden = !allowed;
+  if (allowed) renderDre();
+}
+
+function renderDre() {
+  if (!byId("dreContent") || byId("dreContent").hidden) return;
+  const start = getValue("dreInicio"); const end = getValue("dreFim");
+  const dre = getDreData(start, end);
+  const previousPeriod = getPreviousDrePeriod(start, end);
+  const previous = getDreData(previousPeriod.start, previousPeriod.end);
+  setText("dreStatus", `${formatDateBR(start)} até ${formatDateBR(end)} · ${dre.lancamentos.length} lançamento(s)`);
+  byId("dreCards").innerHTML = `<article class="stat-card"><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong><small>${percentChange(dre.receitaLiquida, previous.receitaLiquida).toFixed(1).replace(".", ",")}% vs. período anterior</small></article><article class="stat-card"><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong><small>Margem de ${dre.margemBruta.toFixed(1).replace(".", ",")}%</small></article><article class="stat-card"><span>Despesas operacionais</span><strong>${money(dre.despesas)}</strong><small>Saídas manuais do período</small></article><article class="stat-card highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong><small>Margem de ${dre.margemLiquida.toFixed(1).replace(".", ",")}%</small></article>`;
+  byId("dreStatement").innerHTML = buildDreStatementRows(dre);
+  const change = percentChange(dre.resultado, previous.resultado);
+  byId("dreComparison").innerHTML = `<div class="dre-comparison-value ${change >= 0 ? "positive" : "negative"}"><strong>${change >= 0 ? "+" : ""}${change.toFixed(1).replace(".", ",")}%</strong><span>Resultado comparado ao período anterior</span></div><div class="dre-compare-bars"><div><span>Período anterior</span><b>${money(previous.resultado)}</b></div><div><span>Período atual</span><b>${money(dre.resultado)}</b></div></div><small>${formatDateBR(previousPeriod.start)} até ${formatDateBR(previousPeriod.end)}</small>`;
+  const categories = Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]);
+  byId("dreCategories").innerHTML = categories.map(([name, value]) => `<div><span>${escapeHtml(name)}</span><strong>${money(value)}</strong><i><b style="width:${dre.despesas ? Math.max(2, (value / dre.despesas) * 100) : 0}%"></b></i></div>`).join("") || `<p class="muted">Nenhuma despesa operacional no período.</p>`;
+}
+
+function buildDreStatementRows(dre) {
+  const row = (label, value, className = "") => `<div class="${className}"><span>${label}</span><strong>${money(value)}</strong></div>`;
+  return row("Receita bruta", dre.receitaBruta) + row("(-) Descontos concedidos", -dre.descontos) + row("(+) Acréscimos repassados", dre.acrescimos) + row("Receita líquida", dre.receitaLiquida, "dre-total") + row("(-) Custo das peças", -dre.custoPecas) + row("(-) Serviços terceirizados", -dre.custoTerceirizados) + row("(-) Taxas de pagamento", -dre.taxas) + row("Lucro bruto", dre.lucroBruto, "dre-total") + row("(-) Despesas operacionais", -dre.despesas) + row("Resultado líquido", dre.resultado, "dre-final");
+}
+
 function renderPublicOrcamentoResponse(response = "") {
   const panel = byId("publicBudgetDecision");
   const prompt = byId("publicBudgetDecisionPrompt");
@@ -2942,4 +3033,33 @@ async function deleteItem(type, id, callback) {
   writeData(type, readData(type).filter((item) => item.id !== id));
   await persistSavedData(type);
   callback();
+}
+
+function initDrePrint() {
+  const root = byId("printRoot");
+  const printButton = byId("printButton");
+  setupMobilePrintButtonLabel();
+  const params = new URLSearchParams(window.location.search);
+  const start = params.get("inicio") || ""; const end = params.get("fim") || "";
+  root.innerHTML = `<section class="print-document"><h1>Carregando DRE...</h1><p>Aguarde a validação do Plano Pro.</p></section>`;
+  if (printButton) printButton.disabled = true;
+  window.addEventListener("rr-workspace-ready", (event) => {
+    const allowed = event.detail?.features?.dre === true;
+    if (!allowed) {
+      root.innerHTML = `<section class="print-document"><h1>Recurso do Plano Pro</h1><p>O DRE gerencial não está disponível no plano atual.</p></section>`;
+      return;
+    }
+    const dre = getDreData(start, end);
+    root.innerHTML = buildDrePrintHtml(dre);
+    if (printButton) {
+      printButton.disabled = false;
+      printButton.addEventListener("click", () => handlePrintDocumentAction(`RR - DRE gerencial ${getMonthNameBR(start || end)}`), { once: true });
+    }
+  }, { once: true });
+}
+
+function buildDrePrintHtml(dre) {
+  const branding = getDocumentBranding();
+  const categories = Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]);
+  return `<article class="finance-report-document dre-print-document"><header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p></div></header><section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Margem bruta</span><strong>${dre.margemBruta.toFixed(1).replace(".", ",")}%</strong></div><div class="highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section><section class="report-table-section"><h2>Demonstração do resultado</h2><div class="dre-statement print-dre-statement">${buildDreStatementRows(dre)}</div></section><section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="2">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section><footer class="print-footer">DRE gerencial para apoio à gestão. Não substitui demonstrações contábeis elaboradas por profissional habilitado.</footer></article>`;
 }
