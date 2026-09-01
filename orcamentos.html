@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orçamentos | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=101">
+  <link rel="stylesheet" href="style.css?v=106">
 </head>
 <body data-page="orcamentos">
   <div class="app-shell">
@@ -36,6 +36,7 @@
             </div>
             <button class="btn btn-ghost" type="button" id="gerarInspecao" disabled>Gerar lista de inspeção</button>
           </div>
+          <p class="span-2 courtesy-help"><strong>Como funciona a cortesia:</strong> o preço do item não é cobrado. Custos de peças e terceirizados continuam no Financeiro; na mão de obra, apenas as horas são registradas, sem criar despesa automática.</p>
           <div class="span-2 nested-section">
             <div class="panel-header">
               <div>
@@ -69,6 +70,8 @@
             <span>Serviços: <strong id="totalServicosPreview">R$ 0,00</strong></span>
             <span>Terceirizados: <strong id="totalTerceirizadosPreview">R$ 0,00</strong></span>
             <span>Custo terceirizados: <strong id="totalCustoTerceirizadosPreview">R$ 0,00</strong></span>
+            <span>Custos de cortesias: <strong id="totalCortesiaPreview">R$ 0,00</strong></span>
+            <span>Horas em cortesia: <strong id="horasCortesiaPreview">0</strong></span>
             <span>Total: <strong id="totalOrcamentoPreview">R$ 0,00</strong></span>
             <span>Lucro estimado: <strong id="lucroOrcamentoPreview">R$ 0,00</strong></span>
           </div>
@@ -87,7 +90,7 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=89"></script>
+  <script src="script.js?v=96"></script>
   <script src="firebase-config.js?v=13"></script>
   <script type="module" src="firebase-sync.js?v=56"></script>
 </body>

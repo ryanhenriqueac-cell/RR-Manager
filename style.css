@@ -926,15 +926,15 @@ td {
 .peca-item,
 .servico-orcamento-item,
 .terceirizado-item {
-  grid-template-columns: minmax(220px, 2fr) minmax(90px, 0.6fr) minmax(130px, 0.8fr) minmax(130px, 0.8fr) minmax(110px, 0.7fr) auto;
+  grid-template-columns: minmax(220px, 2fr) minmax(90px, 0.6fr) minmax(130px, 0.8fr) minmax(130px, 0.8fr) minmax(95px, 0.55fr) minmax(110px, 0.7fr) auto;
 }
 
 .servico-orcamento-item {
-  grid-template-columns: minmax(220px, 2fr) minmax(90px, 0.6fr) minmax(130px, 0.8fr) minmax(110px, 0.7fr) auto;
+  grid-template-columns: minmax(220px, 2fr) minmax(90px, 0.6fr) minmax(130px, 0.8fr) minmax(95px, 0.55fr) minmax(110px, 0.7fr) auto;
 }
 
 .terceirizado-item {
-  grid-template-columns: minmax(220px, 2fr) minmax(130px, 0.8fr) minmax(130px, 0.8fr) minmax(110px, 0.7fr) auto;
+  grid-template-columns: minmax(220px, 2fr) minmax(130px, 0.8fr) minmax(130px, 0.8fr) minmax(95px, 0.55fr) minmax(110px, 0.7fr) auto;
 }
 
 .action-item .actions {
@@ -1472,6 +1472,13 @@ body[data-page="inspecao"] #firebaseLandingReturn {
   background: rgba(7, 17, 31, 0.94);
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
+.courtesy-toggle { display: flex !important; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 0 10px; border: 1px solid rgba(241,199,91,.28); border-radius: 7px; cursor: pointer; background: rgba(241,199,91,.06); }
+.courtesy-toggle input { width: 18px; height: 18px; accent-color: var(--gold); }.courtesy-toggle span { font-weight: 800; color: var(--gold-2); }
+.courtesy-price { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border: 1px solid rgba(241,199,91,.32); border-radius: 7px; color: var(--gold-2); font-weight: 900; letter-spacing: .04em; background: rgba(241,199,91,.08); }
+.line-total.is-courtesy,.print-courtesy { color: var(--gold-2); font-weight: 900; letter-spacing: .04em; }
+.courtesy-stat { border-color: rgba(241,199,91,.35); background: rgba(241,199,91,.07); }
+.courtesy-label { color: var(--gold-2); font-weight: 800; }
+.courtesy-help { margin: 0; padding: 12px 14px; border-left: 3px solid var(--gold); color: var(--muted); background: rgba(241,199,91,.06); }
 
 .admin-plan-row {
   display: grid;

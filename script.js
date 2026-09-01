@@ -625,7 +625,7 @@ function buildPixPayload(value, txid = "***", pixConfig = PIX_CONFIG) {
 
 function buildPixPaymentHtml(orcamento, totalFinal) {
   const podeMostrarPix = orcamento.publicCliente ? orcamento.pixEnabled === true : orcamento.status === "Aprovado";
-  if (!podeMostrarPix) return "";
+  if (!podeMostrarPix || parseDecimal(totalFinal) <= 0) return "";
 
   const branding = getDocumentBranding(orcamento);
   const pixConfig = {
@@ -699,16 +699,19 @@ function buildPublicOrcamentoData(orcamento) {
       p: pecas.map((peca) => ({
         n: peca.nome || "",
         q: parseInteger(peca.quantidade),
-        v: parseDecimal(peca.valorUnitario)
+        v: parseDecimal(peca.valorUnitario),
+        c: peca.cortesia === true
       })),
       s: servicos.map((servico) => ({
         d: servico.descricao || "",
         h: parseDecimal(servico.horas),
-        v: parseDecimal(servico.valorHora)
+        v: parseDecimal(servico.valorHora),
+        c: servico.cortesia === true
       })),
       x: terceirizados.map((servico) => ({
         d: servico.descricao || "",
-        v: parseDecimal(servico.valor)
+        v: parseDecimal(servico.valor),
+        c: servico.cortesia === true
       })),
       f: parseDecimal(orcamento.valorFinalManual),
       t: getOrcamentoTotal(orcamento),
@@ -752,16 +755,19 @@ function normalizePublicOrcamentoData(data) {
       pecas: (data.o?.p || []).map((peca) => ({
         nome: peca.n || "",
         quantidade: parseInteger(peca.q),
-        valorUnitario: parseDecimal(peca.v)
+        valorUnitario: parseDecimal(peca.v),
+        cortesia: peca.c === true
       })),
       servicos: (data.o?.s || []).map((servico) => ({
         descricao: servico.d || "",
         horas: parseDecimal(servico.h),
-        valorHora: parseDecimal(servico.v)
+        valorHora: parseDecimal(servico.v),
+        cortesia: servico.c === true
       })),
       terceirizados: (data.o?.x || []).map((servico) => ({
         descricao: servico.d || "",
-        valor: parseDecimal(servico.v)
+        valor: parseDecimal(servico.v),
+        cortesia: servico.c === true
       })),
       valorFinalManual: parseDecimal(data.o?.f),
       total: parseDecimal(data.o?.t),
@@ -778,12 +784,14 @@ function buildOrcamentoWhatsAppMessage(orcamento, publicUrl) {
   const carro = getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId);
   const numero = String(orcamento.numero || "").padStart(4, "0");
   const total = money(getOrcamentoTotal(orcamento));
+  const cortesias = getOrcamentoCourtesyTotals(orcamento).itensCortesia;
   const message = [
     `Olá, ${clienteNome}!`,
     "",
     `Segue o pré-orçamento #${numero} da ${branding.companyName}:`,
     `Veículo: ${carro}`,
     `Valor total: ${total}`,
+    cortesias > 0 ? `Cortesias incluídas: ${cortesias} item(ns)` : "",
     "Parcelado em até 3x NO CARTÃO SEM JUROS",
     pixDiscountPercent > 0 ? `À vista ${pixDiscountLabel}% de DESCONTO` : "À vista no Pix",
     "Aguardo 😉👍",
@@ -1263,7 +1271,10 @@ async function updateOrcamentoStatus(id, status) {
   const orcamentos = readData("orcamentos");
   const index = orcamentos.findIndex((orcamento) => orcamento.id === id);
   if (index < 0) return;
-  const pagamento = status === "Aprovado" ? await askPaymentInfo(getOrcamentoTotal(orcamentos[index])) : null;
+  const total = getOrcamentoTotal(orcamentos[index]);
+  const pagamento = status === "Aprovado"
+    ? total > 0 ? await askPaymentInfo(total) : { tipo: "cortesia", label: "Cortesia integral", parcelas: 1, taxaPercentual: 0, taxaValor: 0, acrescimoValor: 0 }
+    : null;
   if (status === "Aprovado" && !pagamento) return;
 
   orcamentos[index] = {
@@ -1480,15 +1491,27 @@ function resetOrcamentoDrafts() {
 }
 
 function blankPeca() {
-  return { id: createId("pec"), nome: "", quantidade: 1, custoUnitario: 0, valorUnitario: 0 };
+  return { id: createId("pec"), nome: "", quantidade: 1, custoUnitario: 0, valorUnitario: 0, cortesia: false };
+}
+
+function getCourtesyPartsCost(orcamento) {
+  return (Array.isArray(orcamento.pecas) ? orcamento.pecas : []).filter((item) => item.cortesia).reduce((sum, item) => sum + parseInteger(item.quantidade) * parseDecimal(item.custoUnitario), 0);
+}
+
+function getCourtesyOutsourcedCost(orcamento) {
+  return (Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []).filter((item) => item.cortesia).reduce((sum, item) => sum + parseDecimal(item.custo), 0);
+}
+
+function getOrcamentoCourtesyTotals(orcamento) {
+  return calculateOrcamentoTotals(Array.isArray(orcamento.pecas) ? orcamento.pecas : [], Array.isArray(orcamento.servicos) ? orcamento.servicos : [], Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []);
 }
 
 function blankServicoOrcamento() {
-  return { id: createId("mao"), descricao: "", horas: 1, valorHora: getLaborHourRate() };
+  return { id: createId("mao"), descricao: "", horas: 1, valorHora: getLaborHourRate(), cortesia: false };
 }
 
 function blankServicoTerceirizado() {
-  return { id: createId("ter"), descricao: "", custo: 0, valor: 0 };
+  return { id: createId("ter"), descricao: "", custo: 0, valor: 0, cortesia: false };
 }
 
 function zeroInputClass(value) {
@@ -1525,21 +1548,24 @@ function syncOrcamentoDrafts() {
     nome: row.querySelector("[data-field='nome']").value.trim(),
     quantidade: parseInteger(row.querySelector("[data-field='quantidade']").value),
     custoUnitario: parseDecimal(row.querySelector("[data-field='custoUnitario']").value),
-    valorUnitario: parseDecimal(row.querySelector("[data-field='valorUnitario']").value)
+    valorUnitario: parseDecimal(row.querySelector("[data-field='valorUnitario']").value),
+    cortesia: row.querySelector("[data-field='cortesia']")?.checked === true
   }));
 
   orcamentoServicosDraft = [...document.querySelectorAll("[data-servico-orcamento-index]")].map((row) => ({
     id: row.dataset.servicoId || createId("mao"),
     descricao: row.querySelector("[data-field='descricao']").value.trim(),
     horas: parseDecimal(row.querySelector("[data-field='horas']").value),
-    valorHora: parseDecimal(row.querySelector("[data-field='valorHora']").value) || getLaborHourRate()
+    valorHora: parseDecimal(row.querySelector("[data-field='valorHora']").value) || getLaborHourRate(),
+    cortesia: row.querySelector("[data-field='cortesia']")?.checked === true
   }));
 
   orcamentoTerceirizadosDraft = [...document.querySelectorAll("[data-terceirizado-index]")].map((row) => ({
     id: row.dataset.terceirizadoId || createId("ter"),
     descricao: row.querySelector("[data-field='descricao']").value.trim(),
     custo: parseDecimal(row.querySelector("[data-field='custo']").value),
-    valor: parseDecimal(row.querySelector("[data-field='valor']").value)
+    valor: parseDecimal(row.querySelector("[data-field='valor']").value),
+    cortesia: row.querySelector("[data-field='cortesia']")?.checked === true
   }));
 }
 
@@ -1554,8 +1580,9 @@ function renderOrcamentoDrafts() {
       <label>Peça<input data-field="nome" value="${escapeHtml(peca.nome)}" placeholder="Ex: Pastilha de freio"></label>
       <label>Qtd<input data-field="quantidade" type="number" min="0" step="1" value="${parseInteger(peca.quantidade)}"></label>
       <label>Custo unitário${moneyDraftInput("custoUnitario", peca.custoUnitario)}</label>
-      <label>Venda unitária${moneyDraftInput("valorUnitario", peca.valorUnitario)}</label>
-      <strong class="line-total">${money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</strong>
+      <label>Venda unitária${saleOrCourtesyInput("valorUnitario", peca.valorUnitario, peca.cortesia)}</label>
+      <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${peca.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('peca',${index},this.checked)"><span>Cortesia</span></label>
+      <strong class="line-total ${peca.cortesia ? "is-courtesy" : ""}">${peca.cortesia ? "CORTESIA" : money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</strong>
       <button class="btn btn-danger" type="button" onclick="removePeca(${index})">Remover</button>
     </div>
   `).join("");
@@ -1564,8 +1591,9 @@ function renderOrcamentoDrafts() {
     <div class="nested-item servico-orcamento-item" data-servico-orcamento-index="${index}" data-servico-id="${escapeHtml(servico.id)}">
       <label>Serviço<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Revisão de freios"></label>
       <label>Horas<input data-field="horas" type="number" min="0" step="0.01" value="${parseDecimal(servico.horas)}"></label>
-      <label>Valor/hora<input data-field="valorHora" type="number" min="0" step="0.01" value="${servico.valorHora}"></label>
-      <strong class="line-total">${money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</strong>
+      <label>Valor/hora${saleOrCourtesyInput("valorHora", servico.valorHora, servico.cortesia)}</label>
+      <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${servico.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('servico',${index},this.checked)"><span>Cortesia</span></label>
+      <strong class="line-total ${servico.cortesia ? "is-courtesy" : ""}">${servico.cortesia ? "CORTESIA" : money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</strong>
       <button class="btn btn-danger" type="button" onclick="removeServicoOrcamento(${index})">Remover</button>
     </div>
   `).join("");
@@ -1574,13 +1602,27 @@ function renderOrcamentoDrafts() {
     <div class="nested-item terceirizado-item" data-terceirizado-index="${index}" data-terceirizado-id="${escapeHtml(servico.id)}">
       <label>Serviço terceirizado<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Retífica do cabeçote"></label>
       <label>Custo${moneyDraftInput("custo", servico.custo)}</label>
-      <label>Valor cobrado${moneyDraftInput("valor", servico.valor)}</label>
-      <strong class="line-total">${money(parseDecimal(servico.valor))}</strong>
+      <label>Valor cobrado${saleOrCourtesyInput("valor", servico.valor, servico.cortesia)}</label>
+      <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${servico.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('terceirizado',${index},this.checked)"><span>Cortesia</span></label>
+      <strong class="line-total ${servico.cortesia ? "is-courtesy" : ""}">${servico.cortesia ? "CORTESIA" : money(parseDecimal(servico.valor))}</strong>
       <button class="btn btn-danger" type="button" onclick="removeServicoTerceirizado(${index})">Remover</button>
     </div>
   `).join("");
 
   updateOrcamentoPreview();
+}
+
+function saleOrCourtesyInput(field, value, courtesy) {
+  return courtesy
+    ? `<input data-field="${field}" type="hidden" value="${parseDecimal(value)}"><span class="courtesy-price">CORTESIA</span>`
+    : moneyDraftInput(field, value);
+}
+
+function toggleOrcamentoCortesia(type, index, checked) {
+  syncOrcamentoDrafts();
+  const collection = type === "peca" ? orcamentoPecasDraft : type === "servico" ? orcamentoServicosDraft : orcamentoTerceirizadosDraft;
+  if (collection[index]) collection[index].cortesia = checked;
+  renderOrcamentoDrafts();
 }
 
 function removePeca(index) {
@@ -1608,35 +1650,47 @@ function calculateOrcamentoTotals(pecas = orcamentoPecasDraft, servicos = orcame
   pecas = pecas.filter((peca) => String(peca.nome || "").trim());
   servicos = servicos.filter((servico) => String(servico.descricao || "").trim());
   terceirizados = terceirizados.filter((servico) => String(servico.descricao || "").trim());
-  const totalPecas = pecas.reduce((sum, peca) => sum + parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario), 0);
+  const totalPecas = pecas.reduce((sum, peca) => sum + (peca.cortesia ? 0 : parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario)), 0);
   const totalCustoPecas = pecas.reduce((sum, peca) => sum + parseInteger(peca.quantidade) * parseDecimal(peca.custoUnitario), 0);
-  const totalServicos = servicos.reduce((sum, servico) => sum + parseDecimal(servico.horas) * parseDecimal(servico.valorHora), 0);
-  const totalTerceirizados = terceirizados.reduce((sum, servico) => sum + parseDecimal(servico.valor), 0);
+  const totalServicos = servicos.reduce((sum, servico) => sum + (servico.cortesia ? 0 : parseDecimal(servico.horas) * parseDecimal(servico.valorHora)), 0);
+  const totalTerceirizados = terceirizados.reduce((sum, servico) => sum + (servico.cortesia ? 0 : parseDecimal(servico.valor)), 0);
   const totalCustoTerceirizados = terceirizados.reduce((sum, servico) => sum + parseDecimal(servico.custo), 0);
   const total = totalPecas + totalServicos + totalTerceirizados;
-  return { totalPecas, totalCustoPecas, totalServicos, totalTerceirizados, totalCustoTerceirizados, total, lucroEstimado: total - totalCustoPecas - totalCustoTerceirizados };
+  const custoCortesiaPecas = pecas.filter((item) => item.cortesia).reduce((sum, item) => sum + parseInteger(item.quantidade) * parseDecimal(item.custoUnitario), 0);
+  const custoCortesiaTerceirizados = terceirizados.filter((item) => item.cortesia).reduce((sum, item) => sum + parseDecimal(item.custo), 0);
+  const horasCortesia = servicos.filter((item) => item.cortesia).reduce((sum, item) => sum + parseDecimal(item.horas), 0);
+  const itensCortesia = [...pecas, ...servicos, ...terceirizados].filter((item) => item.cortesia).length;
+  return { totalPecas, totalCustoPecas, totalServicos, totalTerceirizados, totalCustoTerceirizados, total, custoCortesiaPecas, custoCortesiaTerceirizados, horasCortesia, itensCortesia, lucroEstimado: total - totalCustoPecas - totalCustoTerceirizados };
+}
+
+function resolveOrcamentoFinalTotal(totals, manualValue) {
+  const manual = parseDecimal(manualValue);
+  if (totals.itensCortesia > 0 && totals.total <= 0) return 0;
+  return manual > 0 ? manual : totals.total;
 }
 
 function updateOrcamentoPreview() {
   syncOrcamentoDrafts();
   const totals = calculateOrcamentoTotals();
   const valorFinal = parseDecimal(getValue("orcamentoValorFinal"));
-  const totalFinal = valorFinal > 0 ? valorFinal : totals.total;
+  const totalFinal = resolveOrcamentoFinalTotal(totals, valorFinal);
   setText("totalPecasPreview", money(totals.totalPecas));
   setText("totalCustoPecasPreview", money(totals.totalCustoPecas));
   setText("totalServicosPreview", money(totals.totalServicos));
   setText("totalTerceirizadosPreview", money(totals.totalTerceirizados));
   setText("totalCustoTerceirizadosPreview", money(totals.totalCustoTerceirizados));
+  setText("totalCortesiaPreview", money(totals.custoCortesiaPecas + totals.custoCortesiaTerceirizados));
+  setText("horasCortesiaPreview", totals.horasCortesia.toFixed(2).replace(".", ","));
   setText("totalOrcamentoPreview", money(totalFinal));
   setText("lucroOrcamentoPreview", money(totalFinal - totals.totalCustoPecas - totals.totalCustoTerceirizados));
   document.querySelectorAll("[data-peca-index]").forEach((row, index) => {
-    row.querySelector(".line-total").textContent = money(parseInteger(orcamentoPecasDraft[index].quantidade) * parseDecimal(orcamentoPecasDraft[index].valorUnitario));
+    row.querySelector(".line-total").textContent = orcamentoPecasDraft[index].cortesia ? "CORTESIA" : money(parseInteger(orcamentoPecasDraft[index].quantidade) * parseDecimal(orcamentoPecasDraft[index].valorUnitario));
   });
   document.querySelectorAll("[data-servico-orcamento-index]").forEach((row, index) => {
-    row.querySelector(".line-total").textContent = money(parseDecimal(orcamentoServicosDraft[index].horas) * parseDecimal(orcamentoServicosDraft[index].valorHora));
+    row.querySelector(".line-total").textContent = orcamentoServicosDraft[index].cortesia ? "CORTESIA" : money(parseDecimal(orcamentoServicosDraft[index].horas) * parseDecimal(orcamentoServicosDraft[index].valorHora));
   });
   document.querySelectorAll("[data-terceirizado-index]").forEach((row, index) => {
-    row.querySelector(".line-total").textContent = money(orcamentoTerceirizadosDraft[index].valor);
+    row.querySelector(".line-total").textContent = orcamentoTerceirizadosDraft[index].cortesia ? "CORTESIA" : money(orcamentoTerceirizadosDraft[index].valor);
   });
 }
 
@@ -1676,7 +1730,7 @@ async function saveOrcamento(event) {
   const id = getValue("orcamentoId") || createId("orc");
   const existente = orcamentos.find((item) => item.id === id);
   const valorFinalManual = parseDecimal(getValue("orcamentoValorFinal"));
-  const totalFinal = valorFinalManual > 0 ? valorFinalManual : totals.total;
+  const totalFinal = resolveOrcamentoFinalTotal(totals, valorFinalManual);
   const status = existente?.status === "Aprovado" ? "Pré-orçamento" : existente?.status || "Pré-orçamento";
   const orcamento = {
     id,
@@ -1737,7 +1791,7 @@ function renderOrcamentos() {
       <td>${escapeHtml(getClienteNome(orcamento.clienteId))}</td>
       <td>${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))}</td>
       <td><span class="badge ${badgeClass(orcamento.status)}">${escapeHtml(orcamento.status)}</span></td>
-      <td>${money(getOrcamentoTotal(orcamento))}</td>
+      <td>${money(getOrcamentoTotal(orcamento))}${getOrcamentoCourtesyTotals(orcamento).itensCortesia ? `<br><small class="courtesy-label">${getOrcamentoCourtesyTotals(orcamento).itensCortesia} cortesia(s)</small>` : ""}</td>
       <td>${escapeHtml(formatDateBR(orcamento.data) || "-")}</td>
       <td class="actions">
         <button class="btn btn-muted" onclick="editOrcamento('${orcamento.id}')">Editar</button>
@@ -1750,14 +1804,15 @@ function renderOrcamentos() {
 
 function getOrcamentoTotal(orcamento) {
   const valorFinalManual = parseDecimal(orcamento.valorFinalManual);
-  if (valorFinalManual > 0) return valorFinalManual;
   if (Array.isArray(orcamento.pecas) || Array.isArray(orcamento.servicos) || Array.isArray(orcamento.terceirizados)) {
-    return calculateOrcamentoTotals(
+    const totals = calculateOrcamentoTotals(
       Array.isArray(orcamento.pecas) ? orcamento.pecas : [],
       Array.isArray(orcamento.servicos) ? orcamento.servicos : [],
       Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []
-    ).total;
+    );
+    return resolveOrcamentoFinalTotal(totals, valorFinalManual);
   }
+  if (valorFinalManual > 0) return valorFinalManual;
   if (orcamento.total !== undefined) return parseDecimal(orcamento.total);
   return (Number(orcamento.pecas) || 0) + (Number(orcamento.maoObra) || 0);
 }
@@ -2184,7 +2239,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <h3>Peças</h3>
         <table class="print-table">
           <thead><tr><th>Item</th><th>Qtd</th><th>Valor unit.</th><th>Total</th></tr></thead>
-          <tbody>${pecas.map((peca) => `<tr><td>${escapeHtml(peca.nome)}</td><td class="right">${parseInteger(peca.quantidade)}</td><td class="right">${money(peca.valorUnitario)}</td><td class="right">${money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</td></tr>`).join("")}</tbody>
+          <tbody>${pecas.map((peca) => `<tr><td>${escapeHtml(peca.nome)}</td><td class="right">${parseInteger(peca.quantidade)}</td><td class="right">${peca.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(peca.valorUnitario)}</td><td class="right">${peca.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</td></tr>`).join("")}</tbody>
         </table>
       </section>` : ""}
 
@@ -2192,7 +2247,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <h3>Mão de obra</h3>
         <table class="print-table">
           <thead><tr><th>Serviço</th><th>Horas</th><th>Valor/hora</th><th>Total</th></tr></thead>
-          <tbody>${servicos.map((servico) => `<tr><td>${escapeHtml(servico.descricao)}</td><td class="right">${parseDecimal(servico.horas)}</td><td class="right">${money(servico.valorHora)}</td><td class="right">${money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</td></tr>`).join("")}</tbody>
+          <tbody>${servicos.map((servico) => `<tr><td>${escapeHtml(servico.descricao)}</td><td class="right">${parseDecimal(servico.horas)}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(servico.valorHora)}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</td></tr>`).join("")}</tbody>
         </table>
       </section>` : ""}
 
@@ -2200,7 +2255,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <h3>Serviços terceirizados</h3>
         <table class="print-table">
           <thead><tr><th>Serviço</th><th class="right">Valor</th></tr></thead>
-          <tbody>${terceirizados.map((servico) => `<tr><td>${escapeHtml(servico.descricao)}</td><td class="right">${money(servico.valor)}</td></tr>`).join("")}</tbody>
+          <tbody>${terceirizados.map((servico) => `<tr><td>${escapeHtml(servico.descricao)}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(servico.valor)}</td></tr>`).join("")}</tbody>
         </table>
       </section>` : ""}
 
@@ -2469,7 +2524,7 @@ function getFinanceiroLancamentos() {
       id: `custo_${orcamento.id}`,
       tipo: "Custo de serviços",
       data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
-      descricao: `Peças do serviço - ${getClienteNome(orcamento.clienteId)}`,
+      descricao: `Peças do serviço${getCourtesyPartsCost(orcamento) > 0 ? ` (cortesias: ${money(getCourtesyPartsCost(orcamento))})` : ""} - ${getClienteNome(orcamento.clienteId)}`,
       categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
       valor: getPecasCusto(orcamento),
       automatico: true
@@ -2480,7 +2535,7 @@ function getFinanceiroLancamentos() {
       id: `terceirizados_${orcamento.id}`,
       tipo: "Custo de serviços",
       data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "",
-      descricao: `Serviços terceirizados - ${getClienteNome(orcamento.clienteId)}`,
+      descricao: `Serviços terceirizados${getCourtesyOutsourcedCost(orcamento) > 0 ? ` (cortesias: ${money(getCourtesyOutsourcedCost(orcamento))})` : ""} - ${getClienteNome(orcamento.clienteId)}`,
       categoria: getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId),
       valor: getTerceirizadosCusto(orcamento),
       automatico: true
@@ -2964,6 +3019,13 @@ function getDreData(start, end) {
   const despesasItems = lancamentos.filter((item) => !item.tipo.includes("Receita") && !item.tipo.includes("Custo"));
   const despesas = despesasItems.reduce((sum, item) => sum + parseDecimal(item.valor), 0);
   const aprovados = getApprovedOrcamentos().filter((orcamento) => isDateInRange(orcamento.decidedAt?.slice(0, 10) || orcamento.data, start, end));
+  const cortesias = aprovados.reduce((acc, orcamento) => {
+    const totals = calculateOrcamentoTotals(Array.isArray(orcamento.pecas) ? orcamento.pecas : [], Array.isArray(orcamento.servicos) ? orcamento.servicos : [], Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []);
+    acc.custoPecas += totals.custoCortesiaPecas; acc.custoTerceirizados += totals.custoCortesiaTerceirizados; acc.horasMaoObra += totals.horasCortesia; acc.itens += totals.itensCortesia;
+    if (totals.itensCortesia > 0) acc.orcamentos += 1;
+    return acc;
+  }, { custoPecas: 0, custoTerceirizados: 0, horasMaoObra: 0, itens: 0, orcamentos: 0 });
+  cortesias.custoTotal = cortesias.custoPecas + cortesias.custoTerceirizados;
   const receitasPorArea = aprovados.reduce((acc, orcamento) => {
     const breakdown = getDreRevenueBreakdown(orcamento);
     acc.pecas += breakdown.pecas; acc.maoObra += breakdown.maoObra; acc.terceirizados += breakdown.terceirizados; acc.outros += breakdown.outros;
@@ -2993,7 +3055,7 @@ function getDreData(start, end) {
     const receita = getOrcamentoReceita(orcamento); const custos = getServiceCosts(orcamento); const lucro = receita - custos;
     return { orcamento, receita, custos, lucro, margem: receita > 0 ? (lucro / receita) * 100 : 0, data: orcamento.decidedAt?.slice(0, 10) || orcamento.data || "" };
   }).sort((a, b) => String(b.data).localeCompare(String(a.data)));
-  return { start, end, receitaBruta, receitasPorArea, outrasReceitas, receitasManuaisItems, descontos, acrescimos, receitaLiquida, custoPecas, custoTerceirizados, taxas, custosDiretos, lucroBruto, despesas, resultado, margemBruta, margemLiquida, ticketMedio, categorias, categoriasItens, lancamentos, aprovados, detalhes, alertas: getDreCostAlerts(aprovados) };
+  return { start, end, receitaBruta, receitasPorArea, outrasReceitas, receitasManuaisItems, descontos, acrescimos, receitaLiquida, custoPecas, custoTerceirizados, taxas, custosDiretos, lucroBruto, despesas, resultado, margemBruta, margemLiquida, ticketMedio, categorias, categoriasItens, lancamentos, aprovados, detalhes, cortesias, alertas: getDreCostAlerts(aprovados) };
 }
 
 function getPreviousDrePeriod(start, end) {
@@ -3049,7 +3111,7 @@ function renderDre() {
   const previousPeriod = getPreviousDrePeriod(start, end);
   const previous = getDreData(previousPeriod.start, previousPeriod.end);
   setText("dreStatus", `${formatDateBR(start)} até ${formatDateBR(end)} · ${dre.aprovados.length} orçamento(s) aprovado(s) · ${dre.lancamentos.length} lançamento(s)`);
-  byId("dreCards").innerHTML = `<article class="stat-card"><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong><small>${percentChange(dre.receitaLiquida, previous.receitaLiquida).toFixed(1).replace(".", ",")}% vs. período anterior</small></article><article class="stat-card"><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong><small>Margem de ${dre.margemBruta.toFixed(1).replace(".", ",")}%</small></article><article class="stat-card"><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong><small>${dre.aprovados.length} orçamento(s) aprovado(s)</small></article><article class="stat-card"><span>Despesas operacionais</span><strong>${money(dre.despesas)}</strong><small>Saídas manuais do período</small></article><article class="stat-card highlight ${dre.resultado < 0 ? "negative-result" : ""}"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong><small>${dre.resultado < 0 ? "Prejuízo" : "Margem"} de ${dre.margemLiquida.toFixed(1).replace(".", ",")}%</small></article>`;
+  byId("dreCards").innerHTML = `<article class="stat-card"><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong><small>${percentChange(dre.receitaLiquida, previous.receitaLiquida).toFixed(1).replace(".", ",")}% vs. período anterior</small></article><article class="stat-card"><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong><small>Margem de ${dre.margemBruta.toFixed(1).replace(".", ",")}%</small></article><article class="stat-card"><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong><small>${dre.aprovados.length} orçamento(s) aprovado(s)</small></article><article class="stat-card courtesy-stat"><span>Custos de cortesias</span><strong>${money(dre.cortesias.custoTotal)}</strong><small>${dre.cortesias.itens} item(ns) · ${dre.cortesias.horasMaoObra.toFixed(2).replace(".", ",")} hora(s) de mão de obra</small></article><article class="stat-card"><span>Despesas operacionais</span><strong>${money(dre.despesas)}</strong><small>Saídas manuais do período</small></article><article class="stat-card highlight ${dre.resultado < 0 ? "negative-result" : ""}"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong><small>${dre.resultado < 0 ? "Prejuízo" : "Margem"} de ${dre.margemLiquida.toFixed(1).replace(".", ",")}%</small></article>`;
   byId("dreStatement").innerHTML = buildDreStatementRows(dre);
   const change = percentChange(dre.resultado, previous.resultado);
   byId("dreComparison").innerHTML = `<div class="dre-comparison-value ${change >= 0 ? "positive" : "negative"}"><strong>${change >= 0 ? "+" : ""}${change.toFixed(1).replace(".", ",")}%</strong><span>Resultado comparado ao período anterior</span></div><div class="dre-compare-bars"><div><span>Período anterior</span><b>${money(previous.resultado)}</b></div><div><span>Período atual</span><b>${money(dre.resultado)}</b></div></div><small>${formatDateBR(previousPeriod.start)} até ${formatDateBR(previousPeriod.end)}</small>`;
@@ -3097,7 +3159,13 @@ function csvCell(value) {
 function exportDreCsv() {
   const dre = getDreData(getValue("dreInicio"), getValue("dreFim"));
   const rows = [["Tipo", "Data", "Referência", "Categoria", "Descrição", "Receita", "Custo/Despesa", "Resultado"]];
-  dre.detalhes.forEach(({ orcamento, receita, custos, lucro, data }) => rows.push(["Orçamento aprovado", formatDateBR(data), String(orcamento.numero || "").padStart(4, "0"), "Serviço", getClienteNome(orcamento.clienteId), receita.toFixed(2), custos.toFixed(2), lucro.toFixed(2)]));
+  dre.detalhes.forEach(({ orcamento, receita, custos, lucro, data }) => {
+    const reference = String(orcamento.numero || "").padStart(4, "0");
+    rows.push(["Orçamento aprovado", formatDateBR(data), reference, "Serviço", getClienteNome(orcamento.clienteId), receita.toFixed(2), custos.toFixed(2), lucro.toFixed(2)]);
+    (Array.isArray(orcamento.pecas) ? orcamento.pecas : []).filter((item) => item.cortesia).forEach((item) => rows.push(["Cortesia", formatDateBR(data), reference, "Peça", item.nome || "", "0.00", (parseInteger(item.quantidade) * parseDecimal(item.custoUnitario)).toFixed(2), (-(parseInteger(item.quantidade) * parseDecimal(item.custoUnitario))).toFixed(2)]));
+    (Array.isArray(orcamento.servicos) ? orcamento.servicos : []).filter((item) => item.cortesia).forEach((item) => rows.push(["Cortesia", formatDateBR(data), reference, "Mão de obra", `${item.descricao || ""} (${parseDecimal(item.horas)} hora(s))`, "0.00", "0.00", "0.00"]));
+    (Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []).filter((item) => item.cortesia).forEach((item) => rows.push(["Cortesia", formatDateBR(data), reference, "Serviço terceirizado", item.descricao || "", "0.00", parseDecimal(item.custo).toFixed(2), (-parseDecimal(item.custo)).toFixed(2)]));
+  });
   dre.receitasManuaisItems.forEach((item) => rows.push(["Receita manual", formatDateBR(item.data), item.id || "", item.categoria || "Outras receitas", item.descricao || "", parseDecimal(item.valor).toFixed(2), "0.00", parseDecimal(item.valor).toFixed(2)]));
   Object.entries(dre.categoriasItens).forEach(([categoria, items]) => items.forEach((item) => rows.push(["Despesa operacional", formatDateBR(item.data), item.id || "", categoria, item.descricao || "", "0.00", parseDecimal(item.valor).toFixed(2), (-parseDecimal(item.valor)).toFixed(2)])));
   const content = `\uFEFF${rows.map((row) => row.map(csvCell).join(";")).join("\r\n")}`;
@@ -3360,11 +3428,19 @@ function buildDrePrintHtml(dre) {
   const generatedAt = new Date().toLocaleString("pt-BR");
   const budgetRows = dre.detalhes.map(({ orcamento, receita, custos, lucro, margem, data }) => `<tr><td>${escapeHtml(formatDateBR(data) || "-")}</td><td>${String(orcamento.numero || "").padStart(4, "0")}</td><td>${escapeHtml(getClienteNome(orcamento.clienteId))}</td><td>${money(receita)}</td><td>${money(custos)}</td><td>${money(lucro)} (${margem.toFixed(1).replace(".", ",")}%)</td></tr>`).join("") || `<tr><td colspan="6">Sem orçamentos aprovados no período.</td></tr>`;
   const alertRows = dre.alertas.map((alerta) => `<tr><td>${escapeHtml(alerta.reference)}</td><td>${escapeHtml(alerta.message)}</td></tr>`).join("");
+  const courtesyRows = dre.detalhes.flatMap(({ orcamento, data }) => {
+    const reference = String(orcamento.numero || "").padStart(4, "0");
+    const parts = (Array.isArray(orcamento.pecas) ? orcamento.pecas : []).filter((item) => item.cortesia).map((item) => `<tr><td>${escapeHtml(formatDateBR(data))}</td><td>${reference}</td><td>Peça</td><td>${escapeHtml(item.nome)}</td><td>${money(parseInteger(item.quantidade) * parseDecimal(item.custoUnitario))}</td></tr>`);
+    const labor = (Array.isArray(orcamento.servicos) ? orcamento.servicos : []).filter((item) => item.cortesia).map((item) => `<tr><td>${escapeHtml(formatDateBR(data))}</td><td>${reference}</td><td>Mão de obra</td><td>${escapeHtml(item.descricao)} · ${parseDecimal(item.horas)} hora(s)</td><td>Sem custo automático</td></tr>`);
+    const outsourced = (Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []).filter((item) => item.cortesia).map((item) => `<tr><td>${escapeHtml(formatDateBR(data))}</td><td>${reference}</td><td>Terceirizado</td><td>${escapeHtml(item.descricao)}</td><td>${money(item.custo)}</td></tr>`);
+    return [...parts, ...labor, ...outsourced];
+  }).join("");
   return `<article class="finance-report-document dre-print-document">
     <header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial realizado</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p><p>Gerado em: <strong>${escapeHtml(generatedAt)}</strong> · ${dre.aprovados.length} orçamento(s) considerado(s)</p></div></header>
     <section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong></div><div class="highlight ${dre.resultado < 0 ? "negative-result" : ""}"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section>
     <section class="report-table-section"><h2>Demonstração do resultado</h2><div class="dre-statement print-dre-statement">${buildDreStatementRows(dre)}</div></section>
     <section class="report-table-section"><h2>Orçamentos que formam o resultado</h2><table class="print-table"><thead><tr><th>Data</th><th>Orçamento</th><th>Cliente</th><th>Receita</th><th>Custos</th><th>Lucro / margem</th></tr></thead><tbody>${budgetRows}</tbody></table></section>
+    ${courtesyRows ? `<section class="report-table-section"><h2>Cortesias concedidas</h2><p>${dre.cortesias.itens} item(ns) · custos de ${money(dre.cortesias.custoTotal)} · ${dre.cortesias.horasMaoObra.toFixed(2).replace(".", ",")} hora(s) de mão de obra</p><table class="print-table"><thead><tr><th>Data</th><th>Orçamento</th><th>Tipo</th><th>Item</th><th>Custo</th></tr></thead><tbody>${courtesyRows}</tbody></table></section>` : ""}
     <section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>% do total de despesas</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${dre.despesas ? ((value / dre.despesas) * 100).toFixed(1).replace(".", ",") : "0,0"}%</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="3">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section>
     ${alertRows ? `<section class="report-table-section"><h2>Avisos de custos não informados</h2><table class="print-table"><thead><tr><th>Orçamento</th><th>Aviso</th></tr></thead><tbody>${alertRows}</tbody></table></section>` : ""}
     <footer class="print-footer">Critério gerencial adotado: orçamento aprovado representa serviço realizado e valor recebido na data da aprovação. Não substitui demonstrações contábeis elaboradas por profissional habilitado.</footer>
