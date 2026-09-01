@@ -26,8 +26,8 @@ import {
   writeBatch
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro"];
-const APP_COLLECTIONS = { rr_clientes: "clientes", rr_veiculos: "veiculos", rr_servicos: "servicos", rr_orcamentos: "orcamentos", rr_financeiro: "financeiro" };
+const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro", "rr_dre_config"];
+const APP_COLLECTIONS = { rr_clientes: "clientes", rr_veiculos: "veiculos", rr_servicos: "servicos", rr_orcamentos: "orcamentos", rr_financeiro: "financeiro", rr_dre_config: "dre_config" };
 const APP_SCHEMA_VERSION = 2;
 const MIGRATION_BATCH_SIZE = 400;
 const SYNC_FLAG = "rr_firebase_loaded_user";

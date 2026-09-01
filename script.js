@@ -3,7 +3,8 @@ const STORAGE_KEYS = {
   veiculos: "rr_veiculos",
   servicos: "rr_servicos",
   orcamentos: "rr_orcamentos",
-  financeiro: "rr_financeiro"
+  financeiro: "rr_financeiro",
+  dreConfig: "rr_dre_config"
 };
 
 const legacyKeys = {
@@ -199,6 +200,7 @@ const FINANCE_CATEGORY_ALIASES = {
 };
 const DRE_CATEGORY_COLORS = ["#f1c75b", "#4fd1a1", "#5ba8ff", "#b58cff", "#ff8f8f", "#ffad5b", "#67d6dc", "#d98ecb", "#9fc968", "#e9d66b"];
 let pendingVariableRecurrence = null;
+let dreHistoryMonths = 6;
 
 function normalizeFinanceCategory(category, type = "Despesa") {
   const value = String(category || "").trim();
@@ -234,7 +236,7 @@ window.addEventListener("rr-cloud-data-updated", (event) => {
   if (page === "clientes" && (key === STORAGE_KEYS.clientes || key === STORAGE_KEYS.veiculos)) renderClientes();
   if (page === "orcamentos" && key === STORAGE_KEYS.orcamentos) renderOrcamentos();
   if (page === "financeiro" && key === STORAGE_KEYS.financeiro) refreshFinanceiro();
-  if (page === "dre" && (key === STORAGE_KEYS.financeiro || key === STORAGE_KEYS.orcamentos)) renderDre();
+  if (page === "dre" && (key === STORAGE_KEYS.financeiro || key === STORAGE_KEYS.orcamentos || key === STORAGE_KEYS.dreConfig)) renderDre();
 });
 
 function readData(type) {
@@ -3099,9 +3101,154 @@ function percentChange(current, previous) {
   return ((current - previous) / Math.abs(previous)) * 100;
 }
 
+function getDreGoals() {
+  const saved = readData("dreConfig").find((item) => item.id === "goals") || {};
+  return {
+    faturamento: parseDecimal(saved.faturamento),
+    lucro: parseDecimal(saved.lucro),
+    margem: parseDecimal(saved.margem),
+    ticket: parseDecimal(saved.ticket)
+  };
+}
+
+function getDreGoalPeriodFactor(start, end) {
+  const startDate = new Date(`${start}T12:00:00`);
+  const endDate = new Date(`${end}T12:00:00`);
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || startDate > endDate) return 1;
+  let factor = 0;
+  const cursor = new Date(startDate);
+  while (cursor <= endDate) {
+    factor += 1 / new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return factor;
+}
+
+function getDreBreakEven(dre) {
+  const contribution = dre.receitaLiquida - dre.custosDiretos;
+  const contributionMargin = dre.receitaLiquida > 0 ? contribution / dre.receitaLiquida : 0;
+  const value = contributionMargin > 0 ? dre.despesas / contributionMargin : 0;
+  return { value, contributionMargin, difference: dre.receitaLiquida - value, reached: contributionMargin > 0 && dre.receitaLiquida >= value };
+}
+
+function getDreAreaProfitability(dre) {
+  const gross = {
+    pecas: dre.receitasPorArea.pecas,
+    maoObra: dre.receitasPorArea.maoObra,
+    terceirizados: dre.receitasPorArea.terceirizados,
+    outros: dre.receitasPorArea.outros + dre.outrasReceitas
+  };
+  const totalGross = Object.values(gross).reduce((sum, value) => sum + value, 0);
+  const labels = { pecas: "Peças", maoObra: "Mão de obra", terceirizados: "Terceirizados", outros: "Outras receitas" };
+  return Object.entries(gross).map(([key, value]) => {
+    const share = totalGross > 0 ? value / totalGross : 0;
+    const revenue = value - dre.descontos * share + dre.acrescimos * share;
+    const directCost = (key === "pecas" ? dre.custoPecas : key === "terceirizados" ? dre.custoTerceirizados : 0) + dre.taxas * share;
+    const profit = revenue - directCost;
+    return { key, label: labels[key], revenue, cost: directCost, profit, margin: revenue > 0 ? (profit / revenue) * 100 : 0 };
+  }).filter((item) => item.revenue !== 0 || item.cost !== 0);
+}
+
+function getDreMonthlySeries(months, endDateValue) {
+  const anchor = new Date(`${endDateValue || today()}T12:00:00`);
+  const safeAnchor = Number.isNaN(anchor.getTime()) ? new Date() : anchor;
+  return Array.from({ length: months }, (_, index) => {
+    const offset = months - index - 1;
+    const first = new Date(safeAnchor.getFullYear(), safeAnchor.getMonth() - offset, 1);
+    const last = new Date(safeAnchor.getFullYear(), safeAnchor.getMonth() - offset + 1, 0);
+    const iso = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const dre = getDreData(iso(first), iso(last));
+    return { label: first.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }).replace(".", ""), receitas: dre.receitaLiquida, custos: dre.custosDiretos, despesas: dre.despesas, lucro: dre.resultado };
+  });
+}
+
+function renderDreGoals(dre) {
+  const goals = getDreGoals();
+  const factor = getDreGoalPeriodFactor(dre.start, dre.end);
+  const items = [
+    { label: "Faturamento", current: dre.receitaLiquida, target: goals.faturamento * factor, currency: true },
+    { label: "Lucro líquido", current: dre.resultado, target: goals.lucro * factor, currency: true },
+    { label: "Margem líquida", current: dre.margemLiquida, target: goals.margem, suffix: "%" },
+    { label: "Ticket médio", current: dre.ticketMedio, target: goals.ticket, currency: true }
+  ];
+  byId("dreGoalsSummary").innerHTML = items.map((item) => {
+    if (item.target <= 0) return `<article class="dre-goal-item is-empty"><span>${item.label}</span><strong>Não configurada</strong><small>Defina esta meta para acompanhar o progresso.</small></article>`;
+    const progress = Math.max(0, (item.current / item.target) * 100);
+    const format = (value) => item.currency ? money(value) : `${value.toFixed(1).replace(".", ",")}${item.suffix || ""}`;
+    return `<article class="dre-goal-item ${progress >= 100 ? "is-reached" : ""}"><span>${item.label}</span><strong>${format(item.current)} <small>de ${format(item.target)}</small></strong><i><b style="width:${Math.min(100, progress)}%"></b></i><small>${progress.toFixed(1).replace(".", ",")}% alcançado</small></article>`;
+  }).join("");
+}
+
+function renderDreBreakEven(dre) {
+  const data = getDreBreakEven(dre);
+  if (data.contributionMargin <= 0) {
+    byId("dreBreakEven").innerHTML = `<div class="dre-insight-empty">Ainda não há receita com margem positiva suficiente para calcular o ponto de equilíbrio.</div>`;
+    return;
+  }
+  const progress = data.value > 0 ? Math.max(0, (dre.receitaLiquida / data.value) * 100) : 100;
+  byId("dreBreakEven").innerHTML = `<div class="dre-break-even ${data.reached ? "is-reached" : "is-pending"}"><span>Faturamento necessário no período</span><strong>${money(data.value)}</strong><i><b style="width:${Math.min(100, progress)}%"></b></i><p>${data.reached ? `Ponto de equilíbrio superado em ${money(Math.abs(data.difference))}.` : `Ainda faltam ${money(Math.abs(data.difference))} para cobrir as despesas.`}</p><small>Margem de contribuição utilizada: ${(data.contributionMargin * 100).toFixed(1).replace(".", ",")}%.</small></div>`;
+}
+
+function renderDreAreaProfitability(dre) {
+  const areas = getDreAreaProfitability(dre);
+  byId("dreAreaProfitability").innerHTML = areas.length ? `<div class="table-wrap"><table><thead><tr><th>Área</th><th>Receita</th><th>Custos</th><th>Lucro</th><th>Margem</th></tr></thead><tbody>${areas.map((item) => `<tr><td><strong>${item.label}</strong></td><td>${money(item.revenue)}</td><td>${money(item.cost)}</td><td class="${item.profit >= 0 ? "dre-margin-positive" : "dre-margin-negative"}">${money(item.profit)}</td><td>${item.margin.toFixed(1).replace(".", ",")}%</td></tr>`).join("")}</tbody></table></div><small class="dre-table-note">Visão gerencial antes das despesas operacionais. As taxas de pagamento são distribuídas proporcionalmente.</small>` : `<div class="dre-insight-empty">Nenhuma receita por área neste período.</div>`;
+}
+
+function renderDreRanking(dre) {
+  const profitable = [...dre.detalhes].sort((a, b) => b.lucro - a.lucro).slice(0, 5);
+  const attention = [...dre.detalhes].sort((a, b) => a.lucro - b.lucro || a.margem - b.margem).slice(0, 5);
+  const list = (items, empty) => items.length ? items.map((item, index) => `<a class="dre-ranking-item" href="orcamento-imprimir.html?id=${encodeURIComponent(item.orcamento.id)}"><span class="dre-ranking-position">${index + 1}</span><span><strong>Orçamento ${String(item.orcamento.numero || "").padStart(4, "0")}</strong><small>${escapeHtml(getClienteNome(item.orcamento.clienteId))}</small></span><span class="dre-ranking-values"><strong class="${item.lucro >= 0 ? "dre-margin-positive" : "dre-margin-negative"}">${money(item.lucro)}</strong><small>${item.receita > 0 ? `${item.margem.toFixed(1).replace(".", ",")}% de margem` : "Sem receita"}</small></span></a>`).join("") : `<p class="muted">${empty}</p>`;
+  byId("dreRanking").innerHTML = `<article><h3>Maiores lucros</h3>${list(profitable, "Nenhum orçamento aprovado.")}</article><article><h3>Menores resultados</h3>${list(attention, "Nenhum orçamento aprovado.")}</article>`;
+}
+
+function renderDreMonthlyEvolution(end) {
+  const months = getDreMonthlySeries(dreHistoryMonths, end);
+  const series = [
+    { key: "receitas", label: "Receita", colorClass: "income" },
+    { key: "custos", label: "Custos", colorClass: "cost" },
+    { key: "despesas", label: "Despesas", colorClass: "expense" },
+    { key: "lucro", label: "Lucro", colorClass: "profit" }
+  ];
+  const max = Math.max(...months.flatMap((month) => series.map((item) => Math.abs(month[item.key]) || 0)), 1);
+  byId("dreMonthlyEvolution").innerHTML = `<div class="bar-legend">${series.map((item) => `<span><i class="${item.colorClass}"></i>${item.label}</span>`).join("")}</div><div class="monthly-bars">${months.map((month) => `<div class="month-group"><div class="month-bars">${series.map((item) => { const value = month[item.key]; const height = value === 0 ? 4 : Math.max(12, Math.round((Math.abs(value) / max) * 150)); return `<span class="${item.colorClass}${value < 0 ? " negative" : ""}" style="height:${height}px" title="${item.label}: ${money(value)}"></span>`; }).join("")}</div><strong>${escapeHtml(month.label)}</strong><small>${money(month.lucro)}</small></div>`).join("")}</div>`;
+}
+
+async function saveDreGoals(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  setFormSaving(form, true, "Salvando...");
+  const previous = readData("dreConfig");
+  const config = [{ id: "goals", faturamento: parseDecimal(getValue("dreMetaFaturamento")), lucro: parseDecimal(getValue("dreMetaLucro")), margem: Math.min(100, parseDecimal(getValue("dreMetaMargem"))), ticket: parseDecimal(getValue("dreMetaTicket")), updatedAt: new Date().toISOString() }];
+  writeData("dreConfig", config);
+  try {
+    await persistSavedData("dreConfig");
+    byId("dreGoalsForm").hidden = true;
+    renderDre();
+  } catch (error) {
+    writeData("dreConfig", previous);
+    await rrAlert("Não foi possível salvar as metas na nuvem. Tente novamente.", "Metas não salvas");
+  } finally {
+    setFormSaving(form, false);
+  }
+}
+
+function openDreGoals() {
+  const goals = getDreGoals();
+  setValue("dreMetaFaturamento", goals.faturamento || ""); setValue("dreMetaLucro", goals.lucro || ""); setValue("dreMetaMargem", goals.margem || ""); setValue("dreMetaTicket", goals.ticket || "");
+  byId("dreGoalsForm").hidden = false;
+}
+
 function initDre() {
   setDefaultDreDates();
   byId("dreForm")?.addEventListener("submit", (event) => { event.preventDefault(); renderDre(); });
+  byId("dreGoalsForm")?.addEventListener("submit", saveDreGoals);
+  byId("dreGoalsToggle")?.addEventListener("click", openDreGoals);
+  byId("dreGoalsCancel")?.addEventListener("click", () => { byId("dreGoalsForm").hidden = true; });
+  document.querySelectorAll("[data-dre-history]").forEach((button) => button.addEventListener("click", () => {
+    dreHistoryMonths = parseInteger(button.dataset.dreHistory) || 6;
+    document.querySelectorAll("[data-dre-history]").forEach((item) => item.classList.toggle("active", item === button));
+    renderDreMonthlyEvolution(getValue("dreFim"));
+  }));
   document.querySelectorAll("[data-dre-period]").forEach((button) => button.addEventListener("click", () => setDreQuickPeriod(button.dataset.drePeriod)));
   byId("drePdf")?.addEventListener("click", () => {
     const params = new URLSearchParams({ inicio: getValue("dreInicio"), fim: getValue("dreFim") });
@@ -3138,6 +3285,11 @@ function renderDre() {
   setText("dreStatus", `${formatDateBR(start)} até ${formatDateBR(end)} · ${dre.aprovados.length} orçamento(s) aprovado(s) · ${dre.lancamentos.length} lançamento(s)`);
   byId("dreCards").innerHTML = `<article class="stat-card"><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong><small>${percentChange(dre.receitaLiquida, previous.receitaLiquida).toFixed(1).replace(".", ",")}% vs. período anterior</small></article><article class="stat-card"><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong><small>Margem de ${dre.margemBruta.toFixed(1).replace(".", ",")}%</small></article><article class="stat-card"><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong><small>${dre.aprovados.length} orçamento(s) aprovado(s)</small></article><article class="stat-card courtesy-stat"><span>Custos de cortesias</span><strong>${money(dre.cortesias.custoTotal)}</strong><small>${dre.cortesias.itens} ${dre.cortesias.itens === 1 ? "item" : "itens"} · ${dre.cortesias.horasMaoObra.toFixed(2).replace(".", ",")} hora(s) de mão de obra</small></article><article class="stat-card"><span>Despesas operacionais</span><strong>${money(dre.despesas)}</strong><small>Saídas manuais do período</small></article><article class="stat-card highlight ${dre.resultado < 0 ? "negative-result" : ""}"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong><small>${dre.resultado < 0 ? "Prejuízo" : "Margem"} de ${dre.margemLiquida.toFixed(1).replace(".", ",")}%</small></article>`;
   byId("dreStatement").innerHTML = buildDreStatementRows(dre);
+  renderDreGoals(dre);
+  renderDreBreakEven(dre);
+  renderDreAreaProfitability(dre);
+  renderDreRanking(dre);
+  renderDreMonthlyEvolution(end);
   const change = percentChange(dre.resultado, previous.resultado);
   byId("dreComparison").innerHTML = `<div class="dre-comparison-value ${change >= 0 ? "positive" : "negative"}"><strong>${change >= 0 ? "+" : ""}${change.toFixed(1).replace(".", ",")}%</strong><span>Resultado comparado ao período anterior</span></div><div class="dre-compare-bars"><div><span>Período anterior</span><b>${money(previous.resultado)}</b></div><div><span>Período atual</span><b>${money(dre.resultado)}</b></div></div><small>${formatDateBR(previousPeriod.start)} até ${formatDateBR(previousPeriod.end)}</small>`;
   const categories = Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]);
@@ -3451,6 +3603,14 @@ function buildDrePrintHtml(dre) {
   const branding = getDocumentBranding();
   const categories = Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]);
   const generatedAt = new Date().toLocaleString("pt-BR");
+  const breakEven = getDreBreakEven(dre);
+  const goals = getDreGoals();
+  const goalFactor = getDreGoalPeriodFactor(dre.start, dre.end);
+  const areas = getDreAreaProfitability(dre);
+  const ranking = [...dre.detalhes].sort((a, b) => b.lucro - a.lucro);
+  const history = getDreMonthlySeries(6, dre.end);
+  const historySeries = [{ key: "receitas", label: "Receita", className: "income" }, { key: "custos", label: "Custos", className: "cost" }, { key: "despesas", label: "Despesas", className: "expense" }, { key: "lucro", label: "Lucro", className: "profit" }];
+  const historyMax = Math.max(...history.flatMap((month) => historySeries.map((item) => Math.abs(month[item.key]) || 0)), 1);
   const budgetRows = dre.detalhes.map(({ orcamento, receita, custos, lucro, margem, data }) => `<tr><td>${escapeHtml(formatDateBR(data) || "-")}</td><td>${String(orcamento.numero || "").padStart(4, "0")}</td><td>${escapeHtml(getClienteNome(orcamento.clienteId))}</td><td>${money(receita)}</td><td>${money(custos)}</td><td>${money(lucro)} (${margem.toFixed(1).replace(".", ",")}%)</td></tr>`).join("") || `<tr><td colspan="6">Sem orçamentos aprovados no período.</td></tr>`;
   const alertRows = dre.alertas.map((alerta) => `<tr><td>${escapeHtml(alerta.reference)}</td><td>${escapeHtml(alerta.message)}</td></tr>`).join("");
   const courtesyRows = dre.detalhes.flatMap(({ orcamento, data }) => {
@@ -3463,7 +3623,11 @@ function buildDrePrintHtml(dre) {
   return `<article class="finance-report-document dre-print-document">
     <header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial realizado</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p><p>Gerado em: <strong>${escapeHtml(generatedAt)}</strong> · ${dre.aprovados.length} orçamento(s) considerado(s)</p></div></header>
     <section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Ticket médio</span><strong>${money(dre.ticketMedio)}</strong></div><div class="highlight ${dre.resultado < 0 ? "negative-result" : ""}"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section>
+    <section class="report-print-summary"><div><span>Ponto de equilíbrio</span><strong>${breakEven.contributionMargin > 0 ? money(breakEven.value) : "Não calculado"}</strong></div><div><span>Meta de faturamento</span><strong>${goals.faturamento > 0 ? money(goals.faturamento * goalFactor) : "Não configurada"}</strong></div><div><span>Meta de lucro</span><strong>${goals.lucro > 0 ? money(goals.lucro * goalFactor) : "Não configurada"}</strong></div><div><span>Meta de margem</span><strong>${goals.margem > 0 ? `${goals.margem.toFixed(1).replace(".", ",")}%` : "Não configurada"}</strong></div></section>
     <section class="report-table-section"><h2>Demonstração do resultado</h2><div class="dre-statement print-dre-statement">${buildDreStatementRows(dre)}</div></section>
+    <section class="report-table-section"><h2>Rentabilidade por área</h2><table class="print-table"><thead><tr><th>Área</th><th>Receita</th><th>Custos diretos</th><th>Lucro bruto</th><th>Margem</th></tr></thead><tbody>${areas.map((item) => `<tr><td>${item.label}</td><td>${money(item.revenue)}</td><td>${money(item.cost)}</td><td>${money(item.profit)}</td><td>${item.margin.toFixed(1).replace(".", ",")}%</td></tr>`).join("") || `<tr><td colspan="5">Sem receitas por área no período.</td></tr>`}</tbody></table></section>
+    <section class="report-print-charts"><div class="report-chart-card"><h2>Evolução dos últimos 6 meses</h2><div class="report-bars-legend">${historySeries.map((item) => `<span><i class="${item.className}"></i>${item.label}</span>`).join("")}</div><div class="report-monthly-bars">${history.map((month) => `<div class="report-month-group"><div>${historySeries.map((item) => { const value = month[item.key]; const height = value === 0 ? 4 : Math.max(10, Math.round((Math.abs(value) / historyMax) * 112)); return `<span class="${item.className}" style="height:${height}px"></span>`; }).join("")}</div><strong>${escapeHtml(month.label)}</strong><small>${money(month.lucro)}</small></div>`).join("")}</div></div></section>
+    <section class="report-table-section"><h2>Ranking dos orçamentos</h2><table class="print-table"><thead><tr><th>Posição</th><th>Orçamento</th><th>Cliente</th><th>Lucro bruto</th><th>Margem</th></tr></thead><tbody>${ranking.slice(0, 10).map((item, index) => `<tr><td>${index + 1}</td><td>${String(item.orcamento.numero || "").padStart(4, "0")}</td><td>${escapeHtml(getClienteNome(item.orcamento.clienteId))}</td><td>${money(item.lucro)}</td><td>${item.receita > 0 ? `${item.margem.toFixed(1).replace(".", ",")}%` : "Sem receita"}</td></tr>`).join("") || `<tr><td colspan="5">Sem orçamentos aprovados no período.</td></tr>`}</tbody></table></section>
     <section class="report-table-section"><h2>Orçamentos que formam o resultado</h2><table class="print-table"><thead><tr><th>Data</th><th>Orçamento</th><th>Cliente</th><th>Receita</th><th>Custos</th><th>Lucro / margem</th></tr></thead><tbody>${budgetRows}</tbody></table></section>
     ${courtesyRows ? `<section class="report-table-section"><h2>Cortesias concedidas</h2><p>${dre.cortesias.itens} ${dre.cortesias.itens === 1 ? "item" : "itens"} · custos de ${money(dre.cortesias.custoTotal)} · ${dre.cortesias.horasMaoObra.toFixed(2).replace(".", ",")} hora(s) de mão de obra</p><table class="print-table"><thead><tr><th>Data</th><th>Orçamento</th><th>Tipo</th><th>Item</th><th>Custo</th></tr></thead><tbody>${courtesyRows}</tbody></table></section>` : ""}
     <section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>% do total de despesas</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${dre.despesas ? ((value / dre.despesas) * 100).toFixed(1).replace(".", ",") : "0,0"}%</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="3">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section>

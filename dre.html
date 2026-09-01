@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DRE gerencial | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=106">
+  <link rel="stylesheet" href="style.css?v=108">
 </head>
 <body data-page="dre">
   <div class="app-shell">
@@ -21,7 +21,7 @@
       <section id="dreUpgrade" class="panel dre-upgrade" hidden>
         <span class="dre-pro-badge">RR MANAGER PRO</span><h2>Entenda o resultado real da sua oficina</h2>
         <p>O DRE organiza receitas, custos e despesas, calcula suas margens e compara períodos para apoiar decisões.</p>
-        <div class="dre-upgrade-features"><span>✓ Lucro bruto e líquido</span><span>✓ Margens em percentual</span><span>✓ Comparação entre períodos</span><span>✓ PDF gerencial</span></div>
+        <div class="dre-upgrade-features"><span>✓ Lucro bruto e líquido</span><span>✓ Metas e ponto de equilíbrio</span><span>✓ Rentabilidade e ranking</span><span>✓ Evolução de até 12 meses</span><span>✓ Comparação entre períodos</span><span>✓ PDF gerencial</span></div>
         <a class="btn btn-primary" href="https://wa.me/5531997851561?text=Ola!%20Quero%20conhecer%20o%20Plano%20Pro%20do%20RR%20Manager" target="_blank" rel="noopener">Conhecer o Plano Pro</a>
       </section>
       <div id="dreContent" hidden>
@@ -32,6 +32,23 @@
           <p class="dre-criterion"><strong>Critério adotado:</strong> orçamento aprovado representa serviço realizado e valor recebido na data da aprovação.</p>
         </section>
         <section class="stats-grid compact" id="dreCards"></section>
+        <section class="panel dre-goals-panel">
+          <div class="panel-header"><div><p class="eyebrow">Planejamento</p><h2>Metas mensais</h2></div><button class="btn btn-muted" type="button" id="dreGoalsToggle">Configurar metas</button></div>
+          <form id="dreGoalsForm" class="form-grid dre-goals-form" hidden>
+            <label>Meta de faturamento<input id="dreMetaFaturamento" type="number" min="0" step="0.01" placeholder="Ex.: 30000"></label>
+            <label>Meta de lucro líquido<input id="dreMetaLucro" type="number" min="0" step="0.01" placeholder="Ex.: 8000"></label>
+            <label>Meta de margem líquida (%)<input id="dreMetaMargem" type="number" min="0" max="100" step="0.1" placeholder="Ex.: 20"></label>
+            <label>Meta de ticket médio<input id="dreMetaTicket" type="number" min="0" step="0.01" placeholder="Ex.: 750"></label>
+            <div class="form-actions span-2"><button class="btn btn-primary" type="submit">Salvar metas</button><button class="btn btn-muted" type="button" id="dreGoalsCancel">Cancelar</button></div>
+          </form>
+          <div id="dreGoalsSummary" class="dre-goals-summary"></div>
+        </section>
+        <section class="content-grid dre-insights-grid">
+          <article class="panel"><div class="panel-header"><div><p class="eyebrow">Segurança financeira</p><h2>Ponto de equilíbrio</h2></div></div><div id="dreBreakEven"></div></article>
+          <article class="panel"><div class="panel-header"><div><p class="eyebrow">Desempenho</p><h2>Rentabilidade por área</h2></div></div><div id="dreAreaProfitability"></div></article>
+        </section>
+        <section class="panel"><div class="panel-header"><div><p class="eyebrow">Histórico</p><h2>Evolução mensal</h2></div><div class="dre-history-actions"><button class="btn btn-muted active" type="button" data-dre-history="6">6 meses</button><button class="btn btn-muted" type="button" data-dre-history="12">12 meses</button></div></div><div id="dreMonthlyEvolution" class="bar-chart"></div></section>
+        <section class="panel"><div class="panel-header"><div><p class="eyebrow">Rentabilidade</p><h2>Ranking dos orçamentos</h2></div></div><div id="dreRanking" class="dre-ranking-grid"></div></section>
         <section class="content-grid dre-grid"><article class="panel"><div class="panel-header"><div><p class="eyebrow">Resultado</p><h2>DRE do período</h2></div></div><div id="dreStatement" class="dre-statement"></div></article><article class="panel"><div class="panel-header"><div><p class="eyebrow">Evolução</p><h2>Comparação com período anterior</h2></div></div><div id="dreComparison"></div></article></section>
         <section class="panel"><div class="panel-header"><div><p class="eyebrow">Conferência</p><h2>Orçamentos que formam o resultado</h2></div></div><div class="table-wrap"><table><thead><tr><th>Data</th><th>Orçamento</th><th>Cliente / veículo</th><th>Receita</th><th>Custos</th><th>Margem bruta</th><th>Ação</th></tr></thead><tbody id="dreOrcamentos"></tbody></table></div></section>
         <section class="panel dre-alerts-panel"><div class="panel-header"><div><p class="eyebrow">Qualidade dos dados</p><h2>Orçamentos que precisam de atenção</h2></div></div><div id="dreAlerts" class="dre-alerts"></div></section>
@@ -40,6 +57,6 @@
       </div>
     </main>
   </div>
-  <script src="script.js?v=98"></script><script src="firebase-config.js?v=13"></script><script type="module" src="firebase-sync.js?v=58"></script>
+  <script src="script.js?v=99"></script><script src="firebase-config.js?v=13"></script><script type="module" src="firebase-sync.js?v=59"></script>
 </body>
 </html>
