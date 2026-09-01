@@ -169,6 +169,21 @@ let orcamentoPecasDraft = [];
 let orcamentoServicosDraft = [];
 let orcamentoTerceirizadosDraft = [];
 let ultimoRelatorioFinanceiro = null;
+const FINANCE_CATEGORIES = {
+  Receita: {
+    "Receita operacional": ["Serviços automotivos", "Venda de peças", "Outras receitas operacionais"],
+    "Outras receitas": ["Aporte de capital", "Reembolso", "Outras receitas"]
+  },
+  Despesa: {
+    "Estrutura": ["Aluguel e condomínio", "Água e energia", "Internet e telefone", "Limpeza", "Manutenção da oficina"],
+    "Pessoal": ["Salários e encargos", "Pró-labore", "Benefícios e treinamentos"],
+    "Administrativo": ["Contabilidade", "Marketing", "Software e assinaturas", "Material de escritório"],
+    "Operação": ["Ferramentas e equipamentos", "Materiais de consumo", "Transporte e combustível", "Fretes"],
+    "Tributos": ["Impostos e taxas"],
+    "Outras despesas": ["Outras despesas"]
+  }
+};
+const DRE_CATEGORY_COLORS = ["#f1c75b", "#4fd1a1", "#5ba8ff", "#b58cff", "#ff8f8f", "#ffad5b", "#67d6dc", "#d98ecb", "#9fc968", "#e9d66b"];
 
 document.addEventListener("DOMContentLoaded", () => {
   migrateLegacyData();
@@ -2183,9 +2198,44 @@ function buildOrcamentoPrintHtml(orcamento) {
   `;
 }
 
+function getFinanceiroTipoSelecionado() {
+  return document.querySelector("input[name='financeiroTipo']:checked")?.value || "Despesa";
+}
+
+function hydrateFinanceiroClassificacao(selectedGroup = "", selectedCategory = "") {
+  const tipo = getFinanceiroTipoSelecionado();
+  const groups = FINANCE_CATEGORIES[tipo] || FINANCE_CATEGORIES.Despesa;
+  const groupSelect = byId("financeiroGrupo");
+  const categorySelect = byId("financeiroCategoria");
+  if (!groupSelect || !categorySelect) return;
+  const categoryGroup = Object.entries(groups).find(([, categories]) => categories.includes(selectedCategory))?.[0];
+  const group = groups[selectedGroup] ? selectedGroup : categoryGroup || Object.keys(groups)[0];
+  groupSelect.innerHTML = Object.keys(groups).map((name) => `<option value="${escapeHtml(name)}"${name === group ? " selected" : ""}>${escapeHtml(name)}</option>`).join("");
+  const categories = groups[group] || [];
+  const isCustom = Boolean(selectedCategory && !categories.includes(selectedCategory));
+  categorySelect.innerHTML = categories.map((name) => `<option value="${escapeHtml(name)}"${name === selectedCategory ? " selected" : ""}>${escapeHtml(name)}</option>`).join("") + `<option value="__other__"${isCustom ? " selected" : ""}>Outra categoria...</option>`;
+  setValue("financeiroCategoriaOutra", isCustom ? selectedCategory : "");
+  updateFinanceiroOutraCategoria();
+}
+
+function updateFinanceiroOutraCategoria() {
+  const custom = getValue("financeiroCategoria") === "__other__";
+  const label = byId("financeiroCategoriaOutraLabel");
+  if (label) label.hidden = !custom;
+  if (!custom) setValue("financeiroCategoriaOutra", "");
+}
+
+function getFinanceiroCategoriaValue() {
+  return getValue("financeiroCategoria") === "__other__" ? getValue("financeiroCategoriaOutra").trim() : getValue("financeiroCategoria");
+}
+
 function initFinanceiro() {
   setValue("financeiroData", today());
   setDefaultReportDates();
+  hydrateFinanceiroClassificacao();
+  document.querySelectorAll("input[name='financeiroTipo']").forEach((input) => input.addEventListener("change", () => hydrateFinanceiroClassificacao()));
+  byId("financeiroGrupo").addEventListener("change", () => hydrateFinanceiroClassificacao(getValue("financeiroGrupo")));
+  byId("financeiroCategoria").addEventListener("change", updateFinanceiroOutraCategoria);
   byId("financeiroForm").addEventListener("submit", saveFinanceiro);
   byId("buscaFinanceiro").addEventListener("input", renderFinanceiro);
   byId("financeiroRelatorioForm").addEventListener("submit", (event) => {
@@ -2209,12 +2259,15 @@ async function saveFinanceiro(event) {
     const financeiro = readData("financeiro");
     const id = getValue("financeiroId") || createId("fin");
     const tipo = document.querySelector("input[name='financeiroTipo']:checked")?.value || "Despesa";
+    const categoria = getFinanceiroCategoriaValue();
+    if (!categoria) throw new Error("Informe a categoria do lançamento.");
     const lancamento = {
       id,
       tipo,
       data: getValue("financeiroData"),
       descricao: getValue("financeiroDescricao"),
-      categoria: getValue("financeiroCategoria"),
+      grupo: getValue("financeiroGrupo"),
+      categoria,
       valor: Number(getValue("financeiroValor")) || 0
     };
     const index = financeiro.findIndex((item) => item.id === id);
@@ -2226,6 +2279,7 @@ async function saveFinanceiro(event) {
     setValue("financeiroId", "");
     setValue("financeiroData", today());
     byId("financeiroTipoDespesa").checked = true;
+    hydrateFinanceiroClassificacao();
     renderFinanceiro();
     renderFinanceiroRelatorio();
   } catch (error) {
@@ -2814,7 +2868,11 @@ function renderDre() {
   const change = percentChange(dre.resultado, previous.resultado);
   byId("dreComparison").innerHTML = `<div class="dre-comparison-value ${change >= 0 ? "positive" : "negative"}"><strong>${change >= 0 ? "+" : ""}${change.toFixed(1).replace(".", ",")}%</strong><span>Resultado comparado ao período anterior</span></div><div class="dre-compare-bars"><div><span>Período anterior</span><b>${money(previous.resultado)}</b></div><div><span>Período atual</span><b>${money(dre.resultado)}</b></div></div><small>${formatDateBR(previousPeriod.start)} até ${formatDateBR(previousPeriod.end)}</small>`;
   const categories = Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]);
-  byId("dreCategories").innerHTML = categories.map(([name, value]) => `<div><span>${escapeHtml(name)}</span><strong>${money(value)}</strong><i><b style="width:${dre.despesas ? Math.max(2, (value / dre.despesas) * 100) : 0}%"></b></i></div>`).join("") || `<p class="muted">Nenhuma despesa operacional no período.</p>`;
+  byId("dreCategories").innerHTML = categories.map(([name, value], index) => {
+    const percent = dre.despesas ? (value / dre.despesas) * 100 : 0;
+    const color = DRE_CATEGORY_COLORS[index % DRE_CATEGORY_COLORS.length];
+    return `<div style="--category-color:${color}"><span><i class="dre-category-dot"></i>${escapeHtml(name)}</span><strong>${money(value)} <small>${percent.toFixed(1).replace(".", ",")}%</small></strong><i class="dre-category-track"><b style="width:${Math.max(2, percent)}%"></b></i></div>`;
+  }).join("") || `<p class="muted">Nenhuma despesa operacional no período.</p>`;
 }
 
 function buildDreStatementRows(dre) {
@@ -3003,9 +3061,9 @@ function editFinanceiro(id) {
   setValue("financeiroId", item.id);
   setValue("financeiroData", item.data);
   setValue("financeiroDescricao", item.descricao);
-  setValue("financeiroCategoria", item.categoria);
   setValue("financeiroValor", item.valor);
   byId(item.tipo === "Receita" ? "financeiroTipoReceita" : "financeiroTipoDespesa").checked = true;
+  hydrateFinanceiroClassificacao(item.grupo || "", item.categoria || "");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -3061,5 +3119,5 @@ function initDrePrint() {
 function buildDrePrintHtml(dre) {
   const branding = getDocumentBranding();
   const categories = Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]);
-  return `<article class="finance-report-document dre-print-document"><header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p></div></header><section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Margem bruta</span><strong>${dre.margemBruta.toFixed(1).replace(".", ",")}%</strong></div><div class="highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section><section class="report-table-section"><h2>Demonstração do resultado</h2><div class="dre-statement print-dre-statement">${buildDreStatementRows(dre)}</div></section><section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="2">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section><footer class="print-footer">DRE gerencial para apoio à gestão. Não substitui demonstrações contábeis elaboradas por profissional habilitado.</footer></article>`;
+  return `<article class="finance-report-document dre-print-document"><header class="print-header report-print-header"><img src="${branding.logoUrl}" alt="${escapeHtml(branding.companyName)}"><div><h1>${escapeHtml(branding.reportName)}</h1><p>DRE gerencial</p><p>Período: <strong>${escapeHtml(formatDateBR(dre.start))} até ${escapeHtml(formatDateBR(dre.end))}</strong></p></div></header><section class="report-print-summary"><div><span>Receita líquida</span><strong>${money(dre.receitaLiquida)}</strong></div><div><span>Lucro bruto</span><strong>${money(dre.lucroBruto)}</strong></div><div><span>Margem bruta</span><strong>${dre.margemBruta.toFixed(1).replace(".", ",")}%</strong></div><div class="highlight"><span>Resultado líquido</span><strong>${money(dre.resultado)}</strong></div></section><section class="report-table-section"><h2>Demonstração do resultado</h2><div class="dre-statement print-dre-statement">${buildDreStatementRows(dre)}</div></section><section class="report-table-section"><h2>Despesas operacionais por categoria</h2><table class="print-table"><thead><tr><th>Categoria</th><th>Participação</th><th>Valor</th></tr></thead><tbody>${categories.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${dre.despesas ? ((value / dre.despesas) * 100).toFixed(1).replace(".", ",") : "0,0"}%</td><td>${money(value)}</td></tr>`).join("") || `<tr><td colspan="3">Sem despesas operacionais no período.</td></tr>`}</tbody></table></section><footer class="print-footer">DRE gerencial para apoio à gestão. Não substitui demonstrações contábeis elaboradas por profissional habilitado.</footer></article>`;
 }

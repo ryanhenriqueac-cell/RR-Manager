@@ -63,7 +63,9 @@
           </div>
 
           <label>Data<input id="financeiroData" type="date" required></label>
-          <label>Categoria<input id="financeiroCategoria" placeholder="Serviços, peças, aluguel, pró-labore..."></label>
+          <label>Grupo<select id="financeiroGrupo"></select></label>
+          <label>Categoria<select id="financeiroCategoria"></select></label>
+          <label id="financeiroCategoriaOutraLabel" class="span-2" hidden>Outra categoria<input id="financeiroCategoriaOutra" placeholder="Informe uma categoria clara"></label>
           <label class="span-2">Descrição<input id="financeiroDescricao" required placeholder="Ex.: retirada pró-labore, entrada no caixa, prejuízo, fornecedor..."></label>
           <label>Valor<input id="financeiroValor" type="number" min="0" step="0.01" required placeholder="0,00"></label>
 
