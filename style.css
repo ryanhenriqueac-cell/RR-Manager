@@ -1476,6 +1476,7 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 .courtesy-toggle input { width: 18px; height: 18px; accent-color: var(--gold); }.courtesy-toggle span { font-weight: 800; color: var(--gold-2); }
 .courtesy-price { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border: 1px solid rgba(241,199,91,.32); border-radius: 7px; color: var(--gold-2); font-weight: 900; letter-spacing: .04em; background: rgba(241,199,91,.08); }
 .line-total.is-courtesy,.print-courtesy { color: var(--gold-2); font-weight: 900; letter-spacing: .04em; }
+.print-preview-page .print-courtesy,.pdf-share-render-host .print-courtesy { color: #062e55; }
 .courtesy-stat { border-color: rgba(241,199,91,.35); background: rgba(241,199,91,.07); }
 .courtesy-label { color: var(--gold-2); font-weight: 800; }
 .courtesy-help { margin: 0; padding: 12px 14px; border-left: 3px solid var(--gold); color: var(--muted); background: rgba(241,199,91,.06); }
