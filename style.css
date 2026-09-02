@@ -7425,6 +7425,30 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .manager-demo-document td { padding: 11px; border: 1px solid #d8e0e8; }
 .manager-demo-document footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 26px; padding: 18px; background: #eef3f7; }
 .manager-demo-document footer strong { color: #0c345a; font-size: 20px; }
+.manager-demo-table-section h4 { margin-bottom: 8px; color: #0c345a; font-size: 14px; text-transform: uppercase; }
+.manager-demo-table-section + .manager-demo-table-section { margin-top: 18px; }
+.demo-courtesy { color: #27689f; font-weight: 900; }
+.manager-demo-budget-bottom { display: grid; grid-template-columns: .85fr 1.15fr; gap: 12px; margin-top: 22px; }
+.manager-demo-budget-bottom > section { padding: 14px; border: 1px solid #d8e0e8; border-radius: 6px; }
+.manager-demo-budget-bottom h4 { margin: 0 0 9px; color: #0c345a; }
+.manager-demo-budget-bottom p { margin: 5px 0; font-size: 12px; }
+.manager-demo-pix { display: flex; align-items: center; gap: 12px; background: #fff8e8; border-color: #e8bd58 !important; }
+.manager-demo-pix > div { display: grid; gap: 4px; flex: 1; }
+.manager-demo-pix strong { color: #0c345a; font-size: 18px; }
+.manager-demo-pix span { color: #627184; font-size: 10px; }
+.manager-demo-pix > i { width: 68px; height: 68px; flex: 0 0 auto; border: 7px solid #fff; background: repeating-conic-gradient(#071d33 0 25%, #fff 0 50%) 0 / 12px 12px; box-shadow: 0 0 0 1px #d8e0e8; }
+.manager-demo-totals { width: min(330px, 100%); margin: 18px 0 0 auto; border: 1px solid #d8e0e8; }
+.manager-demo-totals p { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 9px 12px; border-bottom: 1px solid #d8e0e8; }
+.manager-demo-totals p:last-child { border: 0; background: #0c345a; color: #fff; }
+.manager-demo-totals strong { font-size: 17px; }
+.manager-demo-inspection-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; padding: 10px; background: #eef3f7; }
+.manager-demo-inspection-legend span { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; }
+.demo-na { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #e8edf3; color: #536477; font-style: normal; font-weight: 800; }
+.manager-demo-conclusion { margin-top: 22px; padding: 15px; border: 1px solid #d8e0e8; }
+.manager-demo-conclusion h4 { margin: 0 0 10px; color: #0c345a; }
+.manager-demo-conclusion p { color: #425267; font-size: 12px; line-height: 1.5; }
+.manager-demo-conclusion > div { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 34px; }
+.manager-demo-conclusion > div span { padding-top: 7px; border-top: 1px solid #68788a; color: #68788a; font-size: 10px; text-align: center; }
 .demo-ok,.demo-warn { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #d9f8e9; color: #187b50; font-style: normal; font-weight: 800; }
 .demo-warn { background: #fff0ce; color: #99620d; }
 .manager-demo-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 24px 0; }
@@ -7432,10 +7456,30 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .manager-demo-summary span { color: #627184; font-size: 11px; }
 .manager-demo-summary strong { font-size: 16px; }
 .manager-demo-summary .highlight { background: #e6f4ff; border-color: #78b8e9; }
+.manager-demo-summary.secondary { margin-top: -12px; }
+.manager-demo-summary.secondary strong { font-size: 14px; }
+.manager-demo-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+.manager-demo-charts > div { padding: 15px; border: 1px solid #d8e0e8; border-radius: 6px; }
+.manager-demo-charts h4 { margin: 0 0 14px; color: #0c345a; }
+.manager-demo-charts p { display: flex; align-items: center; gap: 6px; margin: 7px 0; color: #627184; font-size: 10px; }
+.manager-demo-charts p b { margin-left: auto; color: #10243a; }
+.manager-demo-charts p > i { width: 8px; height: 8px; border-radius: 50%; background: #4fd1a1; }
+.manager-demo-charts p:nth-of-type(2) > i { background: #f1c75b; }
+.manager-demo-charts p:nth-of-type(3) > i { background: #ef6262; }
+.manager-demo-donut { display: grid; place-items: center; width: 132px; height: 132px; margin: 0 auto 12px; border-radius: 50%; background: conic-gradient(#4fd1a1 0 64%, #f1c75b 64% 89%, #ef6262 89%); }
+.manager-demo-donut::before { content: ""; grid-area: 1 / 1; width: 82px; height: 82px; border-radius: 50%; background: #fff; }
+.manager-demo-donut span { z-index: 1; grid-area: 1 / 1; display: grid; color: #0c345a; font-size: 12px; font-weight: 900; text-align: center; }
+.manager-demo-donut small { color: #627184; font-size: 8px; }
+.manager-demo-bars { display: flex; align-items: end; justify-content: space-around; gap: 8px; height: 150px; padding: 12px 8px 0; border-bottom: 1px solid #aab6c3; background: repeating-linear-gradient(to top, #edf2f7 0 1px, transparent 1px 37px); }
+.manager-demo-bars i { width: 22px; background: linear-gradient(#5b8cff, #27689f); border-radius: 3px 3px 0 0; }
+.manager-demo-charts .months { justify-content: space-around; }
+.manager-demo-charts .months span { font-size: 8px; font-weight: 800; }
+.manager-demo-charts.dre-chart { grid-template-columns: 1fr; }
 .manager-demo-statement { border: 1px solid #d8e0e8; border-radius: 5px; overflow: hidden; }
 .manager-demo-statement p { display: flex; justify-content: space-between; gap: 14px; margin: 0; padding: 12px 14px; border-bottom: 1px solid #d8e0e8; }
 .manager-demo-statement p:last-child { border-bottom: 0; }
 .manager-demo-statement .final { background: #0c345a; color: #fff; }
+.manager-demo-statement .subtotal { background: #eef3f7; color: #0c345a; }
 
 .manager-real-dre { max-width: 760px; }
 .manager-real-dre-filters { display: grid; grid-template-columns: repeat(2, 1fr) auto auto; gap: 6px; }
@@ -7491,6 +7535,10 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .manager-demo-document header > b { width: 100%; margin-left: 0; }
   .manager-demo-info,
   .manager-demo-summary { grid-template-columns: 1fr; }
+  .manager-demo-budget-bottom,
+  .manager-demo-charts { grid-template-columns: 1fr; }
+  .manager-demo-pix { align-items: flex-start; }
+  .manager-demo-conclusion > div { grid-template-columns: 1fr; }
   .manager-demo-document table { font-size: 10px; }
   .manager-demo-document th,
   .manager-demo-document td { padding: 7px 5px; }
