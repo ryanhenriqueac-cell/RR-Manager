@@ -2193,7 +2193,7 @@ function normalizeWorkspaceBilling(workspace = {}) {
     nextDueDate: String(source.nextDueDate || ""),
     expectedAmount: Number.isFinite(expectedAmount) ? expectedAmount : subscription.agreedPrice,
     preferredMethod: ["pix", "card", "boleto", "other"].includes(source.preferredMethod) ? source.preferredMethod : "pix",
-    statusOverride: ["exempt", "canceled"].includes(source.statusOverride) ? source.statusOverride : "",
+    statusOverride: ["trial", "exempt", "canceled"].includes(source.statusOverride) ? source.statusOverride : "",
     adminNote: String(source.adminNote || ""),
     payments: Array.isArray(source.payments) ? source.payments.slice(0, 120) : []
   };
@@ -2204,6 +2204,13 @@ function getBillingStatus(workspace) {
   if (billing.statusOverride === "canceled") return { key: "canceled", label: "Cancelado", detail: "Cobrança encerrada", days: 0 };
   if (billing.statusOverride === "exempt") return { key: "exempt", label: "Cortesia", detail: "Isento de cobrança", days: 0 };
   const today = parseLocalDate(getLocalDateISO());
+  if (billing.statusOverride === "trial") {
+    const start = parseLocalDate(billing.subscriptionStart) || today;
+    const trialEnd = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 30);
+    const days = Math.ceil((trialEnd - today) / 86400000);
+    if (days >= 0) return { key: "trial", label: "Teste grátis", detail: `${days} ${days === 1 ? "dia restante" : "dias restantes"}`, days };
+    return { key: "overdue", label: "Teste expirado", detail: `${Math.abs(days)} ${days === -1 ? "dia após o teste" : "dias após o teste"}`, days: Math.abs(days) };
+  }
   const due = parseLocalDate(billing.nextDueDate);
   if (!due) {
     const start = parseLocalDate(billing.subscriptionStart);
@@ -2233,12 +2240,15 @@ function renderAdminBillingOverview() {
   const summary = document.getElementById("firebaseBillingSummary");
   const filters = document.getElementById("firebaseBillingFilters");
   if (!summary || !filters) return;
-  const counts = { current: 0, soon: 0, today: 0, overdue: 0, trial: 0, blocked: 0 };
+  const counts = { current: 0, soon: 0, today: 0, overdue: 0, trial: 0, exempt: 0, canceled: 0, unconfigured: 0, blocked: 0 };
   let pendingAmount = 0;
+  let receivedAmount = 0;
   adminWorkspaces.forEach((workspace) => {
     const status = getBillingStatus(workspace).key;
+    const billing = normalizeWorkspaceBilling(workspace);
     if (counts[status] !== undefined) counts[status] += 1;
-    if (status === "overdue" || status === "today") pendingAmount += normalizeWorkspaceBilling(workspace).expectedAmount;
+    if (status === "overdue" || status === "today") pendingAmount += billing.expectedAmount;
+    receivedAmount += billing.payments.reduce((total, payment) => total + Number(payment.amount || 0), 0);
     if ((workspace.accessStatus || ACCESS_STATUS.ACTIVE) === ACCESS_STATUS.BLOCKED) counts.blocked += 1;
   });
   summary.innerHTML = `
@@ -2246,8 +2256,9 @@ function renderAdminBillingOverview() {
     <article><span>Vencem em breve</span><strong>${counts.soon}</strong></article>
     <article><span>Vencem hoje</span><strong>${counts.today}</strong></article>
     <article class="is-danger"><span>Em atraso</span><strong>${counts.overdue}</strong></article>
-    <article class="is-money"><span>Pendente</span><strong>${formatBillingMoney(pendingAmount)}</strong></article>`;
-  const options = [["all", "Todos", adminWorkspaces.length], ["current", "Em dia", counts.current], ["soon", "Próximos", counts.soon], ["today", "Hoje", counts.today], ["overdue", "Atrasados", counts.overdue], ["trial", "Teste grátis", counts.trial], ["blocked", "Bloqueados", counts.blocked]];
+    <article class="is-money"><span>Pendente</span><strong>${formatBillingMoney(pendingAmount)}</strong></article>
+    <article><span>Total recebido</span><strong>${formatBillingMoney(receivedAmount)}</strong></article>`;
+  const options = [["all", "Todos", adminWorkspaces.length], ["current", "Em dia", counts.current], ["soon", "Próximos", counts.soon], ["today", "Hoje", counts.today], ["overdue", "Atrasados", counts.overdue], ["trial", "Teste grátis", counts.trial], ["exempt", "Cortesias", counts.exempt], ["canceled", "Cancelados", counts.canceled], ["unconfigured", "Configurar", counts.unconfigured], ["blocked", "Bloqueados", counts.blocked]];
   filters.innerHTML = options.map(([key, label, count]) => `<button type="button" class="${adminBillingFilter === key ? "is-active" : ""}" data-billing-filter="${key}">${label} <strong>${count}</strong></button>`).join("");
   filters.querySelectorAll("[data-billing-filter]").forEach((button) => button.addEventListener("click", () => {
     adminBillingFilter = button.dataset.billingFilter;
@@ -2260,7 +2271,8 @@ function getBillingMarkup(workspace) {
   const billing = normalizeWorkspaceBilling(workspace);
   const status = getBillingStatus(workspace);
   const methods = { pix: "Pix", card: "Cartão", boleto: "Boleto", other: "Outro" };
-  const history = billing.payments.map((payment) => `<tr><td>${formatBillingDate(payment.paidAt)}</td><td>${formatBillingMoney(payment.amount)}</td><td>${escapeHtml(methods[payment.method] || "Outro")}</td><td>${escapeHtml(payment.reference || "-")}</td><td>${escapeHtml(payment.note || "-")}</td></tr>`).join("");
+  const receivedTotal = billing.payments.reduce((total, payment) => total + Number(payment.amount || 0), 0);
+  const history = billing.payments.map((payment) => `<tr><td>${formatBillingDate(payment.paidAt)}</td><td>${formatBillingMoney(payment.amount)}</td><td>${escapeHtml(methods[payment.method] || "Outro")}</td><td>${escapeHtml(payment.reference || "-")}</td><td>${escapeHtml(payment.note || "-")}</td><td class="admin-payment-actions"><button type="button" data-edit-payment="${escapeHtml(payment.id)}" data-workspace-id="${id}">Editar</button><button type="button" class="is-danger" data-delete-payment="${escapeHtml(payment.id)}" data-workspace-id="${id}">Excluir</button></td></tr>`).join("");
   return `
     <section class="admin-billing" data-billing-workspace="${id}">
       <div class="admin-billing-head">
@@ -2276,11 +2288,11 @@ function getBillingMarkup(workspace) {
           <label>Próximo vencimento<input type="date" data-billing-field="nextDueDate" value="${escapeHtml(billing.nextDueDate)}"></label>
           <label>Valor previsto<input type="number" min="0" step="0.01" data-billing-field="expectedAmount" value="${billing.expectedAmount.toFixed(2)}"></label>
           <label>Forma preferencial<select data-billing-field="preferredMethod">${Object.entries(methods).map(([key, label]) => `<option value="${key}"${billing.preferredMethod === key ? " selected" : ""}>${label}</option>`).join("")}</select></label>
-          <label>Situação manual<select data-billing-field="statusOverride"><option value="">Automática pela data</option><option value="exempt"${billing.statusOverride === "exempt" ? " selected" : ""}>Cortesia / isento</option><option value="canceled"${billing.statusOverride === "canceled" ? " selected" : ""}>Cancelado</option></select></label>
+          <label>Situação manual<select data-billing-field="statusOverride"><option value="">Automática pela data</option><option value="trial"${billing.statusOverride === "trial" ? " selected" : ""}>Teste grátis por 30 dias</option><option value="exempt"${billing.statusOverride === "exempt" ? " selected" : ""}>Cortesia / isento</option><option value="canceled"${billing.statusOverride === "canceled" ? " selected" : ""}>Cancelado</option></select></label>
           <label class="admin-billing-note">Observação administrativa<textarea rows="2" data-billing-field="adminNote" placeholder="Acordos, descontos ou lembretes">${escapeHtml(billing.adminNote)}</textarea></label>
         </div>
         <div class="actions"><button class="btn btn-ghost" type="button" data-save-billing="${id}">Salvar cobrança</button><button class="btn btn-primary" type="button" data-register-payment="${id}">Registrar pagamento</button><button class="btn btn-whatsapp" type="button" data-charge-whatsapp="${id}">Cobrar pelo WhatsApp</button><button class="btn btn-muted" type="button" data-billing-history-toggle="${id}">Histórico (${billing.payments.length})</button></div>
-        <div class="admin-payment-history" data-billing-history="${id}" hidden>${history ? `<div class="table-wrap"><table><thead><tr><th>Recebido</th><th>Valor</th><th>Forma</th><th>Referência</th><th>Observação</th></tr></thead><tbody>${history}</tbody></table></div>` : `<div class="admin-empty">Nenhum pagamento registrado.</div>`}</div>
+        <div class="admin-payment-history" data-billing-history="${id}" hidden>${history ? `<div class="admin-payment-total"><span>Total recebido nesta assinatura</span><strong>${formatBillingMoney(receivedTotal)}</strong></div><div class="table-wrap"><table><thead><tr><th>Recebido</th><th>Valor</th><th>Forma</th><th>Referência</th><th>Observação</th><th>Ações</th></tr></thead><tbody>${history}</tbody></table></div>` : `<div class="admin-empty">Nenhum pagamento registrado.</div>`}</div>
         <span class="form-status" data-billing-message></span>
       </div>
     </section>`;
@@ -2429,6 +2441,8 @@ function bindAdminBillingEvents(list) {
   }));
   list.querySelectorAll("[data-save-billing]").forEach((button) => button.addEventListener("click", () => saveWorkspaceBilling(button.dataset.saveBilling)));
   list.querySelectorAll("[data-register-payment]").forEach((button) => button.addEventListener("click", () => showRegisterPaymentModal(button.dataset.registerPayment)));
+  list.querySelectorAll("[data-edit-payment]").forEach((button) => button.addEventListener("click", () => showRegisterPaymentModal(button.dataset.workspaceId, button.dataset.editPayment)));
+  list.querySelectorAll("[data-delete-payment]").forEach((button) => button.addEventListener("click", () => deleteWorkspacePayment(button.dataset.workspaceId, button.dataset.deletePayment)));
   list.querySelectorAll("[data-charge-whatsapp]").forEach((button) => button.addEventListener("click", () => openBillingWhatsApp(button.dataset.chargeWhatsapp)));
 }
 
@@ -2442,13 +2456,14 @@ async function saveWorkspaceBilling(workspaceId) {
     if (message) message.textContent = "Informe um valor previsto válido.";
     return;
   }
+  const statusOverride = panel.querySelector("[data-billing-field='statusOverride']")?.value || "";
   const billing = {
     ...normalizeWorkspaceBilling(workspace),
-    subscriptionStart: panel.querySelector("[data-billing-field='subscriptionStart']")?.value || "",
+    subscriptionStart: panel.querySelector("[data-billing-field='subscriptionStart']")?.value || (statusOverride === "trial" ? getLocalDateISO() : ""),
     nextDueDate: panel.querySelector("[data-billing-field='nextDueDate']")?.value || "",
     expectedAmount,
     preferredMethod: panel.querySelector("[data-billing-field='preferredMethod']")?.value || "pix",
-    statusOverride: panel.querySelector("[data-billing-field='statusOverride']")?.value || "",
+    statusOverride,
     adminNote: panel.querySelector("[data-billing-field='adminNote']")?.value.trim() || "",
     updatedAtClient: new Date().toISOString(),
     updatedBy: currentUser.email || ""
@@ -2463,27 +2478,28 @@ async function saveWorkspaceBilling(workspaceId) {
   }
 }
 
-function showRegisterPaymentModal(workspaceId) {
+function showRegisterPaymentModal(workspaceId, paymentId = "") {
   const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
   if (!workspace) return;
   const billing = normalizeWorkspaceBilling(workspace);
+  const editingPayment = paymentId ? billing.payments.find((payment) => payment.id === paymentId) : null;
   const subscription = getWorkspaceSubscription(workspace);
   const businessName = workspace.businessName || workspace.registration?.empresa || workspace.ownerEmail || "Oficina";
   const overlay = document.createElement("div");
   overlay.className = "auth-modal-overlay";
   overlay.innerHTML = `
     <form class="auth-modal admin-payment-modal">
-      <h2>Registrar pagamento</h2><p>${escapeHtml(businessName)}</p>
+      <h2>${editingPayment ? "Editar pagamento" : "Registrar pagamento"}</h2><p>${escapeHtml(businessName)}</p>
       <div class="admin-payment-form">
-        <label>Data recebida<input name="paidAt" type="date" value="${getLocalDateISO()}" required></label>
-        <label>Valor recebido<input name="amount" type="number" min="0" step="0.01" value="${billing.expectedAmount.toFixed(2)}" required></label>
-        <label>Forma<select name="method"><option value="pix"${billing.preferredMethod === "pix" ? " selected" : ""}>Pix</option><option value="card"${billing.preferredMethod === "card" ? " selected" : ""}>Cartão</option><option value="boleto"${billing.preferredMethod === "boleto" ? " selected" : ""}>Boleto</option><option value="other"${billing.preferredMethod === "other" ? " selected" : ""}>Outro</option></select></label>
-        <label>Referência<input name="reference" value="${subscription.billingCycle === "annual" ? "Anuidade" : "Mensalidade"}" maxlength="80"></label>
-        <label class="admin-payment-note">Observação<textarea name="note" rows="2" maxlength="240"></textarea></label>
-        <label class="admin-payment-check"><input name="advanceDue" type="checkbox" checked> Avançar o vencimento automaticamente (${subscription.billingCycle === "annual" ? "1 ano" : "1 mês"})</label>
+        <label>Data recebida<input name="paidAt" type="date" value="${escapeHtml(editingPayment?.paidAt || getLocalDateISO())}" required></label>
+        <label>Valor recebido<input name="amount" type="number" min="0" step="0.01" value="${Number(editingPayment?.amount ?? billing.expectedAmount).toFixed(2)}" required></label>
+        <label>Forma<select name="method">${[["pix", "Pix"], ["card", "Cartão"], ["boleto", "Boleto"], ["other", "Outro"]].map(([key, label]) => `<option value="${key}"${(editingPayment?.method || billing.preferredMethod) === key ? " selected" : ""}>${label}</option>`).join("")}</select></label>
+        <label>Referência<input name="reference" value="${escapeHtml(editingPayment?.reference || (subscription.billingCycle === "annual" ? "Anuidade" : "Mensalidade"))}" maxlength="80"></label>
+        <label class="admin-payment-note">Observação<textarea name="note" rows="2" maxlength="240">${escapeHtml(editingPayment?.note || "")}</textarea></label>
+        ${editingPayment ? `<p class="admin-payment-edit-note">A edição corrige somente este registro e não altera novamente o próximo vencimento.</p>` : `<label class="admin-payment-check"><input name="advanceDue" type="checkbox" checked> Avançar o vencimento automaticamente (${subscription.billingCycle === "annual" ? "1 ano" : "1 mês"})</label>`}
       </div>
       <span class="form-status" data-payment-message></span>
-      <div class="auth-modal-actions"><button class="btn btn-muted" type="button" data-payment-cancel>Cancelar</button><button class="btn btn-primary" type="submit">Confirmar pagamento</button></div>
+      <div class="auth-modal-actions"><button class="btn btn-muted" type="button" data-payment-cancel>Cancelar</button><button class="btn btn-primary" type="submit">${editingPayment ? "Salvar alterações" : "Confirmar pagamento"}</button></div>
     </form>`;
   const form = overlay.querySelector("form");
   overlay.querySelector("[data-payment-cancel]").addEventListener("click", () => overlay.remove());
@@ -2494,10 +2510,12 @@ function showRegisterPaymentModal(workspaceId) {
     const paidAt = String(data.get("paidAt") || "");
     const message = form.querySelector("[data-payment-message]");
     if (!parseLocalDate(paidAt) || !Number.isFinite(amount) || amount < 0) { message.textContent = "Confira a data e o valor recebido."; return; }
-    const previousDueDate = billing.nextDueDate;
-    const nextDueDate = data.get("advanceDue") ? addBillingPeriod(previousDueDate || paidAt, subscription.billingCycle) : previousDueDate;
-    const payment = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, paidAt, amount, method: String(data.get("method") || "other"), reference: String(data.get("reference") || "").trim(), note: String(data.get("note") || "").trim(), previousDueDate, nextDueDate, recordedAtClient: new Date().toISOString(), recordedBy: currentUser.email || "" };
-    const savedBilling = { ...billing, lastPaymentDate: paidAt, nextDueDate, payments: [payment, ...billing.payments].slice(0, 120), updatedAtClient: new Date().toISOString(), updatedBy: currentUser.email || "" };
+    const previousDueDate = editingPayment?.previousDueDate ?? billing.nextDueDate;
+    const nextDueDate = editingPayment?.nextDueDate ?? (data.get("advanceDue") ? addBillingPeriod(previousDueDate || paidAt, subscription.billingCycle) : previousDueDate);
+    const payment = { ...(editingPayment || {}), id: editingPayment?.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, paidAt, amount, method: String(data.get("method") || "other"), reference: String(data.get("reference") || "").trim(), note: String(data.get("note") || "").trim(), previousDueDate, nextDueDate, recordedAtClient: editingPayment?.recordedAtClient || new Date().toISOString(), recordedBy: editingPayment?.recordedBy || currentUser.email || "", editedAtClient: editingPayment ? new Date().toISOString() : "", editedBy: editingPayment ? currentUser.email || "" : "" };
+    const payments = editingPayment ? billing.payments.map((item) => item.id === payment.id ? payment : item) : [payment, ...billing.payments].slice(0, 120);
+    const lastPaymentDate = payments.reduce((latest, item) => !latest || item.paidAt > latest ? item.paidAt : latest, "");
+    const savedBilling = { ...billing, statusOverride: billing.statusOverride === "trial" ? "" : billing.statusOverride, lastPaymentDate, nextDueDate: editingPayment ? billing.nextDueDate : nextDueDate, payments, updatedAtClient: new Date().toISOString(), updatedBy: currentUser.email || "" };
     message.textContent = "Registrando...";
     try {
       await setDoc(doc(db, "workspaces", workspaceId), { billing: savedBilling, billingUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
@@ -2507,6 +2525,26 @@ function showRegisterPaymentModal(workspaceId) {
     } catch (error) { message.textContent = firebaseError(error); }
   });
   document.body.appendChild(overlay);
+}
+
+async function deleteWorkspacePayment(workspaceId, paymentId) {
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  const billing = workspace ? normalizeWorkspaceBilling(workspace) : null;
+  const paymentIndex = billing?.payments.findIndex((payment) => payment.id === paymentId) ?? -1;
+  if (!workspace || !billing || paymentIndex < 0) return;
+  const payment = billing.payments[paymentIndex];
+  if (!await showAuthConfirmModal("Excluir pagamento", `Deseja excluir o pagamento de ${formatBillingMoney(payment.amount)} recebido em ${formatBillingDate(payment.paidAt)}?`)) return;
+  const payments = billing.payments.filter((item) => item.id !== paymentId);
+  const lastPaymentDate = payments.reduce((latest, item) => !latest || item.paidAt > latest ? item.paidAt : latest, "");
+  const canRestoreDueDate = paymentIndex === 0 && payment.nextDueDate && payment.nextDueDate === billing.nextDueDate;
+  const savedBilling = { ...billing, lastPaymentDate, nextDueDate: canRestoreDueDate ? payment.previousDueDate || "" : billing.nextDueDate, payments, updatedAtClient: new Date().toISOString(), updatedBy: currentUser.email || "" };
+  try {
+    await setDoc(doc(db, "workspaces", workspaceId), { billing: savedBilling, billingUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+    workspace.billing = savedBilling;
+    renderAdminWorkspaceList();
+  } catch (error) {
+    await showAuthStatusModal("Pagamento não excluído", firebaseError(error));
+  }
 }
 
 async function openBillingWhatsApp(workspaceId) {

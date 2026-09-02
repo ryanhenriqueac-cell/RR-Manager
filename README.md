@@ -50,9 +50,11 @@ As regras garantem que cada usuário acesse apenas o workspace da própria empre
 
 ## Controle administrativo de cobranças
 
-O painel administrativo mantém, em cada oficina, o início da assinatura, o último pagamento, o próximo vencimento, o valor esperado, a forma de pagamento, observações e o histórico de recebimentos. A situação é calculada pelas datas (teste grátis, em dia, próximo do vencimento, vence hoje ou em atraso), com opções manuais para cortesia e cancelamento.
+O painel administrativo mantém, em cada oficina, o início da assinatura, o último pagamento, o próximo vencimento, o valor esperado, a forma de pagamento, observações e o histórico de recebimentos. A situação é calculada pelas datas (teste grátis, em dia, próximo do vencimento, vence hoje ou em atraso), com opções manuais para teste grátis por 30 dias, cortesia e cancelamento. Testes, cortesias e cancelamentos possuem contadores e filtros próprios e não compõem o valor pendente enquanto não estiverem vencidos.
 
 Ao registrar um recebimento, o vencimento pode avançar automaticamente em um mês ou um ano conforme o ciclo contratado. O painel também oferece resumo, filtros e uma mensagem de cobrança pronta para revisão no WhatsApp. A situação financeira não bloqueia a conta automaticamente: o estado da cobrança e a liberação de acesso são controles independentes. Os campos `billing` e `billingUpdatedAt` são reservados ao administrador pelas regras do Firestore.
+
+Os recebimentos podem ser corrigidos ou excluídos pelo histórico. O painel soma esses registros no total recebido geral e no total da assinatura de cada oficina, sem misturá-los ao Financeiro ou ao DRE operacional da oficina cliente.
 
 ## Aceite jurídico
 

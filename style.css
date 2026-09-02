@@ -1345,7 +1345,7 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 
 .admin-billing-summary {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-top: 16px;
 }
@@ -1546,10 +1546,17 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 .admin-payment-history { max-height: 260px; overflow: auto; }
 .admin-payment-history table { min-width: 620px; font-size: 12px; }
 .admin-payment-history th,.admin-payment-history td { padding: 9px; }
+.admin-payment-total { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 12px; color: var(--muted); background: rgba(79,209,161,.07); border: 1px solid rgba(79,209,161,.2); border-radius: 8px; }
+.admin-payment-total strong { color: #65e0af; }
+.admin-payment-actions { display: flex; gap: 6px; white-space: nowrap; }
+.admin-payment-actions button { padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; color: var(--text); background: rgba(255,255,255,.04); cursor: pointer; }
+.admin-payment-actions button:hover { border-color: rgba(241,199,91,.48); color: var(--gold-2); }
+.admin-payment-actions button.is-danger { color: #ff9da8; border-color: rgba(255,90,107,.3); }
 .admin-payment-modal { width: min(580px,100%); text-align: left; }
 .admin-payment-modal > h2,.admin-payment-modal > p { text-align: center; }
 .admin-payment-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .admin-payment-note,.admin-payment-check { grid-column: 1/-1; }
+.admin-payment-edit-note { grid-column: 1/-1; margin: 0; padding: 10px 12px; border-left: 3px solid var(--gold); color: var(--muted); background: rgba(241,199,91,.06); }
 .admin-payment-check { display: flex !important; align-items: center; grid-template-columns: auto 1fr; }
 .admin-payment-check input { width: 18px; min-height: 18px; }
 
