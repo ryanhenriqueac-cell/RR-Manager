@@ -510,8 +510,19 @@
         if (!link.dataset.guestLabel) link.dataset.guestLabel = link.textContent.trim();
         link.textContent = isLogged ? "Voltar para sistema de gest\u00e3o" : link.dataset.guestLabel;
       });
-      document.querySelectorAll('a[href="cadastro-acesso.html"]').forEach((link) => {
-        link.hidden = isLogged;
+      document.querySelectorAll('a[href="cadastro-acesso.html"], a[data-guest-href="cadastro-acesso.html"]').forEach((link) => {
+        if (!link.dataset.guestLabel) link.dataset.guestLabel = link.textContent.trim();
+        if (!link.dataset.guestHref) link.dataset.guestHref = link.getAttribute("href");
+        const isEssentialLink = link.dataset.guestLabel.toLocaleLowerCase("pt-BR").includes("essencial");
+        if (isLogged && isEssentialLink) {
+          link.hidden = false;
+          link.href = "dashboard.html";
+          link.textContent = "Acessar o Plano Essencial";
+        } else {
+          link.hidden = isLogged;
+          link.setAttribute("href", link.dataset.guestHref);
+          link.textContent = link.dataset.guestLabel;
+        }
       });
     }
 
