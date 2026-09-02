@@ -1352,7 +1352,7 @@ function renderContractDocument(workspace = {}) {
         </div></div>
         <div class="contract-section"><h3>6. Atualizações</h3><p>A CONTRATADA poderá corrigir, aprimorar, modificar ou atualizar o sistema para melhorar segurança, desempenho e usabilidade. Recursos futuros somente integrarão o serviço quando forem efetivamente disponibilizados. Funções obsoletas ou incompatíveis com fornecedores externos poderão ser descontinuadas, com comunicação prévia quando razoavelmente possível.</p></div>
         <div class="contract-section"><h3>7. Disponibilidade e suporte</h3><p>A CONTRATADA empregará esforços razoáveis para manter o serviço funcional. Poderão ocorrer manutenções, falhas de internet, indisponibilidade de hospedagem, autenticação, banco de dados, comunicação ou outros fornecedores, incidentes de segurança e eventos fora de seu controle. O suporte oferece orientação sobre as funções disponíveis pelos canais oficiais, de <strong>${escapeHtml(provider.supportHours || "segunda a sexta-feira, das 8h às 18h, exceto feriados")}</strong>, em prazos compatíveis com a natureza e complexidade da solicitação.</p></div>
-        <div class="contract-notice"><b>Limites do escopo:</b> emissão fiscal, estoque, ordem de serviço e outras funções futuras não integram este contrato enquanto não estiverem disponíveis e comunicadas. Contas adicionais são restritas ao Plano Pro e aos limites exibidos no sistema.</div>
+        <div class="contract-notice"><b>Recursos do plano:</b> as funções liberadas seguem o plano e as condições comerciais registrados para a oficina. Contas adicionais são restritas ao Plano Pro e aos limites exibidos no sistema.</div>
         ${pageFooter(4)}
       </section>
 

@@ -6609,8 +6609,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
 .manager-pro-team-grid,
 .manager-pro-plan-cards,
-.manager-pro-comparison,
-.manager-pro-scope-note {
+.manager-pro-comparison {
   max-width: 1160px;
   margin-left: auto;
   margin-right: auto;
@@ -6844,13 +6843,6 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
 .comparison-head strong:not(:first-child) {
   color: var(--mp-blue);
-  text-align: center;
-}
-
-.manager-pro-scope-note {
-  margin-top: 18px;
-  color: var(--mp-muted);
-  font-size: 13px;
   text-align: center;
 }
 
