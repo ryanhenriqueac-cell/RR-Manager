@@ -1305,6 +1305,51 @@ body[data-page="inspecao"] #firebaseLandingReturn {
   box-shadow: var(--shadow);
 }
 
+body[data-page="admin"] #firebaseAdminShell { position: fixed; overflow-y: auto; place-items: start center; padding: 0; }
+body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandingReturn { display: none !important; }
+.admin-control-center { width: min(1480px,100%); max-height: none; min-height: 100vh; overflow: visible; padding: 28px clamp(18px,3vw,46px) 60px; border: 0; border-radius: 0; background: linear-gradient(180deg,rgba(13,31,52,.99),rgba(5,14,26,.99)); }
+.admin-control-center .admin-card-header { position: sticky; top: 0; z-index: 20; padding: 14px 0; background: rgba(12,29,49,.94); backdrop-filter: blur(16px); }
+.admin-control-center .admin-card-header > div { min-width: 0; }
+.admin-control-center .admin-card-header .btn { margin-left: auto; }
+.admin-section-nav { position: sticky; top: 103px; z-index: 19; display: flex; gap: 8px; padding: 10px 0; background: rgba(10,25,43,.94); backdrop-filter: blur(16px); }
+.admin-section-nav a { padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 13px; font-weight: 900; text-decoration: none; }
+.admin-section-nav a:hover { color: var(--gold-2); border-color: rgba(241,199,91,.45); }
+.admin-dashboard-section { scroll-margin-top: 160px; margin-top: 22px; padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); }
+.admin-section-title { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 16px; }
+.admin-section-title span { color: var(--gold-2); font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.admin-section-title h2 { margin: 4px 0 0; font-size: clamp(24px,3vw,36px); }
+.admin-section-title small { color: var(--muted); }
+.admin-platform-overview,.admin-finance-kpis { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 10px; }
+.admin-platform-overview article,.admin-finance-kpis article { display: grid; align-content: start; gap: 7px; min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 9px; background: linear-gradient(145deg,rgba(20,47,79,.72),rgba(9,25,43,.72)); }
+.admin-platform-overview span,.admin-finance-kpis span { color: var(--muted); font-size: 12px; font-weight: 800; }
+.admin-platform-overview strong,.admin-finance-kpis strong { color: #65e0af; font-size: clamp(21px,2vw,29px); }
+.admin-platform-overview small,.admin-finance-kpis small { color: var(--muted); font-size: 10px; }
+.admin-finance-kpis .is-negative { color: #ff9da8; }
+.admin-platform-alerts { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+.admin-platform-alerts button,.admin-alert-ok { padding: 11px 14px; border: 1px solid rgba(241,199,91,.3); border-radius: 8px; color: var(--gold-2); background: rgba(241,199,91,.07); font: inherit; cursor: pointer; }
+.admin-alert-ok { color: #65e0af; border-color: rgba(79,209,161,.25); background: rgba(79,209,161,.07); cursor: default; }
+.admin-expense-layout { display: grid; grid-template-columns: minmax(300px,.65fr) minmax(0,1.35fr); gap: 16px; margin-top: 16px; }
+.admin-expense-form,.admin-expense-history { display: grid; align-content: start; gap: 10px; padding: 16px; border: 1px solid var(--line); border-radius: 9px; background: rgba(2,8,16,.3); }
+.admin-expense-form h3,.admin-expense-history h3 { margin: 0 0 4px; }
+.admin-expense-form label { display: grid; gap: 5px; color: var(--muted); font-size: 12px; font-weight: 900; }
+.admin-expense-history { overflow: hidden; }
+.admin-expense-history table { min-width: 620px; font-size: 12px; }
+.admin-expense-history th,.admin-expense-history td { padding: 9px; }
+.admin-expense-history button { padding: 6px 9px; border: 1px solid rgba(255,90,107,.3); border-radius: 6px; color: #ff9da8; background: rgba(255,90,107,.06); cursor: pointer; }
+.admin-monthly-evolution { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 10px; margin-top: 16px; }
+.admin-monthly-evolution h3 { grid-column: 1/-1; margin: 0; }
+.admin-monthly-evolution article { display: grid; gap: 10px; min-width: 0; padding: 13px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.025); }
+.admin-monthly-evolution article > strong { text-transform: capitalize; }
+.admin-monthly-evolution article > div { display: grid; gap: 4px; }
+.admin-monthly-evolution span { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.admin-monthly-evolution i { display: block; height: 6px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.08); }
+.admin-monthly-evolution i b { display: block; height: 100%; border-radius: inherit; background: #4fd1a1; }
+.admin-monthly-evolution i.is-expense b { background: #ff6b7a; }
+.admin-monthly-evolution em { color: #65e0af; font-size: 11px; font-style: normal; font-weight: 900; }
+.admin-monthly-evolution em.is-negative { color: #ff9da8; }
+.admin-control-center .admin-workspace-list { grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; }
+.admin-control-center .admin-workspace-item { min-width: 0; }
+
 .admin-card-header {
   display: flex;
   align-items: center;
@@ -1575,6 +1620,9 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 .admin-team-member .actions { justify-content: flex-end; }
 
 @media (max-width: 920px) {
+  .admin-platform-overview,.admin-finance-kpis { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .admin-monthly-evolution { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .admin-expense-layout,.admin-control-center .admin-workspace-list { grid-template-columns: 1fr; }
   .admin-billing-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .admin-billing-head { grid-template-columns: 1fr 1fr; }
   .admin-billing-form { grid-template-columns: 1fr 1fr; }
@@ -1584,6 +1632,14 @@ body[data-page="inspecao"] #firebaseLandingReturn {
 }
 
 @media (max-width: 560px) {
+  .admin-control-center { padding: 14px 12px 40px; }
+  .admin-control-center .admin-card-header img { width: 54px; height: 54px; }
+  .admin-control-center .admin-card-header p { display: none; }
+  .admin-section-nav { top: 83px; overflow-x: auto; }
+  .admin-dashboard-section { padding: 14px; }
+  .admin-section-title { align-items: start; flex-direction: column; }
+  .admin-platform-overview,.admin-finance-kpis { grid-template-columns: 1fr 1fr; }
+  .admin-monthly-evolution { grid-template-columns: 1fr 1fr; }
   .admin-billing-head,.admin-billing-form,.admin-payment-form { grid-template-columns: 1fr; }
   .admin-billing-note,.admin-payment-note,.admin-payment-check { grid-column: auto; }
   .admin-team-form { grid-template-columns: 1fr; }

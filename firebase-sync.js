@@ -110,6 +110,7 @@ const ADMIN_EMAILS = Array.isArray(adminAccess.adminEmails)
   : [];
 const configReady = Boolean(config.apiKey && config.apiKey !== "COLE_AQUI" && config.projectId && config.projectId !== "COLE_AQUI");
 const isRegisterPage = document.body.dataset.page === "cadastro-acesso";
+const isAdminPage = document.body.dataset.page === "admin";
 const teamInviteEmail = isRegisterPage ? normalizeEmail(new URLSearchParams(window.location.search).get("equipe")) : "";
 
 let auth;
@@ -127,6 +128,7 @@ const pendingCollectionChanges = new Map();
 const confirmedCollectionState = new Map();
 let adminWorkspaces = [];
 let adminBillingFilter = "all";
+let adminPlatformFinance = { expenses: [] };
 let activeWorkspaceSubscription = null;
 let activeTeamAccess = null;
 let activeWorkspaceData = null;
@@ -231,10 +233,19 @@ if (!configReady) {
       return;
     }
 
+    if (isAdminPage && !isAdminUser(user)) {
+      window.location.replace("dashboard.html");
+      return;
+    }
+    if (isAdminPage && isAdminUser(user)) sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
     activeWorkspaceId = isAdminUser(user) ? getWorkspaceId(user) : await resolveUserWorkspace(user);
     activeWorkspaceEmail = "";
 
     if (isAdminUser(user) && !activeWorkspaceId) {
+      if (!isAdminPage) {
+        window.location.replace("admin.html");
+        return;
+      }
       setAppLocked(false);
       setAdminSelecting(true);
       setUserStatus(user.email);
@@ -410,21 +421,34 @@ function buildAuthShell() {
   const adminShell = document.createElement("div");
   adminShell.id = "firebaseAdminShell";
   adminShell.innerHTML = `
-    <div class="admin-card">
+    <div class="admin-card admin-control-center">
       <div class="admin-card-header">
         <img src="assets/logo-rr-manager.png" alt="RR Manager">
         <div>
-          <span>Admin RR</span>
-          <h1>Painel de acessos</h1>
-          <p>Escolha um cadastro para abrir o sistema completo.</p>
+          <span>Administração RR Manager</span>
+          <h1>Central de controle</h1>
+          <p>Visão financeira, comercial e operacional de toda a plataforma.</p>
         </div>
+        <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
       </div>
+      <nav class="admin-section-nav"><a href="#adminOverview">Visão geral</a><a href="#adminFinance">Financeiro</a><a href="#adminCustomers">Oficinas</a></nav>
+      <section id="adminOverview" class="admin-dashboard-section">
+        <div class="admin-section-title"><div><span>Visão executiva</span><h2>Saúde da plataforma</h2></div><small>Atualizado com os dados cadastrados</small></div>
+        <div id="firebasePlatformOverview" class="admin-platform-overview"></div>
+        <div id="firebaseBillingSummary" class="admin-billing-summary"></div>
+        <div id="firebaseAdminAlerts" class="admin-platform-alerts"></div>
+      </section>
+      <section id="adminFinance" class="admin-dashboard-section">
+        <div class="admin-section-title"><div><span>Financeiro RR Manager</span><h2>Ganhos, gastos e projeções</h2></div><small>Separado do financeiro das oficinas</small></div>
+        <div id="firebaseAdminFinance"></div>
+      </section>
+      <section id="adminCustomers" class="admin-dashboard-section">
+        <div class="admin-section-title"><div><span>Base de clientes</span><h2>Planos, cobranças e acessos</h2></div><small>Abra uma oficina para acessar o sistema dela</small></div>
       <input id="firebaseAdminSearch" class="admin-search" type="search" placeholder="Buscar por empresa, responsável ou colaborador" autocomplete="off">
-      <div id="firebaseBillingSummary" class="admin-billing-summary"></div>
       <div id="firebaseBillingFilters" class="admin-billing-filters" aria-label="Filtros de cobranÃ§a"></div>
       <div id="firebaseAdminMessage" class="admin-message"></div>
       <div id="firebaseAdminList" class="admin-workspace-list"></div>
-      <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
+      </section>
     </div>
   `;
   document.body.appendChild(adminShell);
@@ -2125,12 +2149,21 @@ async function renderAdminDashboard() {
 
   try {
     const snap = await getDocs(collection(db, "workspaces"));
+    try {
+      const financeSnapshot = await getDoc(doc(db, "admin_platform", "finance"));
+      adminPlatformFinance = financeSnapshot.exists() ? { expenses: [], ...(financeSnapshot.data() || {}) } : { expenses: [] };
+    } catch (error) {
+      adminPlatformFinance = { expenses: [] };
+      console.warn("Publique as regras atualizadas para habilitar os gastos administrativos.", error);
+    }
     adminWorkspaces = dedupeWorkspaces(snap.docs
       .map((item) => ({ id: item.id, ...(item.data() || {}) }))
       .filter((item) => item.ownerEmail || item.ownerUid || item.owner)
       .filter((item) => !ADMIN_EMAILS.includes(normalizeEmail(item.ownerEmail))));
     adminWorkspaces.sort(compareAdminWorkspacesByName);
 
+    renderAdminPlatformOverview();
+    renderAdminPlatformFinance();
     renderAdminWorkspaceList();
     if (search) search.oninput = renderAdminWorkspaceList;
   } catch (error) {
@@ -2233,14 +2266,144 @@ function billingMatchesFilter(workspace) {
   const status = getBillingStatus(workspace).key;
   if (adminBillingFilter === "all") return true;
   if (adminBillingFilter === "blocked") return (workspace.accessStatus || ACCESS_STATUS.ACTIVE) === ACCESS_STATUS.BLOCKED;
+  if (adminBillingFilter === "pending-access") return workspace.accessStatus === ACCESS_STATUS.PENDING;
   return status === adminBillingFilter;
+}
+
+function getAdminPlatformMetrics() {
+  const month = getLocalDateISO().slice(0, 7);
+  let receivedMonth = 0;
+  let receivedTotal = 0;
+  let projected30 = 0;
+  let monthlyRecurring = 0;
+  let collaborators = 0;
+  let registeredClients = 0;
+  let budgets = 0;
+  const plans = { essential: 0, pro: 0 };
+  const access = { active: 0, pending: 0, blocked: 0 };
+  adminWorkspaces.forEach((workspace) => {
+    const billing = normalizeWorkspaceBilling(workspace);
+    const status = getBillingStatus(workspace);
+    const subscription = getWorkspaceSubscription(workspace);
+    plans[subscription.planId] += 1;
+    access[workspace.accessStatus || ACCESS_STATUS.ACTIVE] += 1;
+    collaborators += Array.isArray(workspace.teamMembers) ? workspace.teamMembers.length : 0;
+    registeredClients += Number(workspace.stats?.clientes ?? (Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0));
+    budgets += Number(workspace.stats?.orcamentos ?? (Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0));
+    billing.payments.forEach((payment) => {
+      const amount = Number(payment.amount || 0);
+      receivedTotal += amount;
+      if (String(payment.paidAt || "").slice(0, 7) === month) receivedMonth += amount;
+    });
+    if (!["exempt", "canceled", "trial"].includes(status.key)) {
+      monthlyRecurring += subscription.billingCycle === "annual" ? billing.expectedAmount / 12 : billing.expectedAmount;
+      const due = parseLocalDate(billing.nextDueDate);
+      const today = parseLocalDate(getLocalDateISO());
+      const days = due ? Math.round((due - today) / 86400000) : -1;
+      if (days >= 0 && days <= 30) projected30 += billing.expectedAmount;
+    }
+  });
+  const expenses = Array.isArray(adminPlatformFinance.expenses) ? adminPlatformFinance.expenses : [];
+  const expensesMonth = expenses.filter((expense) => String(expense.date || "").slice(0, 7) === month).reduce((total, expense) => total + Number(expense.amount || 0), 0);
+  return { receivedMonth, receivedTotal, projected30, monthlyRecurring, annualRecurring: monthlyRecurring * 12, expensesMonth, resultMonth: receivedMonth - expensesMonth, collaborators, registeredClients, budgets, plans, access };
+}
+
+function renderAdminPlatformOverview() {
+  const container = document.getElementById("firebasePlatformOverview");
+  const alerts = document.getElementById("firebaseAdminAlerts");
+  if (!container || !alerts) return;
+  const metrics = getAdminPlatformMetrics();
+  container.innerHTML = `
+    <article><span>Oficinas cadastradas</span><strong>${adminWorkspaces.length}</strong><small>${metrics.access.active} liberadas</small></article>
+    <article><span>Plano Essencial</span><strong>${metrics.plans.essential}</strong><small>assinaturas</small></article>
+    <article><span>Plano Pro</span><strong>${metrics.plans.pro}</strong><small>assinaturas</small></article>
+    <article><span>Colaboradores</span><strong>${metrics.collaborators}</strong><small>contas vinculadas</small></article>
+    <article><span>Clientes gerenciados</span><strong>${metrics.registeredClients}</strong><small>em toda a plataforma</small></article>
+    <article><span>Orçamentos criados</span><strong>${metrics.budgets}</strong><small>em toda a plataforma</small></article>`;
+  const overdue = adminWorkspaces.filter((workspace) => getBillingStatus(workspace).key === "overdue").length;
+  const messages = [];
+  if (metrics.access.pending) messages.push(`<button type="button" data-overview-filter="pending-access"><strong>${metrics.access.pending}</strong> ${metrics.access.pending === 1 ? "acesso aguardando análise" : "acessos aguardando análise"}</button>`);
+  if (overdue) messages.push(`<button type="button" data-overview-filter="overdue"><strong>${overdue}</strong> ${overdue === 1 ? "cobrança atrasada" : "cobranças atrasadas"}</button>`);
+  if (metrics.access.blocked) messages.push(`<button type="button" data-overview-filter="blocked"><strong>${metrics.access.blocked}</strong> ${metrics.access.blocked === 1 ? "conta bloqueada" : "contas bloqueadas"}</button>`);
+  alerts.innerHTML = messages.length ? messages.join("") : `<div class="admin-alert-ok">Nenhum alerta importante no momento.</div>`;
+  alerts.querySelectorAll("[data-overview-filter]").forEach((button) => button.addEventListener("click", () => { adminBillingFilter = button.dataset.overviewFilter; renderAdminWorkspaceList(); document.getElementById("adminCustomers")?.scrollIntoView({ behavior: "smooth" }); }));
+}
+
+function renderAdminPlatformFinance() {
+  const container = document.getElementById("firebaseAdminFinance");
+  if (!container) return;
+  const metrics = getAdminPlatformMetrics();
+  const expenses = (Array.isArray(adminPlatformFinance.expenses) ? adminPlatformFinance.expenses : []).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const monthlySeries = getAdminMonthlySeries();
+  const monthlyMax = Math.max(1, ...monthlySeries.flatMap((item) => [item.received, item.expenses]));
+  container.innerHTML = `
+    <div class="admin-finance-kpis">
+      <article><span>Recebido no mês</span><strong>${formatBillingMoney(metrics.receivedMonth)}</strong></article>
+      <article><span>Gastos no mês</span><strong class="is-negative">${formatBillingMoney(metrics.expensesMonth)}</strong></article>
+      <article><span>Resultado do mês</span><strong class="${metrics.resultMonth < 0 ? "is-negative" : ""}">${formatBillingMoney(metrics.resultMonth)}</strong></article>
+      <article><span>Receita mensal estimada</span><strong>${formatBillingMoney(metrics.monthlyRecurring)}</strong><small>mensais + anuais divididos por 12</small></article>
+      <article><span>Projeção anual</span><strong>${formatBillingMoney(metrics.annualRecurring)}</strong></article>
+      <article><span>A receber em 30 dias</span><strong>${formatBillingMoney(metrics.projected30)}</strong></article>
+    </div>
+    <div class="admin-expense-layout">
+      <form id="firebaseAdminExpenseForm" class="admin-expense-form">
+        <h3>Registrar gasto da plataforma</h3>
+        <label>Data<input name="date" type="date" value="${getLocalDateISO()}" required></label>
+        <label>Categoria<select name="category"><option>Hospedagem e tecnologia</option><option>Marketing</option><option>Impostos e taxas</option><option>Atendimento</option><option>Outros</option></select></label>
+        <label>Descrição<input name="description" maxlength="100" required placeholder="Ex.: domínio, anúncio ou serviço"></label>
+        <label>Valor<input name="amount" type="number" min="0.01" step="0.01" required></label>
+        <button class="btn btn-primary" type="submit">Salvar gasto</button><span class="form-status" data-expense-message></span>
+      </form>
+      <div class="admin-expense-history"><h3>Gastos registrados</h3>${expenses.length ? `<div class="table-wrap"><table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody>${expenses.map((expense) => `<tr><td>${formatBillingDate(expense.date)}</td><td>${escapeHtml(expense.category)}</td><td>${escapeHtml(expense.description)}</td><td>${formatBillingMoney(expense.amount)}</td><td><button type="button" data-delete-expense="${escapeHtml(expense.id)}">Excluir</button></td></tr>`).join("")}</tbody></table></div>` : `<div class="admin-empty">Nenhum gasto registrado.</div>`}</div>
+    </div>
+    <div class="admin-monthly-evolution"><h3>Evolução dos últimos 6 meses</h3>${monthlySeries.map((item) => `<article><strong>${escapeHtml(item.label)}</strong><div><span>Recebido ${formatBillingMoney(item.received)}</span><i><b style="width:${Math.round(item.received / monthlyMax * 100)}%"></b></i></div><div><span>Gastos ${formatBillingMoney(item.expenses)}</span><i class="is-expense"><b style="width:${Math.round(item.expenses / monthlyMax * 100)}%"></b></i></div><em class="${item.result < 0 ? "is-negative" : ""}">Resultado ${formatBillingMoney(item.result)}</em></article>`).join("")}</div>`;
+  container.querySelector("#firebaseAdminExpenseForm")?.addEventListener("submit", saveAdminPlatformExpense);
+  container.querySelectorAll("[data-delete-expense]").forEach((button) => button.addEventListener("click", () => deleteAdminPlatformExpense(button.dataset.deleteExpense)));
+}
+
+function getAdminMonthlySeries() {
+  const formatter = new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric" });
+  return Array.from({ length: 6 }, (_, offset) => {
+    const date = new Date();
+    date.setDate(1);
+    date.setMonth(date.getMonth() - (5 - offset));
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    let received = 0;
+    adminWorkspaces.forEach((workspace) => normalizeWorkspaceBilling(workspace).payments.forEach((payment) => { if (String(payment.paidAt || "").slice(0, 7) === key) received += Number(payment.amount || 0); }));
+    const expenses = (adminPlatformFinance.expenses || []).filter((expense) => String(expense.date || "").slice(0, 7) === key).reduce((total, expense) => total + Number(expense.amount || 0), 0);
+    return { key, label: formatter.format(date).replace(" de ", "/"), received, expenses, result: received - expenses };
+  });
+}
+
+async function persistAdminPlatformFinance() {
+  await setDoc(doc(db, "admin_platform", "finance"), { ...adminPlatformFinance, updatedAt: serverTimestamp(), updatedBy: currentUser.email || "" }, { merge: true });
+}
+
+async function saveAdminPlatformExpense(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const data = new FormData(form);
+  const amount = Number(data.get("amount"));
+  const expense = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, date: String(data.get("date") || ""), category: String(data.get("category") || "Outros"), description: String(data.get("description") || "").trim(), amount, createdAtClient: new Date().toISOString() };
+  const message = form.querySelector("[data-expense-message]");
+  if (!parseLocalDate(expense.date) || !expense.description || !Number.isFinite(amount) || amount <= 0) { message.textContent = "Confira a data, descrição e o valor."; return; }
+  message.textContent = "Salvando...";
+  try { adminPlatformFinance.expenses = [expense, ...(adminPlatformFinance.expenses || [])].slice(0, 500); await persistAdminPlatformFinance(); renderAdminPlatformOverview(); renderAdminPlatformFinance(); } catch (error) { message.textContent = firebaseError(error); }
+}
+
+async function deleteAdminPlatformExpense(expenseId) {
+  const expense = (adminPlatformFinance.expenses || []).find((item) => item.id === expenseId);
+  if (!expense || !await showAuthConfirmModal("Excluir gasto", `Deseja excluir ${expense.description} no valor de ${formatBillingMoney(expense.amount)}?`)) return;
+  const previous = adminPlatformFinance.expenses;
+  adminPlatformFinance.expenses = previous.filter((item) => item.id !== expenseId);
+  try { await persistAdminPlatformFinance(); renderAdminPlatformOverview(); renderAdminPlatformFinance(); } catch (error) { adminPlatformFinance.expenses = previous; await showAuthStatusModal("Gasto não excluído", firebaseError(error)); }
 }
 
 function renderAdminBillingOverview() {
   const summary = document.getElementById("firebaseBillingSummary");
   const filters = document.getElementById("firebaseBillingFilters");
   if (!summary || !filters) return;
-  const counts = { current: 0, soon: 0, today: 0, overdue: 0, trial: 0, exempt: 0, canceled: 0, unconfigured: 0, blocked: 0 };
+  const counts = { current: 0, soon: 0, today: 0, overdue: 0, trial: 0, exempt: 0, canceled: 0, unconfigured: 0, blocked: 0, pendingAccess: 0 };
   let pendingAmount = 0;
   let receivedAmount = 0;
   adminWorkspaces.forEach((workspace) => {
@@ -2250,6 +2413,7 @@ function renderAdminBillingOverview() {
     if (status === "overdue" || status === "today") pendingAmount += billing.expectedAmount;
     receivedAmount += billing.payments.reduce((total, payment) => total + Number(payment.amount || 0), 0);
     if ((workspace.accessStatus || ACCESS_STATUS.ACTIVE) === ACCESS_STATUS.BLOCKED) counts.blocked += 1;
+    if (workspace.accessStatus === ACCESS_STATUS.PENDING) counts.pendingAccess += 1;
   });
   summary.innerHTML = `
     <article><span>Em dia</span><strong>${counts.current}</strong></article>
@@ -2258,7 +2422,7 @@ function renderAdminBillingOverview() {
     <article class="is-danger"><span>Em atraso</span><strong>${counts.overdue}</strong></article>
     <article class="is-money"><span>Pendente</span><strong>${formatBillingMoney(pendingAmount)}</strong></article>
     <article><span>Total recebido</span><strong>${formatBillingMoney(receivedAmount)}</strong></article>`;
-  const options = [["all", "Todos", adminWorkspaces.length], ["current", "Em dia", counts.current], ["soon", "Próximos", counts.soon], ["today", "Hoje", counts.today], ["overdue", "Atrasados", counts.overdue], ["trial", "Teste grátis", counts.trial], ["exempt", "Cortesias", counts.exempt], ["canceled", "Cancelados", counts.canceled], ["unconfigured", "Configurar", counts.unconfigured], ["blocked", "Bloqueados", counts.blocked]];
+  const options = [["all", "Todos", adminWorkspaces.length], ["pending-access", "Aguardando acesso", counts.pendingAccess], ["current", "Em dia", counts.current], ["soon", "Próximos", counts.soon], ["today", "Hoje", counts.today], ["overdue", "Atrasados", counts.overdue], ["trial", "Teste grátis", counts.trial], ["exempt", "Cortesias", counts.exempt], ["canceled", "Cancelados", counts.canceled], ["unconfigured", "Configurar", counts.unconfigured], ["blocked", "Bloqueados", counts.blocked]];
   filters.innerHTML = options.map(([key, label, count]) => `<button type="button" class="${adminBillingFilter === key ? "is-active" : ""}" data-billing-filter="${key}">${label} <strong>${count}</strong></button>`).join("");
   filters.querySelectorAll("[data-billing-filter]").forEach((button) => button.addEventListener("click", () => {
     adminBillingFilter = button.dataset.billingFilter;
@@ -2324,6 +2488,8 @@ function renderAdminWorkspaceList() {
   const search = document.getElementById("firebaseAdminSearch");
   if (!list || !message) return;
 
+  renderAdminPlatformOverview();
+  renderAdminPlatformFinance();
   const query = normalizeEmail(search?.value || "");
   renderAdminBillingOverview();
   const filtered = adminWorkspaces.filter((workspace) => {
@@ -2786,14 +2952,14 @@ async function openAdminWorkspace(workspaceId, workspaceEmail = "") {
   await loadCloudData(workspaceId);
   cloudReady = true;
   window.rrFirebaseReady = true;
-  window.location.reload();
+  window.location.href = "dashboard.html";
 }
 
 function backToAdminDashboard() {
   if (!isAdminUser(currentUser)) return;
   sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
   sessionStorage.removeItem(SYNC_FLAG);
-  window.location.reload();
+  window.location.href = "admin.html";
 }
 
 function escapeHtml(value) {

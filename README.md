@@ -56,6 +56,8 @@ Ao registrar um recebimento, o vencimento pode avançar automaticamente em um m�
 
 Os recebimentos podem ser corrigidos ou excluídos pelo histórico. O painel soma esses registros no total recebido geral e no total da assinatura de cada oficina, sem misturá-los ao Financeiro ou ao DRE operacional da oficina cliente.
 
+O administrador é direcionado para `admin.html`, uma central dedicada com indicadores de oficinas, planos, colaboradores, clientes gerenciados e orçamentos. A visão financeira combina os pagamentos de assinatura registrados com os gastos administrativos salvos em `admin_platform/finance`, apresentando resultado mensal, receita mensal estimada, projeção anual, recebimentos previstos para 30 dias e evolução dos últimos seis meses. Esses dados administrativos só podem ser lidos e alterados pelo e-mail administrador definido nas regras.
+
 ## Aceite jurídico
 
 As versões vigentes ficam em `LEGAL_TERMS_VERSION` e `LEGAL_PRIVACY_VERSION`, dentro de `firebase-sync.js`. Quando os textos forem alterados de forma relevante, aumente a versão correspondente para solicitar um novo aceite no próximo login.
