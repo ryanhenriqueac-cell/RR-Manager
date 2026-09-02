@@ -2191,7 +2191,7 @@ function renderAdminWorkspaceList() {
             <small>${escapeHtml(email)}</small>
           </span>
           <span>${clientes} clientes | ${orcamentos} orçamentos</span>
-          <span>${getTeamCountLabel(teamMembers.length)}${teamMembers.length ? ` | ${teamMembers.map((member) => escapeHtml(member.email)).join(", ")}` : ""}</span>
+          <span>${getTeamCountLabel(teamMembers.length)}</span>
         </button>
         <div class="admin-plan-row" data-plan-workspace="${escapeHtml(workspace.id)}">
           <label>Plano
