@@ -1310,7 +1310,7 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
 .admin-control-center { width: min(1480px,100%); max-height: none; min-height: 100vh; overflow: visible; padding: 28px clamp(18px,3vw,46px) 60px; border: 0; border-radius: 0; background: linear-gradient(180deg,rgba(13,31,52,.99),rgba(5,14,26,.99)); }
 .admin-control-center .admin-card-header { position: sticky; top: 0; z-index: 20; padding: 14px 0; background: rgba(12,29,49,.94); backdrop-filter: blur(16px); }
 .admin-control-center .admin-card-header > div { min-width: 0; }
-.admin-control-center .admin-card-header .btn { margin-left: auto; }
+.admin-header-actions { display: flex; align-items: center; gap: 9px; margin-left: auto; }
 .admin-section-nav { position: sticky; top: 103px; z-index: 19; display: flex; gap: 8px; padding: 10px 0; background: rgba(10,25,43,.94); backdrop-filter: blur(16px); }
 .admin-section-nav a { padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 13px; font-weight: 900; text-decoration: none; }
 .admin-section-nav a:hover { color: var(--gold-2); border-color: rgba(241,199,91,.45); }
@@ -1635,6 +1635,8 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
   .admin-control-center { padding: 14px 12px 40px; }
   .admin-control-center .admin-card-header img { width: 54px; height: 54px; }
   .admin-control-center .admin-card-header p { display: none; }
+  .admin-header-actions { align-items: stretch; flex-direction: column; }
+  .admin-header-actions .btn { min-height: 38px; padding: 8px 10px; font-size: 11px; }
   .admin-section-nav { top: 83px; overflow-x: auto; }
   .admin-dashboard-section { padding: 14px; }
   .admin-section-title { align-items: start; flex-direction: column; }

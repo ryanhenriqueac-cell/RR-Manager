@@ -429,7 +429,10 @@ function buildAuthShell() {
           <h1>Central de controle</h1>
           <p>Visão financeira, comercial e operacional de toda a plataforma.</p>
         </div>
-        <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
+        <div class="admin-header-actions">
+          <a class="btn btn-ghost" href="index.html">Voltar à página principal</a>
+          <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
+        </div>
       </div>
       <nav class="admin-section-nav"><a href="#adminOverview">Visão geral</a><a href="#adminFinance">Financeiro</a><a href="#adminCustomers">Oficinas</a></nav>
       <section id="adminOverview" class="admin-dashboard-section">
