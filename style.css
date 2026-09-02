@@ -7422,12 +7422,22 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .manager-demo-info span { color: #425267; }
 .manager-demo-document table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .manager-demo-document th { padding: 11px; background: #0c345a; color: #fff; text-align: left; }
-.manager-demo-document td { padding: 11px; border: 1px solid #d8e0e8; }
+.manager-demo-document td {
+  padding: 11px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #26384d;
+  font-weight: 600;
+}
+.manager-demo-document td strong,
+.manager-demo-document td b,
+.manager-demo-document td span { color: inherit; }
+.manager-demo-document tbody tr:nth-child(even) td { background: #f6f8fb; }
 .manager-demo-document footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 26px; padding: 18px; background: #eef3f7; }
 .manager-demo-document footer strong { color: #0c345a; font-size: 20px; }
 .manager-demo-table-section h4 { margin-bottom: 8px; color: #0c345a; font-size: 14px; text-transform: uppercase; }
 .manager-demo-table-section + .manager-demo-table-section { margin-top: 18px; }
-.demo-courtesy { color: #27689f; font-weight: 900; }
+.manager-demo-document td.demo-courtesy { color: #1d5f96; font-weight: 900; }
 .manager-demo-budget-bottom { display: grid; grid-template-columns: .85fr 1.15fr; gap: 12px; margin-top: 22px; }
 .manager-demo-budget-bottom > section { padding: 14px; border: 1px solid #d8e0e8; border-radius: 6px; }
 .manager-demo-budget-bottom h4 { margin: 0 0 9px; color: #0c345a; }
