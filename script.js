@@ -625,6 +625,19 @@ function buildPixPayload(value, txid = "***", pixConfig = PIX_CONFIG) {
   return `${payloadSemCrc}${pixCrc16(payloadSemCrc)}`;
 }
 
+function buildPixQrDataUrl(payload) {
+  if (typeof window.qrcode !== "function") return "";
+  try {
+    const qr = window.qrcode(0, "M");
+    qr.addData(payload, "Byte");
+    qr.make();
+    return qr.createDataURL(4, 16);
+  } catch (error) {
+    console.error("Falha ao gerar o QR Code Pix localmente.", error);
+    return "";
+  }
+}
+
 function buildPixPaymentHtml(orcamento, totalFinal) {
   const podeMostrarPix = orcamento.publicCliente ? orcamento.pixEnabled === true : orcamento.status === "Aprovado";
   if (!podeMostrarPix || parseDecimal(totalFinal) <= 0) return "";
@@ -639,7 +652,8 @@ function buildPixPaymentHtml(orcamento, totalFinal) {
 
   const numero = String(orcamento.numero || "").padStart(4, "0");
   const payload = buildPixPayload(totalFinal, `ORC${numero}`, pixConfig);
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&margin=8&data=${encodeURIComponent(payload)}`;
+  const qrDataUrl = buildPixQrDataUrl(payload);
+  if (!qrDataUrl) return "";
 
   return `
     <aside class="pix-payment">
@@ -648,7 +662,7 @@ function buildPixPaymentHtml(orcamento, totalFinal) {
         <strong>${money(totalFinal)}</strong>
         <small>Escaneie o QR Code ou use o Pix copia e cola.</small>
       </div>
-      <img src="${qrUrl}" alt="QR Code Pix para pagamento do orcamento ${numero}">
+      <img src="${qrDataUrl}" alt="QR Code Pix para pagamento do orçamento ${numero}" width="170" height="170">
       <p>${escapeHtml(payload)}</p>
       <small>Chave Pix: ${escapeHtml(pixConfig.chave)}</small>
     </aside>
