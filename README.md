@@ -9,6 +9,20 @@ Sistema de gestão para oficinas, feito com HTML, CSS e JavaScript e sincronizad
 3. Aprove, reprove, edite ou imprima os orçamentos.
 4. Acompanhe receitas, despesas e saldo no financeiro.
 
+## Planos vigentes
+
+| Recurso | Essencial | Pro |
+| --- | :---: | :---: |
+| Clientes, veículos, orçamentos e inspeções | Sim | Sim |
+| Peças, mão de obra, terceirizados e cortesias | Sim | Sim |
+| PDFs, WhatsApp, aprovação e financeiro básico | Sim | Sim |
+| DRE gerencial, metas, rankings e comparações | Não | Sim |
+| Lançamentos financeiros recorrentes | Não | Sim |
+| Até quatro colaboradores com permissões | Não | Sim |
+| Emissão fiscal, estoque e ordem de serviço | Não disponível | Não disponível |
+
+O Essencial mensal tem preço regular de R$ 79,90, com condição de lançamento de R$ 59,90 por mês durante os primeiros 12 meses. O Essencial anual custa R$ 799. O valor do Pro é o registrado na condição comercial da oficina e não deve ser preenchido automaticamente com o preço do Essencial.
+
 ## Dados e login
 
 Cada empresa possui um workspace próprio no Firestore. A partir da versão 2, clientes, veículos, serviços, orçamentos e lançamentos financeiros são armazenados em documentos separados dentro de subcoleções. Isso evita o limite de 1 MiB do documento antigo e reduz conflitos entre computador e celular.

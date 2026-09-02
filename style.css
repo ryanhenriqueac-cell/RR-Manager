@@ -7980,3 +7980,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .team-member-card { grid-template-columns: 1fr; }
 }
 @media (max-width: 520px) { .team-permissions { grid-template-columns: 1fr; } }
+.manager-plan-summary { display: grid; gap: 7px; margin-top: 20px; padding: 16px; border: 1px solid rgba(241,199,91,.22); border-radius: 12px; background: rgba(2,8,16,.24); }
+.manager-plan-summary strong { color: var(--gold-2); }
+.manager-plan-summary p { margin: 0; }
+.manager-plan-summary small { margin-top: 5px; color: var(--muted); }

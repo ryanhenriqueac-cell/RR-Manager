@@ -48,9 +48,9 @@ const DEFAULT_MACHINE_RATES = {
 const MAX_LOGO_DIMENSION = 1000;
 const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v2";
-const LEGAL_TERMS_VERSION = "1.2";
-const LEGAL_PRIVACY_VERSION = "1.2";
-const CONTRACT_VERSION = "2.1";
+const LEGAL_TERMS_VERSION = "1.3";
+const LEGAL_PRIVACY_VERSION = "1.3";
+const CONTRACT_VERSION = "2.2";
 const CONTRACT_PLAN = {
   code: "monthly_launch",
   name: "Mensal · condição de lançamento",
@@ -67,7 +67,7 @@ const PLAN_CATALOG = {
   },
   pro: {
     name: "Pro",
-    features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: true, exportacaoContador: true, estoque: true, equipe: true }
+    features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: false, exportacaoContador: true, estoque: false, equipe: true }
   }
 };
 const DEFAULT_SUBSCRIPTION = {
@@ -130,7 +130,7 @@ function normalizeSubscription(subscription = {}) {
     planId,
     billingCycle,
     agreedPrice: Number(subscription.agreedPrice ?? annualDefault),
-    features: { ...PLAN_CATALOG[planId].features, ...(subscription.features || {}) }
+    features: { ...PLAN_CATALOG[planId].features }
   };
 }
 
@@ -1149,6 +1149,8 @@ function buildWorkspaceContractPlan(workspace = {}) {
   if (subscription.billingCycle === "annual") {
     return {
       code: `${subscription.planId}_annual`,
+      planId: subscription.planId,
+      features: subscription.features,
       name: `${planName} · anual`,
       billingCycle: "annual",
       agreedPrice: subscription.agreedPrice,
@@ -1159,6 +1161,8 @@ function buildWorkspaceContractPlan(workspace = {}) {
   const hasLaunchCondition = subscription.planId === "essential" && Number(subscription.promotionalMonths) > 0;
   return {
     code: `${subscription.planId}_monthly`,
+    planId: subscription.planId,
+    features: subscription.features,
     name: `${planName} · mensal${hasLaunchCondition ? " · condição de lançamento" : ""}`,
     billingCycle: "monthly",
     agreedPrice: subscription.agreedPrice,
@@ -1337,14 +1341,14 @@ function renderContractDocument(workspace = {}) {
         ${pageHeader(4, "Funcionalidades e operação")}
         <div class="contract-section"><h3>5. Funcionalidades efetivamente disponíveis</h3><p>Integram o serviço somente as funcionalidades disponibilizadas no plano e acessíveis à CONTRATANTE no momento da utilização:</p><div class="contract-feature-grid detailed">
           <span><strong>Gestão cadastral</strong> Clientes, veículos, peças e serviços.</span>
-          <span><strong>Orçamentos</strong> Criação, cálculo e personalização.</span>
+          <span><strong>Orçamentos</strong> Peças, mão de obra, serviços terceirizados, cortesias, custos e valores de venda.</span>
           <span><strong>Compartilhamento</strong> Envio pelo WhatsApp e links públicos.</span>
           <span><strong>Inspeções</strong> Checklist e relatório visual em PDF.</span>
-          <span><strong>Financeiro</strong> Lançamentos e visão de resultados.</span>
+          <span><strong>Financeiro básico</strong> Receitas, despesas, categorias, custos de cortesias e relatórios por período.</span>
           <span><strong>Documentos</strong> Impressão, PDF e compartilhamento móvel.</span>
           <span><strong>Personalização</strong> Logo, dados da empresa, Pix e taxas.</span>
           <span><strong>Sincronização</strong> Dados vinculados ao ambiente da oficina.</span>
-          ${String(plan.code || "").startsWith("pro_") ? `<span><strong>Equipe</strong> Até quatro contas adicionais com permissões controladas pelo responsável.</span>` : ""}
+          ${String(plan.planId || plan.code || "").startsWith("pro") ? `<span><strong>Recursos Pro</strong> DRE gerencial e exportação, recorrências financeiras e até quatro contas adicionais com permissões.</span>` : ""}
         </div></div>
         <div class="contract-section"><h3>6. Atualizações</h3><p>A CONTRATADA poderá corrigir, aprimorar, modificar ou atualizar o sistema para melhorar segurança, desempenho e usabilidade. Recursos futuros somente integrarão o serviço quando forem efetivamente disponibilizados. Funções obsoletas ou incompatíveis com fornecedores externos poderão ser descontinuadas, com comunicação prévia quando razoavelmente possível.</p></div>
         <div class="contract-section"><h3>7. Disponibilidade e suporte</h3><p>A CONTRATADA empregará esforços razoáveis para manter o serviço funcional. Poderão ocorrer manutenções, falhas de internet, indisponibilidade de hospedagem, autenticação, banco de dados, comunicação ou outros fornecedores, incidentes de segurança e eventos fora de seu controle. O suporte oferece orientação sobre as funções disponíveis pelos canais oficiais, de <strong>${escapeHtml(provider.supportHours || "segunda a sexta-feira, das 8h às 18h, exceto feriados")}</strong>, em prazos compatíveis com a natureza e complexidade da solicitação.</p></div>
@@ -1357,7 +1361,7 @@ function renderContractDocument(workspace = {}) {
         <div class="contract-section"><h3>8. Plano, preço e renovação</h3><p>${planCommercialClause}</p></div>
         <div class="contract-section"><h3>9. Pagamento e reajuste</h3><p>O pagamento ocorrerá por <strong>${escapeHtml(provider.paymentMethods || "cartão de crédito, boleto bancário ou Pix")}</strong>, conforme a opção disponibilizada, e no vencimento informado na contratação. Valores vencidos permanecem devidos. Os preços poderão ser reajustados anualmente mediante comunicação prévia, podendo ser utilizado o IPCA ou índice oficial equivalente como referência. Mudanças de plano ou serviços opcionais serão apresentadas antes da contratação.</p></div>
         <div class="contract-section"><h3>10. Inadimplência</h3><p>O atraso poderá resultar em comunicação de cobrança e suspensão do acesso após prazo razoável para regularização. A suspensão não cancela valores já constituídos. Situações de fraude, risco à segurança ou uso ilícito poderão gerar bloqueio imediato.</p></div>
-        <div class="contract-section"><h3>11. Cancelamento</h3><p>O plano mensal não possui fidelidade e pode ser cancelado pelos canais oficiais. O cancelamento produz efeitos ao final do período já pago e, salvo cobrança indevida ou hipótese legal, não gera devolução proporcional. Valores vencidos e obrigações anteriores permanecem exigíveis.</p></div>
+        <div class="contract-section"><h3>11. Cancelamento e arrependimento</h3><p>O plano mensal não possui fidelidade e pode ser cancelado pelos canais oficiais. O cancelamento produz efeitos ao final do período já pago e, salvo cobrança indevida ou hipótese legal, não gera devolução proporcional. Quando a contratação estiver sujeita ao Código de Defesa do Consumidor e ocorrer fora do estabelecimento comercial, será respeitado o direito de arrependimento no prazo legal de sete dias, com a restituição cabível. Valores vencidos e obrigações anteriores permanecem exigíveis.</p></div>
         <div class="contract-section"><h3>12. Rescisão</h3><p>O contrato poderá ser encerrado por cancelamento, acordo entre as partes, inadimplência, uso ilícito, violação grave, comprometimento da segurança, infração à propriedade intelectual ou demais hipóteses legais.</p></div>
         ${pageFooter(5)}
       </section>
@@ -1366,7 +1370,7 @@ function renderContractDocument(workspace = {}) {
         ${pageHeader(6, "Responsabilidades e documentos")}
         <div class="contract-section"><h3>13. Responsabilidades da contratante</h3><p>A CONTRATANTE é responsável pela veracidade, necessidade, atualização e legalidade das informações inseridas, pela proteção de suas credenciais e pela conferência de orçamentos, peças, serviços, valores, taxas, descontos, documentos, diagnósticos e relatórios antes de utilizá-los ou enviá-los.</p></div>
         <div class="contract-section"><h3>14. Serviços automotivos</h3><p>A CONTRATANTE permanece exclusivamente responsável pela avaliação, qualidade, segurança, preço e execução dos serviços prestados aos seus clientes. O RR Manager é ferramenta de apoio e não toma decisões técnicas ou comerciais de forma autônoma.</p></div>
-        <div class="contract-section"><h3>15. Orçamentos, inspeções e financeiro</h3><p>Os resultados dependem dos dados e parâmetros configurados pela oficina. A CONTRATADA não garante preços de peças, mão de obra, tributos, descontos ou diagnósticos. A emissão do orçamento não representa aprovação automática pelo cliente final. As inspeções registram informações inseridas pela oficina e não substituem desmontagem ou diagnóstico especializado. Os controles financeiros não constituem serviço contábil, fiscal ou financeiro.</p></div>
+        <div class="contract-section"><h3>15. Orçamentos, inspeções, financeiro e DRE</h3><p>Os resultados dependem dos dados e parâmetros configurados pela oficina. A CONTRATADA não garante preços de peças, mão de obra, serviços terceirizados, tributos, descontos ou diagnósticos. A indicação feita pelo cliente em link público não conclui a aprovação: a oficina deve confirmá-la no sistema. Cortesias podem gerar custos sem receita, conforme os campos informados. Lançamentos recorrentes são automações que devem ser revisadas pela oficina. Para fins do DRE gerencial, o orçamento aprovado é tratado como realizado e recebido na data da aprovação; esse critério não substitui regime contábil, conciliação bancária, documento fiscal nem análise de profissional habilitado. As inspeções não substituem desmontagem ou diagnóstico especializado.</p></div>
         <div class="contract-section"><h3>16. WhatsApp, links e terceiros</h3><p>Compartilhamentos dependem das regras e disponibilidade do WhatsApp, navegador, Firebase e outros fornecedores. A CONTRATANTE deve conferir destinatários, evitar dados desnecessários e utilizar links públicos de forma lícita. A CONTRATADA não responde por bloqueios ou falhas de terceiros que não decorram de conduta própria.</p></div>
         <div class="contract-notice"><b>Responsabilidade operacional:</b> antes de enviar qualquer documento, a oficina deve revisar cliente, veículo, itens, valores, forma de pagamento e destinatário.</div>
         ${pageFooter(6)}
@@ -1376,7 +1380,7 @@ function renderContractDocument(workspace = {}) {
         ${pageHeader(7, "Dados, segurança e propriedade")}
         <div class="contract-section"><h3>17. Titularidade dos dados</h3><p>Os dados inseridos permanecem pertencentes à CONTRATANTE ou aos respectivos titulares. A CONTRATADA não adquire sua propriedade e os utiliza somente para fornecer, manter, proteger, desenvolver e prestar suporte ao RR Manager, conforme a Política de Privacidade.</p></div>
         <div class="contract-section"><h3>18. LGPD</h3><p>As partes observarão a Lei nº 13.709/2018. Em relação aos dados de clientes, funcionários e fornecedores inseridos pela oficina, a CONTRATANTE atuará, em regra, como Controladora e a CONTRATADA como Operadora. A oficina deve possuir base legal, informar os titulares quando necessário, limitar os dados ao necessário e atender solicitações sob sua responsabilidade.</p></div>
-        <div class="contract-section"><h3>19. Segurança e incidentes</h3><p>A CONTRATADA adotará medidas técnicas e administrativas razoáveis considerando a natureza dos dados e os riscos envolvidos. A CONTRATANTE deverá proteger senhas, dispositivos e acessos. As partes cooperarão na avaliação e contenção de incidentes relevantes e nas providências legalmente exigidas.</p></div>
+        <div class="contract-section"><h3>19. Segurança, equipe e incidentes</h3><p>A CONTRATADA adotará medidas técnicas e administrativas razoáveis considerando a natureza dos dados e os riscos envolvidos. A CONTRATANTE deverá proteger senhas e dispositivos, criar uma conta individual para cada colaborador, conceder somente as permissões necessárias e bloquear ou remover prontamente acessos que não sejam mais autorizados. Senhas são administradas pelo serviço de autenticação e não ficam disponíveis para visualização pela oficina ou pela CONTRATADA. As partes cooperarão na avaliação, registro e contenção de incidentes relevantes e nas comunicações legalmente exigidas.</p></div>
         <div class="contract-section"><h3>20. Cópia, retenção e exclusão</h3><p>Antes do encerramento definitivo, a CONTRATANTE poderá solicitar uma cópia de seus dados dentro das possibilidades técnicas e legais. Após o cancelamento, informações poderão ser eliminadas ou anonimizadas quando não forem mais necessárias, ressalvadas obrigações legais, prevenção a fraudes, exercício de direitos e ciclos técnicos de segurança.</p></div>
         <div class="contract-section"><h3>21. Propriedade intelectual e confidencialidade</h3><p>Código, marca, interface, design, documentação e funcionalidades pertencem à CONTRATADA. As partes preservarão informações comerciais, técnicas e estratégicas não públicas, exceto quando a divulgação for autorizada ou legalmente exigida.</p></div>
         ${pageFooter(7)}
@@ -1386,7 +1390,7 @@ function renderContractDocument(workspace = {}) {
         ${pageHeader(8, "Disposições finais")}
         <div class="contract-section contract-final-compact"><h3>22. Limitação de responsabilidade</h3><p>Na extensão permitida por lei, a CONTRATADA não responde por informações incorretas, decisões e serviços da oficina, preços definidos pela CONTRATANTE, credenciais compartilhadas, uso inadequado ou falhas externas. Esta cláusula não exclui responsabilidades que não possam ser afastadas pela legislação.</p></div>
         <div class="contract-section contract-final-compact"><h3>23. Documentos integrantes e prevalência</h3><p>Integram a contratação: (i) condição comercial específica registrada; (ii) este Contrato; (iii) Termos de Uso; e (iv) Política de Privacidade nas matérias de dados. Essa é a ordem de prevalência em caso de conflito, respeitada a legislação.</p></div>
-        <div class="contract-section contract-final-compact"><h3>24. Alterações e comunicações</h3><p>Mudanças relevantes serão identificadas por versão e comunicadas pelo sistema, e-mail ou canais oficiais, podendo exigir novo aceite. Alterações de preço serão informadas previamente. A CONTRATANTE deve manter seus contatos atualizados.</p></div>
+        <div class="contract-section contract-final-compact"><h3>24. Planos, alterações e comunicações</h3><p>O Plano Essencial reúne as funções básicas de operação; o Plano Pro acrescenta somente os recursos identificados como Pro no sistema e neste contrato. Upgrade e downgrade passam a valer conforme a condição comercial registrada. No downgrade, DRE, recorrências e contas adicionais podem ser bloqueados, sem promessa de disponibilidade fora do Pro. Mudanças relevantes serão identificadas por versão e comunicadas pelo sistema, e-mail ou canais oficiais, podendo exigir novo aceite. Alterações de preço serão informadas previamente. A CONTRATANTE deve manter seus contatos atualizados.</p></div>
         <div class="contract-section contract-final-compact"><h3>25. Vigência e efeitos do encerramento</h3><p>A vigência começa no aceite eletrônico e permanece enquanto houver assinatura ativa. Obrigações de pagamento, propriedade intelectual, confidencialidade, dados e responsabilidades sobrevivem pelo período necessário.</p></div>
         <div class="contract-section contract-final-compact"><h3>26. Disposições gerais e foro</h3><p>Eventos inevitáveis fora do controle razoável afastam responsabilidade na medida legal. O contrato não cria sociedade, franquia, representação ou vínculo trabalhista. A invalidade de uma cláusula não prejudica as demais. Aplicam-se as leis brasileiras. Fica eleito o foro de <strong>${escapeHtml(provider.venue || "Belo Horizonte/MG")}</strong>, sem prejuízo de outro foro que seja obrigatório pela legislação aplicável.</p></div>
         <section class="contract-acceptance-record">
@@ -2231,7 +2235,17 @@ function renderAdminWorkspaceList() {
     select.addEventListener("change", () => {
       const row = select.closest("[data-plan-workspace]");
       const price = row?.querySelector("[data-plan-field='agreedPrice']");
-      if (price) price.value = select.value === "annual" ? "799.00" : "59.90";
+      const planId = row?.querySelector("[data-plan-field='planId']")?.value;
+      if (price && planId === "essential") price.value = select.value === "annual" ? "799.00" : "59.90";
+    });
+  });
+  list.querySelectorAll("[data-plan-field='planId']").forEach((select) => {
+    select.addEventListener("change", () => {
+      if (select.value !== "essential") return;
+      const row = select.closest("[data-plan-workspace]");
+      const cycle = row?.querySelector("[data-plan-field='billingCycle']")?.value;
+      const price = row?.querySelector("[data-plan-field='agreedPrice']");
+      if (price) price.value = cycle === "annual" ? "799.00" : "59.90";
     });
   });
   list.querySelectorAll("[data-delete-workspace]").forEach((button) => {
