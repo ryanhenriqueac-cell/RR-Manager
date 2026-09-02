@@ -1220,6 +1220,8 @@ function initDashboard() {
 function renderDashboardOrcamentos(pendentes) {
   const container = byId("dashboardOrcamentos");
   if (!container) return;
+  const canApprove = typeof window.rrHasPermission !== "function" || window.rrHasPermission("aprovarOrcamentos");
+  const canEdit = typeof window.rrHasPermission !== "function" || window.rrHasPermission("orcamentos");
 
   container.innerHTML = pendentes.length
     ? pendentes.map((orcamento) => `
@@ -1228,10 +1230,9 @@ function renderDashboardOrcamentos(pendentes) {
         <span>${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))} | ${money(getOrcamentoTotal(orcamento))}</span>
         ${getPublicOrcamentoResponseHtml(orcamento)}
         <div class="actions">
-          <button class="btn btn-primary" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Aprovado')">Aprovar</button>
-          <button class="btn btn-danger" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Não aprovado')">Não aprovado</button>
-          ${getOrcamentoWhatsAppButton(orcamento)}
-          <a class="btn btn-muted" href="orcamentos.html?editar=${orcamento.id}">Editar</a>
+          ${canApprove ? `<button class="btn btn-primary" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Aprovado')">Aprovar</button><button class="btn btn-danger" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Não aprovado')">Não aprovado</button>` : ""}
+          ${canEdit ? getOrcamentoWhatsAppButton(orcamento) : ""}
+          ${canEdit ? `<a class="btn btn-muted" href="orcamentos.html?editar=${orcamento.id}">Editar</a>` : ""}
           <a class="btn btn-ghost" href="orcamento-imprimir.html?id=${orcamento.id}">Imprimir</a>
         </div>
       </div>
@@ -1283,7 +1284,10 @@ async function updateOrcamentoStatus(id, status) {
     ...orcamentos[index],
     status,
     decidedAt: new Date().toISOString(),
-    pagamento
+    pagamento,
+    decidedBy: window.rrGetActor?.() || {},
+    updatedBy: window.rrGetActor?.() || {},
+    updatedAt: new Date().toISOString()
   };
   writeData("orcamentos", orcamentos);
   await persistSavedData("orcamentos");
@@ -1354,6 +1358,8 @@ async function saveCliente(event) {
 
   const clientes = readData("clientes");
   const id = getValue("clienteId") || createId("cli");
+  const existente = clientes.find((item) => item.id === id);
+  const actor = window.rrGetActor?.() || {};
   const cliente = {
     id,
     nome: getValue("clienteNome"),
@@ -1362,7 +1368,10 @@ async function saveCliente(event) {
     documento: getValue("clienteDocumento"),
     endereco: getValue("clienteEndereco"),
     obs: getValue("clienteObs"),
-    carros: clienteCarrosDraft.filter((carro) => carro.marca || carro.modelo || carro.motor || carro.ano || carro.placa || carro.obs).map(normalizeCarro)
+    carros: clienteCarrosDraft.filter((carro) => carro.marca || carro.modelo || carro.motor || carro.ano || carro.placa || carro.obs).map(normalizeCarro),
+    createdBy: existente?.createdBy || actor,
+    updatedBy: actor,
+    updatedAt: new Date().toISOString()
   };
 
   const index = clientes.findIndex((item) => item.id === id);
@@ -1786,6 +1795,7 @@ async function saveOrcamento(event) {
   const orcamentos = readData("orcamentos");
   const id = getValue("orcamentoId") || createId("orc");
   const existente = orcamentos.find((item) => item.id === id);
+  const actor = window.rrGetActor?.() || {};
   const valorFinalManual = parseDecimal(getValue("orcamentoValorFinal"));
   const totalFinal = resolveOrcamentoFinalTotal(totals, valorFinalManual);
   const orcamento = {
@@ -1808,7 +1818,10 @@ async function saveOrcamento(event) {
     valorFinalManual,
     total: totalFinal,
     lucroEstimado: totalFinal - totals.totalCustoPecas - totals.totalCustoTerceirizados,
-    historicoVersoes: existente?.historicoVersoes || []
+    historicoVersoes: existente?.historicoVersoes || [],
+    createdBy: existente?.createdBy || actor,
+    updatedBy: actor,
+    updatedAt: new Date().toISOString()
   };
   const customerFacingChanged = existente?.status === "Aprovado" && getOrcamentoCustomerSignature(existente) !== getOrcamentoCustomerSignature(orcamento);
   if (customerFacingChanged) {
@@ -2494,6 +2507,8 @@ async function saveFinanceiro(event) {
   try {
     const financeiro = readData("financeiro");
     const id = getValue("financeiroId") || createId("fin");
+    const existente = financeiro.find((item) => item.id === id);
+    const actor = window.rrGetActor?.() || {};
     const tipo = document.querySelector("input[name='financeiroTipo']:checked")?.value || "Despesa";
     const categoria = getFinanceiroCategoriaValue();
     if (!categoria) throw new Error("Informe a categoria do lançamento.");
@@ -2504,7 +2519,10 @@ async function saveFinanceiro(event) {
       descricao: getValue("financeiroDescricao"),
       grupo: getValue("financeiroGrupo"),
       categoria: normalizeFinanceCategory(categoria, tipo),
-      valor: Number(getValue("financeiroValor")) || 0
+      valor: Number(getValue("financeiroValor")) || 0,
+      createdBy: existente?.createdBy || actor,
+      updatedBy: actor,
+      updatedAt: new Date().toISOString()
     };
     if (pendingVariableRecurrence) {
       lancamento.recurrenceTemplateId = pendingVariableRecurrence.templateId;

@@ -48,9 +48,9 @@ const DEFAULT_MACHINE_RATES = {
 const MAX_LOGO_DIMENSION = 1000;
 const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v2";
-const LEGAL_TERMS_VERSION = "1.1";
-const LEGAL_PRIVACY_VERSION = "1.1";
-const CONTRACT_VERSION = "2.0";
+const LEGAL_TERMS_VERSION = "1.2";
+const LEGAL_PRIVACY_VERSION = "1.2";
+const CONTRACT_VERSION = "2.1";
 const CONTRACT_PLAN = {
   code: "monthly_launch",
   name: "Mensal · condição de lançamento",
@@ -63,11 +63,11 @@ const CONTRACT_PLAN = {
 const PLAN_CATALOG = {
   essential: {
     name: "Essencial",
-    features: { core: true, financeiroBasico: true, dre: false, financeiroAvancado: false, recorrencias: false, notaFiscal: false, exportacaoContador: false, estoque: false }
+    features: { core: true, financeiroBasico: true, dre: false, financeiroAvancado: false, recorrencias: false, notaFiscal: false, exportacaoContador: false, estoque: false, equipe: false }
   },
   pro: {
     name: "Pro",
-    features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: true, exportacaoContador: true, estoque: true }
+    features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: true, exportacaoContador: true, estoque: true, equipe: true }
   }
 };
 const DEFAULT_SUBSCRIPTION = {
@@ -84,6 +84,15 @@ const ACCESS_STATUS = {
   ACTIVE: "active",
   BLOCKED: "blocked"
 };
+const TEAM_MEMBER_LIMIT = 4;
+const TEAM_PERMISSION_KEYS = ["dashboard", "clientes", "orcamentos", "aprovarOrcamentos", "financeiro", "dre", "inspecoes"];
+const TEAM_ROLE_PROFILES = {
+  attendant: { name: "Atendente", permissions: { dashboard: true, clientes: true, orcamentos: true, aprovarOrcamentos: false, financeiro: false, dre: false, inspecoes: true } },
+  mechanic: { name: "Mecânico", permissions: { dashboard: true, clientes: true, orcamentos: false, aprovarOrcamentos: false, financeiro: false, dre: false, inspecoes: true } },
+  financial: { name: "Financeiro", permissions: { dashboard: true, clientes: false, orcamentos: false, aprovarOrcamentos: false, financeiro: true, dre: true, inspecoes: false } },
+  manager: { name: "Gerente", permissions: { dashboard: true, clientes: true, orcamentos: true, aprovarOrcamentos: true, financeiro: true, dre: true, inspecoes: true } },
+  custom: { name: "Personalizado", permissions: { dashboard: true, clientes: false, orcamentos: false, aprovarOrcamentos: false, financeiro: false, dre: false, inspecoes: false } }
+};
 const config = window.firebaseConfig || {};
 const adminAccess = window.rrAdminAccess || {};
 const ADMIN_EMAILS = Array.isArray(adminAccess.adminEmails)
@@ -91,6 +100,7 @@ const ADMIN_EMAILS = Array.isArray(adminAccess.adminEmails)
   : [];
 const configReady = Boolean(config.apiKey && config.apiKey !== "COLE_AQUI" && config.projectId && config.projectId !== "COLE_AQUI");
 const isRegisterPage = document.body.dataset.page === "cadastro-acesso";
+const teamInviteEmail = isRegisterPage ? normalizeEmail(new URLSearchParams(window.location.search).get("equipe")) : "";
 
 let auth;
 let db;
@@ -107,6 +117,8 @@ const pendingCollectionChanges = new Map();
 const confirmedCollectionState = new Map();
 let adminWorkspaces = [];
 let activeWorkspaceSubscription = null;
+let activeTeamAccess = null;
+let activeWorkspaceData = null;
 
 function normalizeSubscription(subscription = {}) {
   const planId = PLAN_CATALOG[subscription.planId] ? subscription.planId : DEFAULT_SUBSCRIPTION.planId;
@@ -132,6 +144,9 @@ function getPlanName(subscription = {}) {
 
 window.rrHasPlanFeature = (feature) => Boolean(activeWorkspaceSubscription?.features?.[feature]);
 window.rrGetActivePlan = () => activeWorkspaceSubscription ? { ...activeWorkspaceSubscription } : null;
+window.rrIsWorkspaceOwner = () => !activeTeamAccess;
+window.rrHasPermission = (permission) => !activeTeamAccess || (activeTeamAccess.status === "active" && activeTeamAccess.permissions?.[permission] === true);
+window.rrGetActor = () => ({ email: currentUser?.email || "", name: activeTeamAccess?.name || activeWorkspaceData?.registration?.nome || "", role: activeTeamAccess ? "member" : "owner" });
 let pendingAuthMessage = "";
 let pendingAuthModal = null;
 let creatingAccessRequest = false;
@@ -149,6 +164,20 @@ if (!configReady) {
   patchLocalStorageSync();
   bindAuthEvents();
 
+  async function resolveUserWorkspace(user) {
+    activeTeamAccess = null;
+    const ownWorkspace = await getDoc(doc(db, "workspaces", user.uid));
+    if (ownWorkspace.exists()) return user.uid;
+    const email = normalizeEmail(user.email);
+    if (!email) return user.uid;
+    const accessSnapshot = await getDoc(doc(db, "team_access", email));
+    if (!accessSnapshot.exists()) return user.uid;
+    const access = accessSnapshot.data() || {};
+    if (!access.workspaceId) return user.uid;
+    activeTeamAccess = { id: email, ...access };
+    return access.workspaceId;
+  }
+
   onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     cloudReady = false;
@@ -162,6 +191,10 @@ if (!configReady) {
       localStorage.removeItem(WORKSPACE_BRANDING_KEY);
       activeWorkspaceId = null;
       activeWorkspaceEmail = "";
+      activeTeamAccess = null;
+      activeWorkspaceData = null;
+      activeWorkspaceSubscription = null;
+      window.rrFirebaseReady = false;
       setAppLocked(true);
       setAdminSelecting(false);
       setUserStatus("");
@@ -183,7 +216,7 @@ if (!configReady) {
       return;
     }
 
-    activeWorkspaceId = getWorkspaceId(user);
+    activeWorkspaceId = isAdminUser(user) ? getWorkspaceId(user) : await resolveUserWorkspace(user);
     activeWorkspaceEmail = "";
 
     if (isAdminUser(user) && !activeWorkspaceId) {
@@ -195,6 +228,11 @@ if (!configReady) {
     }
 
     if (!isAdminUser(user)) {
+      if (activeTeamAccess && activeTeamAccess.status !== "active") {
+        pendingAuthMessage = "Seu acesso à equipe está bloqueado.";
+        await signOut(auth);
+        return;
+      }
       const accessStatus = await getWorkspaceAccessStatus(activeWorkspaceId);
       if (accessStatus === ACCESS_STATUS.PENDING || accessStatus === ACCESS_STATUS.BLOCKED) {
         const isPending = accessStatus === ACCESS_STATUS.PENDING;
@@ -219,11 +257,17 @@ if (!configReady) {
       setAppLocked(true);
       return;
     }
+    if (activeTeamAccess && getWorkspaceSubscription(loadedWorkspace).planId !== "pro") {
+      pendingAuthMessage = "As contas da equipe estão disponíveis somente no Plano Pro.";
+      await signOut(auth);
+      return;
+    }
     setUserStatus(user.email);
     cloudReady = true;
     window.rrFirebaseReady = true;
     setAppLocked(false);
     startCollectionListeners(activeWorkspaceId);
+    applyTeamAccessToInterface();
 
     if (sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId) {
       sessionStorage.setItem(SYNC_FLAG, activeWorkspaceId);
@@ -231,8 +275,10 @@ if (!configReady) {
       return;
     }
 
-    await ensureLegalAcceptance(loadedWorkspace);
-    maybeShowOnboarding(loadedWorkspace);
+    if (!activeTeamAccess) {
+      await ensureLegalAcceptance(loadedWorkspace);
+      maybeShowOnboarding(loadedWorkspace);
+    }
   });
 }
 
@@ -245,7 +291,7 @@ window.rrPublishPublicOrcamento = async (data, existingId = "") => {
   const id = existingId || createPublicShareId();
   await setDoc(doc(db, "public_orcamentos", id), {
     owner: activeWorkspaceId || currentUser.uid,
-    ownerUid: currentUser.uid,
+    ownerUid: activeWorkspaceId || currentUser.uid,
     createdAt: serverTimestamp(),
     data
   });
@@ -342,6 +388,7 @@ function buildAuthShell() {
   document.body.appendChild(shell);
   hydrateRememberedLogin();
   hydrateRegisterPrefill();
+  configureTeamInviteRegistration();
   updateRegisterDocumentPlaceholder();
   document.body.classList.toggle("auth-registering", isRegisterPage);
 
@@ -357,7 +404,7 @@ function buildAuthShell() {
           <p>Escolha um cadastro para abrir o sistema completo.</p>
         </div>
       </div>
-      <input id="firebaseAdminSearch" class="admin-search" type="search" placeholder="Buscar por e-mail ou empresa" autocomplete="off">
+      <input id="firebaseAdminSearch" class="admin-search" type="search" placeholder="Buscar por empresa, responsável ou colaborador" autocomplete="off">
       <div id="firebaseAdminMessage" class="admin-message"></div>
       <div id="firebaseAdminList" class="admin-workspace-list"></div>
       <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
@@ -500,7 +547,7 @@ async function submitAccessRequest() {
       showAuthMessage("Informe um e-mail para criar o acesso.");
       return;
     }
-    if (!businessName) {
+    if (!teamInviteEmail && !businessName) {
       showAuthMessage("Informe o nome da empresa para identificar o cadastro.");
       return;
     }
@@ -521,15 +568,21 @@ async function submitAccessRequest() {
     creatingAccessRequest = true;
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     currentUser = credential.user;
-    activeWorkspaceId = currentUser.uid;
-    activeWorkspaceEmail = currentUser.email;
-    await saveAccessRequest(credential.user);
-    pendingAuthMessage = "Cadastro concluído e enviado para análise. Aguarde a liberação do administrador.";
+    if (teamInviteEmail) {
+      const accessSnapshot = await getDoc(doc(db, "team_access", email));
+      if (!accessSnapshot.exists() || accessSnapshot.data()?.status !== "active") throw new Error("Este convite não está mais ativo. Peça um novo convite ao responsável da oficina.");
+      pendingAuthMessage = "Acesso da equipe criado. Entre com seu e-mail e sua senha.";
+    } else {
+      activeWorkspaceId = currentUser.uid;
+      activeWorkspaceEmail = currentUser.email;
+      await saveAccessRequest(credential.user);
+      pendingAuthMessage = "Cadastro concluído e enviado para análise. Aguarde a liberação do administrador.";
+    }
     await signOut(auth);
     sessionStorage.removeItem(REGISTER_PREFILL_KEY);
     await showAuthStatusModal(
-      "Cadastro concluído",
-      "Seu cadastro foi enviado e será analisado para confirmação de acesso."
+      teamInviteEmail ? "Acesso criado" : "Cadastro concluído",
+      teamInviteEmail ? "Sua conta foi vinculada à oficina. Agora você já pode entrar no RR Manager." : "Seu cadastro foi enviado e será analisado para confirmação de acesso."
     );
     window.location.href = "dashboard.html";
   } catch (error) {
@@ -579,6 +632,7 @@ async function loadCloudData(uid) {
     if (!snap.exists()) {
       await saveLegacyCloudData();
       const workspace = { ownerEmail: activeWorkspaceEmail || currentUser.email };
+      activeWorkspaceData = workspace;
       setWorkspaceBrandingContext(workspace);
       renderMeuCadastro(workspace);
       renderContractDocument(workspace);
@@ -588,6 +642,7 @@ async function loadCloudData(uid) {
     }
 
     const cloudData = snap.data() || {};
+    activeWorkspaceData = { id: uid, ...cloudData };
     activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
     setWorkspaceBrandingContext(cloudData);
     renderMeuCadastro(cloudData);
@@ -631,12 +686,46 @@ function getCollectionName(key) {
   return APP_COLLECTIONS[key];
 }
 
+function configureTeamInviteRegistration() {
+  if (!teamInviteEmail) return;
+  document.body.classList.add("team-invite-registration");
+  const email = document.getElementById("registerEmail");
+  const business = document.getElementById("registerBusinessName");
+  email.value = teamInviteEmail;
+  email.readOnly = true;
+  business.required = false;
+  business.closest("label").hidden = true;
+  document.getElementById("registerPhone").closest("label").hidden = true;
+  document.getElementById("registerDocument").closest("label").hidden = true;
+  const form = document.getElementById("firebaseRegisterForm");
+  form.insertAdjacentHTML("afterbegin", `<div class="team-invite-notice"><strong>Convite para a equipe</strong><span>Crie sua senha para entrar na oficina com as permissões definidas pelo responsável.</span></div>`);
+  form.querySelector("button[type='submit']").textContent = "Criar acesso da equipe";
+}
+
+function canAccessStorageKey(key, write = false) {
+  if (!activeTeamAccess) return true;
+  const permissions = activeTeamAccess.permissions || {};
+  const permissionMap = {
+    rr_clientes: ["clientes", "orcamentos", "aprovarOrcamentos", "inspecoes", "dre"],
+    rr_veiculos: ["clientes", "orcamentos", "aprovarOrcamentos", "inspecoes", "dre"],
+    rr_orcamentos: write ? ["orcamentos"] : ["orcamentos", "aprovarOrcamentos", "dre"],
+    rr_servicos: ["orcamentos"],
+    rr_financeiro: write ? ["financeiro"] : ["financeiro", "dre"],
+    rr_dre_config: ["dre"]
+  };
+  return (permissionMap[key] || []).some((permission) => permissions[permission] === true);
+}
+
+function getAccessibleAppKeys(write = false) {
+  return APP_KEYS.filter((key) => canAccessStorageKey(key, write));
+}
+
 function getRecordDocumentId(item, index, key) {
   return encodeURIComponent(String(item?.id || `${key}-${index + 1}`)).slice(0, 1200);
 }
 
 async function loadV2Collections(uid) {
-  const entries = await Promise.all(APP_KEYS.map(async (key) => {
+  const entries = await Promise.all(getAccessibleAppKeys().map(async (key) => {
     const snap = await getDocs(collection(db, "workspaces", uid, getCollectionName(key)));
     return [key, snap.docs.map((record) => record.data())];
   }));
@@ -644,6 +733,7 @@ async function loadV2Collections(uid) {
 }
 
 async function migrateWorkspaceToV2(uid, workspace) {
+  if (activeTeamAccess) throw new Error("A migração dos dados deve ser concluída pelo responsável da oficina.");
   const legacyData = workspace.data || {};
   const operations = [];
   APP_KEYS.forEach((key) => {
@@ -681,6 +771,7 @@ async function migrateWorkspaceToV2(uid, workspace) {
 }
 
 async function cleanupVerifiedLegacyData(uid, workspace, v2Data) {
+  if (activeTeamAccess) return;
   if (!workspace.data || workspace.migration?.legacyDataRetained !== true) return;
   const matches = APP_KEYS.every((key) => {
     const migratedIds = new Set(v2Data[key].map((item, index) => getRecordDocumentId(item, index, key)));
@@ -732,7 +823,7 @@ async function flushV2Changes() {
         });
         await batch.commit();
       }
-      if (change.delta) {
+      if (change.delta && !activeTeamAccess) {
         const collectionRef = collection(db, "workspaces", activeWorkspaceId, getCollectionName(key));
         const countSnapshot = await getCountFromServer(collectionRef);
         await setDoc(doc(db, "workspaces", activeWorkspaceId), {
@@ -773,7 +864,7 @@ function persistCloudData() {
 window.rrPersistAppData = async (storageKey = "") => {
   if (cloudReady === false) throw new Error('A sincronizacao ainda nao esta pronta.');
   if (workspaceSchemaVersion >= APP_SCHEMA_VERSION) {
-    const keys = APP_KEYS.includes(storageKey) ? [storageKey] : APP_KEYS;
+    const keys = (APP_KEYS.includes(storageKey) ? [storageKey] : APP_KEYS).filter((key) => canAccessStorageKey(key, true));
     keys.forEach((key) => {
       if (pendingCollectionChanges.has(key)) return;
       queueCollectionDiff(
@@ -881,6 +972,128 @@ function bindMeuCadastroEvents() {
     document.getElementById("meuCadastroLogoFile")?.click();
   });
   document.getElementById("meuCadastroLogoFile")?.addEventListener("change", handleMeuCadastroLogoImport);
+  document.getElementById("teamMemberForm")?.addEventListener("submit", saveTeamMember);
+  document.getElementById("teamMemberRole")?.addEventListener("change", applyTeamRoleProfile);
+  document.getElementById("teamMemberCancel")?.addEventListener("click", resetTeamMemberForm);
+}
+
+function normalizeTeamPermissions(role = "custom", permissions = {}) {
+  const profile = TEAM_ROLE_PROFILES[role] || TEAM_ROLE_PROFILES.custom;
+  return TEAM_PERMISSION_KEYS.reduce((result, key) => ({ ...result, [key]: key === "dashboard" ? true : permissions[key] ?? profile.permissions[key] === true }), {});
+}
+
+function applyTeamRoleProfile() {
+  const role = document.getElementById("teamMemberRole")?.value || "custom";
+  const permissions = normalizeTeamPermissions(role, TEAM_ROLE_PROFILES[role]?.permissions || {});
+  document.querySelectorAll("[data-team-permission]").forEach((input) => { input.checked = permissions[input.dataset.teamPermission] === true; });
+}
+
+function resetTeamMemberForm() {
+  const form = document.getElementById("teamMemberForm");
+  if (!form) return;
+  form.reset();
+  document.getElementById("teamMemberOriginalEmail").value = "";
+  document.getElementById("teamMemberRole").value = "attendant";
+  document.getElementById("teamMemberStatus").value = "active";
+  applyTeamRoleProfile();
+}
+
+function getTeamMemberPayload() {
+  const role = document.getElementById("teamMemberRole").value || "custom";
+  const permissions = { dashboard: true };
+  document.querySelectorAll("[data-team-permission]").forEach((input) => { permissions[input.dataset.teamPermission] = input.checked; });
+  return { email: normalizeEmail(document.getElementById("teamMemberEmail").value), name: document.getElementById("teamMemberName").value.trim(), role, roleName: TEAM_ROLE_PROFILES[role]?.name || "Personalizado", status: document.getElementById("teamMemberStatus").value === "blocked" ? "blocked" : "active", permissions: normalizeTeamPermissions("custom", permissions) };
+}
+
+async function saveTeamMember(event) {
+  event.preventDefault();
+  if (!currentUser || !db || !activeWorkspaceId || activeTeamAccess) return;
+  const subscription = getWorkspaceSubscription(activeWorkspaceData || {});
+  if (subscription.planId !== "pro") return;
+  const member = getTeamMemberPayload();
+  const originalEmail = normalizeEmail(document.getElementById("teamMemberOriginalEmail").value);
+  const members = Array.isArray(activeWorkspaceData?.teamMembers) ? [...activeWorkspaceData.teamMembers] : [];
+  const existingIndex = members.findIndex((item) => normalizeEmail(item.email) === (originalEmail || member.email));
+  if (!member.email || !member.name) return;
+  if (member.email === normalizeEmail(currentUser.email)) {
+    document.getElementById("teamAccessMessage").textContent = "O proprietário já possui acesso completo.";
+    return;
+  }
+  if (existingIndex < 0 && members.length >= TEAM_MEMBER_LIMIT) {
+    document.getElementById("teamAccessMessage").textContent = "Limite de quatro colaboradores atingido.";
+    return;
+  }
+  const duplicate = members.some((item, index) => index !== existingIndex && normalizeEmail(item.email) === member.email);
+  if (duplicate) {
+    document.getElementById("teamAccessMessage").textContent = "Este e-mail já está na equipe.";
+    return;
+  }
+  const saved = { ...member, updatedAt: new Date().toISOString(), createdAt: existingIndex >= 0 ? members[existingIndex].createdAt || new Date().toISOString() : new Date().toISOString() };
+  if (existingIndex >= 0) members[existingIndex] = saved; else members.push(saved);
+  const batch = writeBatch(db);
+  batch.set(doc(db, "workspaces", activeWorkspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+  batch.set(doc(db, "team_access", member.email), { ...saved, workspaceId: activeWorkspaceId, ownerEmail: activeWorkspaceData?.ownerEmail || currentUser.email, businessName: activeWorkspaceData?.businessName || "", updatedAt: serverTimestamp() });
+  if (originalEmail && originalEmail !== member.email) batch.delete(doc(db, "team_access", originalEmail));
+  document.getElementById("teamAccessMessage").textContent = "Salvando colaborador...";
+  try {
+    await batch.commit();
+    activeWorkspaceData.teamMembers = members;
+    document.getElementById("teamAccessMessage").textContent = "Colaborador salvo.";
+    resetTeamMemberForm();
+    renderTeamManagement();
+  } catch (error) {
+    document.getElementById("teamAccessMessage").textContent = firebaseError(error);
+  }
+}
+
+function getTeamInviteUrl(email) {
+  return `${window.location.origin}${window.location.pathname.replace(/[^/]+$/, "cadastro-acesso.html")}?equipe=${encodeURIComponent(email)}`;
+}
+
+function renderTeamManagement() {
+  const panel = document.getElementById("teamAccessPanel");
+  if (!panel) return;
+  const owner = !activeTeamAccess;
+  const pro = getWorkspaceSubscription(activeWorkspaceData || {}).planId === "pro";
+  if (!owner) { panel.hidden = true; return; }
+  panel.hidden = false;
+  const members = Array.isArray(activeWorkspaceData?.teamMembers) ? activeWorkspaceData.teamMembers : [];
+  document.getElementById("teamAccessCount").textContent = `${members.length} de ${TEAM_MEMBER_LIMIT} colaboradores`;
+  const form = document.getElementById("teamMemberForm");
+  if (form) form.hidden = !pro;
+  if (form && !document.getElementById("teamMemberOriginalEmail").value) applyTeamRoleProfile();
+  const list = document.getElementById("teamMemberList");
+  if (!pro) {
+    list.innerHTML = `<div class="team-pro-required"><strong>Disponível no Plano Pro</strong><span>Ative o Pro para adicionar colaboradores e controlar permissões.</span></div>`;
+    return;
+  }
+  list.innerHTML = members.map((member) => `<article class="team-member-card"><div><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.email)}</span><small>${escapeHtml(member.roleName || TEAM_ROLE_PROFILES[member.role]?.name || "Personalizado")} · ${member.status === "blocked" ? "Bloqueado" : "Ativo"}</small></div><div class="team-member-permission-list">${TEAM_PERMISSION_KEYS.filter((key) => key !== "dashboard" && member.permissions?.[key]).map((key) => `<span>${escapeHtml({ clientes: "Clientes", orcamentos: "Orçamentos", aprovarOrcamentos: "Aprovar", financeiro: "Financeiro", dre: "DRE", inspecoes: "Inspeções" }[key])}</span>`).join("") || `<span>Somente dashboard</span>`}</div><div class="actions"><button class="btn btn-muted" type="button" data-team-copy="${escapeHtml(member.email)}">Copiar convite</button><button class="btn btn-ghost" type="button" data-team-edit="${escapeHtml(member.email)}">Editar</button><button class="btn btn-danger" type="button" data-team-remove="${escapeHtml(member.email)}">Remover</button></div></article>`).join("") || `<div class="empty-state muted">Nenhum colaborador cadastrado.</div>`;
+  list.querySelectorAll("[data-team-copy]").forEach((button) => button.addEventListener("click", async () => { await navigator.clipboard.writeText(getTeamInviteUrl(button.dataset.teamCopy)); button.textContent = "Convite copiado"; }));
+  list.querySelectorAll("[data-team-edit]").forEach((button) => button.addEventListener("click", () => editTeamMember(button.dataset.teamEdit)));
+  list.querySelectorAll("[data-team-remove]").forEach((button) => button.addEventListener("click", () => removeTeamMember(button.dataset.teamRemove)));
+}
+
+function editTeamMember(email) {
+  const member = (activeWorkspaceData?.teamMembers || []).find((item) => normalizeEmail(item.email) === normalizeEmail(email));
+  if (!member) return;
+  document.getElementById("teamMemberOriginalEmail").value = member.email;
+  document.getElementById("teamMemberName").value = member.name || "";
+  document.getElementById("teamMemberEmail").value = member.email || "";
+  document.getElementById("teamMemberRole").value = member.role || "custom";
+  document.getElementById("teamMemberStatus").value = member.status || "active";
+  document.querySelectorAll("[data-team-permission]").forEach((input) => { input.checked = member.permissions?.[input.dataset.teamPermission] === true; });
+  document.getElementById("teamMemberForm").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function removeTeamMember(email) {
+  if (!await showAuthConfirmModal("Remover colaborador", `Deseja remover o acesso de ${email}?`)) return;
+  const members = (activeWorkspaceData?.teamMembers || []).filter((item) => normalizeEmail(item.email) !== normalizeEmail(email));
+  const batch = writeBatch(db);
+  batch.set(doc(db, "workspaces", activeWorkspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+  batch.delete(doc(db, "team_access", normalizeEmail(email)));
+  await batch.commit();
+  activeWorkspaceData.teamMembers = members;
+  renderTeamManagement();
 }
 
 function renderMeuCadastro(workspace = {}) {
@@ -909,6 +1122,7 @@ function renderMeuCadastro(workspace = {}) {
   updatePersonalizacaoPreview();
   setMeuCadastroStatus("");
   setMeuCadastroPersonalizacaoStatus("");
+  renderTeamManagement();
 }
 
 function formatContractDate(value) {
@@ -1128,10 +1342,11 @@ function renderContractDocument(workspace = {}) {
           <span><strong>Documentos</strong> Impressão, PDF e compartilhamento móvel.</span>
           <span><strong>Personalização</strong> Logo, dados da empresa, Pix e taxas.</span>
           <span><strong>Sincronização</strong> Dados vinculados ao ambiente da oficina.</span>
+          ${String(plan.code || "").startsWith("pro_") ? `<span><strong>Equipe</strong> Até quatro contas adicionais com permissões controladas pelo responsável.</span>` : ""}
         </div></div>
         <div class="contract-section"><h3>6. Atualizações</h3><p>A CONTRATADA poderá corrigir, aprimorar, modificar ou atualizar o sistema para melhorar segurança, desempenho e usabilidade. Recursos futuros somente integrarão o serviço quando forem efetivamente disponibilizados. Funções obsoletas ou incompatíveis com fornecedores externos poderão ser descontinuadas, com comunicação prévia quando razoavelmente possível.</p></div>
         <div class="contract-section"><h3>7. Disponibilidade e suporte</h3><p>A CONTRATADA empregará esforços razoáveis para manter o serviço funcional. Poderão ocorrer manutenções, falhas de internet, indisponibilidade de hospedagem, autenticação, banco de dados, comunicação ou outros fornecedores, incidentes de segurança e eventos fora de seu controle. O suporte oferece orientação sobre as funções disponíveis pelos canais oficiais, de <strong>${escapeHtml(provider.supportHours || "segunda a sexta-feira, das 8h às 18h, exceto feriados")}</strong>, em prazos compatíveis com a natureza e complexidade da solicitação.</p></div>
-        <div class="contract-notice"><b>Limites do escopo:</b> emissão fiscal, estoque, ordem de serviço, múltiplos usuários e outras funções futuras não integram este contrato enquanto não estiverem disponíveis e comunicadas.</div>
+        <div class="contract-notice"><b>Limites do escopo:</b> emissão fiscal, estoque, ordem de serviço e outras funções futuras não integram este contrato enquanto não estiverem disponíveis e comunicadas. Contas adicionais são restritas ao Plano Pro e aos limites exibidos no sistema.</div>
         ${pageFooter(4)}
       </section>
 
@@ -1910,7 +2125,8 @@ function renderAdminWorkspaceList() {
   const query = normalizeEmail(search?.value || "");
   const filtered = adminWorkspaces.filter((workspace) => {
     const businessName = workspace.businessName || workspace.registration?.empresa || "";
-    return normalizeEmail(`${workspace.ownerEmail || workspace.id} ${businessName}`).includes(query);
+    const teamSearch = (workspace.teamMembers || []).map((member) => `${member.name || ""} ${member.email || ""}`).join(" ");
+    return normalizeEmail(`${workspace.ownerEmail || workspace.id} ${businessName} ${teamSearch}`).includes(query);
   });
 
   if (!adminWorkspaces.length) {
@@ -1936,6 +2152,7 @@ function renderAdminWorkspaceList() {
     const accessStatus = workspace.accessStatus || ACCESS_STATUS.ACTIVE;
     const statusClass = accessStatus === ACCESS_STATUS.BLOCKED ? "is-blocked" : accessStatus === ACCESS_STATUS.PENDING ? "is-pending" : "is-active";
     const subscription = getWorkspaceSubscription(workspace);
+    const teamMembers = Array.isArray(workspace.teamMembers) ? workspace.teamMembers : [];
     return `
       <div class="admin-workspace-item">
         <button class="admin-workspace-open" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
@@ -1944,6 +2161,7 @@ function renderAdminWorkspaceList() {
             <small>${escapeHtml(email)}</small>
           </span>
           <span>${clientes} clientes | ${orcamentos} orçamentos</span>
+          <span>${teamMembers.length} colaborador(es)${teamMembers.length ? ` | ${teamMembers.map((member) => escapeHtml(member.email)).join(", ")}` : ""}</span>
         </button>
         <div class="admin-plan-row" data-plan-workspace="${escapeHtml(workspace.id)}">
           <label>Plano
@@ -2048,6 +2266,13 @@ async function deleteWorkspace(workspaceId, email) {
     `Deseja remover ${email || "este cadastro"} do painel admin? Essa ação apaga os dados salvos desse cadastro no Firestore.`
   );
   if (!confirmed) return;
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  const teamMembers = Array.isArray(workspace?.teamMembers) ? workspace.teamMembers : [];
+  for (let start = 0; start < teamMembers.length; start += MIGRATION_BATCH_SIZE) {
+    const batch = writeBatch(db);
+    teamMembers.slice(start, start + MIGRATION_BATCH_SIZE).forEach((member) => batch.delete(doc(db, "team_access", normalizeEmail(member.email))));
+    await batch.commit();
+  }
   for (const collectionName of Object.values(APP_COLLECTIONS)) {
     const records = await getDocs(collection(db, "workspaces", workspaceId, collectionName));
     for (let start = 0; start < records.docs.length; start += MIGRATION_BATCH_SIZE) {
@@ -2118,7 +2343,7 @@ function patchLocalStorageSync() {
   localStorage.setItem = (key, value) => {
     const previousValue = APP_KEYS.includes(key) ? localStorage.getItem(key) : null;
     originalSetItem(key, value);
-    if (!APP_KEYS.includes(key) || !cloudReady || syncingFromCloud) return;
+    if (!APP_KEYS.includes(key) || !cloudReady || syncingFromCloud || !canAccessStorageKey(key, true)) return;
     if (workspaceSchemaVersion >= APP_SCHEMA_VERSION) queueCollectionDiff(key, previousValue, value);
     scheduleCloudSave();
   };
@@ -2149,7 +2374,7 @@ function stopCollectionListeners() {
 function startCollectionListeners(uid) {
   stopCollectionListeners();
   if (workspaceSchemaVersion < APP_SCHEMA_VERSION) return;
-  APP_KEYS.forEach((key) => {
+  getAccessibleAppKeys().forEach((key) => {
     const unsubscribe = onSnapshot(
       collection(db, "workspaces", uid, getCollectionName(key)),
       (snapshot) => {
@@ -2193,12 +2418,29 @@ function setUserStatus(email) {
   const adminViewing = currentUser && isAdminUser(currentUser) && activeWorkspaceId;
   if (status) {
     const planName = activeWorkspaceSubscription ? getPlanName(activeWorkspaceSubscription) : "Essencial";
-    const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId} · Plano ${planName}` : `Plano ${planName} · Online`;
+    const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId} · Plano ${planName}` : activeTeamAccess ? `${activeTeamAccess.name || email} · Equipe · Plano ${planName}` : `Plano ${planName} · Online`;
     status.textContent = email ? detail : "";
   }
   if (adminBack) adminBack.hidden = !adminViewing;
   if (onboardingReplay) onboardingReplay.hidden = !email || adminViewing || !isTutorialAvailablePage();
   document.body.classList.toggle("firebase-logged-in", Boolean(email));
+}
+
+function applyTeamAccessToInterface() {
+  if (!activeTeamAccess) return;
+  const permissionByPage = { clientes: "clientes", veiculos: "clientes", orcamentos: "orcamentos", servicos: "orcamentos", "orcamento-print": "orcamentos", financeiro: "financeiro", "financeiro-print": "financeiro", dre: "dre", "dre-print": "dre", inspecao: "inspecoes", "meu-cadastro": "owner", contrato: "owner" };
+  const navPermission = { "clientes.html": "clientes", "orcamentos.html": "orcamentos", "financeiro.html": "financeiro", "dre.html": "dre", "meu-cadastro.html": "owner" };
+  document.querySelectorAll(".nav-menu a").forEach((link) => {
+    const target = (link.getAttribute("href") || "").split("?")[0];
+    const permission = navPermission[target];
+    if (permission && (permission === "owner" || !window.rrHasPermission(permission))) link.hidden = true;
+  });
+  document.querySelectorAll("a[href='clientes.html']").forEach((link) => { if (!window.rrHasPermission("clientes")) link.hidden = true; });
+  document.querySelectorAll("a[href='orcamentos.html']").forEach((link) => { if (!window.rrHasPermission("orcamentos")) link.hidden = true; });
+  const required = permissionByPage[document.body.dataset.page || ""];
+  if (required && (required === "owner" || !window.rrHasPermission(required))) {
+    window.location.replace("dashboard.html?acesso=negado");
+  }
 }
 
 function showAuthMessage(message) {

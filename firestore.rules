@@ -1,70 +1,87 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() {
-      return request.auth != null;
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { return isSignedIn() && request.auth.token.email in ['admin@rrreparacao.com.br']; }
+    function isWorkspaceOwner(id) { return isSignedIn() && request.auth.uid == id; }
+    function workspacePath(id) { return /databases/$(database)/documents/workspaces/$(id); }
+    function teamPath() { return /databases/$(database)/documents/team_access/$(request.auth.token.email); }
+    function isWorkspaceActive(id) {
+      return exists(workspacePath(id)) && (!('accessStatus' in get(workspacePath(id)).data) || get(workspacePath(id)).data.accessStatus == 'active');
+    }
+    function isPro(id) { return exists(workspacePath(id)) && get(workspacePath(id)).data.subscription.planId == 'pro'; }
+    function isActiveTeamMember(id) {
+      return isSignedIn() && request.auth.token.email != null && exists(teamPath())
+        && get(teamPath()).data.workspaceId == id && get(teamPath()).data.status == 'active'
+        && isWorkspaceActive(id) && isPro(id);
+    }
+    function hasPermission(id, permission) {
+      return isActiveTeamMember(id) && get(teamPath()).data.permissions[permission] == true;
+    }
+    function canReadClients(id) {
+      return hasPermission(id, 'clientes') || hasPermission(id, 'orcamentos') || hasPermission(id, 'aprovarOrcamentos')
+        || hasPermission(id, 'inspecoes') || hasPermission(id, 'dre');
+    }
+    function canReadBudgets(id) {
+      return hasPermission(id, 'orcamentos') || hasPermission(id, 'aprovarOrcamentos') || hasPermission(id, 'dre');
     }
 
-    function isAdmin() {
-      return isSignedIn()
-        && request.auth.token.email in ['admin@rrreparacao.com.br'];
+    match /workspaces/{id} {
+      allow read: if isWorkspaceOwner(id) || isAdmin() || isActiveTeamMember(id);
+      allow create: if isWorkspaceOwner(id) && request.resource.data.owner == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid && request.resource.data.accessStatus == 'pending';
+      allow update: if isWorkspaceOwner(id) && isWorkspaceActive(id)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['owner', 'ownerUid', 'accessStatus', 'subscription', 'subscriptionUpdatedAt'])
+        && (!('teamMembers' in request.resource.data) || request.resource.data.teamMembers.size() <= 4);
+      allow delete, create, update: if isAdmin();
     }
-
-    function isWorkspaceOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    match /workspaces/{id}/clientes/{docId} {
+      allow read: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || canReadClients(id);
+      allow write: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || hasPermission(id, 'clientes');
     }
-
-    function isWorkspaceActive(userId) {
-      let workspacePath = /databases/$(database)/documents/workspaces/$(userId);
-      return exists(workspacePath)
-        && (!('accessStatus' in get(workspacePath).data) || get(workspacePath).data.accessStatus == 'active');
+    match /workspaces/{id}/veiculos/{docId} {
+      allow read: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || canReadClients(id);
+      allow write: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || hasPermission(id, 'clientes');
     }
-
-    match /workspaces/{userId} {
-      allow read: if isWorkspaceOwner(userId) || isAdmin();
-
-      allow create: if isWorkspaceOwner(userId)
-        && request.resource.data.owner == request.auth.uid
-        && request.resource.data.ownerUid == request.auth.uid
-        && request.resource.data.accessStatus == 'pending';
-
-      allow update: if isWorkspaceOwner(userId)
-        && isWorkspaceActive(userId)
-        && !request.resource.data.diff(resource.data).affectedKeys()
-          .hasAny(['owner', 'ownerUid', 'accessStatus', 'subscription', 'subscriptionUpdatedAt']);
-
-      allow delete: if isAdmin();
-      allow create, update: if isAdmin();
+    match /workspaces/{id}/servicos/{docId} {
+      allow read, write: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || hasPermission(id, 'orcamentos');
     }
-
-    match /workspaces/{userId}/{subcollection}/{documentId} {
-      allow read, create, update, delete: if isAdmin()
-        || (isWorkspaceOwner(userId) && isWorkspaceActive(userId));
+    match /workspaces/{id}/orcamentos/{docId} {
+      allow read: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || canReadBudgets(id);
+      allow create, delete: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || hasPermission(id, 'orcamentos');
+      allow update: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id))
+        || (hasPermission(id, 'orcamentos') && (request.resource.data.status == resource.data.status || hasPermission(id, 'aprovarOrcamentos')))
+        || (hasPermission(id, 'aprovarOrcamentos')
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'decidedAt', 'pagamento', 'decidedBy', 'updatedBy', 'updatedAt']));
     }
-
+    match /workspaces/{id}/financeiro/{docId} {
+      allow read: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || hasPermission(id, 'financeiro') || hasPermission(id, 'dre');
+      allow write: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || hasPermission(id, 'financeiro');
+    }
+    match /workspaces/{id}/dre_config/{docId} {
+      allow read, write: if isAdmin() || (isWorkspaceOwner(id) && isWorkspaceActive(id)) || hasPermission(id, 'dre');
+    }
+    match /team_access/{email} {
+      allow read: if isAdmin() || (isSignedIn() && request.auth.token.email == email)
+        || (isSignedIn() && isWorkspaceOwner(resource.data.workspaceId));
+      allow create: if isAdmin() || (isSignedIn() && isWorkspaceOwner(request.resource.data.workspaceId)
+        && request.resource.data.email == email
+        && isWorkspaceActive(request.resource.data.workspaceId) && isPro(request.resource.data.workspaceId));
+      allow update: if isAdmin() || (isSignedIn() && isWorkspaceOwner(resource.data.workspaceId)
+        && request.resource.data.workspaceId == resource.data.workspaceId && request.resource.data.email == email);
+      allow delete: if isAdmin() || (isSignedIn() && isWorkspaceOwner(resource.data.workspaceId));
+    }
     match /public_orcamentos/{shareId} {
-      // O endereço aleatório funciona como link de visualização para o cliente.
       allow read: if true;
-
-      allow create: if isAdmin()
-        || (isSignedIn()
-          && request.resource.data.owner == request.auth.uid
-          && request.resource.data.ownerUid == request.auth.uid
-          && isWorkspaceActive(request.auth.uid));
-
-      allow update: if (isSignedIn() && resource.data.ownerUid == request.auth.uid)
-        || (request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['clientResponse', 'clientRespondedAt'])
-          && (!('clientResponse' in request.resource.data)
-            || request.resource.data.clientResponse in ['approved', 'rejected']));
-
-      allow delete: if isSignedIn()
-        && resource.data.ownerUid == request.auth.uid;
+      allow create: if isAdmin() || (isSignedIn()
+        && ((request.resource.data.owner == request.auth.uid && request.resource.data.ownerUid == request.auth.uid && isWorkspaceActive(request.auth.uid))
+          || (request.resource.data.ownerUid == request.resource.data.owner && hasPermission(request.resource.data.owner, 'orcamentos'))));
+      allow update: if (isSignedIn() && (resource.data.ownerUid == request.auth.uid || hasPermission(resource.data.owner, 'orcamentos')))
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clientResponse', 'clientRespondedAt'])
+          && (!('clientResponse' in request.resource.data) || request.resource.data.clientResponse in ['approved', 'rejected']));
+      allow delete: if isSignedIn() && (resource.data.ownerUid == request.auth.uid || hasPermission(resource.data.owner, 'orcamentos'));
     }
-
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    match /{document=**} { allow read, write: if false; }
   }
 }

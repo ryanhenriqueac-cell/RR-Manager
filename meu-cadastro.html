@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu cadastro | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=101">
+  <link rel="stylesheet" href="style.css?v=109">
 </head>
 <body data-page="meu-cadastro">
   <div class="app-shell">
@@ -186,10 +186,26 @@
           </div>
         </form>
       </section>
+
+      <section class="form-panel team-access-panel" id="teamAccessPanel">
+        <div class="panel-header"><div><p class="eyebrow">Plano Pro</p><h2>Equipe e acessos</h2></div><span id="teamAccessCount" class="team-access-count"></span></div>
+        <p>Convide até quatro colaboradores. Cada pessoa usa o próprio e-mail e acessa somente as áreas autorizadas.</p>
+        <form id="teamMemberForm" class="form-grid team-member-form">
+          <input id="teamMemberOriginalEmail" type="hidden">
+          <label>Nome do colaborador<input id="teamMemberName" required placeholder="Ex.: João da Silva"></label>
+          <label>E-mail de acesso<input id="teamMemberEmail" type="email" required placeholder="joao@email.com"></label>
+          <label>Perfil<select id="teamMemberRole"><option value="attendant">Atendente</option><option value="mechanic">Mecânico</option><option value="financial">Financeiro</option><option value="manager">Gerente</option><option value="custom">Personalizado</option></select></label>
+          <label>Status<select id="teamMemberStatus"><option value="active">Ativo</option><option value="blocked">Bloqueado</option></select></label>
+          <fieldset class="span-2 team-permissions"><legend>Áreas permitidas</legend><label><input type="checkbox" data-team-permission="clientes"> Clientes e veículos</label><label><input type="checkbox" data-team-permission="orcamentos"> Orçamentos</label><label><input type="checkbox" data-team-permission="aprovarOrcamentos"> Aprovar orçamentos</label><label><input type="checkbox" data-team-permission="financeiro"> Financeiro</label><label><input type="checkbox" data-team-permission="dre"> DRE</label><label><input type="checkbox" data-team-permission="inspecoes"> Inspeções</label></fieldset>
+          <div class="form-actions span-2"><button class="btn btn-primary" type="submit">Salvar colaborador</button><button class="btn btn-muted" type="button" id="teamMemberCancel">Cancelar edição</button></div>
+        </form>
+        <div id="teamAccessMessage" class="form-status"></div>
+        <div id="teamMemberList" class="team-member-list"></div>
+      </section>
     </main>
   </div>
-  <script src="script.js?v=89"></script>
+  <script src="script.js?v=103"></script>
   <script src="firebase-config.js?v=13"></script>
-<script type="module" src="firebase-sync.js?v=59"></script>
+<script type="module" src="firebase-sync.js?v=60"></script>
 </body>
 </html>

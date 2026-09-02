@@ -13,6 +13,8 @@ Sistema de gestão para oficinas, feito com HTML, CSS e JavaScript e sincronizad
 
 Cada empresa possui um workspace próprio no Firestore. A partir da versão 2, clientes, veículos, serviços, orçamentos e lançamentos financeiros são armazenados em documentos separados dentro de subcoleções. Isso evita o limite de 1 MiB do documento antigo e reduz conflitos entre computador e celular.
 
+No Plano Pro, o responsável pode vincular até quatro contas de colaboradores. Cada pessoa entra com o próprio e-mail, compartilha o workspace da oficina e recebe apenas as coleções e ações autorizadas. Os vínculos ficam em `team_access` e as regras do Firestore validam plano, status e permissão em cada operação.
+
 No primeiro acesso após a atualização, o sistema:
 
 1. copia os registros antigos para as novas subcoleções;
@@ -31,7 +33,7 @@ Se as novas regras ainda não estiverem publicadas, o sistema mantém temporaria
 5. Abra **Firestore Database > Regras**.
 6. Copie todo o conteúdo de `firestore.rules`, cole no editor e clique em **Publicar**.
 
-As regras garantem que cada usuário acesse apenas o workspace da própria empresa. O administrador definido nas regras pode consultar e gerenciar todos os workspaces.
+As regras garantem que cada usuário acesse apenas o workspace da própria empresa e, no caso dos colaboradores do Plano Pro, somente os módulos liberados. O administrador definido nas regras pode consultar e gerenciar todos os workspaces.
 
 ## Aceite jurídico
 
