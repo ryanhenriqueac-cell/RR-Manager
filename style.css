@@ -4817,6 +4817,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   background: var(--mp-bg);
   color: var(--mp-text);
   font-family: "Exo 2", Inter, "Segoe UI", Arial, sans-serif;
+  overflow-x: hidden;
 }
 
 .manager-pro-page * {
@@ -4995,6 +4996,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .manager-pro-showcase {
   position: relative;
   z-index: 2;
+  min-width: 0;
 }
 
 .manager-pro-kicker,
@@ -5731,6 +5733,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .manager-pro-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
     width: 100%;
   }
 
@@ -5771,7 +5774,9 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .manager-pro-hero h1 {
-    font-size: 54px;
+    max-width: 100%;
+    font-size: clamp(42px, 13vw, 50px);
+    overflow-wrap: normal;
   }
 
   .manager-pro-hero p,
@@ -5781,6 +5786,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     font-size: 16px;
   }
 
+  .manager-pro-hero-actions .manager-pro-cta,
   .manager-pro-hero-actions .manager-pro-wa,
   .manager-pro-hero-actions .manager-pro-ghost,
   .manager-pro-final .manager-pro-wa,
@@ -5797,6 +5803,8 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   }
 
   .manager-pro-showcase {
+    width: 100%;
+    max-width: 100%;
     min-height: 0;
     transform: none;
   }
@@ -5808,6 +5816,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     gap: 12px;
     min-height: 0;
     padding: 12px;
+    width: 100%;
   }
 
   .manager-pro-module,
@@ -5829,6 +5838,15 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 
   .module-head strong {
     font-size: 22px;
+  }
+
+  .module-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    font-size: 13px;
+  }
+
+  .module-row strong {
+    font-size: 12px;
   }
 
   .module-kanban {
@@ -6327,6 +6345,604 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .manager-pro-hero-price strong,
   .manager-pro-price-box strong {
     font-size: 52px;
+  }
+}
+
+/* Landing page: jornada, Plano Pro, equipe e comparação comercial */
+.manager-pro-journey {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  max-width: 1400px;
+  margin: 0 auto;
+  border: 1px solid var(--mp-border);
+  border-radius: 8px;
+  background: var(--mp-border);
+  overflow: hidden;
+  gap: 1px;
+}
+
+.manager-pro-journey > div {
+  position: relative;
+  min-height: 250px;
+  padding: 26px 22px;
+  background: var(--mp-surface);
+}
+
+.manager-pro-journey > div:not(:last-child)::after {
+  content: "›";
+  position: absolute;
+  z-index: 2;
+  top: 32px;
+  right: -9px;
+  color: var(--mp-blue);
+  font-size: 25px;
+}
+
+.manager-pro-journey strong {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(47, 124, 246, 0.4);
+  border-radius: 50%;
+  color: var(--mp-blue);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 24px;
+}
+
+.manager-pro-journey h3 {
+  margin: 38px 0 10px;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 27px;
+  letter-spacing: 1.2px;
+}
+
+.manager-pro-journey p {
+  margin: 0;
+  color: var(--mp-muted);
+  line-height: 1.55;
+}
+
+.manager-pro-pro-spotlight {
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(460px, 1.08fr);
+  align-items: center;
+  gap: 64px;
+  border-top: 1px solid rgba(47, 124, 246, .28);
+  border-bottom: 1px solid rgba(47, 124, 246, .28);
+  background:
+    radial-gradient(circle at 82% 40%, rgba(47, 124, 246, .17), transparent 36rem),
+    linear-gradient(180deg, #09192d, #071321);
+}
+
+.manager-pro-pro-copy,
+.manager-pro-dre-preview {
+  width: 100%;
+  max-width: 680px;
+}
+
+.manager-pro-pro-copy {
+  justify-self: end;
+}
+
+.manager-pro-pro-label,
+.manager-pro-plan-card header > span {
+  color: var(--mp-cyan);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.manager-pro-pro-copy h2 {
+  margin: 18px 0;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(44px, 5vw, 72px);
+  font-weight: 400;
+  line-height: .98;
+  letter-spacing: 2px;
+}
+
+.manager-pro-pro-copy > p {
+  margin: 0;
+  color: var(--mp-muted);
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.manager-pro-pro-benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 26px 0;
+}
+
+.manager-pro-pro-benefits div {
+  display: grid;
+  gap: 4px;
+  padding: 13px;
+  border: 1px solid rgba(47, 124, 246, .2);
+  border-radius: 6px;
+  background: rgba(47, 124, 246, .06);
+}
+
+.manager-pro-pro-benefits strong {
+  color: var(--mp-text);
+  font-size: 14px;
+}
+
+.manager-pro-pro-benefits span {
+  color: var(--mp-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.manager-pro-dre-preview {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid rgba(47, 124, 246, .36);
+  border-radius: 10px;
+  background: linear-gradient(155deg, rgba(20, 43, 70, .98), rgba(6, 15, 28, .98));
+  box-shadow: 0 32px 90px rgba(0, 0, 0, .42), 0 0 54px rgba(47, 124, 246, .14);
+}
+
+.manager-pro-dre-preview header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+.manager-pro-dre-preview header span {
+  color: var(--mp-gold);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.manager-pro-dre-preview header strong {
+  grid-column: 1;
+  font-size: 22px;
+}
+
+.manager-pro-dre-preview header em {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  padding: 6px 10px;
+  border: 1px solid rgba(47, 124, 246, .4);
+  border-radius: 999px;
+  color: var(--mp-cyan);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.manager-pro-dre-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.manager-pro-dre-metrics div {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .04);
+}
+
+.manager-pro-dre-metrics span,
+.manager-pro-dre-metrics small,
+.manager-pro-demo-note {
+  color: var(--mp-muted);
+  font-size: 11px;
+}
+
+.manager-pro-dre-metrics strong {
+  color: var(--mp-green);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.manager-pro-dre-chart {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  height: 190px;
+  padding: 22px 18px 28px;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 7px;
+  background: rgba(2, 8, 16, .46);
+}
+
+.manager-pro-dre-chart > span {
+  position: relative;
+  flex: 1;
+  min-height: 14px;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, var(--mp-cyan), var(--mp-blue));
+  box-shadow: 0 0 14px rgba(47, 124, 246, .18);
+}
+
+.manager-pro-dre-chart i {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  color: var(--mp-muted);
+  font-size: 9px;
+  font-style: normal;
+  transform: translateX(-50%);
+}
+
+.manager-pro-dre-area {
+  display: grid;
+  gap: 8px;
+}
+
+.manager-pro-dre-area p {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+  color: var(--mp-muted);
+  font-size: 13px;
+}
+
+.manager-pro-dre-area strong {
+  color: var(--mp-text);
+}
+
+.manager-pro-demo-note {
+  text-align: center;
+}
+
+.manager-pro-team-section {
+  background: var(--mp-bg2);
+  border-bottom: 1px solid var(--mp-border);
+}
+
+.manager-pro-team-grid,
+.manager-pro-plan-cards,
+.manager-pro-comparison,
+.manager-pro-scope-note {
+  max-width: 1160px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.manager-pro-team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.manager-pro-team-grid article {
+  min-height: 250px;
+  padding: 28px;
+  border: 1px solid var(--mp-border);
+  border-radius: 8px;
+  background: var(--mp-surface);
+}
+
+.manager-pro-team-grid article > strong {
+  color: var(--mp-blue);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.manager-pro-team-grid h3 {
+  margin: 24px 0 8px;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 30px;
+  letter-spacing: 1px;
+}
+
+.manager-pro-team-grid p {
+  color: var(--mp-muted);
+  line-height: 1.55;
+}
+
+.team-access {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 20px;
+}
+
+.team-access span {
+  padding: 5px 8px;
+  border: 1px solid rgba(34, 197, 94, .24);
+  border-radius: 3px;
+  color: #9adbb8;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.manager-pro-plans {
+  border-bottom: 1px solid var(--mp-border);
+  background: radial-gradient(circle at 50% 36%, rgba(47, 124, 246, .09), transparent 38rem), var(--mp-bg);
+}
+
+.manager-pro-plan-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 20px;
+}
+
+.manager-pro-plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  border: 1px solid var(--mp-border);
+  border-radius: 9px;
+  background: linear-gradient(160deg, rgba(18, 31, 51, .98), rgba(7, 15, 28, .98));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
+}
+
+.manager-pro-plan-card.essential {
+  border-top: 3px solid var(--mp-green);
+}
+
+.manager-pro-plan-card.pro {
+  border: 1px solid rgba(47, 124, 246, .44);
+  border-top: 3px solid var(--mp-blue);
+}
+
+.manager-pro-popular {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(47, 124, 246, .14);
+  color: var(--mp-cyan);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 1.2px;
+}
+
+.manager-pro-plan-card h3 {
+  margin: 14px 0 8px;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: 1.4px;
+}
+
+.manager-pro-plan-card header p,
+.manager-pro-plan-price p {
+  margin: 0;
+  color: var(--mp-muted);
+  line-height: 1.5;
+}
+
+.manager-pro-plan-price {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 7px;
+  background: rgba(3, 8, 15, .45);
+}
+
+.manager-pro-plan-price > small {
+  color: var(--mp-blue);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 1.6px;
+}
+
+.manager-pro-plan-price > strong {
+  color: var(--mp-green);
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 62px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.manager-pro-plan-price strong em {
+  color: #9adbb8;
+  font-family: "Exo 2", sans-serif;
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.manager-pro-plan-price > b {
+  color: var(--mp-text);
+  font-size: 13px;
+}
+
+.manager-pro-plan-price > .manager-pro-consult {
+  color: var(--mp-cyan);
+  font-size: 58px;
+}
+
+.manager-pro-plan-card ul {
+  display: grid;
+  gap: 11px;
+  padding: 0;
+  margin: 0 0 4px;
+  list-style: none;
+}
+
+.manager-pro-plan-card li {
+  color: var(--mp-muted);
+  line-height: 1.4;
+}
+
+.manager-pro-plan-card li::before {
+  content: "✓";
+  margin-right: 9px;
+  color: var(--mp-green);
+  font-weight: 900;
+}
+
+.manager-pro-plan-card > a {
+  width: 100%;
+  margin-top: auto;
+}
+
+.manager-pro-comparison {
+  margin-top: 32px;
+  border: 1px solid var(--mp-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 170px 170px;
+  min-width: 600px;
+  border-bottom: 1px solid var(--mp-border);
+}
+
+.comparison-row:last-child {
+  border-bottom: 0;
+}
+
+.comparison-row > * {
+  padding: 15px 18px;
+  border-right: 1px solid var(--mp-border);
+}
+
+.comparison-row > *:last-child {
+  border-right: 0;
+}
+
+.comparison-row span {
+  color: var(--mp-muted);
+}
+
+.comparison-row b {
+  color: var(--mp-green);
+  text-align: center;
+}
+
+.comparison-row i {
+  color: var(--mp-muted);
+  font-style: normal;
+  text-align: center;
+}
+
+.comparison-head {
+  background: rgba(47, 124, 246, .11);
+  color: var(--mp-text);
+}
+
+.comparison-head strong:not(:first-child) {
+  color: var(--mp-blue);
+  text-align: center;
+}
+
+.manager-pro-scope-note {
+  margin-top: 18px;
+  color: var(--mp-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 1180px) {
+  .manager-pro-journey {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .manager-pro-journey > div:not(:last-child)::after {
+    display: none;
+  }
+}
+
+@media (max-width: 1060px) {
+  .manager-pro-pro-spotlight {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-pro-pro-copy,
+  .manager-pro-dre-preview {
+    max-width: 760px;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .manager-pro-journey,
+  .manager-pro-team-grid,
+  .manager-pro-plan-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-pro-journey > div {
+    min-height: auto;
+  }
+
+  .manager-pro-pro-spotlight {
+    gap: 38px;
+  }
+
+  .manager-pro-pro-benefits,
+  .manager-pro-dre-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-pro-dre-preview,
+  .manager-pro-plan-card {
+    padding: 20px;
+  }
+
+  .manager-pro-dre-chart {
+    gap: 7px;
+    height: 160px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .manager-pro-popular {
+    position: static;
+    align-self: flex-start;
+  }
+
+  .manager-pro-comparison {
+    overflow-x: auto;
+  }
+
+  .manager-pro-plan-price > strong,
+  .manager-pro-plan-price > .manager-pro-consult {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 420px) {
+  .manager-pro-actions .manager-pro-link-btn,
+  .manager-pro-actions .manager-pro-cta {
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 9px;
+    letter-spacing: .6px;
+  }
+
+  .manager-pro-hero {
+    padding-top: 142px;
+  }
+
+  .manager-pro-hero h1 {
+    font-size: 43px;
+  }
+
+  .manager-pro-badges span {
+    font-size: 9px;
+    letter-spacing: .8px;
   }
 }
 
