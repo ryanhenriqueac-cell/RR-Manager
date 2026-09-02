@@ -1745,8 +1745,8 @@ function getOrcamentoCustomerSignature(orcamento) {
 
 function getRecoverableApprovalDate(orcamento) {
   const historicalDates = (Array.isArray(orcamento?.historicoVersoes) ? orcamento.historicoVersoes : [])
-    .filter((version) => version.status === "Aprovado" && version.decidedAt)
-    .map((version) => version.decidedAt)
+    .filter((version) => version.status === "Aprovado" && (version.decidedAt || version.data))
+    .map((version) => version.decidedAt || version.data)
     .filter(Boolean)
     .sort();
   if (!historicalDates.length) return "";
