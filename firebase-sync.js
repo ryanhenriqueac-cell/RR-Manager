@@ -126,6 +126,7 @@ let collectionUnsubscribers = [];
 const pendingCollectionChanges = new Map();
 const confirmedCollectionState = new Map();
 let adminWorkspaces = [];
+let adminBillingFilter = "all";
 let activeWorkspaceSubscription = null;
 let activeTeamAccess = null;
 let activeWorkspaceData = null;
@@ -419,6 +420,8 @@ function buildAuthShell() {
         </div>
       </div>
       <input id="firebaseAdminSearch" class="admin-search" type="search" placeholder="Buscar por empresa, responsável ou colaborador" autocomplete="off">
+      <div id="firebaseBillingSummary" class="admin-billing-summary"></div>
+      <div id="firebaseBillingFilters" class="admin-billing-filters" aria-label="Filtros de cobranÃ§a"></div>
       <div id="firebaseAdminMessage" class="admin-message"></div>
       <div id="firebaseAdminList" class="admin-workspace-list"></div>
       <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
@@ -2148,6 +2151,141 @@ function getTeamCountLabel(count) {
   return `${count} ${count === 1 ? "colaborador" : "colaboradores"}`;
 }
 
+function getLocalDateISO(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseLocalDate(value) {
+  const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatBillingDate(value) {
+  const date = parseLocalDate(value);
+  return date ? date.toLocaleDateString("pt-BR") : "Não informada";
+}
+
+function formatBillingMoney(value) {
+  return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function addBillingPeriod(value, cycle) {
+  const source = parseLocalDate(value) || new Date();
+  const day = source.getDate();
+  const targetYear = source.getFullYear() + (cycle === "annual" ? 1 : 0);
+  const targetMonth = source.getMonth() + (cycle === "annual" ? 0 : 1);
+  const lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
+  return getLocalDateISO(new Date(targetYear, targetMonth, Math.min(day, lastDay)));
+}
+
+function normalizeWorkspaceBilling(workspace = {}) {
+  const subscription = getWorkspaceSubscription(workspace);
+  const source = workspace.billing || {};
+  const expectedAmount = Number(source.expectedAmount ?? subscription.agreedPrice);
+  return {
+    subscriptionStart: String(source.subscriptionStart || ""),
+    lastPaymentDate: String(source.lastPaymentDate || ""),
+    nextDueDate: String(source.nextDueDate || ""),
+    expectedAmount: Number.isFinite(expectedAmount) ? expectedAmount : subscription.agreedPrice,
+    preferredMethod: ["pix", "card", "boleto", "other"].includes(source.preferredMethod) ? source.preferredMethod : "pix",
+    statusOverride: ["exempt", "canceled"].includes(source.statusOverride) ? source.statusOverride : "",
+    adminNote: String(source.adminNote || ""),
+    payments: Array.isArray(source.payments) ? source.payments.slice(0, 120) : []
+  };
+}
+
+function getBillingStatus(workspace) {
+  const billing = normalizeWorkspaceBilling(workspace);
+  if (billing.statusOverride === "canceled") return { key: "canceled", label: "Cancelado", detail: "Cobrança encerrada", days: 0 };
+  if (billing.statusOverride === "exempt") return { key: "exempt", label: "Cortesia", detail: "Isento de cobrança", days: 0 };
+  const today = parseLocalDate(getLocalDateISO());
+  const due = parseLocalDate(billing.nextDueDate);
+  if (!due) {
+    const start = parseLocalDate(billing.subscriptionStart);
+    if (start) {
+      const trialEnd = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 30);
+      const days = Math.ceil((trialEnd - today) / 86400000);
+      if (days >= 0) return { key: "trial", label: "Teste grátis", detail: `${days} ${days === 1 ? "dia restante" : "dias restantes"}`, days };
+      return { key: "overdue", label: "Teste expirado", detail: `${Math.abs(days)} ${days === -1 ? "dia após o teste" : "dias após o teste"}`, days: Math.abs(days) };
+    }
+    return { key: "unconfigured", label: "Configurar cobrança", detail: "Informe o próximo vencimento", days: 0 };
+  }
+  const difference = Math.round((due - today) / 86400000);
+  if (difference < 0) return { key: "overdue", label: "Em atraso", detail: `${Math.abs(difference)} ${difference === -1 ? "dia de atraso" : "dias de atraso"}`, days: Math.abs(difference) };
+  if (difference === 0) return { key: "today", label: "Vence hoje", detail: `Vencimento em ${formatBillingDate(billing.nextDueDate)}`, days: 0 };
+  if (difference <= 5) return { key: "soon", label: "Vence em breve", detail: `${difference} ${difference === 1 ? "dia" : "dias"}`, days: difference };
+  return { key: "current", label: "Em dia", detail: `Próximo: ${formatBillingDate(billing.nextDueDate)}`, days: difference };
+}
+
+function billingMatchesFilter(workspace) {
+  const status = getBillingStatus(workspace).key;
+  if (adminBillingFilter === "all") return true;
+  if (adminBillingFilter === "blocked") return (workspace.accessStatus || ACCESS_STATUS.ACTIVE) === ACCESS_STATUS.BLOCKED;
+  return status === adminBillingFilter;
+}
+
+function renderAdminBillingOverview() {
+  const summary = document.getElementById("firebaseBillingSummary");
+  const filters = document.getElementById("firebaseBillingFilters");
+  if (!summary || !filters) return;
+  const counts = { current: 0, soon: 0, today: 0, overdue: 0, trial: 0, blocked: 0 };
+  let pendingAmount = 0;
+  adminWorkspaces.forEach((workspace) => {
+    const status = getBillingStatus(workspace).key;
+    if (counts[status] !== undefined) counts[status] += 1;
+    if (status === "overdue" || status === "today") pendingAmount += normalizeWorkspaceBilling(workspace).expectedAmount;
+    if ((workspace.accessStatus || ACCESS_STATUS.ACTIVE) === ACCESS_STATUS.BLOCKED) counts.blocked += 1;
+  });
+  summary.innerHTML = `
+    <article><span>Em dia</span><strong>${counts.current}</strong></article>
+    <article><span>Vencem em breve</span><strong>${counts.soon}</strong></article>
+    <article><span>Vencem hoje</span><strong>${counts.today}</strong></article>
+    <article class="is-danger"><span>Em atraso</span><strong>${counts.overdue}</strong></article>
+    <article class="is-money"><span>Pendente</span><strong>${formatBillingMoney(pendingAmount)}</strong></article>`;
+  const options = [["all", "Todos", adminWorkspaces.length], ["current", "Em dia", counts.current], ["soon", "Próximos", counts.soon], ["today", "Hoje", counts.today], ["overdue", "Atrasados", counts.overdue], ["trial", "Teste grátis", counts.trial], ["blocked", "Bloqueados", counts.blocked]];
+  filters.innerHTML = options.map(([key, label, count]) => `<button type="button" class="${adminBillingFilter === key ? "is-active" : ""}" data-billing-filter="${key}">${label} <strong>${count}</strong></button>`).join("");
+  filters.querySelectorAll("[data-billing-filter]").forEach((button) => button.addEventListener("click", () => {
+    adminBillingFilter = button.dataset.billingFilter;
+    renderAdminWorkspaceList();
+  }));
+}
+
+function getBillingMarkup(workspace) {
+  const id = escapeHtml(workspace.id);
+  const billing = normalizeWorkspaceBilling(workspace);
+  const status = getBillingStatus(workspace);
+  const methods = { pix: "Pix", card: "Cartão", boleto: "Boleto", other: "Outro" };
+  const history = billing.payments.map((payment) => `<tr><td>${formatBillingDate(payment.paidAt)}</td><td>${formatBillingMoney(payment.amount)}</td><td>${escapeHtml(methods[payment.method] || "Outro")}</td><td>${escapeHtml(payment.reference || "-")}</td><td>${escapeHtml(payment.note || "-")}</td></tr>`).join("");
+  return `
+    <section class="admin-billing" data-billing-workspace="${id}">
+      <div class="admin-billing-head">
+        <div><span class="billing-status is-${status.key}">${status.label}</span><small>${status.detail}</small></div>
+        <div><span>Valor previsto</span><strong>${formatBillingMoney(billing.expectedAmount)}</strong></div>
+        <div><span>Último pagamento</span><strong>${formatBillingDate(billing.lastPaymentDate)}</strong></div>
+        <div><span>Próximo vencimento</span><strong>${formatBillingDate(billing.nextDueDate)}</strong></div>
+      </div>
+      <button class="admin-billing-toggle" type="button" data-billing-toggle="${id}">Gerenciar cobrança e pagamentos</button>
+      <div class="admin-billing-panel" data-billing-panel="${id}" hidden>
+        <div class="admin-billing-form">
+          <label>Início da assinatura<input type="date" data-billing-field="subscriptionStart" value="${escapeHtml(billing.subscriptionStart)}"></label>
+          <label>Próximo vencimento<input type="date" data-billing-field="nextDueDate" value="${escapeHtml(billing.nextDueDate)}"></label>
+          <label>Valor previsto<input type="number" min="0" step="0.01" data-billing-field="expectedAmount" value="${billing.expectedAmount.toFixed(2)}"></label>
+          <label>Forma preferencial<select data-billing-field="preferredMethod">${Object.entries(methods).map(([key, label]) => `<option value="${key}"${billing.preferredMethod === key ? " selected" : ""}>${label}</option>`).join("")}</select></label>
+          <label>Situação manual<select data-billing-field="statusOverride"><option value="">Automática pela data</option><option value="exempt"${billing.statusOverride === "exempt" ? " selected" : ""}>Cortesia / isento</option><option value="canceled"${billing.statusOverride === "canceled" ? " selected" : ""}>Cancelado</option></select></label>
+          <label class="admin-billing-note">Observação administrativa<textarea rows="2" data-billing-field="adminNote" placeholder="Acordos, descontos ou lembretes">${escapeHtml(billing.adminNote)}</textarea></label>
+        </div>
+        <div class="actions"><button class="btn btn-ghost" type="button" data-save-billing="${id}">Salvar cobrança</button><button class="btn btn-primary" type="button" data-register-payment="${id}">Registrar pagamento</button><button class="btn btn-whatsapp" type="button" data-charge-whatsapp="${id}">Cobrar pelo WhatsApp</button><button class="btn btn-muted" type="button" data-billing-history-toggle="${id}">Histórico (${billing.payments.length})</button></div>
+        <div class="admin-payment-history" data-billing-history="${id}" hidden>${history ? `<div class="table-wrap"><table><thead><tr><th>Recebido</th><th>Valor</th><th>Forma</th><th>Referência</th><th>Observação</th></tr></thead><tbody>${history}</tbody></table></div>` : `<div class="admin-empty">Nenhum pagamento registrado.</div>`}</div>
+        <span class="form-status" data-billing-message></span>
+      </div>
+    </section>`;
+}
+
 function getAdminTeamMarkup(workspace, subscription, members) {
   const id = escapeHtml(workspace.id);
   const permissionLabels = { clientes: "Clientes", orcamentos: "Orçamentos", aprovarOrcamentos: "Aprovar", financeiro: "Financeiro", dre: "DRE", inspecoes: "Inspeções" };
@@ -2175,10 +2313,11 @@ function renderAdminWorkspaceList() {
   if (!list || !message) return;
 
   const query = normalizeEmail(search?.value || "");
+  renderAdminBillingOverview();
   const filtered = adminWorkspaces.filter((workspace) => {
     const businessName = workspace.businessName || workspace.registration?.empresa || "";
     const teamSearch = (workspace.teamMembers || []).map((member) => `${member.name || ""} ${member.email || ""}`).join(" ");
-    return normalizeEmail(`${workspace.ownerEmail || workspace.id} ${businessName} ${teamSearch}`).includes(query);
+    return normalizeEmail(`${workspace.ownerEmail || workspace.id} ${businessName} ${teamSearch}`).includes(query) && billingMatchesFilter(workspace);
   });
 
   if (!adminWorkspaces.length) {
@@ -2192,7 +2331,7 @@ function renderAdminWorkspaceList() {
     : `${adminWorkspaces.length} cadastro(s) encontrado(s).`;
 
   if (!filtered.length) {
-    list.innerHTML = `<div class="admin-empty">Nenhum cadastro encontrado para essa busca.</div>`;
+    list.innerHTML = `<div class="admin-empty">Nenhum cadastro encontrado com a busca e o filtro selecionados.</div>`;
     return;
   }
 
@@ -2233,6 +2372,7 @@ function renderAdminWorkspaceList() {
           </label>
           <button class="btn btn-ghost" type="button" data-save-plan="${escapeHtml(workspace.id)}">Salvar plano</button>
         </div>
+        ${getBillingMarkup(workspace)}
         ${getAdminTeamMarkup(workspace, subscription, teamMembers)}
         <div class="admin-access-row">
           <span class="admin-access-status ${statusClass}">${getAccessStatusText(accessStatus)}</span>
@@ -2274,7 +2414,117 @@ function renderAdminWorkspaceList() {
   list.querySelectorAll("[data-delete-workspace]").forEach((button) => {
     button.addEventListener("click", () => deleteWorkspace(button.dataset.deleteWorkspace, button.dataset.workspaceEmail));
   });
+  bindAdminBillingEvents(list);
   bindAdminTeamEvents(list);
+}
+
+function bindAdminBillingEvents(list) {
+  list.querySelectorAll("[data-billing-toggle]").forEach((button) => button.addEventListener("click", () => {
+    const panel = list.querySelector(`[data-billing-panel="${button.dataset.billingToggle}"]`);
+    if (panel) panel.hidden = !panel.hidden;
+  }));
+  list.querySelectorAll("[data-billing-history-toggle]").forEach((button) => button.addEventListener("click", () => {
+    const history = list.querySelector(`[data-billing-history="${button.dataset.billingHistoryToggle}"]`);
+    if (history) history.hidden = !history.hidden;
+  }));
+  list.querySelectorAll("[data-save-billing]").forEach((button) => button.addEventListener("click", () => saveWorkspaceBilling(button.dataset.saveBilling)));
+  list.querySelectorAll("[data-register-payment]").forEach((button) => button.addEventListener("click", () => showRegisterPaymentModal(button.dataset.registerPayment)));
+  list.querySelectorAll("[data-charge-whatsapp]").forEach((button) => button.addEventListener("click", () => openBillingWhatsApp(button.dataset.chargeWhatsapp)));
+}
+
+async function saveWorkspaceBilling(workspaceId) {
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  const panel = document.querySelector(`[data-billing-panel="${workspaceId}"]`);
+  const message = panel?.querySelector("[data-billing-message]");
+  if (!workspace || !panel) return;
+  const expectedAmount = Number(panel.querySelector("[data-billing-field='expectedAmount']")?.value);
+  if (!Number.isFinite(expectedAmount) || expectedAmount < 0) {
+    if (message) message.textContent = "Informe um valor previsto válido.";
+    return;
+  }
+  const billing = {
+    ...normalizeWorkspaceBilling(workspace),
+    subscriptionStart: panel.querySelector("[data-billing-field='subscriptionStart']")?.value || "",
+    nextDueDate: panel.querySelector("[data-billing-field='nextDueDate']")?.value || "",
+    expectedAmount,
+    preferredMethod: panel.querySelector("[data-billing-field='preferredMethod']")?.value || "pix",
+    statusOverride: panel.querySelector("[data-billing-field='statusOverride']")?.value || "",
+    adminNote: panel.querySelector("[data-billing-field='adminNote']")?.value.trim() || "",
+    updatedAtClient: new Date().toISOString(),
+    updatedBy: currentUser.email || ""
+  };
+  if (message) message.textContent = "Salvando...";
+  try {
+    await setDoc(doc(db, "workspaces", workspaceId), { billing, billingUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+    workspace.billing = billing;
+    renderAdminWorkspaceList();
+  } catch (error) {
+    if (message) message.textContent = firebaseError(error);
+  }
+}
+
+function showRegisterPaymentModal(workspaceId) {
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  if (!workspace) return;
+  const billing = normalizeWorkspaceBilling(workspace);
+  const subscription = getWorkspaceSubscription(workspace);
+  const businessName = workspace.businessName || workspace.registration?.empresa || workspace.ownerEmail || "Oficina";
+  const overlay = document.createElement("div");
+  overlay.className = "auth-modal-overlay";
+  overlay.innerHTML = `
+    <form class="auth-modal admin-payment-modal">
+      <h2>Registrar pagamento</h2><p>${escapeHtml(businessName)}</p>
+      <div class="admin-payment-form">
+        <label>Data recebida<input name="paidAt" type="date" value="${getLocalDateISO()}" required></label>
+        <label>Valor recebido<input name="amount" type="number" min="0" step="0.01" value="${billing.expectedAmount.toFixed(2)}" required></label>
+        <label>Forma<select name="method"><option value="pix"${billing.preferredMethod === "pix" ? " selected" : ""}>Pix</option><option value="card"${billing.preferredMethod === "card" ? " selected" : ""}>Cartão</option><option value="boleto"${billing.preferredMethod === "boleto" ? " selected" : ""}>Boleto</option><option value="other"${billing.preferredMethod === "other" ? " selected" : ""}>Outro</option></select></label>
+        <label>Referência<input name="reference" value="${subscription.billingCycle === "annual" ? "Anuidade" : "Mensalidade"}" maxlength="80"></label>
+        <label class="admin-payment-note">Observação<textarea name="note" rows="2" maxlength="240"></textarea></label>
+        <label class="admin-payment-check"><input name="advanceDue" type="checkbox" checked> Avançar o vencimento automaticamente (${subscription.billingCycle === "annual" ? "1 ano" : "1 mês"})</label>
+      </div>
+      <span class="form-status" data-payment-message></span>
+      <div class="auth-modal-actions"><button class="btn btn-muted" type="button" data-payment-cancel>Cancelar</button><button class="btn btn-primary" type="submit">Confirmar pagamento</button></div>
+    </form>`;
+  const form = overlay.querySelector("form");
+  overlay.querySelector("[data-payment-cancel]").addEventListener("click", () => overlay.remove());
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const amount = Number(data.get("amount"));
+    const paidAt = String(data.get("paidAt") || "");
+    const message = form.querySelector("[data-payment-message]");
+    if (!parseLocalDate(paidAt) || !Number.isFinite(amount) || amount < 0) { message.textContent = "Confira a data e o valor recebido."; return; }
+    const previousDueDate = billing.nextDueDate;
+    const nextDueDate = data.get("advanceDue") ? addBillingPeriod(previousDueDate || paidAt, subscription.billingCycle) : previousDueDate;
+    const payment = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, paidAt, amount, method: String(data.get("method") || "other"), reference: String(data.get("reference") || "").trim(), note: String(data.get("note") || "").trim(), previousDueDate, nextDueDate, recordedAtClient: new Date().toISOString(), recordedBy: currentUser.email || "" };
+    const savedBilling = { ...billing, lastPaymentDate: paidAt, nextDueDate, payments: [payment, ...billing.payments].slice(0, 120), updatedAtClient: new Date().toISOString(), updatedBy: currentUser.email || "" };
+    message.textContent = "Registrando...";
+    try {
+      await setDoc(doc(db, "workspaces", workspaceId), { billing: savedBilling, billingUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+      workspace.billing = savedBilling;
+      overlay.remove();
+      renderAdminWorkspaceList();
+    } catch (error) { message.textContent = firebaseError(error); }
+  });
+  document.body.appendChild(overlay);
+}
+
+async function openBillingWhatsApp(workspaceId) {
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  if (!workspace) return;
+  let phone = String(workspace.registration?.telefone || "").replace(/\D/g, "");
+  if (phone.length === 10 || phone.length === 11) phone = `55${phone}`;
+  if (phone.length < 12) {
+    await showAuthStatusModal("WhatsApp não cadastrado", "Cadastre um telefone/WhatsApp válido nos dados desta oficina antes de gerar a cobrança.");
+    return;
+  }
+  const billing = normalizeWorkspaceBilling(workspace);
+  const status = getBillingStatus(workspace);
+  const businessName = workspace.businessName || workspace.registration?.empresa || "sua oficina";
+  const dueText = billing.nextDueDate ? ` com vencimento em ${formatBillingDate(billing.nextDueDate)}` : "";
+  const situation = status.key === "overdue" ? ` está em atraso há ${status.days} ${status.days === 1 ? "dia" : "dias"}` : status.key === "today" ? " vence hoje" : " está próxima do vencimento";
+  const message = `Olá! Tudo bem? A assinatura do RR Manager de ${businessName}, no valor de ${formatBillingMoney(billing.expectedAmount)}${dueText},${situation}. Se o pagamento já foi realizado, por favor desconsidere esta mensagem. Qualquer dúvida, estamos à disposição.`;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
 }
 
 function applyAdminTeamRole(form) {
@@ -2428,12 +2678,15 @@ async function updateWorkspacePlan(workspaceId) {
     updatedAtClient: revision,
     updatedBy: currentUser.email || ""
   });
+  const billing = { ...normalizeWorkspaceBilling(previous), expectedAmount: agreedPrice, updatedAtClient: revision, updatedBy: currentUser.email || "" };
   await setDoc(doc(db, "workspaces", workspaceId), {
     subscription,
+    billing,
     subscriptionUpdatedAt: serverTimestamp(),
+    billingUpdatedAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   }, { merge: true });
-  if (previous) previous.subscription = subscription;
+  if (previous) { previous.subscription = subscription; previous.billing = billing; }
   renderAdminWorkspaceList();
 }
 

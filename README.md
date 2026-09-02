@@ -48,6 +48,12 @@ Se as novas regras ainda não estiverem publicadas, o sistema mantém temporaria
 
 As regras garantem que cada usuário acesse apenas o workspace da própria empresa e, no caso dos colaboradores do Plano Pro, somente os módulos liberados. O administrador definido nas regras pode consultar e gerenciar todos os workspaces.
 
+## Controle administrativo de cobranças
+
+O painel administrativo mantém, em cada oficina, o início da assinatura, o último pagamento, o próximo vencimento, o valor esperado, a forma de pagamento, observações e o histórico de recebimentos. A situação é calculada pelas datas (teste grátis, em dia, próximo do vencimento, vence hoje ou em atraso), com opções manuais para cortesia e cancelamento.
+
+Ao registrar um recebimento, o vencimento pode avançar automaticamente em um mês ou um ano conforme o ciclo contratado. O painel também oferece resumo, filtros e uma mensagem de cobrança pronta para revisão no WhatsApp. A situação financeira não bloqueia a conta automaticamente: o estado da cobrança e a liberação de acesso são controles independentes. Os campos `billing` e `billingUpdatedAt` são reservados ao administrador pelas regras do Firestore.
+
 ## Aceite jurídico
 
 As versões vigentes ficam em `LEGAL_TERMS_VERSION` e `LEGAL_PRIVACY_VERSION`, dentro de `firebase-sync.js`. Quando os textos forem alterados de forma relevante, aumente a versão correspondente para solicitar um novo aceite no próximo login.

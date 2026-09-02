@@ -31,7 +31,7 @@ service cloud.firestore {
       allow create: if isWorkspaceOwner(id) && request.resource.data.owner == request.auth.uid
         && request.resource.data.ownerUid == request.auth.uid && request.resource.data.accessStatus == 'pending';
       allow update: if isWorkspaceOwner(id) && isWorkspaceActive(id)
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['owner', 'ownerUid', 'accessStatus', 'subscription', 'subscriptionUpdatedAt'])
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['owner', 'ownerUid', 'accessStatus', 'subscription', 'subscriptionUpdatedAt', 'billing', 'billingUpdatedAt'])
         && (!('teamMembers' in request.resource.data) || request.resource.data.teamMembers.size() <= 4);
       allow delete, create, update: if isAdmin();
     }
