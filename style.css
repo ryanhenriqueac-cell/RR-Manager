@@ -1500,6 +1500,28 @@ body[data-page="inspecao"] #firebaseLandingReturn {
   font-weight: 900;
 }
 
+.admin-team-row { display: grid; gap: 10px; }
+.admin-team-row > button { justify-self: start; }
+.admin-team-panel { display: grid; gap: 14px; padding: 14px; border: 1px solid rgba(87,184,255,.22); border-radius: 8px; background: rgba(5,18,33,.58); }
+.admin-team-panel .panel-header > div { display: grid; gap: 4px; }
+.admin-team-panel .panel-header small { color: var(--muted); }
+.admin-team-form { display: grid; grid-template-columns: repeat(4,minmax(120px,1fr)); gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
+.admin-team-form > label { display: grid; gap: 5px; color: var(--muted); font-size: 12px; font-weight: 900; }
+.admin-team-form .team-permissions,.admin-team-form .actions,.admin-team-form .form-status { grid-column: 1/-1; }
+.admin-team-list { display: grid; gap: 10px; }
+.admin-team-member { display: grid; grid-template-columns: minmax(180px,1fr) minmax(180px,1fr) auto; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.035); }
+.admin-team-member > div:first-child { display: grid; gap: 3px; }
+.admin-team-member > div:first-child span,.admin-team-member > div:first-child small { color: var(--muted); }
+.admin-team-member .actions { justify-content: flex-end; }
+
+@media (max-width: 920px) {
+  .admin-team-form { grid-template-columns: 1fr 1fr; }
+  .admin-team-member { grid-template-columns: 1fr; }
+  .admin-team-member .actions { justify-content: flex-start; }
+}
+
+@media (max-width: 560px) { .admin-team-form { grid-template-columns: 1fr; } }
+
 .nav-menu a small { margin-left: auto; color: var(--gold-2); font-size: 9px; letter-spacing: .08em; }
 .dre-upgrade { max-width: 780px; margin: 40px auto; padding: 42px; text-align: center; background: radial-gradient(circle at top, rgba(241,199,91,.14), transparent 55%), var(--panel); }
 .dre-upgrade h2 { margin: 12px 0; font-size: clamp(28px, 4vw, 44px); }

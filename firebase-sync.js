@@ -2118,6 +2118,30 @@ function compareAdminWorkspacesByName(a, b) {
   });
 }
 
+function getTeamCountLabel(count) {
+  return `${count} ${count === 1 ? "colaborador" : "colaboradores"}`;
+}
+
+function getAdminTeamMarkup(workspace, subscription, members) {
+  const id = escapeHtml(workspace.id);
+  const permissionLabels = { clientes: "Clientes", orcamentos: "Orçamentos", aprovarOrcamentos: "Aprovar", financeiro: "Financeiro", dre: "DRE", inspecoes: "Inspeções" };
+  const cards = members.map((member) => `
+    <article class="admin-team-member">
+      <div><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.email)}</span><small>${escapeHtml(member.roleName || TEAM_ROLE_PROFILES[member.role]?.name || "Personalizado")} · ${member.status === "blocked" ? "Bloqueado" : "Ativo"}</small></div>
+      <div class="team-member-permission-list">${TEAM_PERMISSION_KEYS.filter((key) => key !== "dashboard" && member.permissions?.[key]).map((key) => `<span>${permissionLabels[key]}</span>`).join("") || "<span>Somente dashboard</span>"}</div>
+      <div class="actions"><button class="btn btn-muted" type="button" data-admin-team-copy="${escapeHtml(member.email)}">Copiar convite</button><button class="btn btn-ghost" type="button" data-admin-team-edit="${escapeHtml(member.email)}" data-workspace-id="${id}">Editar</button><button class="btn ${member.status === "blocked" ? "btn-primary" : "btn-danger"}" type="button" data-admin-team-status="${escapeHtml(member.email)}" data-workspace-id="${id}" data-next-status="${member.status === "blocked" ? "active" : "blocked"}">${member.status === "blocked" ? "Desbloquear" : "Bloquear"}</button><button class="btn btn-danger" type="button" data-admin-team-remove="${escapeHtml(member.email)}" data-workspace-id="${id}">Remover</button></div>
+    </article>`).join("") || `<div class="admin-empty">Nenhum colaborador cadastrado.</div>`;
+  return `
+    <div class="admin-team-row">
+      <button class="btn btn-muted" type="button" data-admin-team-toggle="${id}">Gerenciar equipe (${getTeamCountLabel(members.length)})</button>
+      <div class="admin-team-panel" data-admin-team-panel="${id}" hidden>
+        <div class="panel-header"><div><strong>Equipe da oficina</strong><small>Até quatro contas adicionais no Plano Pro.</small></div></div>
+        ${subscription.planId === "pro" ? `<form class="admin-team-form" data-admin-team-form="${id}"><input type="hidden" data-admin-team-field="originalEmail"><label>Nome<input data-admin-team-field="name" required></label><label>E-mail<input data-admin-team-field="email" type="email" required></label><label>Perfil<select data-admin-team-field="role"><option value="attendant">Atendente</option><option value="mechanic">Mecânico</option><option value="financial">Financeiro</option><option value="manager">Gerente</option><option value="custom">Personalizado</option></select></label><label>Status<select data-admin-team-field="status"><option value="active">Ativo</option><option value="blocked">Bloqueado</option></select></label><fieldset class="team-permissions"><legend>Áreas permitidas</legend>${Object.entries(permissionLabels).map(([key, label]) => `<label><input type="checkbox" data-admin-team-permission="${key}"> ${label}</label>`).join("")}</fieldset><div class="actions"><button class="btn btn-primary" type="submit">Salvar colaborador</button><button class="btn btn-muted" type="button" data-admin-team-cancel>Cancelar edição</button></div><span class="form-status" data-admin-team-message></span></form>` : `<div class="team-pro-required"><strong>Plano Essencial</strong><span>Altere esta oficina para o Plano Pro antes de criar um colaborador.</span></div>`}
+        <div class="admin-team-list">${cards}</div>
+      </div>
+    </div>`;
+}
+
 function renderAdminWorkspaceList() {
   const list = document.getElementById("firebaseAdminList");
   const message = document.getElementById("firebaseAdminMessage");
@@ -2163,7 +2187,7 @@ function renderAdminWorkspaceList() {
             <small>${escapeHtml(email)}</small>
           </span>
           <span>${clientes} clientes | ${orcamentos} orçamentos</span>
-          <span>${teamMembers.length} colaborador(es)${teamMembers.length ? ` | ${teamMembers.map((member) => escapeHtml(member.email)).join(", ")}` : ""}</span>
+          <span>${getTeamCountLabel(teamMembers.length)}${teamMembers.length ? ` | ${teamMembers.map((member) => escapeHtml(member.email)).join(", ")}` : ""}</span>
         </button>
         <div class="admin-plan-row" data-plan-workspace="${escapeHtml(workspace.id)}">
           <label>Plano
@@ -2183,6 +2207,7 @@ function renderAdminWorkspaceList() {
           </label>
           <button class="btn btn-ghost" type="button" data-save-plan="${escapeHtml(workspace.id)}">Salvar plano</button>
         </div>
+        ${getAdminTeamMarkup(workspace, subscription, teamMembers)}
         <div class="admin-access-row">
           <span class="admin-access-status ${statusClass}">${getAccessStatusText(accessStatus)}</span>
           <button class="btn btn-primary" type="button" data-access-action="${ACCESS_STATUS.ACTIVE}" data-workspace-id="${escapeHtml(workspace.id)}">Liberar acesso</button>
@@ -2212,6 +2237,119 @@ function renderAdminWorkspaceList() {
   list.querySelectorAll("[data-delete-workspace]").forEach((button) => {
     button.addEventListener("click", () => deleteWorkspace(button.dataset.deleteWorkspace, button.dataset.workspaceEmail));
   });
+  bindAdminTeamEvents(list);
+}
+
+function applyAdminTeamRole(form) {
+  const role = form.querySelector("[data-admin-team-field='role']")?.value || "custom";
+  const permissions = TEAM_ROLE_PROFILES[role]?.permissions || TEAM_ROLE_PROFILES.custom.permissions;
+  form.querySelectorAll("[data-admin-team-permission]").forEach((input) => { input.checked = permissions[input.dataset.adminTeamPermission] === true; });
+}
+
+function resetAdminTeamForm(form) {
+  if (!form) return;
+  form.reset();
+  form.querySelector("[data-admin-team-field='originalEmail']").value = "";
+  form.querySelector("[data-admin-team-field='role']").value = "attendant";
+  form.querySelector("[data-admin-team-field='status']").value = "active";
+  applyAdminTeamRole(form);
+}
+
+function bindAdminTeamEvents(list) {
+  list.querySelectorAll("[data-admin-team-toggle]").forEach((button) => button.addEventListener("click", () => {
+    const panel = list.querySelector(`[data-admin-team-panel="${button.dataset.adminTeamToggle}"]`);
+    if (panel) panel.hidden = !panel.hidden;
+  }));
+  list.querySelectorAll("[data-admin-team-form]").forEach((form) => {
+    resetAdminTeamForm(form);
+    form.addEventListener("submit", saveAdminTeamMember);
+    form.querySelector("[data-admin-team-field='role']").addEventListener("change", () => applyAdminTeamRole(form));
+    form.querySelector("[data-admin-team-cancel]").addEventListener("click", () => resetAdminTeamForm(form));
+  });
+  list.querySelectorAll("[data-admin-team-copy]").forEach((button) => button.addEventListener("click", async () => {
+    await navigator.clipboard.writeText(getTeamInviteUrl(button.dataset.adminTeamCopy));
+    button.textContent = "Convite copiado";
+  }));
+  list.querySelectorAll("[data-admin-team-edit]").forEach((button) => button.addEventListener("click", () => editAdminTeamMember(button.dataset.workspaceId, button.dataset.adminTeamEdit)));
+  list.querySelectorAll("[data-admin-team-status]").forEach((button) => button.addEventListener("click", () => updateAdminTeamMemberStatus(button.dataset.workspaceId, button.dataset.adminTeamStatus, button.dataset.nextStatus)));
+  list.querySelectorAll("[data-admin-team-remove]").forEach((button) => button.addEventListener("click", () => removeAdminTeamMember(button.dataset.workspaceId, button.dataset.adminTeamRemove)));
+}
+
+async function saveAdminTeamMember(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const workspaceId = form.dataset.adminTeamForm;
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  const message = form.querySelector("[data-admin-team-message]");
+  if (!workspace || getWorkspaceSubscription(workspace).planId !== "pro") return;
+  const originalEmail = normalizeEmail(form.querySelector("[data-admin-team-field='originalEmail']").value);
+  const email = normalizeEmail(form.querySelector("[data-admin-team-field='email']").value);
+  const name = form.querySelector("[data-admin-team-field='name']").value.trim();
+  const role = form.querySelector("[data-admin-team-field='role']").value;
+  const status = form.querySelector("[data-admin-team-field='status']").value === "blocked" ? "blocked" : "active";
+  const permissions = { dashboard: true };
+  form.querySelectorAll("[data-admin-team-permission]").forEach((input) => { permissions[input.dataset.adminTeamPermission] = input.checked; });
+  const members = Array.isArray(workspace.teamMembers) ? [...workspace.teamMembers] : [];
+  const existingIndex = members.findIndex((item) => normalizeEmail(item.email) === (originalEmail || email));
+  if (!name || !email) return;
+  if (email === normalizeEmail(workspace.ownerEmail)) { message.textContent = "O responsável já possui acesso completo."; return; }
+  if (existingIndex < 0 && members.length >= TEAM_MEMBER_LIMIT) { message.textContent = "Limite de quatro colaboradores atingido."; return; }
+  if (members.some((item, index) => index !== existingIndex && normalizeEmail(item.email) === email)) { message.textContent = "Este e-mail já está na equipe."; return; }
+  const previous = existingIndex >= 0 ? members[existingIndex] : {};
+  const saved = { email, name, role, roleName: TEAM_ROLE_PROFILES[role]?.name || "Personalizado", status, permissions: normalizeTeamPermissions("custom", permissions), createdAt: previous.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
+  if (existingIndex >= 0) members[existingIndex] = saved; else members.push(saved);
+  message.textContent = "Salvando colaborador...";
+  try {
+    const batch = writeBatch(db);
+    batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+    batch.set(doc(db, "team_access", email), { ...saved, workspaceId, ownerEmail: workspace.ownerEmail || "", businessName: workspace.businessName || workspace.registration?.empresa || "", updatedAt: serverTimestamp() });
+    if (originalEmail && originalEmail !== email) batch.delete(doc(db, "team_access", originalEmail));
+    await batch.commit();
+    workspace.teamMembers = members;
+    renderAdminWorkspaceList();
+  } catch (error) { message.textContent = firebaseError(error); }
+}
+
+function editAdminTeamMember(workspaceId, email) {
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  const member = workspace?.teamMembers?.find((item) => normalizeEmail(item.email) === normalizeEmail(email));
+  const panel = document.querySelector(`[data-admin-team-panel="${workspaceId}"]`);
+  const form = panel?.querySelector("[data-admin-team-form]");
+  if (!member || !form) return;
+  panel.hidden = false;
+  form.querySelector("[data-admin-team-field='originalEmail']").value = member.email;
+  form.querySelector("[data-admin-team-field='name']").value = member.name || "";
+  form.querySelector("[data-admin-team-field='email']").value = member.email || "";
+  form.querySelector("[data-admin-team-field='role']").value = member.role || "custom";
+  form.querySelector("[data-admin-team-field='status']").value = member.status || "active";
+  form.querySelectorAll("[data-admin-team-permission]").forEach((input) => { input.checked = member.permissions?.[input.dataset.adminTeamPermission] === true; });
+  form.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function updateAdminTeamMemberStatus(workspaceId, email, status) {
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  const members = (workspace?.teamMembers || []).map((member) => normalizeEmail(member.email) === normalizeEmail(email) ? { ...member, status, updatedAt: new Date().toISOString() } : member);
+  const member = members.find((item) => normalizeEmail(item.email) === normalizeEmail(email));
+  if (!workspace || !member) return;
+  const batch = writeBatch(db);
+  batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp() }, { merge: true });
+  batch.set(doc(db, "team_access", normalizeEmail(email)), { ...member, workspaceId, ownerEmail: workspace.ownerEmail || "", businessName: workspace.businessName || workspace.registration?.empresa || "", updatedAt: serverTimestamp() }, { merge: true });
+  await batch.commit();
+  workspace.teamMembers = members;
+  renderAdminWorkspaceList();
+}
+
+async function removeAdminTeamMember(workspaceId, email) {
+  if (!await showAuthConfirmModal("Remover colaborador", `Deseja remover o acesso de ${email}?`)) return;
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
+  if (!workspace) return;
+  const members = (workspace.teamMembers || []).filter((member) => normalizeEmail(member.email) !== normalizeEmail(email));
+  const batch = writeBatch(db);
+  batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp() }, { merge: true });
+  batch.delete(doc(db, "team_access", normalizeEmail(email)));
+  await batch.commit();
+  workspace.teamMembers = members;
+  renderAdminWorkspaceList();
 }
 
 function getAccessStatusText(status) {
