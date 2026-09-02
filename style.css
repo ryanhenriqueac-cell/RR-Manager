@@ -5593,7 +5593,48 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 }
 
 .manager-pro-diff .manager-pro-ghost {
-  margin-top: 28px;
+  margin-top: 0;
+}
+
+.manager-pro-diff .manager-pro-company-note {
+  margin-top: 18px;
+  padding: 15px 17px;
+  border: 1px solid rgba(91, 168, 255, .24);
+  border-left: 3px solid var(--mp-blue);
+  border-radius: 6px;
+  background: rgba(47, 124, 246, .07);
+  font-size: 15px;
+}
+
+.manager-pro-company-note strong { color: var(--mp-text); }
+
+.manager-pro-diff-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.manager-pro-company-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 12px 18px;
+  border: 1px solid rgba(91, 168, 255, .42);
+  border-radius: 4px;
+  color: #9ec5ff !important;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.manager-pro-company-link:hover {
+  border-color: var(--mp-blue);
+  background: rgba(47, 124, 246, .1);
 }
 
 .manager-pro-specs {
@@ -6223,6 +6264,14 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   border-radius: 6px;
   background: linear-gradient(180deg, rgba(18, 31, 51, 0.92), rgba(8, 17, 32, 0.92));
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24), 0 0 30px rgba(34, 197, 94, 0.08);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.manager-pro-hero-price:hover,
+.manager-pro-hero-price:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--mp-green);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, .3), 0 0 34px rgba(34, 197, 94, .14);
 }
 
 .manager-pro-hero-price.pro {
@@ -6232,6 +6281,28 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 }
 
 .manager-pro-hero-price.pro strong { color: var(--mp-blue); }
+.manager-pro-hero-price.pro:hover,
+.manager-pro-hero-price.pro:focus-visible { border-color: var(--mp-blue); box-shadow: 0 22px 54px rgba(0, 0, 0, .3), 0 0 34px rgba(47, 124, 246, .16); }
+
+.manager-pro-hero-price > em {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(255, 255, 255, .09);
+  color: #9adbb8;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.manager-pro-hero-price.pro > em { color: #91baff; }
+.manager-pro-hero-price > em b { font-size: 17px; }
 
 .manager-pro-hero-price > span,
 .manager-pro-price-copy > span,
@@ -7601,6 +7672,8 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 @media (max-width: 720px) {
   .manager-essential-grid { grid-template-columns: 1fr; }
   .manager-essential-spotlight > .manager-pro-cta { width: 100%; }
+  .manager-pro-diff-actions { display: grid; grid-template-columns: 1fr; }
+  .manager-pro-diff-actions > a { width: 100%; }
 
   .manager-real-app { grid-template-columns: 1fr; min-height: 0; }
   .manager-real-sidebar { display: none; }
