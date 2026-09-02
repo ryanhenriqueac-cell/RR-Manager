@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=112">
+  <link rel="stylesheet" href="style.css?v=113">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -93,54 +93,23 @@
         </div>
       </div>
 
-      <div class="manager-pro-showcase reveal-r visible" aria-label="Prévia dos principais módulos do RR Manager">
-        <div class="manager-pro-showcase-grid">
-          <article class="manager-pro-module manager-pro-module-orcamentos">
-            <div class="module-head"><span>Orçamentos</span><strong>Painel de controle</strong></div>
-            <div class="module-kanban">
-              <div><small>Pré-orç.</small><b>12</b><em>Aguardando decisão</em></div>
-              <div><small>Aprovados</small><b>8</b><em>Receita gerada</em></div>
-              <div><small>Conversão</small><b>67%</b><em>Mês atual</em></div>
+      <div class="manager-pro-showcase manager-real-showcase reveal-r visible" aria-label="Demonstração realista do Dashboard do RR Manager">
+        <div class="manager-real-browser"><i></i><i></i><i></i><span>app.rrmanager.com.br/dashboard</span><b>TELA DO SISTEMA</b></div>
+        <div class="manager-real-app">
+          <aside class="manager-real-sidebar">
+            <div class="manager-real-logo"><img src="assets/logo-rr-manager.png" alt=""><strong>RR Manager</strong></div>
+            <nav><span class="active">Dashboard</span><span>Clientes</span><span>Orçamentos</span><span>Financeiro</span><span>DRE <b>PRO</b></span><span>Equipe <b>PRO</b></span></nav>
+          </aside>
+          <div class="manager-real-main">
+            <header><div><small>CENTRAL OPERACIONAL</small><strong>Dashboard</strong></div><button>Novo orçamento</button><button class="primary">Cadastrar cliente</button></header>
+            <div class="manager-real-stats"><div><span>Clientes</span><strong>24</strong><small>Base cadastrada</small></div><div><span>Carros</span><strong>31</strong><small>Vinculados aos clientes</small></div><div><span>Pré-orçamentos</span><strong>3</strong><small>Aguardando decisão</small></div><div class="money"><span>Saldo do mês</span><strong>R$ 8.420</strong><small>Receitas menos custos</small></div></div>
+            <div class="manager-real-dashboard-grid">
+              <section><header><div><small>FILA COMERCIAL</small><strong>Pré-orçamentos para decidir</strong></div><b>Criar orçamento</b></header><article><strong>Marcos Oliveira</strong><span>Honda Civic 2019 | Placa DEM-2026 | R$ 1.248,00</span><div><i>Aprovar</i><i>Não aprovado</i><i>WhatsApp</i><i>Editar</i></div></article></section>
+              <section class="conversion"><header><div><small>ORÇAMENTOS</small><strong>Conversão comercial</strong></div></header><p><span>Pré-orçamentos</span><b>3</b></p><p><span>Aprovados</span><b>18</b></p><p><span>Conversão</span><b>86%</b></p></section>
             </div>
-            <div class="module-row"><i class="warn"></i><span>Hilux 2020</span><strong>R$ 3.420</strong></div>
-            <div class="module-row"><i></i><span>Civic 2018</span><strong>R$ 2.840</strong></div>
-          </article>
-
-          <article class="manager-pro-module manager-pro-module-financeiro">
-            <div class="module-head"><span>Plano Pro · DRE</span><strong>Resultado do mês</strong></div>
-            <div class="module-total">R$ 18.460<small>lucro estimado</small></div>
-            <div class="module-chart" aria-hidden="true">
-              <span style="height: 42%"></span><span style="height: 68%"></span><span style="height: 54%"></span><span style="height: 86%"></span><span style="height: 72%"></span>
-            </div>
-            <div class="module-money"><span>Receitas R$ 27.900</span><em>Custos R$ 9.440</em></div>
-          </article>
-
-          <article class="manager-pro-module manager-pro-module-pdf">
-            <div class="module-head"><span>PDF</span><strong>Orçamento #0248</strong></div>
-            <div class="module-pdf-paper">
-              <header>
-                <img src="assets/logo-rr-manager.png" alt="RR Manager">
-                <span><b>RR Manager</b><small>Exemplo de orçamento</small></span>
-              </header>
-              <div class="module-pdf-client"><strong>Cliente exemplo</strong><span>Honda Civic 2018</span></div>
-              <section class="module-pdf-lines"><p></p><p></p><p></p></section>
-              <footer><span>Total aprovado</span><strong>R$ 2.840</strong></footer>
-            </div>
-          </article>
-
-          <article class="manager-pro-module manager-pro-module-cliente">
-            <div class="module-head"><span>Clientes</span><strong>Cadastro organizado</strong></div>
-            <div class="module-client">
-              <b>Ryan Costa</b>
-              <span>BMW 320i 2019 | Placa RRM-2026</span>
-            </div>
-            <ul>
-              <li>Último serviço: revisão completa</li>
-              <li>WhatsApp, Pix e logo no orçamento</li>
-              <li>Dados protegidos e sincronizados na nuvem</li>
-            </ul>
-          </article>
+          </div>
         </div>
+        <div class="manager-real-caption"><strong>Interface baseada no sistema real</strong><span>Dados fictícios usados somente para demonstração.</span></div>
       </div>
     </section>
 
@@ -180,6 +149,45 @@
       </div>
     </section>
 
+    <section class="manager-pro-section manager-client-experience" id="experiencia-cliente">
+      <div class="manager-client-preview reveal-l" aria-label="Demonstração do orçamento público recebido pelo cliente">
+        <div class="manager-client-browser"><i></i><i></i><i></i><span>Orçamento enviado pelo WhatsApp</span></div>
+        <div class="manager-client-decision">
+          <span>Este orçamento atende ao que você precisa?</span>
+          <strong>Indique sua decisão para a oficina</strong>
+          <div><b>Aprovar</b><b>Não aprovado</b></div>
+          <small>Esta é uma indicação. A oficina fará a confirmação final no sistema.</small>
+        </div>
+        <article class="manager-client-document">
+          <header><img src="assets/logo-rr-manager.png" alt=""><div><strong>Oficina Modelo</strong><span>Serviço automotivo especializado</span><small>Status: Pré-orçamento</small></div></header>
+          <h3>ORÇAMENTO DO SERVIÇO AUTOMOTIVO</h3>
+          <div class="manager-client-info"><p><b>Cliente</b><span>Marcos Oliveira</span></p><p><b>Carro</b><span>Honda Civic 2019<br>Placa: DEM-2026</span></p><p><b>Data</b><span>02/09/2026</span></p><p><b>Número</b><span>0024</span></p></div>
+          <div class="manager-client-table"><p><b>Serviço</b><b>Valor</b></p><p><span>Revisão preventiva</span><strong>R$ 350,00</strong></p><p><span>Pastilhas de freio</span><strong>R$ 280,00</strong></p><p class="courtesy"><span>Higienização</span><strong>CORTESIA</strong></p></div>
+        </article>
+      </div>
+      <div class="manager-client-copy reveal-r">
+        <span class="manager-pro-tag">EXPERIÊNCIA DO CLIENTE</span>
+        <h2>Seu orçamento chega com a imagem profissional da sua oficina.</h2>
+        <p>O cliente recebe o link pelo WhatsApp, abre no navegador e consulta as informações sem instalar aplicativo ou criar uma conta.</p>
+        <ul><li>Documento com logo e dados da oficina</li><li>Peças, serviços, terceirizados e cortesias organizados</li><li>Pix e condições de pagamento apresentados com clareza</li><li>Decisão enviada diretamente para a oficina</li></ul>
+        <small>Demonstração com nomes, placas e valores fictícios.</small>
+      </div>
+    </section>
+
+    <section class="manager-pro-section manager-document-showcase" id="documentos">
+      <div class="manager-pro-section-head reveal-l">
+        <span>DOCUMENTOS DO SISTEMA</span>
+        <h2>Do atendimento à análise, tudo com apresentação profissional.</h2>
+        <p>Veja exemplos dos documentos produzidos pelo RR Manager. Clique em qualquer modelo para ampliar sem sair da página.</p>
+      </div>
+      <div class="manager-document-grid">
+        <button class="manager-document-card reveal" type="button" data-document-demo="budget"><span>ORÇAMENTO</span><div class="manager-paper-thumb"><i></i><strong>Orçamento automotivo</strong><p></p><p></p><p></p><b>R$ 1.248,00</b></div><small>Itens, condições e Pix</small><em>Ampliar exemplo</em></button>
+        <button class="manager-document-card reveal" style="transition-delay:.08s" type="button" data-document-demo="inspection"><span>INSPEÇÃO</span><div class="manager-paper-thumb inspection"><i></i><strong>Lista de inspeção</strong><p></p><p></p><p></p><b>Itens verificados</b></div><small>Checklist do veículo</small><em>Ampliar exemplo</em></button>
+        <button class="manager-document-card reveal" style="transition-delay:.16s" type="button" data-document-demo="financial"><span>FINANCEIRO</span><div class="manager-paper-thumb financial"><i></i><strong>Relatório financeiro</strong><p></p><p></p><p></p><b>Resultado do período</b></div><small>Receitas, custos e despesas</small><em>Ampliar exemplo</em></button>
+        <button class="manager-document-card reveal" style="transition-delay:.24s" type="button" data-document-demo="dre"><span>PLANO PRO</span><div class="manager-paper-thumb dre"><i></i><strong>DRE gerencial</strong><p></p><p></p><p></p><b>Margem e rentabilidade</b></div><small>Análise gerencial completa</small><em>Ampliar exemplo</em></button>
+      </div>
+    </section>
+
     <section class="manager-pro-section" id="recursos">
       <div class="manager-pro-section-head reveal-l">
         <span>RECURSOS QUE GERAM RESULTADO</span>
@@ -198,6 +206,35 @@
         <article class="reveal" style="transition-delay: .34s"><span>09</span><h3>Financeiro da oficina</h3><p>Registre receitas e despesas por categoria e consulte saldo e relatórios por período.</p><em>organização</em></article>
       </div>
     </section>
+
+    <dialog class="manager-document-dialog" id="documentDemoDialog" aria-labelledby="documentDemoTitle">
+      <button class="manager-document-close" type="button" data-close-document aria-label="Fechar demonstração">×</button>
+      <div class="manager-document-dialog-head"><span>DEMONSTRAÇÃO DO RR MANAGER</span><h2 id="documentDemoTitle">Documento profissional</h2><p>Exemplo visual com dados inteiramente fictícios.</p></div>
+      <div class="manager-document-panels">
+        <article class="manager-demo-document" data-document-panel="budget" hidden>
+          <header><img src="assets/logo-rr-manager.png" alt=""><div><h3>Oficina Modelo</h3><p>Serviço automotivo especializado</p></div><b>PRÉ-ORÇAMENTO</b></header>
+          <h4>ORÇAMENTO DO SERVIÇO AUTOMOTIVO</h4><div class="manager-demo-info"><p><b>Cliente</b><span>Marcos Oliveira</span></p><p><b>Veículo</b><span>Honda Civic 2019 · DEM-2026</span></p><p><b>Data</b><span>02/09/2026</span></p><p><b>Número</b><span>0024</span></p></div>
+          <table><thead><tr><th>Item</th><th>Qtd.</th><th>Valor</th></tr></thead><tbody><tr><td>Pastilhas de freio</td><td>1</td><td>R$ 280,00</td></tr><tr><td>Revisão preventiva</td><td>2 h</td><td>R$ 300,00</td></tr><tr><td>Alinhamento terceirizado</td><td>1</td><td>R$ 120,00</td></tr><tr><td>Higienização</td><td>1</td><td>CORTESIA</td></tr></tbody></table>
+          <footer><span>Total do orçamento</span><strong>R$ 700,00</strong></footer>
+        </article>
+        <article class="manager-demo-document" data-document-panel="inspection" hidden>
+          <header><img src="assets/logo-rr-manager.png" alt=""><div><h3>Oficina Modelo</h3><p>Lista de inspeção do veículo</p></div><b>INSPEÇÃO</b></header>
+          <h4>CHECKLIST DE ENTRADA</h4><div class="manager-demo-info"><p><b>Cliente</b><span>Carla Ferreira</span></p><p><b>Veículo</b><span>Volkswagen T-Cross · DEM-2025</span></p></div>
+          <table><thead><tr><th>Item verificado</th><th>Resultado</th><th>Observação</th></tr></thead><tbody><tr><td>Óleo do motor</td><td><i class="demo-ok">Bom</i></td><td>Nível correto</td></tr><tr><td>Pastilhas dianteiras</td><td><i class="demo-warn">Atenção</i></td><td>Recomendada substituição</td></tr><tr><td>Pneus</td><td><i class="demo-ok">Bom</i></td><td>Desgaste regular</td></tr><tr><td>Sistema de iluminação</td><td><i class="demo-ok">Bom</i></td><td>Funcionamento normal</td></tr></tbody></table>
+          <footer><span>Itens verificados</span><strong>4</strong></footer>
+        </article>
+        <article class="manager-demo-document" data-document-panel="financial" hidden>
+          <header><img src="assets/logo-rr-manager.png" alt=""><div><h3>Oficina Modelo</h3><p>Relatório financeiro</p></div><b>SETEMBRO 2026</b></header>
+          <div class="manager-demo-summary"><p><span>Receitas</span><strong>R$ 18.960</strong></p><p><span>Custos</span><strong>R$ 7.420</strong></p><p><span>Despesas</span><strong>R$ 3.120</strong></p><p class="highlight"><span>Resultado</span><strong>R$ 8.420</strong></p></div>
+          <h4>RESULTADO POR CATEGORIA</h4><table><thead><tr><th>Categoria</th><th>Valor</th><th>Participação</th></tr></thead><tbody><tr><td>Peças</td><td>R$ 4.980,00</td><td>67,1%</td></tr><tr><td>Terceirizados</td><td>R$ 1.540,00</td><td>20,8%</td></tr><tr><td>Taxas de pagamento</td><td>R$ 900,00</td><td>12,1%</td></tr></tbody></table>
+        </article>
+        <article class="manager-demo-document" data-document-panel="dre" hidden>
+          <header><img src="assets/logo-rr-manager.png" alt=""><div><h3>Oficina Modelo</h3><p>DRE gerencial realizado</p></div><b>PLANO PRO</b></header>
+          <div class="manager-demo-summary"><p><span>Receita líquida</span><strong>R$ 18.960</strong></p><p><span>Lucro bruto</span><strong>R$ 11.540</strong></p><p><span>Ticket médio</span><strong>R$ 948,00</strong></p><p class="highlight"><span>Resultado líquido</span><strong>R$ 8.420</strong></p></div>
+          <h4>DEMONSTRAÇÃO DO RESULTADO</h4><div class="manager-demo-statement"><p><span>Receita bruta</span><strong>R$ 19.460,00</strong></p><p><span>(-) Descontos</span><strong>-R$ 500,00</strong></p><p><span>(-) Custos diretos</span><strong>-R$ 7.420,00</strong></p><p><span>Lucro bruto</span><strong>R$ 11.540,00</strong></p><p><span>(-) Despesas operacionais</span><strong>-R$ 3.120,00</strong></p><p class="final"><span>Resultado líquido</span><strong>R$ 8.420,00</strong></p></div>
+        </article>
+      </div>
+    </dialog>
 
     <section class="manager-pro-section manager-pro-diff" id="diferenciais">
       <div class="reveal-l">
@@ -229,21 +266,20 @@
         </div>
         <a class="manager-pro-cta" href="https://wa.me/5531997851561?text=Ola!%20Quero%20conhecer%20o%20Plano%20Pro%20do%20RR%20Manager" target="_blank" rel="noopener">Quero conhecer o Pro</a>
       </div>
-      <div class="manager-pro-dre-preview reveal-r" aria-label="Exemplo visual do DRE gerencial">
-        <header><span>DRE GERENCIAL</span><strong>Visão do resultado</strong><em>PRO</em></header>
+      <div class="manager-pro-dre-preview manager-real-dre reveal-r" aria-label="Demonstração realista do DRE gerencial">
+        <header><span>GESTÃO FINANCEIRA</span><strong>DRE gerencial</strong><em>PRO</em></header>
+        <div class="manager-real-dre-filters"><span>01/09/2026</span><span>30/09/2026</span><b>Gerar DRE</b><i>Mês atual</i></div>
         <div class="manager-pro-dre-metrics">
-          <div><span>Faturamento</span><strong>R$ 24.680</strong><small>Realizado no período</small></div>
-          <div><span>Lucro líquido</span><strong>R$ 8.420</strong><small>34,1% de margem</small></div>
+          <div><span>Receita líquida</span><strong>R$ 18.960</strong><small>Realizado no período</small></div>
+          <div><span>Lucro bruto</span><strong>R$ 11.540</strong><small>60,9% de margem</small></div>
+          <div><span>Ticket médio</span><strong>R$ 948</strong><small>20 orçamentos</small></div>
+          <div class="highlight"><span>Resultado líquido</span><strong>R$ 8.420</strong><small>44,4% de margem</small></div>
         </div>
-        <div class="manager-pro-dre-chart">
-          <span style="height: 42%"><i>JAN</i></span><span style="height: 58%"><i>FEV</i></span><span style="height: 49%"><i>MAR</i></span><span style="height: 74%"><i>ABR</i></span><span style="height: 68%"><i>MAI</i></span><span style="height: 88%"><i>JUN</i></span>
+        <div class="manager-real-dre-body">
+          <section><small>RESULTADO</small><h3>DRE do período</h3><p><span>Receita líquida</span><b>R$ 18.960</b></p><p><span>(-) Custos diretos</span><b>-R$ 7.420</b></p><p><span>Lucro bruto</span><b>R$ 11.540</b></p><p><span>(-) Despesas</span><b>-R$ 3.120</b></p><p class="total"><span>Resultado líquido</span><b>R$ 8.420</b></p></section>
+          <section><small>PLANEJAMENTO</small><h3>Metas mensais</h3><div class="manager-real-goal"><span>Faturamento</span><b>75,8%</b><i><em style="width:75.8%"></em></i></div><div class="manager-real-goal"><span>Lucro líquido</span><b>84,2%</b><i><em style="width:84.2%"></em></i></div><div class="manager-real-attention"><b>Qualidade dos dados</b><span>Todos os valores do período foram revisados.</span></div></section>
         </div>
-        <div class="manager-pro-dre-area">
-          <p><span>Peças</span><strong>38% do resultado</strong></p>
-          <p><span>Mão de obra</span><strong>47% do resultado</strong></p>
-          <p><span>Terceirizados</span><strong>15% do resultado</strong></p>
-        </div>
-        <small class="manager-pro-demo-note">Valores ilustrativos para demonstrar a visualização.</small>
+        <small class="manager-pro-demo-note">Interface baseada no DRE real · dados fictícios.</small>
       </div>
     </section>
 
@@ -389,6 +425,33 @@
     }
   </script>
   <script>
+    const documentDialog = document.getElementById("documentDemoDialog");
+    const documentDemoTitles = {
+      budget: "Orçamento do serviço automotivo",
+      inspection: "Lista de inspeção",
+      financial: "Relatório financeiro",
+      dre: "DRE gerencial"
+    };
+
+    document.querySelectorAll("[data-document-demo]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const type = button.dataset.documentDemo;
+        document.querySelectorAll("[data-document-panel]").forEach((panel) => {
+          panel.hidden = panel.dataset.documentPanel !== type;
+        });
+        const title = document.getElementById("documentDemoTitle");
+        if (title) title.textContent = documentDemoTitles[type] || "Documento profissional";
+        documentDialog?.showModal();
+      });
+    });
+
+    document.querySelector("[data-close-document]")?.addEventListener("click", () => documentDialog?.close());
+    documentDialog?.addEventListener("click", (event) => {
+      const rect = documentDialog.getBoundingClientRect();
+      const inside = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+      if (!inside) documentDialog.close();
+    });
+
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) entry.target.classList.add("visible");
