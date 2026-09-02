@@ -201,6 +201,7 @@ const FINANCE_CATEGORY_ALIASES = {
 const DRE_CATEGORY_COLORS = ["#f1c75b", "#4fd1a1", "#5ba8ff", "#b58cff", "#ff8f8f", "#ffad5b", "#67d6dc", "#d98ecb", "#9fc968", "#e9d66b"];
 let pendingVariableRecurrence = null;
 let dreHistoryMonths = 6;
+let drePeriodPreset = "current-month";
 
 function normalizeFinanceCategory(category, type = "Despesa") {
   const value = String(category || "").trim();
@@ -318,6 +319,20 @@ function getMonthNameBR(date) {
     "DEZEMBRO"
   ];
   return months[Number(month) - 1] || "GERAL";
+}
+
+function getDrePeriodName(start, end, preset = "") {
+  const [startYear, startMonth] = String(start || "").split("-").map(Number);
+  const [endYear] = String(end || "").split("-").map(Number);
+  if (!startYear || !startMonth) return "PERÍODO GERAL";
+  if (preset === "year") return `ANO ${startYear}`;
+  if (preset === "quarter") return `${Math.floor((startMonth - 1) / 3) + 1}º TRIMESTRE ${startYear}`;
+  if (preset === "current-month" || preset === "previous-month" || (startYear === endYear && String(start || "").slice(0, 7) === String(end || "").slice(0, 7))) {
+    return `${getMonthNameBR(start)} ${startYear}`;
+  }
+  const startLabel = formatDateBR(start).replaceAll("/", "-");
+  const endLabel = formatDateBR(end).replaceAll("/", "-");
+  return `${startLabel || "INÍCIO"} A ${endLabel || "FIM"}`;
 }
 
 function formatPhoneBR(value) {
@@ -3319,7 +3334,8 @@ function openDreGoals() {
 
 function initDre() {
   setDefaultDreDates();
-  byId("dreForm")?.addEventListener("submit", (event) => { event.preventDefault(); renderDre(); });
+  byId("dreForm")?.addEventListener("submit", (event) => { event.preventDefault(); drePeriodPreset = "custom"; renderDre(); });
+  [byId("dreInicio"), byId("dreFim")].forEach((input) => input?.addEventListener("change", () => { drePeriodPreset = "custom"; }));
   byId("dreGoalsForm")?.addEventListener("submit", saveDreGoals);
   byId("dreGoalsToggle")?.addEventListener("click", openDreGoals);
   byId("dreGoalsCancel")?.addEventListener("click", () => { byId("dreGoalsForm").hidden = true; });
@@ -3330,7 +3346,7 @@ function initDre() {
   }));
   document.querySelectorAll("[data-dre-period]").forEach((button) => button.addEventListener("click", () => setDreQuickPeriod(button.dataset.drePeriod)));
   byId("drePdf")?.addEventListener("click", () => {
-    const params = new URLSearchParams({ inicio: getValue("dreInicio"), fim: getValue("dreFim") });
+    const params = new URLSearchParams({ inicio: getValue("dreInicio"), fim: getValue("dreFim"), periodo: drePeriodPreset });
     window.location.href = `dre-imprimir.html?${params.toString()}`;
   });
   byId("dreCsv")?.addEventListener("click", exportDreCsv);
@@ -3403,6 +3419,7 @@ function setDreQuickPeriod(period) {
   } else {
     start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   }
+  drePeriodPreset = period;
   const iso = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   setValue("dreInicio", iso(start)); setValue("dreFim", iso(end)); renderDre();
 }
@@ -3748,7 +3765,7 @@ function initDrePrint() {
   const printButton = byId("printButton");
   setupMobilePrintButtonLabel();
   const params = new URLSearchParams(window.location.search);
-  const start = params.get("inicio") || ""; const end = params.get("fim") || "";
+  const start = params.get("inicio") || ""; const end = params.get("fim") || ""; const periodPreset = params.get("periodo") || "";
   root.innerHTML = `<section class="print-document"><h1>Carregando DRE...</h1><p>Aguarde a validação do Plano Pro.</p></section>`;
   if (printButton) printButton.disabled = true;
   window.addEventListener("rr-workspace-ready", (event) => {
@@ -3761,7 +3778,7 @@ function initDrePrint() {
     root.innerHTML = buildDrePrintHtml(dre);
     if (printButton) {
       printButton.disabled = false;
-      printButton.addEventListener("click", () => handlePrintDocumentAction(`RR - DRE gerencial ${getMonthNameBR(start || end)}`), { once: true });
+      printButton.addEventListener("click", () => handlePrintDocumentAction(`RR - DRE gerencial ${getDrePeriodName(start, end, periodPreset)}`), { once: true });
     }
   }, { once: true });
 }
