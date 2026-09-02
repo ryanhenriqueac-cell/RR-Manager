@@ -3409,25 +3409,112 @@ function setDreQuickPeriod(period) {
 
 function csvCell(value) {
   const raw = String(value ?? "");
-  const safe = /^[=+\-@]/.test(raw) ? `'${raw}` : raw;
+  const probe = raw.trimStart();
+  const numeric = /^-?\d+(?:[.,]\d+)?$/.test(probe);
+  const safe = /^[=+@]/.test(probe) || (probe.startsWith("-") && !numeric) ? `'${raw}` : raw;
   return `"${safe.replaceAll('"', '""')}"`;
+}
+
+function csvIdentifier(value) {
+  const text = String(value ?? "").trim();
+  return text ? `'${text}` : "";
+}
+
+function csvMoney(value) {
+  return parseDecimal(value).toFixed(2).replace(".", ",");
+}
+
+function csvPercent(value) {
+  return `${Number(value || 0).toFixed(2).replace(".", ",")}%`;
 }
 
 function exportDreCsv() {
   const dre = getDreData(getValue("dreInicio"), getValue("dreFim"));
-  const rows = [["Tipo", "Data", "Referência", "Categoria", "Descrição", "Receita", "Custo/Despesa", "Resultado"]];
+  const branding = getDocumentBranding();
+  const areas = getDreAreaProfitability(dre);
+  const generatedAt = new Date().toLocaleString("pt-BR");
+  const rows = [
+    ["EXPORTAÇÃO PARA CONTADOR (CSV)"],
+    ["Oficina", branding.companyName],
+    ["E-mail da conta", branding.ownerEmail || "Não informado"],
+    ["Período inicial", formatDateBR(dre.start)],
+    ["Período final", formatDateBR(dre.end)],
+    ["Gerado em", generatedAt],
+    ["Critério gerencial", "Orçamento aprovado representa serviço realizado e valor recebido na data da aprovação."],
+    ["Observação", "Relatório gerencial para conferência. Não substitui escrituração ou demonstração contábil."],
+    [],
+    ["RESUMO DO DRE"],
+    ["Conta", "Valor (R$)"],
+    ["Receita com peças", csvMoney(dre.receitasPorArea.pecas)],
+    ["Receita com mão de obra", csvMoney(dre.receitasPorArea.maoObra)],
+    ["Receita com serviços terceirizados", csvMoney(dre.receitasPorArea.terceirizados)],
+    ["Outras receitas e ajustes", csvMoney(dre.receitasPorArea.outros + dre.outrasReceitas)],
+    ["Receita bruta", csvMoney(dre.receitaBruta)],
+    ["(-) Descontos concedidos", csvMoney(-dre.descontos)],
+    ["(+) Acréscimos repassados", csvMoney(dre.acrescimos)],
+    ["Receita líquida", csvMoney(dre.receitaLiquida)],
+    ["(-) Custo das peças", csvMoney(-dre.custoPecas)],
+    ["(-) Serviços terceirizados", csvMoney(-dre.custoTerceirizados)],
+    ["(-) Taxas de pagamento", csvMoney(-dre.taxas)],
+    ["Lucro bruto", csvMoney(dre.lucroBruto)],
+    ["(-) Despesas operacionais", csvMoney(-dre.despesas)],
+    ["Resultado líquido", csvMoney(dre.resultado)],
+    ["Margem bruta", csvPercent(dre.margemBruta)],
+    ["Margem líquida", csvPercent(dre.margemLiquida)],
+    ["Ticket médio", csvMoney(dre.ticketMedio)],
+    ["Orçamentos considerados", dre.aprovados.length],
+    [],
+    ["RENTABILIDADE POR ÁREA"],
+    ["Área", "Receita líquida (R$)", "Custos diretos (R$)", "Lucro bruto (R$)", "Margem"]
+  ];
+  areas.forEach((item) => rows.push([item.label, csvMoney(item.revenue), csvMoney(item.cost), csvMoney(item.profit), csvPercent(item.margin)]));
+  rows.push(
+    [],
+    ["MOVIMENTAÇÕES CONSOLIDADAS"],
+    ["Data", "Tipo", "Referência", "Cliente / fornecedor", "CPF / CNPJ", "Veículo", "Placa", "Categoria", "Descrição", "Forma de pagamento", "Parcelas", "Receita bruta (R$)", "Desconto (R$)", "Acréscimo (R$)", "Receita líquida (R$)", "Custos diretos (R$)", "Despesa operacional (R$)", "Resultado (R$)"]
+  );
   dre.detalhes.forEach(({ orcamento, receita, custos, lucro, data }) => {
     const reference = String(orcamento.numero || "").padStart(4, "0");
-    rows.push(["Orçamento aprovado", formatDateBR(data), reference, "Serviço", getClienteNome(orcamento.clienteId), receita.toFixed(2), custos.toFixed(2), lucro.toFixed(2)]);
-    (Array.isArray(orcamento.pecas) ? orcamento.pecas : []).filter((item) => item.cortesia).forEach((item) => rows.push(["Cortesia", formatDateBR(data), reference, "Peça", item.nome || "", "0.00", (parseInteger(item.quantidade) * parseDecimal(item.custoUnitario)).toFixed(2), (-(parseInteger(item.quantidade) * parseDecimal(item.custoUnitario))).toFixed(2)]));
-    (Array.isArray(orcamento.servicos) ? orcamento.servicos : []).filter((item) => item.cortesia).forEach((item) => rows.push(["Cortesia", formatDateBR(data), reference, "Mão de obra", `${item.descricao || ""} (${parseDecimal(item.horas)} hora(s))`, "0.00", "0.00", "0.00"]));
-    (Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []).filter((item) => item.cortesia).forEach((item) => rows.push(["Cortesia", formatDateBR(data), reference, "Serviço terceirizado", item.descricao || "", "0.00", parseDecimal(item.custo).toFixed(2), (-parseDecimal(item.custo)).toFixed(2)]));
+    const cliente = getCliente(orcamento.clienteId) || {};
+    const carro = getCarro(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId) || {};
+    const pagamento = orcamento.pagamento || {};
+    rows.push([
+      formatDateBR(data), "Orçamento aprovado", csvIdentifier(reference), cliente.nome || "Cliente não informado", csvIdentifier(cliente.documento),
+      getCarroNome(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId), carro.placa || "", "Serviços automotivos", `Orçamento ${reference}`,
+      pagamento.label || pagamento.tipo || "Não informada", pagamento.parcelas || 1, csvMoney(getOrcamentoTotal(orcamento)), csvMoney(getPaymentDiscount(orcamento)),
+      csvMoney(getPaymentSurcharge(orcamento)), csvMoney(receita), csvMoney(custos), csvMoney(0), csvMoney(lucro)
+    ]);
   });
-  dre.receitasManuaisItems.forEach((item) => rows.push(["Receita manual", formatDateBR(item.data), item.id || "", item.categoria || "Outras receitas", item.descricao || "", parseDecimal(item.valor).toFixed(2), "0.00", parseDecimal(item.valor).toFixed(2)]));
-  Object.entries(dre.categoriasItens).forEach(([categoria, items]) => items.forEach((item) => rows.push(["Despesa operacional", formatDateBR(item.data), item.id || "", categoria, item.descricao || "", "0.00", parseDecimal(item.valor).toFixed(2), (-parseDecimal(item.valor)).toFixed(2)])));
+  dre.receitasManuaisItems.forEach((item) => rows.push([
+    formatDateBR(item.data), "Receita manual", item.id || "", "", "", "", "", item.categoria || "Outras receitas", item.descricao || "",
+    "", "", csvMoney(item.valor), csvMoney(0), csvMoney(0), csvMoney(item.valor), csvMoney(0), csvMoney(0), csvMoney(item.valor)
+  ]));
+  Object.entries(dre.categoriasItens).forEach(([categoria, items]) => items.forEach((item) => rows.push([
+    formatDateBR(item.data), "Despesa operacional", item.id || "", "", "", "", "", categoria, item.descricao || "",
+    "", "", csvMoney(0), csvMoney(0), csvMoney(0), csvMoney(0), csvMoney(0), csvMoney(item.valor), csvMoney(-parseDecimal(item.valor))
+  ])));
+  rows.push([], ["DESPESAS OPERACIONAIS POR CATEGORIA"], ["Categoria", "Valor (R$)", "Participação"]);
+  Object.entries(dre.categorias).sort((a, b) => b[1] - a[1]).forEach(([categoria, valor]) => rows.push([categoria, csvMoney(valor), csvPercent(dre.despesas ? (valor / dre.despesas) * 100 : 0)]));
+
+  const courtesyRows = [];
+  dre.detalhes.forEach(({ orcamento, data }) => {
+    const reference = String(orcamento.numero || "").padStart(4, "0");
+    const cliente = getClienteNome(orcamento.clienteId);
+    (Array.isArray(orcamento.pecas) ? orcamento.pecas : []).filter((item) => item.cortesia).forEach((item) => courtesyRows.push([formatDateBR(data), csvIdentifier(reference), cliente, "Peça", item.nome || "", parseInteger(item.quantidade), csvMoney(parseInteger(item.quantidade) * parseDecimal(item.custoUnitario)), "Já incluído nos custos diretos do orçamento"]));
+    (Array.isArray(orcamento.servicos) ? orcamento.servicos : []).filter((item) => item.cortesia).forEach((item) => courtesyRows.push([formatDateBR(data), csvIdentifier(reference), cliente, "Mão de obra", item.descricao || "", parseDecimal(item.horas), csvMoney(0), "Horas informativas; sem despesa automática"]));
+    (Array.isArray(orcamento.terceirizados) ? orcamento.terceirizados : []).filter((item) => item.cortesia).forEach((item) => courtesyRows.push([formatDateBR(data), csvIdentifier(reference), cliente, "Serviço terceirizado", item.descricao || "", 1, csvMoney(item.custo), "Já incluído nos custos diretos do orçamento"]));
+  });
+  rows.push([], ["CORTESIAS — DETALHAMENTO INFORMATIVO"], ["Data", "Orçamento", "Cliente", "Tipo", "Item", "Quantidade / horas", "Custo informativo (R$)", "Tratamento no resultado"]);
+  courtesyRows.forEach((row) => rows.push(row));
+  if (!courtesyRows.length) rows.push(["Nenhuma cortesia no período."]);
+
+  rows.push([], ["QUALIDADE DOS DADOS"], ["Orçamento", "Aviso"]);
+  dre.alertas.forEach((alerta) => rows.push([alerta.reference, alerta.message]));
+  if (!dre.alertas.length) rows.push(["Todos os custos e valores de venda do período foram revisados."]);
+
   const content = `\uFEFF${rows.map((row) => row.map(csvCell).join(";")).join("\r\n")}`;
   const url = URL.createObjectURL(new Blob([content], { type: "text/csv;charset=utf-8" }));
-  const link = document.createElement("a"); link.href = url; link.download = `DRE-${dre.start || "inicio"}-a-${dre.end || "fim"}.csv`; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const link = document.createElement("a"); link.href = url; link.download = `Exportacao-Contador-DRE-${dre.start || "inicio"}-a-${dre.end || "fim"}.csv`; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function buildDreStatementRows(dre) {
