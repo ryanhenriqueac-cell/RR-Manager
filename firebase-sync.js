@@ -48,9 +48,9 @@ const DEFAULT_MACHINE_RATES = {
 const MAX_LOGO_DIMENSION = 1000;
 const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v2";
-const LEGAL_TERMS_VERSION = "1.3";
+const LEGAL_TERMS_VERSION = "1.4";
 const LEGAL_PRIVACY_VERSION = "1.3";
-const CONTRACT_VERSION = "2.2";
+const CONTRACT_VERSION = "2.3";
 const CONTRACT_PLAN = {
   code: "monthly_launch",
   name: "Mensal · condição de lançamento",
@@ -68,6 +68,16 @@ const PLAN_CATALOG = {
   pro: {
     name: "Pro",
     features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: false, exportacaoContador: true, estoque: false, equipe: true }
+  }
+};
+const PLAN_PRICING = {
+  essential: {
+    monthly: { launchPrice: 59.90, regularPrice: 79.90, promotionalMonths: 12 },
+    annual: { launchPrice: 599.00, regularPrice: 799.00, promotionalMonths: 12 }
+  },
+  pro: {
+    monthly: { launchPrice: 99.90, regularPrice: 119.90, promotionalMonths: 12 },
+    annual: { launchPrice: 999.00, regularPrice: 1199.00, promotionalMonths: 12 }
   }
 };
 const DEFAULT_SUBSCRIPTION = {
@@ -123,13 +133,17 @@ let activeWorkspaceData = null;
 function normalizeSubscription(subscription = {}) {
   const planId = PLAN_CATALOG[subscription.planId] ? subscription.planId : DEFAULT_SUBSCRIPTION.planId;
   const billingCycle = subscription.billingCycle === "annual" ? "annual" : "monthly";
-  const annualDefault = billingCycle === "annual" ? 799 : DEFAULT_SUBSCRIPTION.agreedPrice;
+  const pricing = PLAN_PRICING[planId][billingCycle];
+  const agreedPrice = Number(subscription.agreedPrice ?? pricing.launchPrice);
   return {
     ...DEFAULT_SUBSCRIPTION,
     ...subscription,
     planId,
     billingCycle,
-    agreedPrice: Number(subscription.agreedPrice ?? annualDefault),
+    agreedPrice,
+    promotionalPrice: agreedPrice,
+    promotionalMonths: pricing.promotionalMonths,
+    regularPrice: pricing.regularPrice,
     features: { ...PLAN_CATALOG[planId].features }
   };
 }
@@ -1146,6 +1160,8 @@ function buildContractNumber(acceptedAtClient = "") {
 function buildWorkspaceContractPlan(workspace = {}) {
   const subscription = getWorkspaceSubscription(workspace);
   const planName = `RR Manager ${getPlanName(subscription)}`;
+  const hasLaunchCondition = Number(subscription.promotionalMonths) > 0
+    && Number(subscription.promotionalPrice) < Number(subscription.regularPrice);
   if (subscription.billingCycle === "annual") {
     return {
       code: `${subscription.planId}_annual`,
@@ -1154,11 +1170,13 @@ function buildWorkspaceContractPlan(workspace = {}) {
       name: `${planName} · anual`,
       billingCycle: "annual",
       agreedPrice: subscription.agreedPrice,
+      promotionalPrice: hasLaunchCondition ? subscription.promotionalPrice : subscription.agreedPrice,
+      promotionalMonths: hasLaunchCondition ? subscription.promotionalMonths : 0,
+      regularPrice: hasLaunchCondition ? subscription.regularPrice : subscription.agreedPrice,
       renewal: "Períodos sucessivos de 12 meses",
       loyalty: "Vigência anual contratada"
     };
   }
-  const hasLaunchCondition = subscription.planId === "essential" && Number(subscription.promotionalMonths) > 0;
   return {
     code: `${subscription.planId}_monthly`,
     planId: subscription.planId,
@@ -1243,12 +1261,16 @@ function renderContractDocument(workspace = {}) {
       ? `R$ ${Number(plan.promotionalPrice || 0).toFixed(2).replace(".", ",")} por mês durante ${plan.promotionalMonths} meses`
       : `R$ ${Number(plan.agreedPrice || plan.regularPrice || 0).toFixed(2).replace(".", ",")} por mês`;
   const planLaterValue = isAnnualPlan
-    ? "Renovação pelo valor anual vigente, mediante comunicação prévia de reajuste"
+    ? plan.promotionalMonths > 0
+      ? `R$ ${Number(plan.regularPrice || 0).toFixed(2).replace(".", ",")} por ano`
+      : "Renovação pelo valor anual vigente, mediante comunicação prévia de reajuste"
     : plan.promotionalMonths > 0
       ? `R$ ${Number(plan.regularPrice || 0).toFixed(2).replace(".", ",")} por mês`
       : "Mantém o valor contratado, sujeito aos reajustes previstos";
   const planCommercialClause = isAnnualPlan
-    ? `A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>${escapeHtml(planInitialValue)}</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.`
+    ? plan.promotionalMonths > 0
+      ? `A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)} · condição de lançamento</strong>, pelo valor de <strong>${escapeHtml(planInitialValue)}</strong> no primeiro período anual. Na renovação, o valor passa a <strong>${escapeHtml(planLaterValue)}</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.`
+      : `A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>${escapeHtml(planInitialValue)}</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.`
     : plan.promotionalMonths > 0
       ? `A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>${escapeHtml(planInitialValue)}</strong>. Encerrado o período promocional, o valor passa a <strong>${escapeHtml(planLaterValue)}</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.`
       : `A condição comercial registrada neste contrato é <strong>${escapeHtml(plan.name)}</strong>, pelo valor de <strong>${escapeHtml(planInitialValue)}</strong>. A renovação ocorre por ${escapeHtml(plan.renewal.toLowerCase())}.`;
@@ -2236,16 +2258,17 @@ function renderAdminWorkspaceList() {
       const row = select.closest("[data-plan-workspace]");
       const price = row?.querySelector("[data-plan-field='agreedPrice']");
       const planId = row?.querySelector("[data-plan-field='planId']")?.value;
-      if (price && planId === "essential") price.value = select.value === "annual" ? "799.00" : "59.90";
+      const pricing = PLAN_PRICING[planId]?.[select.value];
+      if (price && pricing) price.value = pricing.launchPrice.toFixed(2);
     });
   });
   list.querySelectorAll("[data-plan-field='planId']").forEach((select) => {
     select.addEventListener("change", () => {
-      if (select.value !== "essential") return;
       const row = select.closest("[data-plan-workspace]");
       const cycle = row?.querySelector("[data-plan-field='billingCycle']")?.value;
       const price = row?.querySelector("[data-plan-field='agreedPrice']");
-      if (price) price.value = cycle === "annual" ? "799.00" : "59.90";
+      const pricing = PLAN_PRICING[select.value]?.[cycle];
+      if (price && pricing) price.value = pricing.launchPrice.toFixed(2);
     });
   });
   list.querySelectorAll("[data-delete-workspace]").forEach((button) => {

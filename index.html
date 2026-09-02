@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=116">
+  <link rel="stylesheet" href="style.css?v=117">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -31,14 +31,26 @@
       "offers": [
         {
           "@type": "Offer",
-          "name": "Plano Essencial mensal",
-          "price": "79.90",
+          "name": "Plano Essencial mensal — lançamento",
+          "price": "59.90",
           "priceCurrency": "BRL"
         },
         {
           "@type": "Offer",
-          "name": "Plano Essencial anual",
-          "price": "799.00",
+          "name": "Plano Essencial anual — lançamento",
+          "price": "599.00",
+          "priceCurrency": "BRL"
+        },
+        {
+          "@type": "Offer",
+          "name": "Plano Pro mensal — lançamento",
+          "price": "99.90",
+          "priceCurrency": "BRL"
+        },
+        {
+          "@type": "Offer",
+          "name": "Plano Pro anual — lançamento",
+          "price": "999.00",
           "priceCurrency": "BRL"
         }
       ]
@@ -53,9 +65,11 @@
     </a>
     <div class="manager-pro-links" aria-label="Seções da página">
       <a href="#como-funciona">Como funciona</a>
+      <a href="#experiencia-cliente">Experiência</a>
+      <a href="#documentos">Documentos</a>
       <a href="#recursos">Recursos</a>
-      <a href="#plano-pro">Plano Pro</a>
       <a href="#planos">Planos</a>
+      <a href="#faq">Dúvidas</a>
     </div>
     <div class="manager-pro-actions">
       <a class="manager-pro-link-btn" href="dashboard.html">Entrar</a>
@@ -81,15 +95,22 @@
           <span>Pix e condições no orçamento</span>
         </div>
 
-        <div class="manager-pro-hero-price" aria-label="Preço do RR Manager">
-          <span>PLANO ESSENCIAL · CONDIÇÃO DE LANÇAMENTO</span>
-          <strong>R$ 59,90<small>/mês</small></strong>
-          <p>Nos primeiros 12 meses. Depois, plano mensal por R$ 79,90.</p>
+        <div class="manager-pro-hero-prices" aria-label="Preços dos planos RR Manager">
+          <div class="manager-pro-hero-price">
+            <span>PLANO ESSENCIAL · LANÇAMENTO</span>
+            <strong>R$ 59,90<small>/mês</small></strong>
+            <p>Por 12 meses. Depois, R$ 79,90/mês.</p>
+          </div>
+          <div class="manager-pro-hero-price pro">
+            <span>PLANO PRO · LANÇAMENTO</span>
+            <strong>R$ 99,90<small>/mês</small></strong>
+            <p>Por 12 meses. Depois, R$ 119,90/mês.</p>
+          </div>
         </div>
 
         <div class="manager-pro-hero-actions">
           <a class="manager-pro-cta" href="cadastro-acesso.html">Começar no Essencial</a>
-          <a class="manager-pro-ghost" href="#plano-pro">Conhecer o Plano Pro</a>
+          <a class="manager-pro-ghost" href="#planos">Ver planos e preços</a>
         </div>
       </div>
 
@@ -341,7 +362,7 @@
       </div>
     </section>
 
-    <section class="manager-pro-section manager-pro-team-section">
+    <section class="manager-pro-section manager-pro-team-section" id="equipe-pro">
       <div class="manager-pro-section-head reveal-l">
         <span>EQUIPE NO PLANO PRO</span>
         <h2>Dê acesso à equipe sem abrir mão do controle.</h2>
@@ -363,7 +384,7 @@
       <div class="manager-pro-plan-cards">
         <article class="manager-pro-plan-card essential reveal">
           <header><span>PLANO ESSENCIAL</span><h3>Para organizar e vender melhor.</h3><p>Clientes, veículos, orçamentos e controle financeiro da rotina.</p></header>
-          <div class="manager-pro-plan-price"><small>LANÇAMENTO · PRIMEIROS 12 MESES</small><strong>R$ 59,90<em>/mês</em></strong><p>Depois, R$ 79,90/mês. Sem fidelidade.</p><b>Ou R$ 799 à vista no plano anual.</b></div>
+          <div class="manager-pro-plan-price"><small>LANÇAMENTO · PRIMEIROS 12 MESES</small><strong>R$ 59,90<em>/mês</em></strong><p>Depois, R$ 79,90/mês. Sem fidelidade.</p><b>Anual de lançamento: R$ 599. Renovação: R$ 799/ano.</b></div>
           <ul>
             <li>Clientes, veículos e histórico</li><li>Pré-orçamentos e orçamentos</li><li>Peças, mão de obra e terceirizados</li><li>Cortesias com tratamento de custos</li><li>Inspeções e PDFs personalizados</li><li>WhatsApp, Pix e condições de pagamento</li><li>Financeiro e relatórios por período</li>
           </ul>
@@ -372,11 +393,11 @@
         <article class="manager-pro-plan-card pro reveal" style="transition-delay: .12s">
           <div class="manager-pro-popular">GESTÃO AVANÇADA</div>
           <header><span>PLANO PRO</span><h3>Para decidir com números e equipe.</h3><p>Tudo do Essencial, com uma visão mais profunda do negócio.</p></header>
-          <div class="manager-pro-plan-price"><small>CONDIÇÃO COMERCIAL</small><strong class="manager-pro-consult">Consulte</strong><p>Converse conosco para conhecer o valor e a liberação do plano.</p></div>
+          <div class="manager-pro-plan-price"><small>LANÇAMENTO · PRIMEIROS 12 MESES</small><strong>R$ 99,90<em>/mês</em></strong><p>Depois, R$ 119,90/mês. Sem fidelidade.</p><b>Anual de lançamento: R$ 999. Renovação: R$ 1.199/ano.</b></div>
           <ul>
             <li>Tudo que está no Essencial</li><li>DRE gerencial por mês ou período</li><li>Metas e ponto de equilíbrio</li><li>Rentabilidade por área e ranking</li><li>Comparação visual entre meses</li><li>Lançamentos financeiros recorrentes</li><li>Até quatro colaboradores com permissões</li>
           </ul>
-          <a class="manager-pro-wa" href="https://wa.me/5531997851561?text=Ola!%20Quero%20conhecer%20o%20Plano%20Pro%20do%20RR%20Manager" target="_blank" rel="noopener">Conhecer o Plano Pro</a>
+          <a class="manager-pro-wa" href="https://wa.me/5531997851561?text=Ola!%20Quero%20contratar%20o%20Plano%20Pro%20do%20RR%20Manager" target="_blank" rel="noopener">Começar no Pro</a>
         </article>
       </div>
       <div class="manager-pro-comparison reveal" aria-label="Comparação dos planos Essencial e Pro">
@@ -388,6 +409,20 @@
         <div class="comparison-row"><span>Lançamentos financeiros recorrentes</span><i>—</i><b>Incluído</b></div>
         <div class="comparison-row"><span>Até quatro colaboradores com permissões</span><i>—</i><b>Incluído</b></div>
       </div>
+    </section>
+
+    <section class="manager-pro-section manager-essential-spotlight" id="plano-essencial">
+      <div class="manager-pro-section-head reveal-l">
+        <span>PLANO ESSENCIAL</span>
+        <h2>Tudo para organizar a rotina e apresentar melhor a sua oficina.</h2>
+        <p>O Essencial reúne o atendimento diário em um único lugar, desde o cadastro do cliente até o acompanhamento financeiro.</p>
+      </div>
+      <div class="manager-essential-grid">
+        <article class="reveal"><strong>Atendimento organizado</strong><p>Clientes, veículos, históricos, pré-orçamentos e orçamentos sempre disponíveis.</p></article>
+        <article class="reveal"><strong>Orçamento profissional</strong><p>Peças, mão de obra, terceirizados, cortesias, Pix, condições e envio pelo WhatsApp.</p></article>
+        <article class="reveal"><strong>Controle da operação</strong><p>Inspeções, receitas, despesas, categorias e relatórios financeiros por período.</p></article>
+      </div>
+      <a class="manager-pro-cta reveal" href="cadastro-acesso.html">Começar no Essencial por R$ 59,90</a>
     </section>
 
     <section class="manager-pro-section manager-pro-faq" id="faq">
@@ -403,7 +438,7 @@
         <details class="reveal" style="transition-delay: .3s"><summary>Como funcionam terceirizados e cortesias?</summary><p>Nos serviços terceirizados, você informa o custo do fornecedor e o valor cobrado. Se um item for cortesia, o cliente vê a identificação de cortesia, enquanto os custos aplicáveis continuam considerados na gestão.</p></details>
         <details class="reveal" style="transition-delay: .32s"><summary>A decisão do cliente já representa pagamento?</summary><p>Não. A indicação feita no link registra a escolha do cliente. A oficina revisa o orçamento e usa a aprovação interna quando o valor for efetivamente recebido.</p></details>
         <details class="reveal" style="transition-delay: .34s"><summary>Existe fidelidade?</summary><p>Não. O plano é mensal e você pode solicitar o cancelamento quando quiser.</p></details>
-        <details class="reveal" style="transition-delay: .42s"><summary>Quanto custa o RR Manager?</summary><p>O Plano Essencial mensal custa R$ 79,90. Na condição de lançamento, você paga R$ 59,90 por mês durante os primeiros 12 meses. O Essencial anual custa R$ 799 à vista, equivalente a dez mensalidades do preço regular. O valor do Plano Pro é informado na condição comercial apresentada à oficina.</p></details>
+        <details class="reveal" style="transition-delay: .42s"><summary>Quanto custa o RR Manager?</summary><p>No lançamento, o Essencial custa R$ 59,90 por mês durante 12 meses ou R$ 599 no primeiro ano; depois, R$ 79,90 por mês ou R$ 799 por ano. O Pro custa R$ 99,90 por mês durante 12 meses ou R$ 999 no primeiro ano; depois, R$ 119,90 por mês ou R$ 1.199 por ano.</p></details>
         <details class="reveal" style="transition-delay: .46s"><summary>Qual é a diferença entre Essencial e Pro?</summary><p>O Essencial reúne a operação diária da oficina. O Pro acrescenta DRE gerencial, metas e comparações, lançamentos recorrentes e equipe com até quatro contas adicionais e permissões individuais.</p></details>
         <details class="reveal" style="transition-delay: .48s"><summary>O DRE é uma demonstração contábil oficial?</summary><p>Não. O DRE do RR Manager é gerencial e apoia as decisões da oficina com os dados registrados no sistema. Ele não substitui documentos ou orientações do contador.</p></details>
         <details class="reveal" style="transition-delay: .5s"><summary>Como recebo meu acesso?</summary><p>Preencha a solicitação ou fale pelo WhatsApp. Após a liberação, você recebe orientação para configurar sua oficina e começar.</p></details>
@@ -414,10 +449,10 @@
       <div class="manager-pro-final-grid" aria-hidden="true"></div>
       <span class="reveal">SUA OFICINA MAIS PROFISSIONAL</span>
       <h2 class="reveal">Orce mais rápido. Venda com confiança. <strong class="manager-pro-price-line">Controle seu lucro.</strong></h2>
-      <p class="reveal">Comece pelo Essencial por R$ 59,90 ao mês nos primeiros 12 meses ou conheça o Pro para acompanhar o resultado e organizar o acesso da equipe.</p>
+      <p class="reveal">Comece pelo Essencial por R$ 59,90 ao mês ou escolha o Pro por R$ 99,90 ao mês durante os primeiros 12 meses.</p>
       <div class="reveal">
         <a class="manager-pro-cta" href="cadastro-acesso.html">Começar no Essencial</a>
-        <a class="manager-pro-wa" href="https://wa.me/5531997851561?text=Ola!%20Quero%20conhecer%20o%20Plano%20Pro%20do%20RR%20Manager" target="_blank" rel="noopener">Conhecer o Plano Pro</a>
+        <a class="manager-pro-wa" href="https://wa.me/5531997851561?text=Ola!%20Quero%20contratar%20o%20Plano%20Pro%20do%20RR%20Manager" target="_blank" rel="noopener">Começar no Pro</a>
         <a class="manager-pro-ghost" href="dashboard.html">Já sou cliente</a>
       </div>
     </section>
@@ -433,9 +468,14 @@
       </div>
       <div class="manager-pro-footer-links reveal-r" aria-label="Links do rodapé">
         <a href="#como-funciona">Como funciona</a>
+        <a href="#experiencia-cliente">Experiência do cliente</a>
+        <a href="#documentos">Documentos</a>
         <a href="#recursos">Recursos</a>
-        <a href="#plano-pro">Plano Pro</a>
         <a href="#planos">Planos</a>
+        <a href="#plano-essencial">Plano Essencial</a>
+        <a href="#plano-pro">Plano Pro</a>
+        <a href="#equipe-pro">Equipe Pro</a>
+        <a href="#faq">Dúvidas</a>
         <a href="privacidade.html">Privacidade</a>
         <a href="termos.html">Termos</a>
         <a href="dashboard.html">Entrar</a>

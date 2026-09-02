@@ -20,7 +20,7 @@ Sistema de gestão para oficinas, feito com HTML, CSS e JavaScript e sincronizad
 | Lançamentos financeiros recorrentes | Não | Sim |
 | Até quatro colaboradores com permissões | Não | Sim |
 
-O Essencial mensal tem preço regular de R$ 79,90, com condição de lançamento de R$ 59,90 por mês durante os primeiros 12 meses. O Essencial anual custa R$ 799. O valor do Pro é o registrado na condição comercial da oficina e não deve ser preenchido automaticamente com o preço do Essencial.
+Na condição de lançamento, o Essencial custa R$ 59,90 por mês durante 12 meses ou R$ 599 no primeiro período anual; depois, R$ 79,90 por mês ou R$ 799 por ano. O Pro custa R$ 99,90 por mês durante 12 meses ou R$ 999 no primeiro período anual; depois, R$ 119,90 por mês ou R$ 1.199 por ano. O painel administrativo sugere esses valores ao trocar plano ou ciclo, mas permite registrar uma condição comercial específica sem sobrescrever automaticamente contratos existentes.
 
 ## Dados e login
 

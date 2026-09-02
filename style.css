@@ -4897,6 +4897,11 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   color: var(--mp-text);
 }
 
+@media (max-width: 1380px) {
+  .manager-pro-nav { padding-right: 24px; padding-left: 24px; }
+  .manager-pro-links { gap: 12px; font-size: 10px; letter-spacing: 1px; }
+}
+
 .manager-pro-actions {
   gap: 10px;
 }
@@ -5776,8 +5781,17 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .manager-pro-hero h1 {
     max-width: 100%;
     font-size: clamp(42px, 13vw, 50px);
-    overflow-wrap: normal;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
+
+  .manager-pro-hero h1 span,
+  .manager-pro-hero h1 strong,
+  .manager-pro-hero-copy,
+  .manager-pro-hero-prices { min-width: 0; max-width: 100%; }
+
+  .manager-pro-badges { max-width: 100%; overflow: hidden; }
 
   .manager-pro-hero p,
   .manager-pro-section-head p,
@@ -6190,11 +6204,19 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 }
 
 /* Pricing conversion blocks */
+.manager-pro-hero-prices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 0 28px;
+}
+
 .manager-pro-hero-price {
   display: inline-grid;
   gap: 6px;
-  min-width: min(100%, 360px);
-  margin: 0 0 28px;
+  min-width: 0;
+  margin: 0;
   padding: 18px 22px;
   border: 1px solid rgba(34, 197, 94, 0.38);
   border-left: 3px solid var(--mp-green);
@@ -6202,6 +6224,14 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   background: linear-gradient(180deg, rgba(18, 31, 51, 0.92), rgba(8, 17, 32, 0.92));
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24), 0 0 30px rgba(34, 197, 94, 0.08);
 }
+
+.manager-pro-hero-price.pro {
+  border-color: rgba(91, 168, 255, .42);
+  border-left-color: var(--mp-blue);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .24), 0 0 30px rgba(47, 124, 246, .1);
+}
+
+.manager-pro-hero-price.pro strong { color: var(--mp-blue); }
 
 .manager-pro-hero-price > span,
 .manager-pro-price-copy > span,
@@ -6338,9 +6368,8 @@ body[data-page="financeiro-print"] #firebaseUserBar {
     padding: 20px;
   }
 
-  .manager-pro-hero-price {
-    width: 100%;
-  }
+  .manager-pro-hero-price { width: 100%; }
+  .manager-pro-hero-prices { grid-template-columns: 1fr; }
 
   .manager-pro-hero-price strong,
   .manager-pro-price-box strong {
@@ -6670,6 +6699,51 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   border-bottom: 1px solid var(--mp-border);
   background: radial-gradient(circle at 50% 36%, rgba(47, 124, 246, .09), transparent 38rem), var(--mp-bg);
 }
+
+.manager-pro-page > main {
+  display: flex;
+  flex-direction: column;
+}
+
+.manager-pro-hero { order: 1; }
+.manager-pro-stats { order: 2; }
+.manager-pro-problem { order: 3; }
+.manager-pro-flow { order: 4; }
+.manager-client-experience { order: 5; }
+.manager-document-showcase { order: 6; }
+.manager-pro-page main > section[id="recursos"] { order: 7; }
+.manager-pro-diff { order: 8; }
+.manager-pro-plans { order: 9; }
+.manager-essential-spotlight { order: 10; }
+.manager-pro-pro-spotlight { order: 11; }
+.manager-pro-team-section { order: 12; }
+.manager-pro-faq { order: 13; }
+.manager-pro-final { order: 14; }
+
+.manager-essential-spotlight {
+  border-bottom: 1px solid var(--mp-border);
+  background: radial-gradient(circle at 78% 42%, rgba(34, 197, 94, .09), transparent 32rem), var(--mp-bg2);
+}
+
+.manager-essential-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 1160px;
+  margin: 0 auto 28px;
+}
+
+.manager-essential-grid article {
+  padding: 25px;
+  border: 1px solid var(--mp-border);
+  border-top: 3px solid var(--mp-green);
+  border-radius: 8px;
+  background: var(--mp-surface);
+}
+
+.manager-essential-grid strong { color: var(--mp-text); font-size: 18px; }
+.manager-essential-grid p { margin: 10px 0 0; color: var(--mp-muted); line-height: 1.55; }
+.manager-essential-spotlight > .manager-pro-cta { display: flex; width: max-content; max-width: 1160px; margin: 0 auto; }
 
 .manager-pro-plan-cards {
   display: grid;
@@ -7525,6 +7599,9 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 }
 
 @media (max-width: 720px) {
+  .manager-essential-grid { grid-template-columns: 1fr; }
+  .manager-essential-spotlight > .manager-pro-cta { width: 100%; }
+
   .manager-real-app { grid-template-columns: 1fr; min-height: 0; }
   .manager-real-sidebar { display: none; }
   .manager-real-main { padding: 12px; }
