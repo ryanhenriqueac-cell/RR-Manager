@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=113">
+  <link rel="stylesheet" href="style.css?v=114">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -183,11 +183,23 @@
     <section class="manager-pro-section manager-client-experience" id="experiencia-cliente">
       <div class="manager-client-preview reveal-l" aria-label="Demonstração do orçamento público recebido pelo cliente">
         <div class="manager-client-browser"><i></i><i></i><i></i><span>Orçamento enviado pelo WhatsApp</span></div>
-        <div class="manager-client-decision">
-          <span>Este orçamento atende ao que você precisa?</span>
-          <strong>Indique sua decisão para a oficina</strong>
-          <div><b>Aprovar</b><b>Não aprovado</b></div>
-          <small>Esta é uma indicação. A oficina fará a confirmação final no sistema.</small>
+        <div class="manager-client-decision" data-client-demo>
+          <div class="manager-client-choice" data-client-choice>
+            <span>Este orçamento atende ao que você precisa?</span>
+            <strong>Indique sua decisão para a oficina</strong>
+            <div><button type="button" data-demo-response="approved">Aprovar</button><button type="button" data-demo-response="rejected">Não aprovar</button></div>
+            <small>Esta é uma indicação. A oficina fará a confirmação final no sistema.</small>
+          </div>
+          <div class="manager-client-result approved" data-client-result="approved" hidden>
+            <strong>Você indicou que deseja aprovar</strong>
+            <span>Sua resposta foi enviada para a oficina. A confirmação final será feita por ela.</span>
+            <button type="button" data-change-response>Alterar resposta</button>
+          </div>
+          <div class="manager-client-result rejected" data-client-result="rejected" hidden>
+            <strong>Você indicou que não deseja aprovar</strong>
+            <span>Sua resposta foi enviada para a oficina. A confirmação final será feita por ela.</span>
+            <button type="button" data-change-response>Alterar resposta</button>
+          </div>
         </div>
         <article class="manager-client-document">
           <header><img src="assets/logo-rr-manager.png" alt=""><div><strong>Oficina Modelo</strong><span>Serviço automotivo especializado</span><small>Status: Pré-orçamento</small></div></header>
@@ -199,9 +211,10 @@
       <div class="manager-client-copy reveal-r">
         <span class="manager-pro-tag">EXPERIÊNCIA DO CLIENTE</span>
         <h2>Seu orçamento chega com a imagem profissional da sua oficina.</h2>
-        <p>O cliente recebe o link pelo WhatsApp, abre no navegador e consulta as informações sem instalar aplicativo ou criar uma conta.</p>
-        <ul><li>Documento com logo e dados da oficina</li><li>Peças, serviços, terceirizados e cortesias organizados</li><li>Pix e condições de pagamento apresentados com clareza</li><li>Decisão enviada diretamente para a oficina</li></ul>
-        <small>Demonstração com nomes, placas e valores fictícios.</small>
+        <p>Você envia pelo WhatsApp um link exclusivo do orçamento. O cliente abre no navegador, confere todos os itens e já pode indicar se deseja aprovar ou não — sem instalar aplicativo e sem criar uma conta.</p>
+        <div class="manager-client-try"><strong>Teste a experiência ao lado</strong><span>Clique em “Aprovar” ou “Não aprovar” para ver exatamente o retorno apresentado ao cliente.</span></div>
+        <ul><li>Documento com logo e dados da oficina</li><li>Peças, serviços, terceirizados e cortesias organizados</li><li>Pix e condições de pagamento apresentados com clareza</li><li>Resposta do cliente enviada diretamente para a oficina</li><li>Possibilidade de alterar a resposta antes da confirmação final</li></ul>
+        <small>Esta demonstração é apenas visual: nenhuma resposta será registrada. Os nomes, placas e valores são fictícios.</small>
       </div>
     </section>
 
@@ -456,6 +469,27 @@
     }
   </script>
   <script>
+    const clientDemo = document.querySelector("[data-client-demo]");
+    const clientChoice = clientDemo?.querySelector("[data-client-choice]");
+    const clientResults = clientDemo?.querySelectorAll("[data-client-result]") || [];
+
+    clientDemo?.querySelectorAll("[data-demo-response]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const response = button.dataset.demoResponse;
+        if (clientChoice) clientChoice.hidden = true;
+        clientResults.forEach((result) => {
+          result.hidden = result.dataset.clientResult !== response;
+        });
+      });
+    });
+
+    clientDemo?.querySelectorAll("[data-change-response]").forEach((button) => {
+      button.addEventListener("click", () => {
+        clientResults.forEach((result) => { result.hidden = true; });
+        if (clientChoice) clientChoice.hidden = false;
+      });
+    });
+
     const documentDialog = document.getElementById("documentDemoDialog");
     const documentDemoTitles = {
       budget: "Orçamento do serviço automotivo",

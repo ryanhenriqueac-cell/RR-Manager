@@ -7249,12 +7249,43 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   color: #152033;
   text-align: center;
 }
-.manager-client-decision > span { font-size: 10px; }
-.manager-client-decision > strong { font-size: 15px; }
-.manager-client-decision > div { display: flex; justify-content: center; gap: 7px; }
-.manager-client-decision b { padding: 8px 12px; border-radius: 5px; background: #e8b641; font-size: 10px; }
-.manager-client-decision b:nth-child(2) { background: #342335; color: #ffadb5; }
-.manager-client-decision small { color: #7b8797; font-size: 8px; }
+.manager-client-choice,
+.manager-client-result {
+  display: grid;
+  gap: 7px;
+}
+.manager-client-choice[hidden],
+.manager-client-result[hidden] { display: none; }
+.manager-client-choice > span { font-size: 10px; }
+.manager-client-choice > strong { font-size: 15px; }
+.manager-client-choice > div { display: flex; justify-content: center; gap: 7px; }
+.manager-client-choice button,
+.manager-client-result button {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 5px;
+  background: #e8b641;
+  color: #07111f;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.manager-client-choice button:hover,
+.manager-client-result button:hover { transform: translateY(-2px); box-shadow: 0 7px 16px rgba(21, 32, 51, .18); }
+.manager-client-choice button:nth-child(2) { background: #342335; color: #ffadb5; }
+.manager-client-choice small { color: #7b8797; font-size: 8px; }
+.manager-client-result {
+  margin: -14px;
+  padding: 18px 14px;
+  border-radius: 7px;
+}
+.manager-client-result strong { font-size: 16px; }
+.manager-client-result span { font-size: 10px; line-height: 1.45; }
+.manager-client-result button { justify-self: center; margin-top: 3px; border: 1px solid currentColor; background: #fff; }
+.manager-client-result.approved { background: #eafbf3; color: #17683b; }
+.manager-client-result.rejected { background: #fff0f2; color: #9f1738; }
 
 .manager-client-document {
   width: calc(100% - 72px);
@@ -7290,6 +7321,9 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   letter-spacing: 2px;
 }
 .manager-client-copy > p { color: var(--mp-muted); font-size: 18px; line-height: 1.65; }
+.manager-client-try { display: grid; gap: 5px; margin: 20px 0 4px; padding: 14px 16px; border: 1px solid rgba(91, 168, 255, .3); border-left: 3px solid var(--mp-blue); border-radius: 6px; background: rgba(91, 168, 255, .08); }
+.manager-client-try strong { color: var(--mp-cyan); font-size: 14px; }
+.manager-client-try span { color: var(--mp-muted); font-size: 13px; line-height: 1.5; }
 .manager-client-copy ul { display: grid; gap: 12px; padding: 0; margin: 24px 0; list-style: none; }
 .manager-client-copy li { color: var(--mp-text); }
 .manager-client-copy li::before { content: "✓"; margin-right: 10px; color: var(--mp-green); font-weight: 900; }
