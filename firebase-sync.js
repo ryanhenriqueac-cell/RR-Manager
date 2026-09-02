@@ -1065,12 +1065,14 @@ function renderTeamManagement() {
   const list = document.getElementById("teamMemberList");
   if (!pro) {
     list.innerHTML = `<div class="team-pro-required"><strong>Disponível no Plano Pro</strong><span>Ative o Pro para adicionar colaboradores e controlar permissões.</span></div>`;
+    if (window.location.hash === "#teamAccessPanel") requestAnimationFrame(() => panel.scrollIntoView({ behavior: "smooth", block: "start" }));
     return;
   }
   list.innerHTML = members.map((member) => `<article class="team-member-card"><div><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.email)}</span><small>${escapeHtml(member.roleName || TEAM_ROLE_PROFILES[member.role]?.name || "Personalizado")} · ${member.status === "blocked" ? "Bloqueado" : "Ativo"}</small></div><div class="team-member-permission-list">${TEAM_PERMISSION_KEYS.filter((key) => key !== "dashboard" && member.permissions?.[key]).map((key) => `<span>${escapeHtml({ clientes: "Clientes", orcamentos: "Orçamentos", aprovarOrcamentos: "Aprovar", financeiro: "Financeiro", dre: "DRE", inspecoes: "Inspeções" }[key])}</span>`).join("") || `<span>Somente dashboard</span>`}</div><div class="actions"><button class="btn btn-muted" type="button" data-team-copy="${escapeHtml(member.email)}">Copiar convite</button><button class="btn btn-ghost" type="button" data-team-edit="${escapeHtml(member.email)}">Editar</button><button class="btn btn-danger" type="button" data-team-remove="${escapeHtml(member.email)}">Remover</button></div></article>`).join("") || `<div class="empty-state muted">Nenhum colaborador cadastrado.</div>`;
   list.querySelectorAll("[data-team-copy]").forEach((button) => button.addEventListener("click", async () => { await navigator.clipboard.writeText(getTeamInviteUrl(button.dataset.teamCopy)); button.textContent = "Convite copiado"; }));
   list.querySelectorAll("[data-team-edit]").forEach((button) => button.addEventListener("click", () => editTeamMember(button.dataset.teamEdit)));
   list.querySelectorAll("[data-team-remove]").forEach((button) => button.addEventListener("click", () => removeTeamMember(button.dataset.teamRemove)));
+  if (window.location.hash === "#teamAccessPanel") requestAnimationFrame(() => panel.scrollIntoView({ behavior: "smooth", block: "start" }));
 }
 
 function editTeamMember(email) {
@@ -2431,7 +2433,7 @@ function applyTeamAccessToInterface() {
   const permissionByPage = { clientes: "clientes", veiculos: "clientes", orcamentos: "orcamentos", servicos: "orcamentos", "orcamento-print": "orcamentos", financeiro: "financeiro", "financeiro-print": "financeiro", dre: "dre", "dre-print": "dre", inspecao: "inspecoes", "meu-cadastro": "owner", contrato: "owner" };
   const navPermission = { "clientes.html": "clientes", "orcamentos.html": "orcamentos", "financeiro.html": "financeiro", "dre.html": "dre", "meu-cadastro.html": "owner" };
   document.querySelectorAll(".nav-menu a").forEach((link) => {
-    const target = (link.getAttribute("href") || "").split("?")[0];
+    const target = (link.getAttribute("href") || "").split(/[?#]/)[0];
     const permission = navPermission[target];
     if (permission && (permission === "owner" || !window.rrHasPermission(permission))) link.hidden = true;
   });
