@@ -3349,7 +3349,7 @@ function initDre() {
     const params = new URLSearchParams({ inicio: getValue("dreInicio"), fim: getValue("dreFim"), periodo: drePeriodPreset });
     window.location.href = `dre-imprimir.html?${params.toString()}`;
   });
-  byId("dreCsv")?.addEventListener("click", exportDreCsv);
+  byId("dreExcel")?.addEventListener("click", exportDreExcel);
   window.addEventListener("rr-workspace-ready", applyDrePlanAccess);
 }
 
@@ -3424,34 +3424,26 @@ function setDreQuickPeriod(period) {
   setValue("dreInicio", iso(start)); setValue("dreFim", iso(end)); renderDre();
 }
 
-function csvCell(value) {
-  const raw = String(value ?? "");
-  const probe = raw.trimStart();
-  const numeric = /^-?\d+(?:[.,]\d+)?$/.test(probe);
-  const safe = /^[=+@]/.test(probe) || (probe.startsWith("-") && !numeric) ? `'${raw}` : raw;
-  return `"${safe.replaceAll('"', '""')}"`;
-}
-
 function csvIdentifier(value) {
   const text = String(value ?? "").trim();
-  return text ? `'${text}` : "";
+  return text;
 }
 
 function csvMoney(value) {
-  return parseDecimal(value).toFixed(2).replace(".", ",");
+  return parseDecimal(value);
 }
 
 function csvPercent(value) {
   return `${Number(value || 0).toFixed(2).replace(".", ",")}%`;
 }
 
-function exportDreCsv() {
+async function exportDreExcel() {
   const dre = getDreData(getValue("dreInicio"), getValue("dreFim"));
   const branding = getDocumentBranding();
   const areas = getDreAreaProfitability(dre);
   const generatedAt = new Date().toLocaleString("pt-BR");
   const rows = [
-    ["EXPORTAÇÃO PARA CONTADOR (CSV)"],
+    ["EXPORTAÇÃO PARA CONTADOR (EXCEL)"],
     ["Oficina", branding.companyName],
     ["E-mail da conta", branding.ownerEmail || "Não informado"],
     ["Período inicial", formatDateBR(dre.start)],
@@ -3529,9 +3521,26 @@ function exportDreCsv() {
   dre.alertas.forEach((alerta) => rows.push([alerta.reference, alerta.message]));
   if (!dre.alertas.length) rows.push(["Todos os custos e valores de venda do período foram revisados."]);
 
-  const content = `\uFEFF${rows.map((row) => row.map(csvCell).join(";")).join("\r\n")}`;
-  const url = URL.createObjectURL(new Blob([content], { type: "text/csv;charset=utf-8" }));
-  const link = document.createElement("a"); link.href = url; link.download = `Exportacao-Contador-DRE-${dre.start || "inicio"}-a-${dre.end || "fim"}.csv`; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  if (!window.XLSX?.utils || typeof window.XLSX.writeFile !== "function") {
+    await rrAlert("Não foi possível carregar o gerador do Excel. Confira a internet e tente novamente.", "Exportação indisponível");
+    return;
+  }
+
+  const worksheet = window.XLSX.utils.aoa_to_sheet(rows);
+  worksheet["!cols"] = [
+    { wch: 18 }, { wch: 24 }, { wch: 18 }, { wch: 28 }, { wch: 20 }, { wch: 28 },
+    { wch: 15 }, { wch: 24 }, { wch: 34 }, { wch: 24 }, { wch: 12 }, { wch: 20 },
+    { wch: 18 }, { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 24 }, { wch: 18 }
+  ];
+  const workbook = window.XLSX.utils.book_new();
+  workbook.Props = {
+    Title: "Exportação para contador — DRE",
+    Subject: `${formatDateBR(dre.start)} até ${formatDateBR(dre.end)}`,
+    Author: branding.companyName,
+    Company: branding.companyName
+  };
+  window.XLSX.utils.book_append_sheet(workbook, worksheet, "DRE para contador");
+  window.XLSX.writeFile(workbook, `Exportacao-Contador-DRE-${dre.start || "inicio"}-a-${dre.end || "fim"}.xlsx`, { compression: true });
 }
 
 function buildDreStatementRows(dre) {

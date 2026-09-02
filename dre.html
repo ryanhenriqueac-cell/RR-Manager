@@ -27,7 +27,7 @@
       <div id="dreContent" hidden>
         <section class="panel">
           <div class="panel-header"><div><p class="eyebrow">Período de análise</p><h2>Demonstrativo de resultado</h2></div></div>
-          <form id="dreForm" class="form-grid report-form"><label>Data inicial<input id="dreInicio" type="date"></label><label>Data final<input id="dreFim" type="date"></label><div class="form-actions span-2"><button class="btn btn-primary" type="submit">Gerar DRE</button><button class="btn btn-muted" type="button" data-dre-period="current-month">Mês atual</button><button class="btn btn-muted" type="button" data-dre-period="previous-month">Mês anterior</button><button class="btn btn-muted" type="button" data-dre-period="quarter">Trimestre</button><button class="btn btn-muted" type="button" data-dre-period="year">Ano</button><button class="btn btn-ghost" type="button" id="drePdf">Gerar PDF</button><button class="btn btn-ghost" type="button" id="dreCsv">Exportar para contador (CSV)</button></div></form>
+          <form id="dreForm" class="form-grid report-form"><label>Data inicial<input id="dreInicio" type="date"></label><label>Data final<input id="dreFim" type="date"></label><div class="form-actions span-2"><button class="btn btn-primary" type="submit">Gerar DRE</button><button class="btn btn-muted" type="button" data-dre-period="current-month">Mês atual</button><button class="btn btn-muted" type="button" data-dre-period="previous-month">Mês anterior</button><button class="btn btn-muted" type="button" data-dre-period="quarter">Trimestre</button><button class="btn btn-muted" type="button" data-dre-period="year">Ano</button><button class="btn btn-ghost" type="button" id="drePdf">Gerar PDF</button><button class="btn btn-ghost" type="button" id="dreExcel">Exportar para contador (Excel)</button></div></form>
           <p class="report-status" id="dreStatus"></p>
           <p class="dre-criterion"><strong>Critério adotado:</strong> orçamento aprovado representa serviço realizado e valor recebido na data da aprovação.</p>
         </section>
@@ -57,6 +57,6 @@
       </div>
     </main>
   </div>
-  <script src="script.js?v=105"></script><script src="firebase-config.js?v=13"></script><script type="module" src="firebase-sync.js?v=64"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script><script src="script.js?v=106"></script><script src="firebase-config.js?v=13"></script><script type="module" src="firebase-sync.js?v=64"></script>
 </body>
 </html>
