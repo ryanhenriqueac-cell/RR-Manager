@@ -1326,6 +1326,7 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
 .admin-platform-overview small,.admin-finance-kpis small { color: var(--muted); font-size: 10px; }
 .admin-finance-kpis .is-negative { color: #ff9da8; }
 .admin-platform-alerts { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+.admin-attention-title { margin: 20px 0 0; }
 .admin-platform-alerts button,.admin-alert-ok { padding: 11px 14px; border: 1px solid rgba(241,199,91,.3); border-radius: 8px; color: var(--gold-2); background: rgba(241,199,91,.07); font: inherit; cursor: pointer; }
 .admin-alert-ok { color: #65e0af; border-color: rgba(79,209,161,.25); background: rgba(79,209,161,.07); cursor: default; }
 .admin-expense-layout { display: grid; grid-template-columns: minmax(300px,.65fr) minmax(0,1.35fr); gap: 16px; margin-top: 16px; }
@@ -1336,6 +1337,10 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
 .admin-expense-history table { min-width: 620px; font-size: 12px; }
 .admin-expense-history th,.admin-expense-history td { padding: 9px; }
 .admin-expense-history button { padding: 6px 9px; border: 1px solid rgba(255,90,107,.3); border-radius: 6px; color: #ff9da8; background: rgba(255,90,107,.06); cursor: pointer; }
+.admin-expense-actions { display: flex; gap: 6px; white-space: nowrap; }
+.admin-expense-actions button:not(.is-danger) { color: var(--text); border-color: var(--line); background: rgba(255,255,255,.04); }
+.admin-finance-actions { display: flex; align-items: end; justify-content: flex-end; gap: 10px; margin-bottom: 10px; }
+.admin-finance-actions label { display: grid; gap: 4px; color: var(--muted); font-size: 11px; font-weight: 900; }
 .admin-monthly-evolution { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 10px; margin-top: 16px; }
 .admin-monthly-evolution h3 { grid-column: 1/-1; margin: 0; }
 .admin-monthly-evolution article { display: grid; gap: 10px; min-width: 0; padding: 13px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.025); }
@@ -1580,6 +1585,7 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
 .billing-status { justify-self: start; padding: 5px 8px; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 900; }
 .billing-status.is-current { color: #65e0af; border-color: rgba(79,209,161,.35); background: rgba(79,209,161,.08); }
 .billing-status.is-soon,.billing-status.is-today,.billing-status.is-trial { color: var(--gold-2); border-color: rgba(241,199,91,.35); background: rgba(241,199,91,.08); }
+.billing-status.is-trial-ended { color: #ffbd75; border-color: rgba(255,170,80,.4); background: rgba(255,170,80,.09); }
 .billing-status.is-overdue,.billing-status.is-canceled { color: #ff9da8; border-color: rgba(255,90,107,.36); background: rgba(255,90,107,.08); }
 .billing-status.is-exempt { color: #89c9ff; border-color: rgba(87,184,255,.35); background: rgba(87,184,255,.08); }
 .billing-status.is-unconfigured { color: var(--muted); }
@@ -1606,6 +1612,17 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
 .admin-payment-check input { width: 18px; min-height: 18px; }
 
 .admin-team-row { display: grid; gap: 10px; }
+.admin-workspace-control { display: grid; gap: 9px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.02); }
+.admin-control-label { display: flex; align-items: center; gap: 9px; }
+.admin-control-label > b { display: grid; place-items: center; width: 28px; height: 28px; flex: 0 0 28px; border-radius: 50%; color: #07111f; background: var(--gold); }
+.admin-control-label > span { display: grid; gap: 1px; }
+.admin-control-label small { color: var(--muted); font-size: 10px; }
+.admin-open-cue { color: var(--gold-2) !important; }
+.admin-delete-row { display: flex; justify-content: flex-end; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.06); }
+.admin-help-modal { width: min(760px,100%); }
+.admin-help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; text-align: left; }
+.admin-help-grid article { padding: 13px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.035); }
+.admin-help-grid p { margin: 6px 0 0; font-size: 13px; }
 .admin-team-row > button { justify-self: start; }
 .admin-team-panel { display: grid; gap: 14px; padding: 14px; border: 1px solid rgba(87,184,255,.22); border-radius: 8px; background: rgba(5,18,33,.58); }
 .admin-team-panel .panel-header > div { display: grid; gap: 4px; }
@@ -1645,6 +1662,7 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
   .admin-billing-head,.admin-billing-form,.admin-payment-form { grid-template-columns: 1fr; }
   .admin-billing-note,.admin-payment-note,.admin-payment-check { grid-column: auto; }
   .admin-team-form { grid-template-columns: 1fr; }
+  .admin-help-grid { grid-template-columns: 1fr; }
 }
 
 .nav-menu a small { margin-left: auto; color: var(--gold-2); font-size: 9px; letter-spacing: .08em; }

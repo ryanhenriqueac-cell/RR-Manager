@@ -58,6 +58,8 @@ Os recebimentos podem ser corrigidos ou excluídos pelo histórico. O painel som
 
 O administrador é direcionado para `admin.html`, uma central dedicada com indicadores de oficinas, planos, colaboradores, clientes gerenciados e orçamentos. A visão financeira combina os pagamentos de assinatura registrados com os gastos administrativos salvos em `admin_platform/finance`, apresentando resultado mensal, receita mensal estimada, projeção anual, recebimentos previstos para 30 dias e evolução dos últimos seis meses. Esses dados administrativos só podem ser lidos e alterados pelo e-mail administrador definido nas regras.
 
+Cada oficina é apresentada na ordem Acesso, Assinatura, Cobrança e Equipe. Testes encerrados ficam em uma fila de decisão e não são tratados como dívida. A receita recorrente estimada inclui somente assinaturas pagantes com situação em dia, próxima do vencimento, vencendo hoje ou atrasada. O painel também calcula ticket mensal médio, conversão de testes com histórico conhecido, recebimentos por plano, permite filtrar o financeiro por mês e exportar recebimentos, gastos e resumo em Excel.
+
 ## Aceite jurídico
 
 As versões vigentes ficam em `LEGAL_TERMS_VERSION` e `LEGAL_PRIVACY_VERSION`, dentro de `firebase-sync.js`. Quando os textos forem alterados de forma relevante, aumente a versão correspondente para solicitar um novo aceite no próximo login.

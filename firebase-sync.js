@@ -129,6 +129,7 @@ const confirmedCollectionState = new Map();
 let adminWorkspaces = [];
 let adminBillingFilter = "all";
 let adminPlatformFinance = { expenses: [] };
+let adminFinanceMonth = getLocalDateISO().slice(0, 7);
 let activeWorkspaceSubscription = null;
 let activeTeamAccess = null;
 let activeWorkspaceData = null;
@@ -430,6 +431,7 @@ function buildAuthShell() {
           <p>Visão financeira, comercial e operacional de toda a plataforma.</p>
         </div>
         <div class="admin-header-actions">
+          <button class="btn btn-ghost" type="button" id="firebaseAdminHelp">Como funciona</button>
           <a class="btn btn-ghost" href="index.html">Voltar à página principal</a>
           <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
         </div>
@@ -439,6 +441,7 @@ function buildAuthShell() {
         <div class="admin-section-title"><div><span>Visão executiva</span><h2>Saúde da plataforma</h2></div><small>Atualizado com os dados cadastrados</small></div>
         <div id="firebasePlatformOverview" class="admin-platform-overview"></div>
         <div id="firebaseBillingSummary" class="admin-billing-summary"></div>
+        <h3 class="admin-attention-title">Precisa da minha atenção</h3>
         <div id="firebaseAdminAlerts" class="admin-platform-alerts"></div>
       </section>
       <section id="adminFinance" class="admin-dashboard-section">
@@ -488,6 +491,7 @@ function bindAuthEvents() {
   document.getElementById("firebaseBackToLogin").addEventListener("click", showLoginForm);
   document.getElementById("firebaseLogout").addEventListener("click", logout);
   document.getElementById("firebaseAdminLogout").addEventListener("click", logout);
+  document.getElementById("firebaseAdminHelp").addEventListener("click", showAdminHelpModal);
   document.getElementById("firebaseAdminBack").addEventListener("click", backToAdminDashboard);
   document.getElementById("rrOnboardingReplay").addEventListener("click", () => showOnboarding(true));
   document.getElementById("toggleFirebasePassword").addEventListener("click", () => togglePasswordVisibility("firebasePassword", "toggleFirebasePassword"));
@@ -2183,6 +2187,27 @@ function compareAdminWorkspacesByName(a, b) {
   });
 }
 
+function showAdminHelpModal() {
+  const overlay = document.createElement("div");
+  overlay.className = "auth-modal-overlay";
+  overlay.innerHTML = `
+    <div class="auth-modal admin-help-modal">
+      <img src="assets/logo-rr-manager.png" alt="RR Manager">
+      <h2>Como usar a Central de Controle</h2>
+      <div class="admin-help-grid">
+        <article><strong>1. Acesso</strong><p>Libera ou bloqueia a entrada da oficina. A situação financeira nunca bloqueia o cliente sozinha.</p></article>
+        <article><strong>2. Assinatura</strong><p>Define plano Essencial ou Pro, cobrança mensal ou anual e o valor contratado.</p></article>
+        <article><strong>3. Cobrança</strong><p>Controla teste, cortesia, vencimento e pagamentos. Somente valores registrados entram como recebidos.</p></article>
+        <article><strong>4. Equipe</strong><p>Gerencia os colaboradores da oficina e suas permissões, recurso exclusivo do Plano Pro.</p></article>
+      </div>
+      <p><strong>Ordem recomendada:</strong> resolva primeiro a fila "Precisa da minha atenção" e depois registre pagamentos e gastos do dia.</p>
+      <div class="auth-modal-actions"><button class="btn btn-primary" type="button" data-close-admin-help>Entendi</button></div>
+    </div>`;
+  overlay.querySelector("[data-close-admin-help]").addEventListener("click", () => overlay.remove());
+  overlay.addEventListener("click", (event) => { if (event.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
 function getTeamCountLabel(count) {
   return `${count} ${count === 1 ? "colaborador" : "colaboradores"}`;
 }
@@ -2225,6 +2250,7 @@ function normalizeWorkspaceBilling(workspace = {}) {
   const expectedAmount = Number(source.expectedAmount ?? subscription.agreedPrice);
   return {
     subscriptionStart: String(source.subscriptionStart || ""),
+    trialStartedAt: String(source.trialStartedAt || (source.statusOverride === "trial" ? source.subscriptionStart || "" : "")),
     lastPaymentDate: String(source.lastPaymentDate || ""),
     nextDueDate: String(source.nextDueDate || ""),
     expectedAmount: Number.isFinite(expectedAmount) ? expectedAmount : subscription.agreedPrice,
@@ -2245,7 +2271,7 @@ function getBillingStatus(workspace) {
     const trialEnd = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 30);
     const days = Math.ceil((trialEnd - today) / 86400000);
     if (days >= 0) return { key: "trial", label: "Teste grátis", detail: `${days} ${days === 1 ? "dia restante" : "dias restantes"}`, days };
-    return { key: "overdue", label: "Teste expirado", detail: `${Math.abs(days)} ${days === -1 ? "dia após o teste" : "dias após o teste"}`, days: Math.abs(days) };
+    return { key: "trial-ended", label: "Teste encerrado", detail: "Decida se vai ativar ou cancelar", days: Math.abs(days) };
   }
   const due = parseLocalDate(billing.nextDueDate);
   if (!due) {
@@ -2254,7 +2280,7 @@ function getBillingStatus(workspace) {
       const trialEnd = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 30);
       const days = Math.ceil((trialEnd - today) / 86400000);
       if (days >= 0) return { key: "trial", label: "Teste grátis", detail: `${days} ${days === 1 ? "dia restante" : "dias restantes"}`, days };
-      return { key: "overdue", label: "Teste expirado", detail: `${Math.abs(days)} ${days === -1 ? "dia após o teste" : "dias após o teste"}`, days: Math.abs(days) };
+      return { key: "trial-ended", label: "Teste encerrado", detail: "Decida se vai ativar ou cancelar", days: Math.abs(days) };
     }
     return { key: "unconfigured", label: "Configurar cobrança", detail: "Informe o próximo vencimento", days: 0 };
   }
@@ -2274,7 +2300,7 @@ function billingMatchesFilter(workspace) {
 }
 
 function getAdminPlatformMetrics() {
-  const month = getLocalDateISO().slice(0, 7);
+  const month = adminFinanceMonth;
   let receivedMonth = 0;
   let receivedTotal = 0;
   let projected30 = 0;
@@ -2282,6 +2308,11 @@ function getAdminPlatformMetrics() {
   let collaborators = 0;
   let registeredClients = 0;
   let budgets = 0;
+  let payingAccounts = 0;
+  let trialAccounts = 0;
+  let trialStartedAccounts = 0;
+  let trialConvertedAccounts = 0;
+  const receivedByPlan = { essential: 0, pro: 0 };
   const plans = { essential: 0, pro: 0 };
   const access = { active: 0, pending: 0, blocked: 0 };
   adminWorkspaces.forEach((workspace) => {
@@ -2296,9 +2327,12 @@ function getAdminPlatformMetrics() {
     billing.payments.forEach((payment) => {
       const amount = Number(payment.amount || 0);
       receivedTotal += amount;
-      if (String(payment.paidAt || "").slice(0, 7) === month) receivedMonth += amount;
+      if (String(payment.paidAt || "").slice(0, 7) === month) { receivedMonth += amount; receivedByPlan[subscription.planId] += amount; }
     });
-    if (!["exempt", "canceled", "trial"].includes(status.key)) {
+    if (status.key === "trial") trialAccounts += 1;
+    if (billing.trialStartedAt) { trialStartedAccounts += 1; if (billing.payments.length) trialConvertedAccounts += 1; }
+    if (["current", "soon", "today", "overdue"].includes(status.key)) {
+      payingAccounts += 1;
       monthlyRecurring += subscription.billingCycle === "annual" ? billing.expectedAmount / 12 : billing.expectedAmount;
       const due = parseLocalDate(billing.nextDueDate);
       const today = parseLocalDate(getLocalDateISO());
@@ -2308,7 +2342,9 @@ function getAdminPlatformMetrics() {
   });
   const expenses = Array.isArray(adminPlatformFinance.expenses) ? adminPlatformFinance.expenses : [];
   const expensesMonth = expenses.filter((expense) => String(expense.date || "").slice(0, 7) === month).reduce((total, expense) => total + Number(expense.amount || 0), 0);
-  return { receivedMonth, receivedTotal, projected30, monthlyRecurring, annualRecurring: monthlyRecurring * 12, expensesMonth, resultMonth: receivedMonth - expensesMonth, collaborators, registeredClients, budgets, plans, access };
+  const averageRevenue = payingAccounts ? monthlyRecurring / payingAccounts : 0;
+  const trialConversion = trialStartedAccounts ? trialConvertedAccounts / trialStartedAccounts * 100 : 0;
+  return { receivedMonth, receivedTotal, projected30, monthlyRecurring, annualRecurring: monthlyRecurring * 12, expensesMonth, resultMonth: receivedMonth - expensesMonth, collaborators, registeredClients, budgets, plans, access, payingAccounts, trialAccounts, trialConversion, averageRevenue, receivedByPlan };
 }
 
 function renderAdminPlatformOverview() {
@@ -2323,10 +2359,17 @@ function renderAdminPlatformOverview() {
     <article><span>Colaboradores</span><strong>${metrics.collaborators}</strong><small>contas vinculadas</small></article>
     <article><span>Clientes gerenciados</span><strong>${metrics.registeredClients}</strong><small>em toda a plataforma</small></article>
     <article><span>Orçamentos criados</span><strong>${metrics.budgets}</strong><small>em toda a plataforma</small></article>`;
+  container.innerHTML += `
+    <article><span>Clientes pagantes</span><strong>${metrics.payingAccounts}</strong><small>com cobrança ativa</small></article>
+    <article><span>Em teste grátis</span><strong>${metrics.trialAccounts}</strong><small>avaliações ativas</small></article>
+    <article><span>Conversão dos testes</span><strong>${metrics.trialConversion.toFixed(1)}%</strong><small>com pagamento registrado</small></article>
+    <article><span>Ticket mensal médio</span><strong>${formatBillingMoney(metrics.averageRevenue)}</strong><small>receita recorrente por pagante</small></article>`;
   const overdue = adminWorkspaces.filter((workspace) => getBillingStatus(workspace).key === "overdue").length;
+  const endedTrials = adminWorkspaces.filter((workspace) => getBillingStatus(workspace).key === "trial-ended").length;
   const messages = [];
   if (metrics.access.pending) messages.push(`<button type="button" data-overview-filter="pending-access"><strong>${metrics.access.pending}</strong> ${metrics.access.pending === 1 ? "acesso aguardando análise" : "acessos aguardando análise"}</button>`);
   if (overdue) messages.push(`<button type="button" data-overview-filter="overdue"><strong>${overdue}</strong> ${overdue === 1 ? "cobrança atrasada" : "cobranças atrasadas"}</button>`);
+  if (endedTrials) messages.push(`<button type="button" data-overview-filter="trial-ended"><strong>${endedTrials}</strong> ${endedTrials === 1 ? "teste encerrado para decidir" : "testes encerrados para decidir"}</button>`);
   if (metrics.access.blocked) messages.push(`<button type="button" data-overview-filter="blocked"><strong>${metrics.access.blocked}</strong> ${metrics.access.blocked === 1 ? "conta bloqueada" : "contas bloqueadas"}</button>`);
   alerts.innerHTML = messages.length ? messages.join("") : `<div class="admin-alert-ok">Nenhum alerta importante no momento.</div>`;
   alerts.querySelectorAll("[data-overview-filter]").forEach((button) => button.addEventListener("click", () => { adminBillingFilter = button.dataset.overviewFilter; renderAdminWorkspaceList(); document.getElementById("adminCustomers")?.scrollIntoView({ behavior: "smooth" }); }));
@@ -2336,10 +2379,11 @@ function renderAdminPlatformFinance() {
   const container = document.getElementById("firebaseAdminFinance");
   if (!container) return;
   const metrics = getAdminPlatformMetrics();
-  const expenses = (Array.isArray(adminPlatformFinance.expenses) ? adminPlatformFinance.expenses : []).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const expenses = (Array.isArray(adminPlatformFinance.expenses) ? adminPlatformFinance.expenses : []).filter((expense) => String(expense.date || "").slice(0, 7) === adminFinanceMonth).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const monthlySeries = getAdminMonthlySeries();
   const monthlyMax = Math.max(1, ...monthlySeries.flatMap((item) => [item.received, item.expenses]));
   container.innerHTML = `
+    <div class="admin-finance-actions"><label>Período<input type="month" data-admin-finance-month value="${adminFinanceMonth}"></label><button class="btn btn-ghost" type="button" data-export-admin-finance>Exportar financeiro (Excel)</button></div>
     <div class="admin-finance-kpis">
       <article><span>Recebido no mês</span><strong>${formatBillingMoney(metrics.receivedMonth)}</strong></article>
       <article><span>Gastos no mês</span><strong class="is-negative">${formatBillingMoney(metrics.expensesMonth)}</strong></article>
@@ -2347,21 +2391,45 @@ function renderAdminPlatformFinance() {
       <article><span>Receita mensal estimada</span><strong>${formatBillingMoney(metrics.monthlyRecurring)}</strong><small>mensais + anuais divididos por 12</small></article>
       <article><span>Projeção anual</span><strong>${formatBillingMoney(metrics.annualRecurring)}</strong></article>
       <article><span>A receber em 30 dias</span><strong>${formatBillingMoney(metrics.projected30)}</strong></article>
+      <article><span>Recebido · Essencial</span><strong>${formatBillingMoney(metrics.receivedByPlan.essential)}</strong><small>no mês atual</small></article>
+      <article><span>Recebido · Pro</span><strong>${formatBillingMoney(metrics.receivedByPlan.pro)}</strong><small>no mês atual</small></article>
     </div>
     <div class="admin-expense-layout">
       <form id="firebaseAdminExpenseForm" class="admin-expense-form">
         <h3>Registrar gasto da plataforma</h3>
-        <label>Data<input name="date" type="date" value="${getLocalDateISO()}" required></label>
+        <input name="expenseId" type="hidden">
+        <label>Data<input name="date" type="date" value="${adminFinanceMonth === getLocalDateISO().slice(0, 7) ? getLocalDateISO() : `${adminFinanceMonth}-01`}" required></label>
         <label>Categoria<select name="category"><option>Hospedagem e tecnologia</option><option>Marketing</option><option>Impostos e taxas</option><option>Atendimento</option><option>Outros</option></select></label>
         <label>Descrição<input name="description" maxlength="100" required placeholder="Ex.: domínio, anúncio ou serviço"></label>
         <label>Valor<input name="amount" type="number" min="0.01" step="0.01" required></label>
-        <button class="btn btn-primary" type="submit">Salvar gasto</button><span class="form-status" data-expense-message></span>
+        <div class="actions"><button class="btn btn-primary" type="submit">Salvar gasto</button><button class="btn btn-muted" type="button" data-cancel-expense hidden>Cancelar edição</button></div><span class="form-status" data-expense-message></span>
       </form>
-      <div class="admin-expense-history"><h3>Gastos registrados</h3>${expenses.length ? `<div class="table-wrap"><table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody>${expenses.map((expense) => `<tr><td>${formatBillingDate(expense.date)}</td><td>${escapeHtml(expense.category)}</td><td>${escapeHtml(expense.description)}</td><td>${formatBillingMoney(expense.amount)}</td><td><button type="button" data-delete-expense="${escapeHtml(expense.id)}">Excluir</button></td></tr>`).join("")}</tbody></table></div>` : `<div class="admin-empty">Nenhum gasto registrado.</div>`}</div>
+      <div class="admin-expense-history"><h3>Gastos registrados</h3>${expenses.length ? `<div class="table-wrap"><table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody>${expenses.map((expense) => `<tr><td>${formatBillingDate(expense.date)}</td><td>${escapeHtml(expense.category)}</td><td>${escapeHtml(expense.description)}</td><td>${formatBillingMoney(expense.amount)}</td><td class="admin-expense-actions"><button type="button" data-edit-expense="${escapeHtml(expense.id)}">Editar</button><button type="button" class="is-danger" data-delete-expense="${escapeHtml(expense.id)}">Excluir</button></td></tr>`).join("")}</tbody></table></div>` : `<div class="admin-empty">Nenhum gasto registrado.</div>`}</div>
     </div>
     <div class="admin-monthly-evolution"><h3>Evolução dos últimos 6 meses</h3>${monthlySeries.map((item) => `<article><strong>${escapeHtml(item.label)}</strong><div><span>Recebido ${formatBillingMoney(item.received)}</span><i><b style="width:${Math.round(item.received / monthlyMax * 100)}%"></b></i></div><div><span>Gastos ${formatBillingMoney(item.expenses)}</span><i class="is-expense"><b style="width:${Math.round(item.expenses / monthlyMax * 100)}%"></b></i></div><em class="${item.result < 0 ? "is-negative" : ""}">Resultado ${formatBillingMoney(item.result)}</em></article>`).join("")}</div>`;
   container.querySelector("#firebaseAdminExpenseForm")?.addEventListener("submit", saveAdminPlatformExpense);
+  container.querySelector("[data-admin-finance-month]")?.addEventListener("change", (event) => { if (event.target.value) { adminFinanceMonth = event.target.value; renderAdminPlatformFinance(); } });
+  container.querySelector("[data-export-admin-finance]")?.addEventListener("click", exportAdminPlatformFinance);
+  container.querySelector("[data-cancel-expense]")?.addEventListener("click", () => renderAdminPlatformFinance());
+  container.querySelectorAll("[data-edit-expense]").forEach((button) => button.addEventListener("click", () => editAdminPlatformExpense(button.dataset.editExpense)));
   container.querySelectorAll("[data-delete-expense]").forEach((button) => button.addEventListener("click", () => deleteAdminPlatformExpense(button.dataset.deleteExpense)));
+}
+
+async function exportAdminPlatformFinance() {
+  if (!window.XLSX) { await showAuthStatusModal("Exportação indisponível", "Atualize a página e tente novamente."); return; }
+  const paymentRows = [];
+  adminWorkspaces.forEach((workspace) => {
+    const subscription = getWorkspaceSubscription(workspace);
+    const name = workspace.businessName || workspace.registration?.empresa || workspace.ownerEmail || workspace.id;
+    normalizeWorkspaceBilling(workspace).payments.forEach((payment) => paymentRows.push({ Oficina: name, Plano: getPlanName(subscription), Ciclo: subscription.billingCycle === "annual" ? "Anual" : "Mensal", Recebido_em: formatBillingDate(payment.paidAt), Valor: Number(payment.amount || 0), Forma: payment.method || "", Referencia: payment.reference || "", Observacao: payment.note || "" }));
+  });
+  const expenseRows = (adminPlatformFinance.expenses || []).map((expense) => ({ Data: formatBillingDate(expense.date), Categoria: expense.category || "", Descricao: expense.description || "", Valor: Number(expense.amount || 0) }));
+  const monthlyRows = getAdminMonthlySeries().map((item) => ({ Mes: item.label, Recebido: item.received, Gastos: item.expenses, Resultado: item.result }));
+  const workbook = window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(workbook, window.XLSX.utils.json_to_sheet(paymentRows.length ? paymentRows : [{ Aviso: "Nenhum pagamento registrado" }]), "Recebimentos");
+  window.XLSX.utils.book_append_sheet(workbook, window.XLSX.utils.json_to_sheet(expenseRows.length ? expenseRows : [{ Aviso: "Nenhum gasto registrado" }]), "Gastos");
+  window.XLSX.utils.book_append_sheet(workbook, window.XLSX.utils.json_to_sheet(monthlyRows), "Resumo mensal");
+  window.XLSX.writeFile(workbook, `RR-Manager-financeiro-${getLocalDateISO()}.xlsx`);
 }
 
 function getAdminMonthlySeries() {
@@ -2387,11 +2455,27 @@ async function saveAdminPlatformExpense(event) {
   const form = event.currentTarget;
   const data = new FormData(form);
   const amount = Number(data.get("amount"));
-  const expense = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, date: String(data.get("date") || ""), category: String(data.get("category") || "Outros"), description: String(data.get("description") || "").trim(), amount, createdAtClient: new Date().toISOString() };
+  const expenseId = String(data.get("expenseId") || "");
+  const previousExpense = (adminPlatformFinance.expenses || []).find((item) => item.id === expenseId);
+  const expense = { ...previousExpense, id: expenseId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, date: String(data.get("date") || ""), category: String(data.get("category") || "Outros"), description: String(data.get("description") || "").trim(), amount, createdAtClient: previousExpense?.createdAtClient || new Date().toISOString(), updatedAtClient: new Date().toISOString() };
   const message = form.querySelector("[data-expense-message]");
   if (!parseLocalDate(expense.date) || !expense.description || !Number.isFinite(amount) || amount <= 0) { message.textContent = "Confira a data, descrição e o valor."; return; }
   message.textContent = "Salvando...";
-  try { adminPlatformFinance.expenses = [expense, ...(adminPlatformFinance.expenses || [])].slice(0, 500); await persistAdminPlatformFinance(); renderAdminPlatformOverview(); renderAdminPlatformFinance(); } catch (error) { message.textContent = firebaseError(error); }
+  try { adminPlatformFinance.expenses = expenseId ? (adminPlatformFinance.expenses || []).map((item) => item.id === expenseId ? expense : item) : [expense, ...(adminPlatformFinance.expenses || [])].slice(0, 500); await persistAdminPlatformFinance(); renderAdminPlatformOverview(); renderAdminPlatformFinance(); } catch (error) { message.textContent = firebaseError(error); }
+}
+
+function editAdminPlatformExpense(expenseId) {
+  const expense = (adminPlatformFinance.expenses || []).find((item) => item.id === expenseId);
+  const form = document.getElementById("firebaseAdminExpenseForm");
+  if (!expense || !form) return;
+  form.elements.expenseId.value = expense.id;
+  form.elements.date.value = expense.date || "";
+  form.elements.category.value = expense.category || "Outros";
+  form.elements.description.value = expense.description || "";
+  form.elements.amount.value = Number(expense.amount || 0).toFixed(2);
+  form.querySelector("h3").textContent = "Editar gasto da plataforma";
+  form.querySelector("[data-cancel-expense]").hidden = false;
+  form.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 async function deleteAdminPlatformExpense(expenseId) {
@@ -2406,7 +2490,7 @@ function renderAdminBillingOverview() {
   const summary = document.getElementById("firebaseBillingSummary");
   const filters = document.getElementById("firebaseBillingFilters");
   if (!summary || !filters) return;
-  const counts = { current: 0, soon: 0, today: 0, overdue: 0, trial: 0, exempt: 0, canceled: 0, unconfigured: 0, blocked: 0, pendingAccess: 0 };
+  const counts = { current: 0, soon: 0, today: 0, overdue: 0, trial: 0, "trial-ended": 0, exempt: 0, canceled: 0, unconfigured: 0, blocked: 0, pendingAccess: 0 };
   let pendingAmount = 0;
   let receivedAmount = 0;
   adminWorkspaces.forEach((workspace) => {
@@ -2425,7 +2509,7 @@ function renderAdminBillingOverview() {
     <article class="is-danger"><span>Em atraso</span><strong>${counts.overdue}</strong></article>
     <article class="is-money"><span>Pendente</span><strong>${formatBillingMoney(pendingAmount)}</strong></article>
     <article><span>Total recebido</span><strong>${formatBillingMoney(receivedAmount)}</strong></article>`;
-  const options = [["all", "Todos", adminWorkspaces.length], ["pending-access", "Aguardando acesso", counts.pendingAccess], ["current", "Em dia", counts.current], ["soon", "Próximos", counts.soon], ["today", "Hoje", counts.today], ["overdue", "Atrasados", counts.overdue], ["trial", "Teste grátis", counts.trial], ["exempt", "Cortesias", counts.exempt], ["canceled", "Cancelados", counts.canceled], ["unconfigured", "Configurar", counts.unconfigured], ["blocked", "Bloqueados", counts.blocked]];
+  const options = [["all", "Todos", adminWorkspaces.length], ["pending-access", "Aguardando acesso", counts.pendingAccess], ["trial-ended", "Testes encerrados", counts["trial-ended"]], ["overdue", "Atrasados", counts.overdue], ["today", "Hoje", counts.today], ["soon", "Próximos", counts.soon], ["current", "Em dia", counts.current], ["trial", "Teste grátis", counts.trial], ["exempt", "Cortesias", counts.exempt], ["canceled", "Cancelados", counts.canceled], ["unconfigured", "Configurar", counts.unconfigured], ["blocked", "Bloqueados", counts.blocked]];
   filters.innerHTML = options.map(([key, label, count]) => `<button type="button" class="${adminBillingFilter === key ? "is-active" : ""}" data-billing-filter="${key}">${label} <strong>${count}</strong></button>`).join("");
   filters.querySelectorAll("[data-billing-filter]").forEach((button) => button.addEventListener("click", () => {
     adminBillingFilter = button.dataset.billingFilter;
@@ -2439,9 +2523,14 @@ function getBillingMarkup(workspace) {
   const status = getBillingStatus(workspace);
   const methods = { pix: "Pix", card: "Cartão", boleto: "Boleto", other: "Outro" };
   const receivedTotal = billing.payments.reduce((total, payment) => total + Number(payment.amount || 0), 0);
+  const canRegisterPayment = ["current", "soon", "today", "overdue", "trial", "trial-ended"].includes(status.key);
+  const canSendMessage = ["soon", "today", "overdue", "trial-ended"].includes(status.key);
+  const paymentLabel = ["trial", "trial-ended"].includes(status.key) ? "Registrar 1º pagamento e ativar" : "Registrar pagamento";
+  const messageLabel = status.key === "trial-ended" ? "Falar sobre ativação" : "Cobrar pelo WhatsApp";
   const history = billing.payments.map((payment) => `<tr><td>${formatBillingDate(payment.paidAt)}</td><td>${formatBillingMoney(payment.amount)}</td><td>${escapeHtml(methods[payment.method] || "Outro")}</td><td>${escapeHtml(payment.reference || "-")}</td><td>${escapeHtml(payment.note || "-")}</td><td class="admin-payment-actions"><button type="button" data-edit-payment="${escapeHtml(payment.id)}" data-workspace-id="${id}">Editar</button><button type="button" class="is-danger" data-delete-payment="${escapeHtml(payment.id)}" data-workspace-id="${id}">Excluir</button></td></tr>`).join("");
   return `
     <section class="admin-billing" data-billing-workspace="${id}">
+      <div class="admin-control-label"><b>3</b><span><strong>Cobrança</strong><small>Datas, situação e pagamentos</small></span></div>
       <div class="admin-billing-head">
         <div><span class="billing-status is-${status.key}">${status.label}</span><small>${status.detail}</small></div>
         <div><span>Valor previsto</span><strong>${formatBillingMoney(billing.expectedAmount)}</strong></div>
@@ -2455,10 +2544,10 @@ function getBillingMarkup(workspace) {
           <label>Próximo vencimento<input type="date" data-billing-field="nextDueDate" value="${escapeHtml(billing.nextDueDate)}"></label>
           <label>Valor previsto<input type="number" min="0" step="0.01" data-billing-field="expectedAmount" value="${billing.expectedAmount.toFixed(2)}"></label>
           <label>Forma preferencial<select data-billing-field="preferredMethod">${Object.entries(methods).map(([key, label]) => `<option value="${key}"${billing.preferredMethod === key ? " selected" : ""}>${label}</option>`).join("")}</select></label>
-          <label>Situação manual<select data-billing-field="statusOverride"><option value="">Automática pela data</option><option value="trial"${billing.statusOverride === "trial" ? " selected" : ""}>Teste grátis por 30 dias</option><option value="exempt"${billing.statusOverride === "exempt" ? " selected" : ""}>Cortesia / isento</option><option value="canceled"${billing.statusOverride === "canceled" ? " selected" : ""}>Cancelado</option></select></label>
+          <label>Tipo da assinatura<select data-billing-field="statusOverride"><option value="">Cliente pagante · situação pelas datas</option><option value="trial"${billing.statusOverride === "trial" ? " selected" : ""}>Teste grátis por 30 dias</option><option value="exempt"${billing.statusOverride === "exempt" ? " selected" : ""}>Cortesia · não cobrar</option><option value="canceled"${billing.statusOverride === "canceled" ? " selected" : ""}>Assinatura cancelada</option></select></label>
           <label class="admin-billing-note">Observação administrativa<textarea rows="2" data-billing-field="adminNote" placeholder="Acordos, descontos ou lembretes">${escapeHtml(billing.adminNote)}</textarea></label>
         </div>
-        <div class="actions"><button class="btn btn-ghost" type="button" data-save-billing="${id}">Salvar cobrança</button><button class="btn btn-primary" type="button" data-register-payment="${id}">Registrar pagamento</button><button class="btn btn-whatsapp" type="button" data-charge-whatsapp="${id}">Cobrar pelo WhatsApp</button><button class="btn btn-muted" type="button" data-billing-history-toggle="${id}">Histórico (${billing.payments.length})</button></div>
+        <div class="actions"><button class="btn btn-ghost" type="button" data-save-billing="${id}">Salvar cobrança</button>${canRegisterPayment ? `<button class="btn btn-primary" type="button" data-register-payment="${id}">${paymentLabel}</button>` : ""}${canSendMessage ? `<button class="btn btn-whatsapp" type="button" data-charge-whatsapp="${id}">${messageLabel}</button>` : ""}<button class="btn btn-muted" type="button" data-billing-history-toggle="${id}">Histórico (${billing.payments.length})</button></div>
         <div class="admin-payment-history" data-billing-history="${id}" hidden>${history ? `<div class="admin-payment-total"><span>Total recebido nesta assinatura</span><strong>${formatBillingMoney(receivedTotal)}</strong></div><div class="table-wrap"><table><thead><tr><th>Recebido</th><th>Valor</th><th>Forma</th><th>Referência</th><th>Observação</th><th>Ações</th></tr></thead><tbody>${history}</tbody></table></div>` : `<div class="admin-empty">Nenhum pagamento registrado.</div>`}</div>
         <span class="form-status" data-billing-message></span>
       </div>
@@ -2476,6 +2565,7 @@ function getAdminTeamMarkup(workspace, subscription, members) {
     </article>`).join("") || `<div class="admin-empty">Nenhum colaborador cadastrado.</div>`;
   return `
     <div class="admin-team-row">
+      <div class="admin-control-label"><b>4</b><span><strong>Equipe</strong><small>Colaboradores e permissões</small></span></div>
       <button class="btn btn-muted" type="button" data-admin-team-toggle="${id}">Gerenciar equipe (${getTeamCountLabel(members.length)})</button>
       <div class="admin-team-panel" data-admin-team-panel="${id}" hidden>
         <div class="panel-header"><div><strong>Equipe da oficina</strong><small>Até quatro contas adicionais no Plano Pro.</small></div></div>
@@ -2534,7 +2624,18 @@ function renderAdminWorkspaceList() {
           </span>
           <span>${clientes} clientes | ${orcamentos} orçamentos</span>
           <span>${getTeamCountLabel(teamMembers.length)}</span>
+          <span class="admin-open-cue">Abrir sistema →</span>
         </button>
+        <section class="admin-workspace-control">
+          <div class="admin-control-label"><b>1</b><span><strong>Acesso</strong><small>Entrada da oficina no sistema</small></span></div>
+          <div class="admin-access-row">
+            <span class="admin-access-status ${statusClass}">${getAccessStatusText(accessStatus)}</span>
+            <button class="btn btn-primary" type="button" data-access-action="${ACCESS_STATUS.ACTIVE}" data-workspace-id="${escapeHtml(workspace.id)}">Liberar acesso</button>
+            <button class="btn btn-danger" type="button" data-access-action="${ACCESS_STATUS.BLOCKED}" data-workspace-id="${escapeHtml(workspace.id)}">Bloquear acesso</button>
+          </div>
+        </section>
+        <section class="admin-workspace-control">
+          <div class="admin-control-label"><b>2</b><span><strong>Assinatura</strong><small>Plano, ciclo e valor contratado</small></span></div>
         <div class="admin-plan-row" data-plan-workspace="${escapeHtml(workspace.id)}">
           <label>Plano
             <select data-plan-field="planId">
@@ -2553,12 +2654,10 @@ function renderAdminWorkspaceList() {
           </label>
           <button class="btn btn-ghost" type="button" data-save-plan="${escapeHtml(workspace.id)}">Salvar plano</button>
         </div>
+        </section>
         ${getBillingMarkup(workspace)}
         ${getAdminTeamMarkup(workspace, subscription, teamMembers)}
-        <div class="admin-access-row">
-          <span class="admin-access-status ${statusClass}">${getAccessStatusText(accessStatus)}</span>
-          <button class="btn btn-primary" type="button" data-access-action="${ACCESS_STATUS.ACTIVE}" data-workspace-id="${escapeHtml(workspace.id)}">Liberar acesso</button>
-          <button class="btn btn-danger" type="button" data-access-action="${ACCESS_STATUS.BLOCKED}" data-workspace-id="${escapeHtml(workspace.id)}">Bloquear acesso</button>
+        <div class="admin-delete-row">
           <button class="btn btn-muted" type="button" data-delete-workspace="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">Excluir cadastro</button>
         </div>
       </div>
@@ -2629,6 +2728,7 @@ async function saveWorkspaceBilling(workspaceId) {
   const billing = {
     ...normalizeWorkspaceBilling(workspace),
     subscriptionStart: panel.querySelector("[data-billing-field='subscriptionStart']")?.value || (statusOverride === "trial" ? getLocalDateISO() : ""),
+    trialStartedAt: statusOverride === "trial" ? (normalizeWorkspaceBilling(workspace).trialStartedAt || panel.querySelector("[data-billing-field='subscriptionStart']")?.value || getLocalDateISO()) : normalizeWorkspaceBilling(workspace).trialStartedAt,
     nextDueDate: panel.querySelector("[data-billing-field='nextDueDate']")?.value || "",
     expectedAmount,
     preferredMethod: panel.querySelector("[data-billing-field='preferredMethod']")?.value || "pix",
@@ -2651,6 +2751,7 @@ function showRegisterPaymentModal(workspaceId, paymentId = "") {
   const workspace = adminWorkspaces.find((item) => item.id === workspaceId);
   if (!workspace) return;
   const billing = normalizeWorkspaceBilling(workspace);
+  const billingStatus = getBillingStatus(workspace);
   const editingPayment = paymentId ? billing.payments.find((payment) => payment.id === paymentId) : null;
   const subscription = getWorkspaceSubscription(workspace);
   const businessName = workspace.businessName || workspace.registration?.empresa || workspace.ownerEmail || "Oficina";
@@ -2679,7 +2780,8 @@ function showRegisterPaymentModal(workspaceId, paymentId = "") {
     const paidAt = String(data.get("paidAt") || "");
     const message = form.querySelector("[data-payment-message]");
     if (!parseLocalDate(paidAt) || !Number.isFinite(amount) || amount < 0) { message.textContent = "Confira a data e o valor recebido."; return; }
-    const previousDueDate = editingPayment?.previousDueDate ?? billing.nextDueDate;
+    const activatingTrial = ["trial", "trial-ended"].includes(billingStatus.key) && !editingPayment;
+    const previousDueDate = editingPayment?.previousDueDate ?? (activatingTrial ? paidAt : billing.nextDueDate);
     const nextDueDate = editingPayment?.nextDueDate ?? (data.get("advanceDue") ? addBillingPeriod(previousDueDate || paidAt, subscription.billingCycle) : previousDueDate);
     const payment = { ...(editingPayment || {}), id: editingPayment?.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, paidAt, amount, method: String(data.get("method") || "other"), reference: String(data.get("reference") || "").trim(), note: String(data.get("note") || "").trim(), previousDueDate, nextDueDate, recordedAtClient: editingPayment?.recordedAtClient || new Date().toISOString(), recordedBy: editingPayment?.recordedBy || currentUser.email || "", editedAtClient: editingPayment ? new Date().toISOString() : "", editedBy: editingPayment ? currentUser.email || "" : "" };
     const payments = editingPayment ? billing.payments.map((item) => item.id === payment.id ? payment : item) : [payment, ...billing.payments].slice(0, 120);
@@ -2728,6 +2830,11 @@ async function openBillingWhatsApp(workspaceId) {
   const billing = normalizeWorkspaceBilling(workspace);
   const status = getBillingStatus(workspace);
   const businessName = workspace.businessName || workspace.registration?.empresa || "sua oficina";
+  if (status.key === "trial-ended") {
+    const message = `Olá! Tudo bem? O período de teste grátis do RR Manager para ${businessName} foi concluído. Gostaria de continuar usando a plataforma? Posso ajudar com a ativação do plano.`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
+    return;
+  }
   const dueText = billing.nextDueDate ? ` com vencimento em ${formatBillingDate(billing.nextDueDate)}` : "";
   const situation = status.key === "overdue" ? ` está em atraso há ${status.days} ${status.days === 1 ? "dia" : "dias"}` : status.key === "today" ? " vence hoje" : " está próxima do vencimento";
   const message = `Olá! Tudo bem? A assinatura do RR Manager de ${businessName}, no valor de ${formatBillingMoney(billing.expectedAmount)}${dueText},${situation}. Se o pagamento já foi realizado, por favor desconsidere esta mensagem. Qualquer dúvida, estamos à disposição.`;
