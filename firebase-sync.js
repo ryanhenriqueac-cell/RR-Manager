@@ -125,6 +125,7 @@ let syncingFromCloud = false;
 let workspaceSchemaVersion = 1;
 let collectionUnsubscribers = [];
 const pendingCollectionChanges = new Map();
+const savingCollectionKeys = new Set();
 const confirmedCollectionState = new Map();
 let adminWorkspaces = [];
 let adminBillingFilter = "all";
@@ -756,7 +757,7 @@ function canAccessStorageKey(key, write = false) {
   const permissionMap = {
     rr_clientes: ["clientes", "orcamentos", "aprovarOrcamentos", "inspecoes", "dre"],
     rr_veiculos: ["clientes", "orcamentos", "aprovarOrcamentos", "inspecoes", "dre"],
-    rr_orcamentos: write ? ["orcamentos"] : ["orcamentos", "aprovarOrcamentos", "dre"],
+    rr_orcamentos: write ? ["orcamentos", "aprovarOrcamentos"] : ["orcamentos", "aprovarOrcamentos", "dre"],
     rr_servicos: ["orcamentos"],
     rr_financeiro: write ? ["financeiro"] : ["financeiro", "dre"],
     rr_dre_config: ["dre"]
@@ -856,6 +857,7 @@ async function flushV2Changes() {
   if (!currentUser || !db || !activeWorkspaceId || !pendingCollectionChanges.size) return;
   const changes = Array.from(pendingCollectionChanges.entries());
   pendingCollectionChanges.clear();
+  changes.forEach(([key]) => savingCollectionKeys.add(key));
   try {
     for (const [key, change] of changes) {
       const operations = [
@@ -884,6 +886,8 @@ async function flushV2Changes() {
   } catch (error) {
     changes.forEach(([key, change]) => mergePendingChange(key, change));
     throw error;
+  } finally {
+    changes.forEach(([key]) => savingCollectionKeys.delete(key));
   }
 }
 
@@ -3122,7 +3126,7 @@ function startCollectionListeners(uid) {
     const unsubscribe = onSnapshot(
       collection(db, "workspaces", uid, getCollectionName(key)),
       (snapshot) => {
-        if (!cloudReady || pendingCollectionChanges.has(key)) return;
+        if (!cloudReady || pendingCollectionChanges.has(key) || savingCollectionKeys.has(key)) return;
         const records = snapshot.docs.map((record) => record.data());
         const current = localStorage.getItem(key) || "[]";
         const next = JSON.stringify(records);

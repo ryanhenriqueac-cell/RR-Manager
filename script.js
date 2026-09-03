@@ -1259,7 +1259,7 @@ function renderDashboardOrcamentos(pendentes) {
         <span>${escapeHtml(getCarroDetalhes(orcamento.clienteId, orcamento.carroId || orcamento.veiculoId))} | ${money(getOrcamentoTotal(orcamento))}</span>
         ${getPublicOrcamentoResponseHtml(orcamento)}
         <div class="actions">
-          ${canApprove ? `<button class="btn btn-primary" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Aprovado')">Aprovar</button><button class="btn btn-danger" type="button" onclick="updateOrcamentoStatus('${orcamento.id}', 'Não aprovado')">Não aprovado</button>` : ""}
+          ${canApprove ? `<button class="btn btn-primary" type="button" onclick="updateOrcamentoStatus(this, '${orcamento.id}', 'Aprovado')">Aprovar</button><button class="btn btn-danger" type="button" onclick="updateOrcamentoStatus(this, '${orcamento.id}', 'Não aprovado')">Não aprovado</button>` : ""}
           ${canEdit ? getOrcamentoWhatsAppButton(orcamento) : ""}
           ${canEdit ? `<a class="btn btn-muted" href="orcamentos.html?editar=${orcamento.id}">Editar</a>` : ""}
           <a class="btn btn-ghost" href="orcamento-imprimir.html?id=${orcamento.id}">Imprimir</a>
@@ -1299,7 +1299,7 @@ window.addEventListener("rr-public-response-api-ready", () => {
   if (document.body.dataset.page === "dashboard") initDashboard();
 });
 
-async function updateOrcamentoStatus(id, status) {
+async function updateOrcamentoStatus(button, id, status) {
   const orcamentos = readData("orcamentos");
   const index = orcamentos.findIndex((orcamento) => orcamento.id === id);
   if (index < 0) return;
@@ -1309,18 +1309,35 @@ async function updateOrcamentoStatus(id, status) {
     : null;
   if (status === "Aprovado" && !pagamento) return;
 
-  orcamentos[index] = {
-    ...orcamentos[index],
-    status,
-    decidedAt: new Date().toISOString(),
-    pagamento,
-    decidedBy: window.rrGetActor?.() || {},
-    updatedBy: window.rrGetActor?.() || {},
-    updatedAt: new Date().toISOString()
-  };
-  writeData("orcamentos", orcamentos);
-  await persistSavedData("orcamentos");
-  initDashboard();
+  const originalLabel = button?.textContent || "";
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Salvando...";
+  }
+  const previousData = readData("orcamentos");
+  try {
+    orcamentos[index] = {
+      ...orcamentos[index],
+      status,
+      decidedAt: new Date().toISOString(),
+      pagamento,
+      decidedBy: window.rrGetActor?.() || {},
+      updatedBy: window.rrGetActor?.() || {},
+      updatedAt: new Date().toISOString()
+    };
+    writeData("orcamentos", orcamentos);
+    await persistSavedData("orcamentos");
+    initDashboard();
+  } catch (error) {
+    console.error("Erro ao atualizar o orçamento:", error);
+    writeData("orcamentos", previousData);
+    await rrAlert("Não foi possível confirmar a alteração no Firebase. O orçamento foi mantido como pré-orçamento. Verifique a conexão e tente novamente.", "Orçamento não salvo");
+  } finally {
+    if (button?.isConnected) {
+      button.disabled = false;
+      button.textContent = originalLabel;
+    }
+  }
 }
 
 function initClientes() {
