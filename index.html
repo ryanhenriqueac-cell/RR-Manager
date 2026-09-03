@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=126">
+  <link rel="stylesheet" href="style.css?v=127">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -119,34 +119,35 @@
       <div class="manager-hero-tour reveal-r visible" id="demonstracao-hero" data-hero-tour data-stage="0" aria-label="Demonstração interativa do RR Manager">
         <div class="manager-hero-tour-browser"><i></i><i></i><i></i><span>app.rrmanager.com.br</span><b>DEMONSTRAÇÃO INTERATIVA</b></div>
         <div class="manager-hero-tour-tabs" role="tablist" aria-label="Etapas da demonstração">
-          <button class="active" type="button" data-hero-step="0">Visão geral</button><button type="button" data-hero-step="1">Orçamento</button><button type="button" data-hero-step="2">WhatsApp</button><button type="button" data-hero-step="3">Documento</button><button type="button" data-hero-step="4">Resultado</button>
+          <button class="active" type="button" data-hero-step="0">Visão geral</button><button type="button" data-hero-step="1">Orçamento</button><button type="button" data-hero-step="2">WhatsApp</button><button type="button" data-hero-step="3">Documentos</button><button type="button" data-hero-step="4">Resultado</button>
         </div>
         <div class="manager-hero-progress" aria-hidden="true"><i></i></div>
         <div class="manager-hero-scenes" aria-live="polite">
           <article class="manager-hero-scene active" data-hero-scene="0">
             <header><span>CENTRAL OPERACIONAL</span><strong>Bom dia, Oficina Modelo</strong><small>Veja o que precisa da sua atenção.</small></header>
             <div class="hero-dashboard-stats"><div><span>Clientes</span><b>24</b><small>Base cadastrada</small></div><div><span>Pré-orçamentos</span><b>3</b><small>Aguardando decisão</small></div><div><span>Aprovados</span><b>18</b><small>Mês atual</small></div><div class="money"><span>Resultado</span><b>R$ 8.420</b><small>Receitas menos custos</small></div></div>
-            <div class="hero-dashboard-list"><strong>Fila comercial</strong><p><i></i><span>Marcos · Honda Civic 2019</span><b>R$ 700,00</b></p><p><i></i><span>Carla · Jeep Renegade 2021</span><b>R$ 1.248,00</b></p></div>
+            <div class="hero-dashboard-list"><strong>Pré-orçamentos para decidir</strong><div class="hero-queue-item" data-hero-queue><p><i></i><span><b>Marcos Oliveira</b><small>Honda Civic 2019 · DEM-2026</small></span><strong>R$ 700,00</strong></p><div><button type="button" data-hero-action="approve">Aprovar</button><button type="button" data-hero-action="reject">Não aprovado</button><button type="button" data-hero-action="whatsapp">WhatsApp</button><button type="button" data-hero-action="edit">Editar</button><button type="button" data-hero-action="print">Imprimir</button></div></div><div class="hero-queue-item" data-hero-queue><p><i></i><span><b>Carla Ferreira</b><small>Jeep Renegade 2021 · RRM-2025</small></span><strong>R$ 1.248,00</strong></p><div><button type="button" data-hero-action="approve">Aprovar</button><button type="button" data-hero-action="reject">Não aprovado</button><button type="button" data-hero-action="whatsapp">WhatsApp</button><button type="button" data-hero-action="edit">Editar</button><button type="button" data-hero-action="print">Imprimir</button></div></div><div class="hero-action-feedback" data-hero-feedback>Experimente os botões de cada orçamento.</div></div>
           </article>
           <article class="manager-hero-scene" data-hero-scene="1">
             <header><span>NOVO ORÇAMENTO</span><strong>Honda Civic · DEM-2026</strong><small>Cliente: Marcos Oliveira</small></header>
             <div class="hero-budget-editor"><p><span>Pastilhas de freio dianteiras<small>Peça · Qtd. 1</small></span><b>R$ 280,00</b></p><p><span>Revisão preventiva<small>Mão de obra · 2 horas</small></span><b>R$ 300,00</b></p><p><span>Alinhamento e balanceamento<small>Terceirizado</small></span><b>R$ 120,00</b></p><div><span>Total do orçamento</span><strong>R$ 700,00</strong></div></div>
-            <div class="hero-budget-actions"><i>Pix configurado</i><i>3x no cartão</i><button type="button" data-hero-next>Preparar WhatsApp →</button></div>
+            <div class="hero-budget-actions"><i>Pix configurado</i><i>3x no cartão</i><button class="secondary" type="button" data-document-demo="budget">Visualizar PDF</button><button type="button" data-hero-next>Preparar WhatsApp →</button></div>
           </article>
           <article class="manager-hero-scene" data-hero-scene="2">
             <header><span>EXPERIÊNCIA DO CLIENTE</span><strong>Orçamento recebido pelo WhatsApp</strong><small>Experimente aprovar ou não aprovar.</small></header>
-            <div class="hero-whatsapp"><div class="hero-chat"><p>Olá, Marcos! Seu orçamento está pronto.</p><button type="button" data-hero-open-budget>Abrir orçamento 0024</button><small>Honda Civic · R$ 700,00</small></div><div class="hero-client-ready" data-hero-ready><i>↗</i><strong>Abra o link para testar</strong><span>Você verá a mesma decisão apresentada ao cliente.</span></div><div class="hero-client-choice" data-hero-choice hidden><strong>Este orçamento atende ao que você precisa?</strong><div><button type="button" data-hero-decision="approved">Aprovar</button><button type="button" data-hero-decision="rejected">Não aprovar</button></div></div><div class="hero-client-answer" data-hero-answer hidden><strong></strong><span>Resposta enviada para a Oficina Modelo.</span><button type="button" data-hero-change>Alterar resposta</button></div></div>
+            <div class="hero-whatsapp"><div class="hero-chat"><p>Olá, Marcos! Seu orçamento está pronto.</p><button type="button" data-hero-open-budget>Abrir orçamento 0024</button><small>Honda Civic · R$ 700,00</small></div><div class="hero-client-ready" data-hero-ready><i>↗</i><strong>Abra o link para testar</strong><span>Você verá a folha enviada e poderá indicar sua decisão.</span></div><div class="hero-client-choice" data-hero-choice hidden><strong>Este orçamento atende ao que você precisa?</strong><div><button type="button" data-hero-decision="approved">Aprovar</button><button type="button" data-hero-decision="rejected">Não aprovar</button></div></div><div class="hero-client-answer" data-hero-answer hidden><strong></strong><span>Resposta enviada para a Oficina Modelo.</span><button type="button" data-hero-change>Alterar resposta</button></div></div>
+            <div class="hero-whatsapp-paper" data-hero-paper hidden><header><img src="assets/logo-rr-manager.png" alt=""><div><b>Oficina Modelo</b><small>Serviço automotivo especializado</small></div><em>Status: pré-orçamento</em></header><h3>ORÇAMENTO DO SERVIÇO AUTOMOTIVO</h3><div><p><span>Cliente</span><b>Marcos Oliveira</b></p><p><span>Veículo</span><b>Honda Civic · DEM-2026</b></p></div><section><p><span>Pastilhas de freio</span><b>R$ 280,00</b></p><p><span>Revisão preventiva</span><b>R$ 300,00</b></p><p><span>Alinhamento</span><b>R$ 120,00</b></p></section><footer><span>Total</span><strong>R$ 700,00</strong></footer></div>
           </article>
           <article class="manager-hero-scene" data-hero-scene="3">
-            <header><span>DOCUMENTO PROFISSIONAL</span><strong>Orçamento 0024</strong><small>Com a identidade, o Pix e as condições da oficina.</small></header>
-            <div class="hero-document-paper"><div><img src="assets/logo-rr-manager.png" alt=""><span><b>Oficina Modelo</b><small>Serviço automotivo especializado</small></span></div><h3>ORÇAMENTO DO SERVIÇO AUTOMOTIVO</h3><p><span>Cliente</span><b>Marcos Oliveira</b></p><p><span>Veículo</span><b>Honda Civic · DEM-2026</b></p><p class="total"><span>Total</span><b>R$ 700,00</b></p></div>
-            <button class="hero-document-open" type="button" data-document-demo="budget">Ampliar documento real</button>
+            <header><span>DOCUMENTOS DO SISTEMA</span><strong>Escolha o que deseja ampliar</strong><small>Modelos fiéis aos documentos gerados pelo RR Manager.</small></header>
+            <div class="hero-documents-grid"><button type="button" data-document-demo="budget"><i class="budget"></i><span>Orçamento</span><small>Itens, Pix e condições</small><b>Ampliar →</b></button><button type="button" data-document-demo="inspection"><i class="inspection"></i><span>Inspeção</span><small>Checklist do veículo</small><b>Ampliar →</b></button><button type="button" data-document-demo="financial"><i class="financial"></i><span>Financeiro</span><small>Receitas e despesas</small><b>Ampliar →</b></button><button type="button" data-document-demo="dre"><i class="dre"></i><span>DRE gerencial</span><small>Margem e rentabilidade</small><b>Ampliar →</b></button></div>
           </article>
           <article class="manager-hero-scene" data-hero-scene="4">
             <header><span>DO SERVIÇO AO RESULTADO</span><strong>Decida com números</strong><small>O movimento aprovado atualiza a gestão.</small></header>
-            <div class="hero-result-flow"><div><span>Orçamento 0024</span><b>+ R$ 700</b><small>Receita registrada</small></div><i>→</i><div><span>Resultado do mês</span><b>R$ 8.420</b><small>Atualizado</small></div></div>
+            <div class="hero-result-tabs"><button class="active" type="button" data-result-mode="dre">DRE</button><button type="button" data-result-mode="areas">Áreas</button><button type="button" data-result-mode="goals">Metas</button></div>
+            <div class="hero-result-dashboard"><div class="hero-result-donut" data-result-donut><span><b data-result-percent>44,4%</b><small>Margem líquida</small></span></div><div class="hero-result-summary"><p><span>Receita líquida</span><b data-result-revenue>R$ 18.960</b></p><p><span>Custos diretos</span><b data-result-costs>R$ 7.420</b></p><p><span>Despesas</span><b data-result-expenses>R$ 3.120</b></p><p class="total"><span>Resultado líquido</span><b data-result-profit>R$ 8.420</b></p></div></div>
             <div class="hero-result-chart"><span style="height:42%"></span><span style="height:57%"></span><span style="height:49%"></span><span style="height:76%"></span><span style="height:91%"></span></div>
-            <div class="hero-result-note"><b>PRO</b><span>DRE, metas e rentabilidade transformam a rotina em decisões.</span></div>
+            <div class="hero-result-note"><b>PRO</b><span data-result-caption>DRE realizado: receitas, custos e despesas do período.</span></div>
             <button class="hero-restart" type="button" data-hero-restart>↻ Ver demonstração novamente</button>
           </article>
         </div>
@@ -652,17 +653,21 @@
         const choice = heroTour.querySelector("[data-hero-choice]");
         const answer = heroTour.querySelector("[data-hero-answer]");
         const ready = heroTour.querySelector("[data-hero-ready]");
+        const paper = heroTour.querySelector("[data-hero-paper]");
         if (ready) ready.hidden = false;
         if (choice) choice.hidden = true;
         if (answer) answer.hidden = true;
+        if (paper) paper.hidden = true;
         showHeroStage(0, true);
       });
       heroTour.querySelector("[data-hero-open-budget]")?.addEventListener("click", () => {
         clearInterval(heroTimer);
         const ready = heroTour.querySelector("[data-hero-ready]");
         const choice = heroTour.querySelector("[data-hero-choice]");
+        const paper = heroTour.querySelector("[data-hero-paper]");
         if (ready) ready.hidden = true;
         if (choice) choice.hidden = false;
+        if (paper) paper.hidden = false;
       });
       heroTour.querySelectorAll("[data-hero-decision]").forEach((button) => button.addEventListener("click", () => {
         clearInterval(heroTimer);
@@ -684,6 +689,47 @@
         if (answer) answer.hidden = true;
         restartHeroTimer();
       });
+      heroTour.querySelectorAll("[data-hero-action]").forEach((button) => button.addEventListener("click", () => {
+        clearInterval(heroTimer);
+        const action = button.dataset.heroAction;
+        const item = button.closest("[data-hero-queue]");
+        const feedback = heroTour.querySelector("[data-hero-feedback]");
+        if (action === "approve" || action === "reject") {
+          item?.classList.remove("status-approved", "status-rejected");
+          item?.classList.add(action === "approve" ? "status-approved" : "status-rejected");
+          if (feedback) feedback.textContent = action === "approve" ? "Orçamento aprovado e encaminhado ao financeiro." : "Orçamento marcado como não aprovado.";
+        } else if (action === "whatsapp") {
+          showHeroStage(2, true);
+        } else if (action === "edit") {
+          showHeroStage(1, true);
+        } else if (action === "print") {
+          showHeroStage(3, true);
+        }
+      }));
+
+      const resultModes = {
+        dre: { percent: "44,4%", value: "44.4%", labels: ["Receita líquida", "Custos diretos", "Despesas", "Resultado líquido"], values: ["R$ 18.960", "R$ 7.420", "R$ 3.120", "R$ 8.420"], caption: "DRE realizado: receitas, custos e despesas do período.", bars: [42,57,49,76,91] },
+        areas: { percent: "60,9%", value: "60.9%", labels: ["Peças", "Mão de obra", "Terceirizados", "Lucro bruto"], values: ["37,3%", "100%", "33%", "R$ 11.540"], caption: "Rentabilidade: compare a margem de cada área da oficina.", bars: [37,100,33,61,78] },
+        goals: { percent: "84,2%", value: "84.2%", labels: ["Meta de faturamento", "Realizado", "Ponto de equilíbrio", "Meta de lucro"], values: ["R$ 20.000", "R$ 18.960", "R$ 5.127", "84,2%"], caption: "Metas: acompanhe o realizado e quanto falta para alcançar o objetivo.", bars: [48,62,71,76,84] }
+      };
+      heroTour.querySelectorAll("[data-result-mode]").forEach((button) => button.addEventListener("click", () => {
+        clearInterval(heroTimer);
+        const mode = resultModes[button.dataset.resultMode] || resultModes.dre;
+        heroTour.querySelectorAll("[data-result-mode]").forEach((item) => item.classList.toggle("active", item === button));
+        const donut = heroTour.querySelector("[data-result-donut]");
+        if (donut) donut.style.setProperty("--result-value", mode.value);
+        const percent = heroTour.querySelector("[data-result-percent]");
+        if (percent) percent.textContent = mode.percent;
+        heroTour.querySelectorAll(".hero-result-summary p").forEach((row, index) => {
+          const label = row.querySelector("span");
+          const value = row.querySelector("b");
+          if (label) label.textContent = mode.labels[index];
+          if (value) value.textContent = mode.values[index];
+        });
+        heroTour.querySelectorAll(".hero-result-chart span").forEach((bar, index) => { bar.style.height = `${mode.bars[index]}%`; });
+        const caption = heroTour.querySelector("[data-result-caption]");
+        if (caption) caption.textContent = mode.caption;
+      }));
       heroTour.addEventListener("mouseenter", () => clearInterval(heroTimer));
       heroTour.addEventListener("mouseleave", restartHeroTimer);
       heroTour.addEventListener("focusin", () => clearInterval(heroTimer));
