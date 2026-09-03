@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=123">
+  <link rel="stylesheet" href="style.css?v=124">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -111,7 +111,7 @@
         </div>
 
         <div class="manager-pro-hero-actions">
-          <a class="manager-pro-cta" href="cadastro-acesso.html">Começar no Essencial</a>
+          <a class="manager-pro-cta" href="cadastro-acesso.html">Teste grátis por 30 dias</a>
           <a class="manager-pro-ghost" href="#planos">Ver planos e preços</a>
         </div>
       </div>
@@ -324,7 +324,6 @@
         <p>O RR Manager foi pensado para oficinas que precisam ganhar velocidade sem trocar o caderno por um sistema complicado. Tudo funciona pelo navegador, no celular ou computador.</p>
         <p class="manager-pro-company-note"><strong>O RR Manager é um produto da RR Automotive</strong>, empresa dedicada a unir experiência automotiva e tecnologia para melhorar a rotina das oficinas.</p>
         <div class="manager-pro-diff-actions">
-          <a class="manager-pro-ghost" href="cadastro-acesso.html">Começar no Essencial</a>
           <a class="manager-pro-company-link" href="https://rrautomotive.com.br/" target="_blank" rel="noopener">Conhecer a RR Automotive</a>
         </div>
       </div>
@@ -349,7 +348,7 @@
           <div><strong>Comparação e ranking</strong><span>Visualize meses e orçamentos que mais contribuíram para o resultado.</span></div>
           <div><strong>Relatórios</strong><span>Gere versões em PDF e CSV para análise e compartilhamento.</span></div>
         </div>
-        <a class="manager-pro-cta" href="https://wa.me/5531997851561?text=Ola!%20Quero%20conhecer%20o%20Plano%20Pro%20do%20RR%20Manager" target="_blank" rel="noopener">Quero conhecer o Pro</a>
+        <a class="manager-pro-cta" href="https://wa.me/5531997851561?text=Ola!%20Quero%20comecar%20no%20Plano%20Pro%20do%20RR%20Manager%20por%20R%24%2099%2C90" target="_blank" rel="noopener">Começar no Pro por R$ 99,90</a>
       </div>
       <div class="manager-pro-dre-preview manager-real-dre reveal-r" aria-label="Demonstração realista do DRE gerencial">
         <header><span>GESTÃO FINANCEIRA</span><strong>DRE gerencial</strong><em>PRO</em></header>
@@ -576,6 +575,11 @@
         const title = document.getElementById("documentDemoTitle");
         if (title) title.textContent = documentDemoTitles[type] || "Documento profissional";
         documentDialog?.showModal();
+        if (documentDialog) {
+          documentDialog.scrollTop = 0;
+          documentDialog.scrollLeft = 0;
+          documentDialog.querySelector(".manager-document-panels")?.scrollTo(0, 0);
+        }
       });
     });
 

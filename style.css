@@ -7830,9 +7830,16 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .manager-client-document header strong { font-size: 13px; }
   .manager-document-grid { grid-template-columns: 1fr; }
   .manager-paper-thumb { min-height: 220px; }
-  .manager-document-dialog { width: calc(100% - 16px); max-height: calc(100vh - 16px); }
-  .manager-document-panels { padding: 8px; }
-  .manager-demo-document { min-height: 0; padding: 20px 14px; }
+  .manager-document-dialog {
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    max-height: calc(100dvh - 16px);
+    margin: auto;
+    overflow-x: hidden;
+  }
+  .manager-document-dialog-head { padding: 18px 56px 14px 16px; }
+  .manager-document-panels { width: 100%; min-width: 0; padding: 8px; overflow-x: hidden; }
+  .manager-demo-document { width: 100%; min-width: 0; min-height: 0; padding: 20px 14px; overflow: hidden; }
   .manager-demo-document > header { align-items: flex-start; flex-wrap: wrap; }
   .manager-demo-document header img { width: 48px; height: 48px; }
   .manager-demo-document header > b { width: 100%; margin-left: 0; }
@@ -7842,9 +7849,9 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .manager-demo-charts { grid-template-columns: 1fr; }
   .manager-demo-pix { align-items: flex-start; }
   .manager-demo-conclusion > div { grid-template-columns: 1fr; }
-  .manager-demo-document table { font-size: 10px; }
+  .manager-demo-document table { width: 100%; table-layout: fixed; font-size: 10px; }
   .manager-demo-document th,
-  .manager-demo-document td { padding: 7px 5px; }
+  .manager-demo-document td { padding: 7px 5px; overflow-wrap: anywhere; word-break: normal; }
   .manager-real-dre .manager-pro-dre-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .manager-real-dre-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .manager-real-dre-body { grid-template-columns: 1fr; }
