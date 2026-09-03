@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=124">
+  <link rel="stylesheet" href="style.css?v=125">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -350,7 +350,14 @@
         </div>
         <a class="manager-pro-cta" href="https://wa.me/5531997851561?text=Ola!%20Quero%20comecar%20no%20Plano%20Pro%20do%20RR%20Manager%20por%20R%24%2099%2C90" target="_blank" rel="noopener">Começar no Pro por R$ 99,90</a>
       </div>
-      <div class="manager-pro-dre-preview manager-real-dre reveal-r" aria-label="Demonstração realista do DRE gerencial">
+      <div class="manager-pro-dre-preview manager-real-dre manager-plan-demo reveal-r" data-plan-demo="pro" data-stage="0" aria-label="Demonstração interativa dos recursos do Plano Pro">
+        <div class="manager-demo-tabs" role="tablist" aria-label="Recursos do Plano Pro">
+          <button class="active" type="button" data-demo-step="0">DRE</button>
+          <button type="button" data-demo-step="1">Rentabilidade</button>
+          <button type="button" data-demo-step="2">Metas</button>
+          <button type="button" data-demo-step="3">Equipe</button>
+        </div>
+        <div class="manager-demo-progress" aria-hidden="true"><i></i></div>
         <header><span>GESTÃO FINANCEIRA</span><strong>DRE gerencial</strong><em>PRO</em></header>
         <div class="manager-real-dre-filters"><span>01/09/2026</span><span>30/09/2026</span><b>Gerar DRE</b><i>Mês atual</i></div>
         <div class="manager-pro-dre-metrics">
@@ -363,6 +370,16 @@
           <section><small>RESULTADO</small><h3>DRE do período</h3><p><span>Receita líquida</span><b>R$ 18.960</b></p><p><span>(-) Custos diretos</span><b>-R$ 7.420</b></p><p><span>Lucro bruto</span><b>R$ 11.540</b></p><p><span>(-) Despesas</span><b>-R$ 3.120</b></p><p class="total"><span>Resultado líquido</span><b>R$ 8.420</b></p></section>
           <section><small>PLANEJAMENTO</small><h3>Metas mensais</h3><div class="manager-real-goal"><span>Faturamento</span><b>75,8%</b><i><em style="width:75.8%"></em></i></div><div class="manager-real-goal"><span>Lucro líquido</span><b>84,2%</b><i><em style="width:84.2%"></em></i></div><div class="manager-real-attention"><b>Qualidade dos dados</b><span>Todos os valores do período foram revisados.</span></div></section>
         </div>
+        <div class="manager-pro-stage-visual" data-pro-stage-panel="1">
+          <h3>Rentabilidade por área</h3><div class="pro-area-row"><span>Peças</span><i><em style="width:37%"></em></i><b>37,3%</b></div><div class="pro-area-row"><span>Mão de obra</span><i><em style="width:100%"></em></i><b>100%</b></div><div class="pro-area-row"><span>Terceirizados</span><i><em style="width:33%"></em></i><b>33%</b></div><small>Margem bruta calculada por tipo de atividade</small>
+        </div>
+        <div class="manager-pro-stage-visual" data-pro-stage-panel="2">
+          <h3>Metas mensais</h3><div class="pro-goal-card"><span>Meta de faturamento</span><strong>R$ 20.000</strong><i><em style="width:75.8%"></em></i><b>75,8% alcançado</b></div><div class="pro-goal-card"><span>Ponto de equilíbrio</span><strong>R$ 5.127</strong><i><em style="width:100%"></em></i><b class="success">Superado no período</b></div>
+        </div>
+        <div class="manager-pro-stage-visual" data-pro-stage-panel="3">
+          <h3>Equipe e permissões</h3><div class="pro-team-row"><span>João · Atendimento</span><div><i>Clientes</i><i>Orçamentos</i></div><b>Ativo</b></div><div class="pro-team-row"><span>Breno · Financeiro</span><div><i>Financeiro</i><i>DRE</i></div><b>Ativo</b></div><small>Até quatro colaboradores com acessos definidos pelo proprietário</small>
+        </div>
+        <div class="manager-pro-demo-insight"><span>LEITURA DO SISTEMA</span><strong data-pro-insight>Resultado líquido de R$ 8.420 no período.</strong><p data-pro-detail>Receitas, custos e despesas reunidos em uma leitura direta.</p></div>
         <small class="manager-pro-demo-note">Interface baseada no DRE real · dados fictícios.</small>
       </div>
     </section>
@@ -422,10 +439,43 @@
         <h2>Tudo para organizar a rotina e apresentar melhor a sua oficina.</h2>
         <p>O Essencial reúne o atendimento diário em um único lugar, desde o cadastro do cliente até o acompanhamento financeiro.</p>
       </div>
-      <div class="manager-essential-grid">
-        <article class="reveal"><strong>Atendimento organizado</strong><p>Clientes, veículos, históricos, pré-orçamentos e orçamentos sempre disponíveis.</p></article>
-        <article class="reveal"><strong>Orçamento profissional</strong><p>Peças, mão de obra, terceirizados, cortesias, Pix, condições e envio pelo WhatsApp.</p></article>
-        <article class="reveal"><strong>Controle da operação</strong><p>Inspeções, receitas, despesas, categorias e relatórios financeiros por período.</p></article>
+      <div class="manager-essential-demo manager-plan-demo reveal" data-plan-demo="essential" data-stage="0">
+        <div class="manager-demo-story">
+          <div class="manager-demo-tabs" role="tablist" aria-label="Fluxo do Plano Essencial">
+            <button class="active" type="button" data-demo-step="0"><b>01</b><span>Cadastrar cliente</span></button>
+            <button type="button" data-demo-step="1"><b>02</b><span>Montar orçamento</span></button>
+            <button type="button" data-demo-step="2"><b>03</b><span>Enviar pelo WhatsApp</span></button>
+            <button type="button" data-demo-step="3"><b>04</b><span>Controlar financeiro</span></button>
+          </div>
+          <div class="manager-demo-progress" aria-hidden="true"><i></i></div>
+          <p data-demo-caption>Cliente e veículo ficam organizados em um único cadastro.</p>
+          <small>Você pode clicar, usar as setas ou arrastar no celular.</small>
+        </div>
+        <div class="manager-essential-screen" aria-live="polite">
+          <div class="manager-essential-browser"><i></i><i></i><i></i><span>app.rrmanager.com.br</span><b>PLANO ESSENCIAL</b></div>
+          <div class="manager-essential-scenes">
+            <article class="manager-essential-scene active" data-demo-scene="0">
+              <header><span>CLIENTES</span><strong>Novo cadastro</strong></header>
+              <div class="essential-form"><label>Nome<strong>Marcos Oliveira</strong></label><label>Telefone<strong>(31) 99942-1840</strong></label><label>Veículo<strong>Honda Civic 2019</strong></label><label>Placa<strong>DEM-2026</strong></label></div>
+              <button type="button">Cliente cadastrado <b>✓</b></button>
+            </article>
+            <article class="manager-essential-scene" data-demo-scene="1">
+              <header><span>ORÇAMENTO 0024</span><strong>Itens do serviço</strong></header>
+              <div class="essential-budget"><p><span>Pastilhas de freio</span><b>R$ 280,00</b></p><p><span>Revisão preventiva</span><b>R$ 300,00</b></p><p><span>Alinhamento</span><b>R$ 120,00</b></p><p class="total"><span>Total do orçamento</span><b>R$ 700,00</b></p></div>
+              <div class="essential-pill-row"><i>PIX</i><i>3x no cartão</i><i>PDF personalizado</i></div>
+            </article>
+            <article class="manager-essential-scene" data-demo-scene="2">
+              <header><span>ENVIO AO CLIENTE</span><strong>WhatsApp preparado</strong></header>
+              <div class="essential-phone"><p>Olá, Marcos! Seu orçamento da Oficina Modelo está pronto.</p><a>Visualizar orçamento 0024</a><small>Honda Civic · DEM-2026 · R$ 700,00</small><em>Mensagem pronta para enviar</em></div>
+            </article>
+            <article class="manager-essential-scene" data-demo-scene="3">
+              <header><span>FINANCEIRO</span><strong>Movimento registrado</strong></header>
+              <div class="essential-finance"><div><span>Receitas do mês</span><b>R$ 18.960</b></div><div><span>Despesas</span><b>R$ 3.120</b></div><p><i></i><span>Orçamento 0024 aprovado</span><strong>+ R$ 700,00</strong></p><p><i></i><span>Resultado atualizado</span><strong>Automaticamente</strong></p></div>
+            </article>
+          </div>
+          <div class="manager-demo-arrows"><button type="button" data-demo-prev aria-label="Etapa anterior">←</button><span><b data-demo-current>1</b> / 4</span><button type="button" data-demo-next aria-label="Próxima etapa">→</button></div>
+          <small class="manager-pro-demo-note">Demonstração baseada no sistema real · dados fictícios.</small>
+        </div>
       </div>
       <a class="manager-pro-cta reveal" href="cadastro-acesso.html">Começar no Essencial por R$ 59,90</a>
     </section>
@@ -573,6 +623,79 @@
       const rect = documentDialog.getBoundingClientRect();
       const inside = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
       if (!inside) documentDialog.close();
+    });
+
+    const demoCaptions = [
+      "Cliente e veículo ficam organizados em um único cadastro.",
+      "Peças, serviços, condições e Pix formam um orçamento profissional.",
+      "O sistema prepara o link e a mensagem para enviar pelo WhatsApp.",
+      "Ao aprovar, o movimento entra no acompanhamento financeiro da oficina."
+    ];
+    const proDemoContent = [
+      ["DRE gerencial", "Resultado líquido de R$ 8.420 no período.", "Receitas, custos e despesas reunidos em uma leitura direta."],
+      ["Rentabilidade por área", "Mão de obra lidera a margem da oficina.", "Compare peças, mão de obra e terceirizados para proteger o lucro."],
+      ["Metas e ponto de equilíbrio", "84,2% da meta de lucro já foi alcançada.", "Acompanhe quanto falta para atingir os objetivos definidos."],
+      ["Equipe e permissões", "2 colaboradores com acessos personalizados.", "O proprietário decide quem pode usar cada área do sistema."]
+    ];
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    document.querySelectorAll("[data-plan-demo]").forEach((demo) => {
+      const buttons = [...demo.querySelectorAll("[data-demo-step]")];
+      const scenes = [...demo.querySelectorAll("[data-demo-scene]")];
+      const progress = demo.querySelector(".manager-demo-progress i");
+      const current = demo.querySelector("[data-demo-current]");
+      let stage = 0;
+      let timer;
+      let touchStart = 0;
+
+      const showStage = (next, manual = false) => {
+        stage = (next + buttons.length) % buttons.length;
+        demo.dataset.stage = String(stage);
+        buttons.forEach((button, index) => {
+          const active = index === stage;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-selected", String(active));
+        });
+        scenes.forEach((scene, index) => scene.classList.toggle("active", index === stage));
+        if (current) current.textContent = String(stage + 1);
+        if (progress) {
+          progress.style.animation = "none";
+          progress.offsetHeight;
+          progress.style.animation = reduceMotion ? "none" : "managerDemoProgress 5s linear forwards";
+        }
+        if (demo.dataset.planDemo === "essential") {
+          const caption = demo.querySelector("[data-demo-caption]");
+          if (caption) caption.textContent = demoCaptions[stage];
+        } else {
+          const content = proDemoContent[stage];
+          const title = demo.querySelector(":scope > header strong");
+          const insight = demo.querySelector("[data-pro-insight]");
+          const detail = demo.querySelector("[data-pro-detail]");
+          if (title) title.textContent = content[0];
+          if (insight) insight.textContent = content[1];
+          if (detail) detail.textContent = content[2];
+        }
+        if (manual) restart();
+      };
+      const restart = () => {
+        clearInterval(timer);
+        if (!reduceMotion) timer = setInterval(() => showStage(stage + 1), 5000);
+      };
+
+      buttons.forEach((button, index) => button.addEventListener("click", () => showStage(index, true)));
+      demo.querySelector("[data-demo-prev]")?.addEventListener("click", () => showStage(stage - 1, true));
+      demo.querySelector("[data-demo-next]")?.addEventListener("click", () => showStage(stage + 1, true));
+      demo.addEventListener("mouseenter", () => clearInterval(timer));
+      demo.addEventListener("mouseleave", restart);
+      demo.addEventListener("focusin", () => clearInterval(timer));
+      demo.addEventListener("focusout", (event) => { if (!demo.contains(event.relatedTarget)) restart(); });
+      demo.addEventListener("touchstart", (event) => { touchStart = event.touches[0].clientX; }, { passive: true });
+      demo.addEventListener("touchend", (event) => {
+        const distance = event.changedTouches[0].clientX - touchStart;
+        if (Math.abs(distance) > 45) showStage(stage + (distance < 0 ? 1 : -1), true);
+      }, { passive: true });
+      showStage(0);
+      restart();
     });
 
     const revealObserver = new IntersectionObserver((entries) => {
