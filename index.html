@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=125">
+  <link rel="stylesheet" href="style.css?v=126">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -116,54 +116,41 @@
         </div>
       </div>
 
-      <div class="manager-pro-showcase reveal-r visible" aria-label="Prévia dos principais módulos do RR Manager">
-        <div class="manager-pro-showcase-grid">
-          <article class="manager-pro-module manager-pro-module-orcamentos">
-            <div class="module-head"><span>Orçamentos</span><strong>Painel de controle</strong></div>
-            <div class="module-kanban">
-              <div><small>Pré-orç.</small><b>12</b><em>Aguardando decisão</em></div>
-              <div><small>Aprovados</small><b>8</b><em>Receita gerada</em></div>
-              <div><small>Conversão</small><b>67%</b><em>Mês atual</em></div>
-            </div>
-            <div class="module-row"><i class="warn"></i><span>Hilux 2020</span><strong>R$ 3.420</strong></div>
-            <div class="module-row"><i></i><span>Civic 2018</span><strong>R$ 2.840</strong></div>
+      <div class="manager-hero-tour reveal-r visible" id="demonstracao-hero" data-hero-tour data-stage="0" aria-label="Demonstração interativa do RR Manager">
+        <div class="manager-hero-tour-browser"><i></i><i></i><i></i><span>app.rrmanager.com.br</span><b>DEMONSTRAÇÃO INTERATIVA</b></div>
+        <div class="manager-hero-tour-tabs" role="tablist" aria-label="Etapas da demonstração">
+          <button class="active" type="button" data-hero-step="0">Visão geral</button><button type="button" data-hero-step="1">Orçamento</button><button type="button" data-hero-step="2">WhatsApp</button><button type="button" data-hero-step="3">Documento</button><button type="button" data-hero-step="4">Resultado</button>
+        </div>
+        <div class="manager-hero-progress" aria-hidden="true"><i></i></div>
+        <div class="manager-hero-scenes" aria-live="polite">
+          <article class="manager-hero-scene active" data-hero-scene="0">
+            <header><span>CENTRAL OPERACIONAL</span><strong>Bom dia, Oficina Modelo</strong><small>Veja o que precisa da sua atenção.</small></header>
+            <div class="hero-dashboard-stats"><div><span>Clientes</span><b>24</b><small>Base cadastrada</small></div><div><span>Pré-orçamentos</span><b>3</b><small>Aguardando decisão</small></div><div><span>Aprovados</span><b>18</b><small>Mês atual</small></div><div class="money"><span>Resultado</span><b>R$ 8.420</b><small>Receitas menos custos</small></div></div>
+            <div class="hero-dashboard-list"><strong>Fila comercial</strong><p><i></i><span>Marcos · Honda Civic 2019</span><b>R$ 700,00</b></p><p><i></i><span>Carla · Jeep Renegade 2021</span><b>R$ 1.248,00</b></p></div>
           </article>
-
-          <article class="manager-pro-module manager-pro-module-financeiro">
-            <div class="module-head"><span>Plano Pro · DRE</span><strong>Resultado do mês</strong></div>
-            <div class="module-total">R$ 18.460<small>lucro estimado</small></div>
-            <div class="module-chart" aria-hidden="true">
-              <span style="height: 42%"></span><span style="height: 68%"></span><span style="height: 54%"></span><span style="height: 86%"></span><span style="height: 72%"></span>
-            </div>
-            <div class="module-money"><span>Receitas R$ 27.900</span><em>Custos R$ 9.440</em></div>
+          <article class="manager-hero-scene" data-hero-scene="1">
+            <header><span>NOVO ORÇAMENTO</span><strong>Honda Civic · DEM-2026</strong><small>Cliente: Marcos Oliveira</small></header>
+            <div class="hero-budget-editor"><p><span>Pastilhas de freio dianteiras<small>Peça · Qtd. 1</small></span><b>R$ 280,00</b></p><p><span>Revisão preventiva<small>Mão de obra · 2 horas</small></span><b>R$ 300,00</b></p><p><span>Alinhamento e balanceamento<small>Terceirizado</small></span><b>R$ 120,00</b></p><div><span>Total do orçamento</span><strong>R$ 700,00</strong></div></div>
+            <div class="hero-budget-actions"><i>Pix configurado</i><i>3x no cartão</i><button type="button" data-hero-next>Preparar WhatsApp →</button></div>
           </article>
-
-          <article class="manager-pro-module manager-pro-module-pdf">
-            <div class="module-head"><span>PDF</span><strong>Orçamento #0248</strong></div>
-            <div class="module-pdf-paper">
-              <header>
-                <img src="assets/logo-rr-manager.png" alt="RR Manager">
-                <span><b>RR Manager</b><small>Exemplo de orçamento</small></span>
-              </header>
-              <div class="module-pdf-client"><strong>Cliente exemplo</strong><span>Honda Civic 2018</span></div>
-              <section class="module-pdf-lines"><p></p><p></p><p></p></section>
-              <footer><span>Total aprovado</span><strong>R$ 2.840</strong></footer>
-            </div>
+          <article class="manager-hero-scene" data-hero-scene="2">
+            <header><span>EXPERIÊNCIA DO CLIENTE</span><strong>Orçamento recebido pelo WhatsApp</strong><small>Experimente aprovar ou não aprovar.</small></header>
+            <div class="hero-whatsapp"><div class="hero-chat"><p>Olá, Marcos! Seu orçamento está pronto.</p><button type="button" data-hero-open-budget>Abrir orçamento 0024</button><small>Honda Civic · R$ 700,00</small></div><div class="hero-client-ready" data-hero-ready><i>↗</i><strong>Abra o link para testar</strong><span>Você verá a mesma decisão apresentada ao cliente.</span></div><div class="hero-client-choice" data-hero-choice hidden><strong>Este orçamento atende ao que você precisa?</strong><div><button type="button" data-hero-decision="approved">Aprovar</button><button type="button" data-hero-decision="rejected">Não aprovar</button></div></div><div class="hero-client-answer" data-hero-answer hidden><strong></strong><span>Resposta enviada para a Oficina Modelo.</span><button type="button" data-hero-change>Alterar resposta</button></div></div>
           </article>
-
-          <article class="manager-pro-module manager-pro-module-cliente">
-            <div class="module-head"><span>Clientes</span><strong>Cadastro organizado</strong></div>
-            <div class="module-client">
-              <b>Ryan Costa</b>
-              <span>BMW 320i 2019 | Placa RRM-2026</span>
-            </div>
-            <ul>
-              <li>Último serviço: revisão completa</li>
-              <li>WhatsApp, Pix e logo no orçamento</li>
-              <li>Dados protegidos e sincronizados na nuvem</li>
-            </ul>
+          <article class="manager-hero-scene" data-hero-scene="3">
+            <header><span>DOCUMENTO PROFISSIONAL</span><strong>Orçamento 0024</strong><small>Com a identidade, o Pix e as condições da oficina.</small></header>
+            <div class="hero-document-paper"><div><img src="assets/logo-rr-manager.png" alt=""><span><b>Oficina Modelo</b><small>Serviço automotivo especializado</small></span></div><h3>ORÇAMENTO DO SERVIÇO AUTOMOTIVO</h3><p><span>Cliente</span><b>Marcos Oliveira</b></p><p><span>Veículo</span><b>Honda Civic · DEM-2026</b></p><p class="total"><span>Total</span><b>R$ 700,00</b></p></div>
+            <button class="hero-document-open" type="button" data-document-demo="budget">Ampliar documento real</button>
+          </article>
+          <article class="manager-hero-scene" data-hero-scene="4">
+            <header><span>DO SERVIÇO AO RESULTADO</span><strong>Decida com números</strong><small>O movimento aprovado atualiza a gestão.</small></header>
+            <div class="hero-result-flow"><div><span>Orçamento 0024</span><b>+ R$ 700</b><small>Receita registrada</small></div><i>→</i><div><span>Resultado do mês</span><b>R$ 8.420</b><small>Atualizado</small></div></div>
+            <div class="hero-result-chart"><span style="height:42%"></span><span style="height:57%"></span><span style="height:49%"></span><span style="height:76%"></span><span style="height:91%"></span></div>
+            <div class="hero-result-note"><b>PRO</b><span>DRE, metas e rentabilidade transformam a rotina em decisões.</span></div>
+            <button class="hero-restart" type="button" data-hero-restart>↻ Ver demonstração novamente</button>
           </article>
         </div>
+        <div class="manager-hero-tour-footer"><span><b data-hero-current>1</b> / 5 · dados fictícios</span><div><button type="button" data-hero-prev aria-label="Etapa anterior">←</button><button type="button" data-hero-next aria-label="Próxima etapa">→</button></div></div>
       </div>
     </section>
 
@@ -624,6 +611,91 @@
       const inside = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
       if (!inside) documentDialog.close();
     });
+
+    const heroTour = document.querySelector("[data-hero-tour]");
+    if (heroTour) {
+      const heroSteps = [...heroTour.querySelectorAll("[data-hero-step]")];
+      const heroScenes = [...heroTour.querySelectorAll("[data-hero-scene]")];
+      const heroProgress = heroTour.querySelector(".manager-hero-progress i");
+      const heroCurrent = heroTour.querySelector("[data-hero-current]");
+      const heroReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let heroStage = 0;
+      let heroTimer;
+      let heroTouchStart = 0;
+
+      const restartHeroTimer = () => {
+        clearInterval(heroTimer);
+        if (!heroReduceMotion) heroTimer = setInterval(() => showHeroStage(heroStage + 1), 6000);
+      };
+      const showHeroStage = (next, manual = false) => {
+        heroStage = (next + heroSteps.length) % heroSteps.length;
+        heroTour.dataset.stage = String(heroStage);
+        heroSteps.forEach((button, index) => {
+          const active = index === heroStage;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-selected", String(active));
+        });
+        heroScenes.forEach((scene, index) => scene.classList.toggle("active", index === heroStage));
+        if (heroCurrent) heroCurrent.textContent = String(heroStage + 1);
+        if (heroProgress) {
+          heroProgress.style.animation = "none";
+          heroProgress.offsetHeight;
+          heroProgress.style.animation = heroReduceMotion ? "none" : "managerDemoProgress 6s linear forwards";
+        }
+        if (manual) restartHeroTimer();
+      };
+
+      heroSteps.forEach((button, index) => button.addEventListener("click", () => showHeroStage(index, true)));
+      heroTour.querySelectorAll("[data-hero-next]").forEach((button) => button.addEventListener("click", () => showHeroStage(heroStage + 1, true)));
+      heroTour.querySelector("[data-hero-prev]")?.addEventListener("click", () => showHeroStage(heroStage - 1, true));
+      heroTour.querySelector("[data-hero-restart]")?.addEventListener("click", () => {
+        const choice = heroTour.querySelector("[data-hero-choice]");
+        const answer = heroTour.querySelector("[data-hero-answer]");
+        const ready = heroTour.querySelector("[data-hero-ready]");
+        if (ready) ready.hidden = false;
+        if (choice) choice.hidden = true;
+        if (answer) answer.hidden = true;
+        showHeroStage(0, true);
+      });
+      heroTour.querySelector("[data-hero-open-budget]")?.addEventListener("click", () => {
+        clearInterval(heroTimer);
+        const ready = heroTour.querySelector("[data-hero-ready]");
+        const choice = heroTour.querySelector("[data-hero-choice]");
+        if (ready) ready.hidden = true;
+        if (choice) choice.hidden = false;
+      });
+      heroTour.querySelectorAll("[data-hero-decision]").forEach((button) => button.addEventListener("click", () => {
+        clearInterval(heroTimer);
+        const approved = button.dataset.heroDecision === "approved";
+        const choice = heroTour.querySelector("[data-hero-choice]");
+        const answer = heroTour.querySelector("[data-hero-answer]");
+        if (choice) choice.hidden = true;
+        if (answer) {
+          answer.hidden = false;
+          answer.className = `hero-client-answer ${approved ? "approved" : "rejected"}`;
+          const message = answer.querySelector("strong");
+          if (message) message.textContent = approved ? "Você indicou que deseja aprovar" : "Você indicou que não deseja aprovar";
+        }
+      }));
+      heroTour.querySelector("[data-hero-change]")?.addEventListener("click", () => {
+        const choice = heroTour.querySelector("[data-hero-choice]");
+        const answer = heroTour.querySelector("[data-hero-answer]");
+        if (choice) choice.hidden = false;
+        if (answer) answer.hidden = true;
+        restartHeroTimer();
+      });
+      heroTour.addEventListener("mouseenter", () => clearInterval(heroTimer));
+      heroTour.addEventListener("mouseleave", restartHeroTimer);
+      heroTour.addEventListener("focusin", () => clearInterval(heroTimer));
+      heroTour.addEventListener("focusout", (event) => { if (!heroTour.contains(event.relatedTarget)) restartHeroTimer(); });
+      heroTour.addEventListener("touchstart", (event) => { heroTouchStart = event.touches[0].clientX; }, { passive: true });
+      heroTour.addEventListener("touchend", (event) => {
+        const distance = event.changedTouches[0].clientX - heroTouchStart;
+        if (Math.abs(distance) > 45) showHeroStage(heroStage + (distance < 0 ? 1 : -1), true);
+      }, { passive: true });
+      showHeroStage(0);
+      restartHeroTimer();
+    }
 
     const demoCaptions = [
       "Cliente e veículo ficam organizados em um único cadastro.",
