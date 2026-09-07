@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equipe | RR Manager</title>
+  <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
+  <link rel="stylesheet" href="style.css?v=124">
+</head>
+<body data-page="equipe">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html">
+        <img class="brand-logo" src="assets/logo-rr-manager.png" alt="RR Manager">
+        <span><strong>RR Manager</strong></span>
+      </a>
+      <nav class="nav-menu" aria-label="Menu principal">
+        <a href="dashboard.html" data-nav="dashboard">Dashboard</a>
+        <a href="clientes.html" data-nav="clientes">Clientes</a>
+        <a href="orcamentos.html" data-nav="orcamentos">Or&ccedil;amentos</a>
+        <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
+        <a href="dre.html" data-nav="dre">DRE <small>PRO</small></a>
+        <a href="equipe.html" data-nav="equipe">Equipe <small>PRO</small></a>
+        <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div><p class="eyebrow">Plano Pro</p><h1>Equipe e acessos</h1></div>
+      </header>
+      <section class="form-panel team-access-panel" id="teamAccessPanel">
+        <div class="panel-header"><div><p class="eyebrow">Gest&atilde;o de acessos</p><h2>Colaboradores</h2></div><span id="teamAccessCount" class="team-access-count"></span></div>
+        <p>Convide at&eacute; quatro colaboradores. Cada pessoa usa o pr&oacute;prio e-mail e acessa somente as &aacute;reas autorizadas.</p>
+        <form id="teamMemberForm" class="form-grid team-member-form">
+          <input id="teamMemberOriginalEmail" type="hidden">
+          <label>Nome do colaborador<input id="teamMemberName" required placeholder="Ex.: Jo&atilde;o da Silva"></label>
+          <label>E-mail de acesso<input id="teamMemberEmail" type="email" required placeholder="joao@email.com"></label>
+          <label>Perfil<select id="teamMemberRole"><option value="attendant">Atendente</option><option value="mechanic">Mec&acirc;nico</option><option value="financial">Financeiro</option><option value="manager">Gerente</option><option value="custom">Personalizado</option></select></label>
+          <label>Status<select id="teamMemberStatus"><option value="active">Ativo</option><option value="blocked">Bloqueado</option></select></label>
+          <fieldset class="span-2 team-permissions"><legend>&Aacute;reas permitidas</legend><label><input type="checkbox" data-team-permission="clientes"> Clientes e ve&iacute;culos</label><label><input type="checkbox" data-team-permission="orcamentos"> Or&ccedil;amentos</label><label><input type="checkbox" data-team-permission="aprovarOrcamentos"> Aprovar or&ccedil;amentos</label><label><input type="checkbox" data-team-permission="financeiro"> Financeiro</label><label><input type="checkbox" data-team-permission="dre"> DRE</label><label><input type="checkbox" data-team-permission="inspecoes"> Inspe&ccedil;&otilde;es</label></fieldset>
+          <div class="form-actions span-2"><button class="btn btn-primary" type="submit">Salvar colaborador</button><button class="btn btn-muted" type="button" id="teamMemberCancel">Cancelar edi&ccedil;&atilde;o</button></div>
+        </form>
+        <div id="teamAccessMessage" class="form-status"></div>
+        <div id="teamMemberList" class="team-member-list"></div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js?v=103"></script>
+  <script src="firebase-config.js?v=13"></script>
+  <script type="module" src="firebase-sync.js?v=72"></script>
+</body>
+</html>

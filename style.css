@@ -9784,6 +9784,7 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .recurring-item { align-items: stretch; flex-direction: column; }
 }
 /* Equipe do Plano Pro */
+[data-page="meu-cadastro"] .team-access-panel { display: none !important; }
 .team-access-panel { margin-top: 24px; }
 .team-access-panel .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .team-access-count { color: var(--gold-2); font-weight: 800; }

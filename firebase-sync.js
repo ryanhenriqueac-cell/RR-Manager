@@ -1009,6 +1009,9 @@ function showAuthStatusModal(title, message) {
 }
 
 function bindMeuCadastroEvents() {
+  document.getElementById("teamMemberForm")?.addEventListener("submit", saveTeamMember);
+  document.getElementById("teamMemberRole")?.addEventListener("change", applyTeamRoleProfile);
+  document.getElementById("teamMemberCancel")?.addEventListener("click", resetTeamMemberForm);
   if (!document.getElementById("meuCadastroForm")) return;
   document.getElementById("meuCadastroForm").addEventListener("submit", saveMeuCadastro);
   document.getElementById("empresaPersonalizacaoForm")?.addEventListener("submit", saveEmpresaPersonalizacao);
@@ -1024,9 +1027,6 @@ function bindMeuCadastroEvents() {
     document.getElementById("meuCadastroLogoFile")?.click();
   });
   document.getElementById("meuCadastroLogoFile")?.addEventListener("change", handleMeuCadastroLogoImport);
-  document.getElementById("teamMemberForm")?.addEventListener("submit", saveTeamMember);
-  document.getElementById("teamMemberRole")?.addEventListener("change", applyTeamRoleProfile);
-  document.getElementById("teamMemberCancel")?.addEventListener("click", resetTeamMemberForm);
 }
 
 function normalizeTeamPermissions(role = "custom", permissions = {}) {
@@ -1152,7 +1152,7 @@ async function removeTeamMember(email) {
 
 function renderMeuCadastro(workspace = {}) {
   const form = document.getElementById("meuCadastroForm");
-  if (!form) return;
+  if (!form) { renderTeamManagement(); return; }
   const registration = workspace.registration || {};
   const docType = registration.documentoTipo || "CPF";
   const businessName = workspace.businessName || registration.empresa || "";
@@ -3176,8 +3176,8 @@ function setUserStatus(email) {
 
 function applyTeamAccessToInterface() {
   if (!activeTeamAccess) return;
-  const permissionByPage = { clientes: "clientes", veiculos: "clientes", orcamentos: "orcamentos", servicos: "orcamentos", "orcamento-print": "orcamentos", financeiro: "financeiro", "financeiro-print": "financeiro", dre: "dre", "dre-print": "dre", inspecao: "inspecoes", "meu-cadastro": "owner", contrato: "owner" };
-  const navPermission = { "clientes.html": "clientes", "orcamentos.html": "orcamentos", "financeiro.html": "financeiro", "dre.html": "dre", "meu-cadastro.html": "owner" };
+  const permissionByPage = { clientes: "clientes", veiculos: "clientes", orcamentos: "orcamentos", servicos: "orcamentos", "orcamento-print": "orcamentos", financeiro: "financeiro", "financeiro-print": "financeiro", dre: "dre", "dre-print": "dre", inspecao: "inspecoes", equipe: "owner", "meu-cadastro": "owner", contrato: "owner" };
+  const navPermission = { "clientes.html": "clientes", "orcamentos.html": "orcamentos", "financeiro.html": "financeiro", "dre.html": "dre", "equipe.html": "owner", "meu-cadastro.html": "owner" };
   document.querySelectorAll(".nav-menu a").forEach((link) => {
     const target = (link.getAttribute("href") || "").split(/[?#]/)[0];
     const permission = navPermission[target];
