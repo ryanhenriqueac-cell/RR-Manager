@@ -44,6 +44,7 @@ const REGISTER_PREFILL_KEY = "rr_register_prefill";
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
 const CACHE_CONTEXT_KEY = "rr_cache_context";
 const VALIDATED_ACCESS_KEY = "rr_validated_access";
+const TECHNICAL_CATALOG_COLLECTION = "labor_time_catalog";
 const ONBOARDING_EXPLORE_KEY = "rr_onboarding_explore_page";
 const DEFAULT_WORKSHOP_TAGLINE = "Manuten\u00e7\u00e3o Especializada | Paix\u00e3o por Carros";
 const DEFAULT_WORKSHOP_LOGO = "assets/logo-rr-manager.png";
@@ -59,7 +60,7 @@ const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v2";
 const LEGAL_TERMS_VERSION = "1.4";
 const LEGAL_PRIVACY_VERSION = "1.3";
-const CONTRACT_VERSION = "2.3";
+const CONTRACT_VERSION = "2.4";
 const CONTRACT_PLAN = {
   code: "monthly_launch",
   name: "Mensal · condição de lançamento",
@@ -72,11 +73,11 @@ const CONTRACT_PLAN = {
 const PLAN_CATALOG = {
   essential: {
     name: "Essencial",
-    features: { core: true, financeiroBasico: true, operacao: false, dre: false, financeiroAvancado: false, recorrencias: false, notaFiscal: false, exportacaoContador: false, estoque: false, equipe: false }
+    features: { core: true, financeiroBasico: true, operacao: false, laborCatalog: false, dre: false, financeiroAvancado: false, recorrencias: false, notaFiscal: false, exportacaoContador: false, estoque: false, equipe: false }
   },
   pro: {
     name: "Pro",
-    features: { core: true, financeiroBasico: true, operacao: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: false, exportacaoContador: true, estoque: false, equipe: true }
+    features: { core: true, financeiroBasico: true, operacao: true, laborCatalog: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: false, exportacaoContador: true, estoque: false, equipe: true }
   }
 };
 const PLAN_PRICING = {
@@ -227,6 +228,12 @@ let adminFinanceMonth = getLocalDateISO().slice(0, 7);
 let activeWorkspaceSubscription = null;
 let activeTeamAccess = null;
 let activeWorkspaceData = null;
+let technicalVehicleConfigs = [];
+let technicalLaborOperations = [];
+let technicalReferencePromise = null;
+const publishedLaborTimes = new Map();
+let adminLaborTimes = [];
+let adminCatalogEditingId = "";
 
 function normalizeSubscription(subscription = {}) {
   const planId = PLAN_CATALOG[subscription.planId] ? subscription.planId : DEFAULT_SUBSCRIPTION.planId;
@@ -282,6 +289,80 @@ window.rrGetAssignableTeam = () => {
     .filter((member) => member.status !== "blocked")
     .filter((member) => normalizeTeamPermissions(member.role || "custom", member.permissions || {}).ordensServicoVer)
     .map((member) => ({ name: member.name || "Colaborador", email: normalizeEmail(member.email), role: member.role || "custom" }));
+};
+
+function normalizeCatalogText(value) {
+  return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+async function loadTechnicalReferenceData() {
+  if (technicalVehicleConfigs.length && technicalLaborOperations.length) {
+    return { vehicles: technicalVehicleConfigs, operations: technicalLaborOperations };
+  }
+  if (!technicalReferencePromise) {
+    technicalReferencePromise = Promise.all([
+      fetch("data/vehicle-configs.json?v=1").then((response) => {
+        if (!response.ok) throw new Error("Base de veículos indisponível.");
+        return response.json();
+      }),
+      fetch("data/labor-operations.json?v=1").then((response) => {
+        if (!response.ok) throw new Error("Catálogo de operações indisponível.");
+        return response.json();
+      })
+    ]).then(([vehicles, operations]) => {
+      technicalVehicleConfigs = Array.isArray(vehicles) ? vehicles : [];
+      technicalLaborOperations = Array.isArray(operations) ? operations.filter((item) => item.active !== false) : [];
+      return { vehicles: technicalVehicleConfigs, operations: technicalLaborOperations };
+    }).catch((error) => {
+      technicalReferencePromise = null;
+      throw error;
+    });
+  }
+  return technicalReferencePromise;
+}
+
+function getMatchingTechnicalVehicles(vehicle = {}, configurations = technicalVehicleConfigs) {
+  const make = normalizeCatalogText(vehicle.marca || vehicle.make);
+  const model = normalizeCatalogText(vehicle.modelo || vehicle.model);
+  const engine = normalizeCatalogText(vehicle.motor || vehicle.engine);
+  const year = Number(String(vehicle.ano || vehicle.year || "").match(/\d{4}/)?.[0] || 0);
+  const scored = configurations.map((item) => {
+    let score = 0;
+    if (make && normalizeCatalogText(item.make) === make) score += 5;
+    if (model && normalizeCatalogText(item.model) === model) score += 5;
+    if (engine && (normalizeCatalogText(item.engine) === engine || normalizeCatalogText(item.engine).includes(engine) || engine.includes(normalizeCatalogText(item.engine)))) score += 4;
+    if (year && year >= Number(item.yearStart) && year <= Number(item.yearEnd)) score += 3;
+    if (vehicle.catalogVehicleId === item.id) score += 30;
+    return { item, score };
+  }).filter(({ score }) => score >= 8).sort((a, b) => b.score - a.score || String(a.item.make).localeCompare(String(b.item.make), "pt-BR"));
+  return scored.slice(0, 50).map(({ item }) => item);
+}
+
+window.rrLoadLaborCatalog = async (vehicle = {}) => {
+  if (window.rrHasPlanFeature("laborCatalog") !== true || !window.rrHasPermission("orcamentosGerenciar")) {
+    throw new Error("O catálogo técnico exige Plano Pro e permissão para gerenciar orçamentos.");
+  }
+  const reference = await loadTechnicalReferenceData();
+  if (!db || !currentUser) throw new Error("Aguarde a confirmação do acesso online.");
+  const matchedVehicles = getMatchingTechnicalVehicles(vehicle, reference.vehicles).slice(0, 10);
+  const vehicleIds = matchedVehicles.map((item) => item.id);
+  if (!vehicleIds.length) return { ...reference, times: [], matchedVehicles: [] };
+  const cacheKey = [...vehicleIds].sort().join("|");
+  if (!publishedLaborTimes.has(cacheKey)) {
+    const vehicleConstraint = vehicleIds.length === 1
+      ? where("vehicleId", "==", vehicleIds[0])
+      : where("vehicleId", "in", vehicleIds);
+    const snapshot = await getDocs(query(collection(db, TECHNICAL_CATALOG_COLLECTION), where("status", "==", "published"), vehicleConstraint));
+    publishedLaborTimes.set(cacheKey, snapshot.docs.map((record) => ({ id: record.id, ...record.data() })));
+  }
+  return { ...reference, times: publishedLaborTimes.get(cacheKey), matchedVehicles };
+};
+
+window.rrLoadVehicleCatalog = async () => {
+  if (window.rrHasPlanFeature("laborCatalog") !== true || !window.rrHasPermission("veiculosGerenciar")) {
+    throw new Error("A seleção da base técnica exige Plano Pro e permissão para gerenciar veículos.");
+  }
+  return (await loadTechnicalReferenceData()).vehicles;
 };
 let pendingAuthMessage = "";
 let pendingAuthModal = null;
@@ -733,13 +814,25 @@ function buildAuthShell() {
           <button class="btn btn-muted" type="button" id="firebaseAdminLogout">Sair</button>
         </div>
       </div>
-      <nav class="admin-section-nav"><a href="#adminOverview">Visão geral</a><a href="#adminFinance">Financeiro</a><a href="#adminCustomers">Oficinas</a></nav>
+      <nav class="admin-section-nav"><a href="#adminOverview">Visão geral</a><a href="#adminCatalog">Catálogo técnico</a><a href="#adminFinance">Financeiro</a><a href="#adminCustomers">Oficinas</a></nav>
       <section id="adminOverview" class="admin-dashboard-section">
         <div class="admin-section-title"><div><span>Visão executiva</span><h2>Saúde da plataforma</h2></div><small>Atualizado com os dados cadastrados</small></div>
         <div id="firebasePlatformOverview" class="admin-platform-overview"></div>
         <div id="firebaseBillingSummary" class="admin-billing-summary"></div>
         <h3 class="admin-attention-title">Precisa da minha atenção</h3>
         <div id="firebaseAdminAlerts" class="admin-platform-alerts"></div>
+      </section>
+      <section id="adminCatalog" class="admin-dashboard-section admin-technical-catalog">
+        <div class="admin-section-title"><div><span>Diferencial RR Manager Pro</span><h2>Catálogo técnico de mão de obra</h2></div><small>Somente tempos publicados aparecem nas oficinas</small></div>
+        <div class="admin-catalog-metrics"><article><span>Veículos</span><strong id="adminCatalogVehicleCount">0</strong><small>configurações técnicas</small></article><article><span>Operações</span><strong id="adminCatalogOperationCount">0</strong><small>serviços disponíveis</small></article><article><span>Publicados</span><strong id="adminCatalogPublishedCount">0</strong><small>tempos liberados</small></article><article><span>Rascunhos</span><strong id="adminCatalogDraftCount">0</strong><small>aguardando revisão</small></article></div>
+        <form id="adminCatalogForm" class="admin-catalog-form">
+          <input id="adminCatalogId" type="hidden">
+          <fieldset><legend>1. Veículo</legend><div class="admin-catalog-grid"><label>Montadora<select id="adminCatalogMake" required><option value="">Selecione</option></select></label><label>Modelo<select id="adminCatalogModel" required disabled><option value="">Selecione</option></select></label><label>Configuração / motor<select id="adminCatalogVehicle" required disabled><option value="">Selecione</option></select></label><label>Ano inicial<input id="adminCatalogYearStart" type="number" min="1900" max="2100" required></label><label>Ano final<input id="adminCatalogYearEnd" type="number" min="1900" max="2100" required></label></div><p id="adminCatalogVehicleDetail" class="muted"></p></fieldset>
+          <fieldset><legend>2. Operação</legend><div class="admin-catalog-grid"><label>Sistema<select id="adminCatalogSystem" required><option value="">Selecione</option></select></label><label class="admin-catalog-operation-field">Serviço / operação<select id="adminCatalogOperation" required disabled><option value="">Selecione</option></select></label><label>Tempo padrão (minutos)<input id="adminCatalogMinutes" type="number" min="1" max="10000" step="1" required placeholder="Ex.: 90"></label><label>Fonte técnica<input id="adminCatalogSource" required maxlength="300" placeholder="Manual, fabricante ou referência"></label><label class="admin-catalog-notes">Observação específica<textarea id="adminCatalogNotes" rows="3" maxlength="1000" placeholder="Condições, ferramentas ou ressalvas"></textarea></label></div><p id="adminCatalogOperationDetail" class="muted"></p></fieldset>
+          <div class="admin-catalog-actions"><button class="btn btn-muted" id="adminCatalogSaveDraft" type="button">Salvar rascunho</button><button class="btn btn-primary" id="adminCatalogPublish" type="button">Revisar e publicar</button><button class="btn btn-ghost" id="adminCatalogCancel" type="button">Limpar</button><span id="adminCatalogMessage" class="form-status"></span></div>
+        </form>
+        <div class="admin-catalog-list-head"><div><h3>Tempos cadastrados</h3><p class="muted">Edite, publique ou desative cada vínculo individualmente.</p></div><div><input id="adminCatalogSearch" type="search" placeholder="Buscar veículo ou serviço"><select id="adminCatalogStatus"><option value="">Todos</option><option value="published">Publicados</option><option value="draft">Rascunhos</option><option value="disabled">Desativados</option></select></div></div>
+        <div id="adminCatalogList" class="admin-catalog-list"><div class="admin-empty">Carregando catálogo...</div></div>
       </section>
       <section id="adminFinance" class="admin-dashboard-section">
         <div class="admin-section-title"><div><span>Financeiro RR Manager</span><h2>Ganhos, gastos e projeções</h2></div><small>Separado do financeiro das oficinas</small></div>
@@ -1237,7 +1330,8 @@ function sanitizeClientSummary(client = {}) {
       modelo: vehicle.modelo || "",
       motor: vehicle.motor || "",
       ano: vehicle.ano || "",
-      placa: vehicle.placa || ""
+      placa: vehicle.placa || "",
+      catalogVehicleId: vehicle.catalogVehicleId || ""
     })),
     updatedAt: client.updatedAt || ""
   };
@@ -1251,7 +1345,7 @@ const PUBLIC_BUDGET_FIELDS = [
   "createdBy", "updatedBy", "updatedAt"
 ];
 const PUBLIC_PART_FIELDS = ["id", "nome", "quantidade", "valorUnitario", "valorUnitarioInformado", "cortesia"];
-const PUBLIC_LABOR_FIELDS = ["id", "descricao", "horas", "valorHora", "valorHoraInformado", "cortesia"];
+const PUBLIC_LABOR_FIELDS = ["id", "descricao", "horas", "valorHora", "valorHoraInformado", "cortesia", "catalogTimeId", "catalogVehicleId", "catalogServiceCode", "catalogDescription", "suggestedMinutes", "catalogSource", "catalogModified"];
 const PUBLIC_OUTSOURCED_FIELDS = ["id", "descricao", "valor", "valorInformado", "cortesia"];
 const PUBLIC_PAYMENT_FIELDS = ["tipo", "parcelas", "taxaRepassada", "acrescimoValor", "totalCobrado", "descontoPercentual", "descontoValor", "label"];
 const PRIVATE_PAYMENT_FIELDS = ["taxaPercentual", "taxaValor"];
@@ -2279,7 +2373,7 @@ function renderContractDocument(workspace = {}) {
         ${pageHeader(6, "Responsabilidades e documentos")}
         <div class="contract-section"><h3>13. Responsabilidades da contratante</h3><p>A CONTRATANTE é responsável pela veracidade, necessidade, atualização e legalidade das informações inseridas, pela proteção de suas credenciais e pela conferência de orçamentos, peças, serviços, valores, taxas, descontos, documentos, diagnósticos e relatórios antes de utilizá-los ou enviá-los.</p></div>
         <div class="contract-section"><h3>14. Serviços automotivos</h3><p>A CONTRATANTE permanece exclusivamente responsável pela avaliação, qualidade, segurança, preço e execução dos serviços prestados aos seus clientes. O RR Manager é ferramenta de apoio e não toma decisões técnicas ou comerciais de forma autônoma.</p></div>
-        <div class="contract-section"><h3>15. Orçamentos, inspeções, financeiro e DRE</h3><p>Os resultados dependem dos dados e parâmetros configurados pela oficina. A CONTRATADA não garante preços de peças, mão de obra, serviços terceirizados, tributos, descontos ou diagnósticos. A indicação feita pelo cliente em link público não conclui a aprovação: a oficina deve confirmá-la no sistema. Cortesias podem gerar custos sem receita, conforme os campos informados. Lançamentos recorrentes são automações que devem ser revisadas pela oficina. Para fins do DRE gerencial, o orçamento aprovado é tratado como realizado e recebido na data da aprovação; esse critério não substitui regime contábil, conciliação bancária, documento fiscal nem análise de profissional habilitado. As inspeções não substituem desmontagem ou diagnóstico especializado.</p></div>
+        <div class="contract-section"><h3>15. Orçamentos, catálogo técnico, inspeções, financeiro e DRE</h3><p>Os resultados dependem dos dados e parâmetros configurados pela oficina. A CONTRATADA não garante preços de peças, mão de obra, serviços terceirizados, tributos, descontos ou diagnósticos. Veículos, operações e tempos do catálogo técnico são referências sujeitas a divergências de versão, motorização, equipamentos, estado do veículo e procedimento; a CONTRATANTE deve conferir VIN, documentação do fabricante, condições reais e possíveis sobreposições antes de usar ou enviar o orçamento. A descrição e o tempo podem ser alterados pela oficina, que permanece responsável pela estimativa final. A indicação feita pelo cliente em link público não conclui a aprovação: a oficina deve confirmá-la no sistema. Cortesias podem gerar custos sem receita, conforme os campos informados. Lançamentos recorrentes são automações que devem ser revisadas pela oficina. Para fins do DRE gerencial, o orçamento aprovado é tratado como realizado e recebido na data da aprovação; esse critério não substitui regime contábil, conciliação bancária, documento fiscal nem análise de profissional habilitado. As inspeções não substituem desmontagem ou diagnóstico especializado.</p></div>
         <div class="contract-section"><h3>16. WhatsApp, links e terceiros</h3><p>Compartilhamentos dependem das regras e disponibilidade do WhatsApp, navegador, Firebase e outros fornecedores. A CONTRATANTE deve conferir destinatários, evitar dados desnecessários e utilizar links públicos de forma lícita. A CONTRATADA não responde por bloqueios ou falhas de terceiros que não decorram de conduta própria.</p></div>
         <div class="contract-notice"><b>Responsabilidade operacional:</b> antes de enviar qualquer documento, a oficina deve revisar cliente, veículo, itens, valores, forma de pagamento e destinatário.</div>
         ${pageFooter(6)}
@@ -2299,7 +2393,7 @@ function renderContractDocument(workspace = {}) {
         ${pageHeader(8, "Disposições finais")}
         <div class="contract-section contract-final-compact"><h3>22. Limitação de responsabilidade</h3><p>Na extensão permitida por lei, a CONTRATADA não responde por informações incorretas, decisões e serviços da oficina, preços definidos pela CONTRATANTE, credenciais compartilhadas, uso inadequado ou falhas externas. Esta cláusula não exclui responsabilidades que não possam ser afastadas pela legislação.</p></div>
         <div class="contract-section contract-final-compact"><h3>23. Documentos integrantes e prevalência</h3><p>Integram a contratação: (i) condição comercial específica registrada; (ii) este Contrato; (iii) Termos de Uso; e (iv) Política de Privacidade nas matérias de dados. Essa é a ordem de prevalência em caso de conflito, respeitada a legislação.</p></div>
-        <div class="contract-section contract-final-compact"><h3>24. Planos, alterações e comunicações</h3><p>O Plano Essencial reúne as funções básicas de operação; o Plano Pro acrescenta somente os recursos identificados como Pro no sistema e neste contrato. Upgrade e downgrade passam a valer conforme a condição comercial registrada. No downgrade, DRE, recorrências e contas adicionais podem ser bloqueados, sem promessa de disponibilidade fora do Pro. Mudanças relevantes serão identificadas por versão e comunicadas pelo sistema, e-mail ou canais oficiais, podendo exigir novo aceite. Alterações de preço serão informadas previamente. A CONTRATANTE deve manter seus contatos atualizados.</p></div>
+        <div class="contract-section contract-final-compact"><h3>24. Planos, alterações e comunicações</h3><p>O Plano Essencial reúne as funções básicas de operação; o Plano Pro acrescenta somente os recursos identificados como Pro no sistema e neste contrato. Upgrade e downgrade passam a valer conforme a condição comercial registrada. No downgrade, catálogo técnico, DRE, recorrências e contas adicionais podem ser bloqueados, sem promessa de disponibilidade fora do Pro. Mudanças relevantes serão identificadas por versão e comunicadas pelo sistema, e-mail ou canais oficiais, podendo exigir novo aceite. Alterações de preço serão informadas previamente. A CONTRATANTE deve manter seus contatos atualizados.</p></div>
         <div class="contract-section contract-final-compact"><h3>25. Vigência e efeitos do encerramento</h3><p>A vigência começa no aceite eletrônico e permanece enquanto houver assinatura ativa. Obrigações de pagamento, propriedade intelectual, confidencialidade, dados e responsabilidades sobrevivem pelo período necessário.</p></div>
         <div class="contract-section contract-final-compact"><h3>26. Disposições gerais e foro</h3><p>Eventos inevitáveis fora do controle razoável afastam responsabilidade na medida legal. O contrato não cria sociedade, franquia, representação ou vínculo trabalhista. A invalidade de uma cláusula não prejudica as demais. Aplicam-se as leis brasileiras. Fica eleito o foro de <strong>${escapeHtml(provider.venue || "Belo Horizonte/MG")}</strong>, sem prejuízo de outro foro que seja obrigatório pela legislação aplicável.</p></div>
         <section class="contract-acceptance-record">
@@ -3030,6 +3124,8 @@ async function renderAdminDashboard() {
       .filter((item) => !ADMIN_EMAILS.includes(normalizeEmail(item.ownerEmail))));
     adminWorkspaces.sort(compareAdminWorkspacesByName);
 
+    await loadAdminTechnicalCatalog();
+
     renderAdminPlatformOverview();
     renderAdminPlatformFinance();
     renderAdminWorkspaceList();
@@ -3046,6 +3142,228 @@ function compareAdminWorkspacesByName(a, b) {
     sensitivity: 'base',
     numeric: true
   });
+}
+
+async function loadAdminTechnicalCatalog() {
+  const list = document.getElementById("adminCatalogList");
+  try {
+    await loadTechnicalReferenceData();
+    const snapshot = await getDocs(collection(db, TECHNICAL_CATALOG_COLLECTION));
+    adminLaborTimes = snapshot.docs.map((record) => ({ id: record.id, ...record.data() }));
+    bindAdminTechnicalCatalog();
+    renderAdminTechnicalCatalog();
+  } catch (error) {
+    if (list) list.innerHTML = `<div class="admin-empty">${escapeHtml(firebaseError(error))}. Publique as regras do Firestore desta versão.</div>`;
+  }
+}
+
+function uniqueCatalogValues(items, field) {
+  return [...new Set(items.map((item) => String(item[field] || "").trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "pt-BR", { sensitivity: "base", numeric: true }));
+}
+
+function fillAdminCatalogSelect(id, values, placeholder, selected = "") {
+  const select = document.getElementById(id);
+  if (!select) return;
+  select.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>${values.map((value) => `<option value="${escapeHtml(value)}"${value === selected ? " selected" : ""}>${escapeHtml(value)}</option>`).join("")}`;
+  select.disabled = values.length === 0;
+}
+
+function bindAdminTechnicalCatalog() {
+  const form = document.getElementById("adminCatalogForm");
+  if (!form || form.dataset.bound === "true") return;
+  form.dataset.bound = "true";
+  fillAdminCatalogSelect("adminCatalogMake", uniqueCatalogValues(technicalVehicleConfigs, "make"), "Selecione a montadora");
+  fillAdminCatalogSelect("adminCatalogSystem", uniqueCatalogValues(technicalLaborOperations, "system"), "Selecione o sistema");
+  document.getElementById("adminCatalogMake")?.addEventListener("change", updateAdminCatalogModels);
+  document.getElementById("adminCatalogModel")?.addEventListener("change", updateAdminCatalogVehicles);
+  document.getElementById("adminCatalogVehicle")?.addEventListener("change", updateAdminCatalogVehicleDetail);
+  document.getElementById("adminCatalogSystem")?.addEventListener("change", updateAdminCatalogOperations);
+  document.getElementById("adminCatalogOperation")?.addEventListener("change", updateAdminCatalogOperationDetail);
+  document.getElementById("adminCatalogSaveDraft")?.addEventListener("click", () => saveAdminLaborTime("draft"));
+  document.getElementById("adminCatalogPublish")?.addEventListener("click", () => saveAdminLaborTime("published"));
+  document.getElementById("adminCatalogCancel")?.addEventListener("click", resetAdminCatalogForm);
+  document.getElementById("adminCatalogSearch")?.addEventListener("input", renderAdminTechnicalCatalogList);
+  document.getElementById("adminCatalogStatus")?.addEventListener("change", renderAdminTechnicalCatalogList);
+}
+
+function updateAdminCatalogModels(selected = "") {
+  const make = document.getElementById("adminCatalogMake")?.value || "";
+  fillAdminCatalogSelect("adminCatalogModel", uniqueCatalogValues(technicalVehicleConfigs.filter((item) => item.make === make), "model"), "Selecione o modelo", selected);
+  updateAdminCatalogVehicles();
+}
+
+function updateAdminCatalogVehicles(selected = "") {
+  const make = document.getElementById("adminCatalogMake")?.value || "";
+  const model = document.getElementById("adminCatalogModel")?.value || "";
+  const vehicles = technicalVehicleConfigs.filter((item) => item.make === make && item.model === model);
+  const select = document.getElementById("adminCatalogVehicle");
+  if (!select) return;
+  select.innerHTML = `<option value="">Selecione motor e configuração</option>${vehicles.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === selected ? " selected" : ""}>${escapeHtml(`${item.engine} · ${item.fuel} · ${item.aspiration} · ${item.yearStart}–${item.yearEnd}`)}</option>`).join("")}`;
+  select.disabled = vehicles.length === 0;
+  updateAdminCatalogVehicleDetail();
+}
+
+function updateAdminCatalogVehicleDetail() {
+  const vehicle = technicalVehicleConfigs.find((item) => item.id === document.getElementById("adminCatalogVehicle")?.value);
+  const detail = document.getElementById("adminCatalogVehicleDetail");
+  if (!vehicle) {
+    if (detail) detail.textContent = "";
+    return;
+  }
+  document.getElementById("adminCatalogYearStart").value = vehicle.yearStart;
+  document.getElementById("adminCatalogYearEnd").value = vehicle.yearEnd;
+  if (detail) detail.textContent = [vehicle.mechanicalNote, `Curadoria ${vehicle.confidence || "não informada"}`].filter(Boolean).join(" · ");
+}
+
+function updateAdminCatalogOperations(selected = "") {
+  const system = document.getElementById("adminCatalogSystem")?.value || "";
+  const operations = technicalLaborOperations.filter((item) => item.system === system);
+  const select = document.getElementById("adminCatalogOperation");
+  if (!select) return;
+  select.innerHTML = `<option value="">Selecione a operação</option>${operations.map((item) => `<option value="${escapeHtml(item.code)}"${item.code === selected ? " selected" : ""}>${escapeHtml(`${item.code} · ${item.description}`)}</option>`).join("")}`;
+  select.disabled = operations.length === 0;
+  updateAdminCatalogOperationDetail();
+}
+
+function updateAdminCatalogOperationDetail() {
+  const operation = technicalLaborOperations.find((item) => item.code === document.getElementById("adminCatalogOperation")?.value);
+  const detail = document.getElementById("adminCatalogOperationDetail");
+  if (!detail) return;
+  detail.textContent = operation ? [operation.subsystem, operation.operationType, operation.unit, operation.overlap ? "Atenção: pode existir sobreposição de tempo" : ""].filter(Boolean).join(" · ") : "";
+}
+
+function getAdminCatalogFormData(status) {
+  const vehicle = technicalVehicleConfigs.find((item) => item.id === document.getElementById("adminCatalogVehicle")?.value);
+  const operation = technicalLaborOperations.find((item) => item.code === document.getElementById("adminCatalogOperation")?.value);
+  const yearStart = Number(document.getElementById("adminCatalogYearStart")?.value || 0);
+  const yearEnd = Number(document.getElementById("adminCatalogYearEnd")?.value || 0);
+  const timeMinutes = Number(document.getElementById("adminCatalogMinutes")?.value || 0);
+  const source = String(document.getElementById("adminCatalogSource")?.value || "").trim();
+  if (!vehicle || !operation) throw new Error("Selecione o veículo e a operação.");
+  if (!yearStart || !yearEnd || yearStart > yearEnd || yearStart < vehicle.yearStart || yearEnd > vehicle.yearEnd) throw new Error(`Informe anos entre ${vehicle.yearStart} e ${vehicle.yearEnd}.`);
+  if (!Number.isInteger(timeMinutes) || timeMinutes < 1) throw new Error("Informe o tempo padrão em minutos inteiros.");
+  if (!source) throw new Error("Informe a fonte técnica usada para revisar o tempo.");
+  const conflict = adminLaborTimes.find((item) => item.id !== adminCatalogEditingId
+    && item.status !== "disabled"
+    && item.vehicleId === vehicle.id
+    && item.serviceCode === operation.code
+    && yearStart <= Number(item.yearEnd)
+    && yearEnd >= Number(item.yearStart));
+  if (conflict) throw new Error(`Já existe um tempo para esta operação entre ${conflict.yearStart} e ${conflict.yearEnd}. Edite o registro existente ou desative-o.`);
+  return {
+    vehicleId: vehicle.id, make: vehicle.make, model: vehicle.model, engine: vehicle.engine,
+    fuel: vehicle.fuel, aspiration: vehicle.aspiration, yearStart, yearEnd,
+    serviceCode: operation.code, system: operation.system, subsystem: operation.subsystem,
+    description: operation.description, operationType: operation.operationType, unit: operation.unit,
+    overlap: operation.overlap === true, timeMinutes, source,
+    notes: String(document.getElementById("adminCatalogNotes")?.value || "").trim(), status
+  };
+}
+
+async function saveAdminLaborTime(status) {
+  const message = document.getElementById("adminCatalogMessage");
+  const draftButton = document.getElementById("adminCatalogSaveDraft");
+  const publishButton = document.getElementById("adminCatalogPublish");
+  try {
+    const data = getAdminCatalogFormData(status);
+    const existing = adminLaborTimes.find((item) => item.id === adminCatalogEditingId);
+    const id = existing?.id || `labor_${Date.now().toString(36)}_${crypto.getRandomValues(new Uint32Array(1))[0].toString(36)}`;
+    const now = new Date().toISOString();
+    const previousRevision = existing ? {
+      status: existing.status, timeMinutes: existing.timeMinutes, source: existing.source || "", notes: existing.notes || "",
+      yearStart: existing.yearStart, yearEnd: existing.yearEnd, changedAt: now, changedBy: currentUser.email || "admin"
+    } : null;
+    const revisions = [...(Array.isArray(existing?.revisions) ? existing.revisions : []), ...(previousRevision ? [previousRevision] : [])].slice(-20);
+    draftButton.disabled = true;
+    publishButton.disabled = true;
+    if (message) message.textContent = status === "published" ? "Publicando..." : "Salvando rascunho...";
+    await setDoc(doc(db, TECHNICAL_CATALOG_COLLECTION, id), {
+      id, ...data, revisions, revision: Number(existing?.revision || 0) + 1,
+      createdAt: existing?.createdAt || now, updatedAt: serverTimestamp(), updatedAtISO: now,
+      publishedAt: status === "published" ? now : existing?.publishedAt || "", updatedBy: currentUser.email || "admin"
+    });
+    const saved = { ...existing, id, ...data, revisions, revision: Number(existing?.revision || 0) + 1, createdAt: existing?.createdAt || now, updatedAtISO: now, publishedAt: status === "published" ? now : existing?.publishedAt || "", updatedBy: currentUser.email || "admin" };
+    adminLaborTimes = existing ? adminLaborTimes.map((item) => item.id === id ? saved : item) : [saved, ...adminLaborTimes];
+    publishedLaborTimes.clear();
+    resetAdminCatalogForm();
+    renderAdminTechnicalCatalog();
+    if (message) message.textContent = status === "published" ? "Tempo publicado no Plano Pro." : "Rascunho salvo.";
+  } catch (error) {
+    if (message) message.textContent = firebaseError(error);
+  } finally {
+    draftButton.disabled = false;
+    publishButton.disabled = false;
+  }
+}
+
+async function setAdminLaborTimeStatus(id, status) {
+  const item = adminLaborTimes.find((entry) => entry.id === id);
+  if (!item) return;
+  adminCatalogEditingId = id;
+  editAdminLaborTime(id);
+  await saveAdminLaborTime(status);
+}
+
+function editAdminLaborTime(id) {
+  const item = adminLaborTimes.find((entry) => entry.id === id);
+  if (!item) return;
+  adminCatalogEditingId = id;
+  document.getElementById("adminCatalogId").value = id;
+  document.getElementById("adminCatalogMake").value = item.make;
+  updateAdminCatalogModels(item.model);
+  document.getElementById("adminCatalogModel").value = item.model;
+  updateAdminCatalogVehicles(item.vehicleId);
+  document.getElementById("adminCatalogVehicle").value = item.vehicleId;
+  document.getElementById("adminCatalogYearStart").value = item.yearStart;
+  document.getElementById("adminCatalogYearEnd").value = item.yearEnd;
+  document.getElementById("adminCatalogSystem").value = item.system;
+  updateAdminCatalogOperations(item.serviceCode);
+  document.getElementById("adminCatalogOperation").value = item.serviceCode;
+  document.getElementById("adminCatalogMinutes").value = item.timeMinutes;
+  document.getElementById("adminCatalogSource").value = item.source || "";
+  document.getElementById("adminCatalogNotes").value = item.notes || "";
+  updateAdminCatalogVehicleDetail();
+  document.getElementById("adminCatalogYearStart").value = item.yearStart;
+  document.getElementById("adminCatalogYearEnd").value = item.yearEnd;
+  updateAdminCatalogOperationDetail();
+  document.getElementById("adminCatalogForm")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function resetAdminCatalogForm() {
+  adminCatalogEditingId = "";
+  const form = document.getElementById("adminCatalogForm");
+  form?.reset();
+  if (document.getElementById("adminCatalogId")) document.getElementById("adminCatalogId").value = "";
+  fillAdminCatalogSelect("adminCatalogModel", [], "Selecione o modelo");
+  fillAdminCatalogSelect("adminCatalogVehicle", [], "Selecione motor e configuração");
+  fillAdminCatalogSelect("adminCatalogOperation", [], "Selecione a operação");
+  if (document.getElementById("adminCatalogVehicleDetail")) document.getElementById("adminCatalogVehicleDetail").textContent = "";
+  if (document.getElementById("adminCatalogOperationDetail")) document.getElementById("adminCatalogOperationDetail").textContent = "";
+}
+
+function renderAdminTechnicalCatalog() {
+  const set = (id, value) => { const element = document.getElementById(id); if (element) element.textContent = value; };
+  set("adminCatalogVehicleCount", technicalVehicleConfigs.length.toLocaleString("pt-BR"));
+  set("adminCatalogOperationCount", technicalLaborOperations.length.toLocaleString("pt-BR"));
+  set("adminCatalogPublishedCount", adminLaborTimes.filter((item) => item.status === "published").length.toLocaleString("pt-BR"));
+  set("adminCatalogDraftCount", adminLaborTimes.filter((item) => item.status === "draft").length.toLocaleString("pt-BR"));
+  renderAdminTechnicalCatalogList();
+}
+
+function renderAdminTechnicalCatalogList() {
+  const root = document.getElementById("adminCatalogList");
+  if (!root) return;
+  const search = normalizeCatalogText(document.getElementById("adminCatalogSearch")?.value || "");
+  const status = document.getElementById("adminCatalogStatus")?.value || "";
+  const filtered = adminLaborTimes.filter((item) => (!status || item.status === status) && (!search || normalizeCatalogText(`${item.make} ${item.model} ${item.engine} ${item.description} ${item.serviceCode}`).includes(search)));
+  root.innerHTML = filtered.map((item) => `
+    <article class="admin-catalog-item">
+      <div><span class="admin-catalog-status is-${escapeHtml(item.status || "draft")}">${item.status === "published" ? "Publicado" : item.status === "disabled" ? "Desativado" : "Rascunho"}</span><strong>${escapeHtml(`${item.make} ${item.model} ${item.engine}`)}</strong><small>${escapeHtml(`${item.yearStart}–${item.yearEnd} · ${item.serviceCode} · ${item.description}`)}</small><span>${escapeHtml(`${item.timeMinutes} min (${(Number(item.timeMinutes) / 60).toFixed(2).replace(".", ",")} h) · Fonte: ${item.source || "-"}`)}</span></div>
+      <div class="actions"><button class="btn btn-muted" type="button" data-catalog-edit="${escapeHtml(item.id)}">Editar</button>${item.status === "published" ? `<button class="btn btn-danger" type="button" data-catalog-status="disabled" data-catalog-id="${escapeHtml(item.id)}">Desativar</button>` : `<button class="btn btn-primary" type="button" data-catalog-status="published" data-catalog-id="${escapeHtml(item.id)}">Publicar</button>`}</div>
+    </article>`).join("") || `<div class="admin-empty">Nenhum tempo técnico cadastrado com estes filtros.</div>`;
+  root.querySelectorAll("[data-catalog-edit]").forEach((button) => button.addEventListener("click", () => editAdminLaborTime(button.dataset.catalogEdit)));
+  root.querySelectorAll("[data-catalog-status]").forEach((button) => button.addEventListener("click", () => setAdminLaborTimeStatus(button.dataset.catalogId, button.dataset.catalogStatus)));
 }
 
 function showAdminHelpModal() {

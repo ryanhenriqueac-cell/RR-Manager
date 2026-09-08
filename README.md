@@ -17,6 +17,7 @@ Sistema de gestão para oficinas, feito com HTML, CSS e JavaScript e sincronizad
 | Peças, mão de obra, terceirizados e cortesias | Sim | Sim |
 | PDFs, WhatsApp, aprovação e financeiro básico | Sim | Sim |
 | Operação e ordens de serviço da equipe | Não | Sim |
+| Catálogo técnico de mão de obra por veículo | Não | Sim |
 | DRE gerencial, metas, rankings e comparações | Não | Sim |
 | Lançamentos financeiros recorrentes | Não | Sim |
 | Até quatro colaboradores com permissões | Não | Sim |
@@ -68,6 +69,14 @@ Se as novas regras ainda não estiverem publicadas, o sistema mantém temporaria
 6. Copie todo o conteúdo de `firestore.rules`, cole no editor e clique em **Publicar**.
 
 As regras garantem que cada usuário acesse apenas o workspace da própria empresa e, no caso dos colaboradores do Plano Pro, somente os módulos liberados. O administrador definido nas regras pode consultar e gerenciar todos os workspaces.
+
+## Catálogo técnico de mão de obra
+
+O Plano Pro inclui uma base normalizada com 999 configurações de veículos e 664 operações de oficina. A base de referência não atribui tempos automaticamente: cada combinação veículo, intervalo de anos e operação precisa ser revisada no painel administrativo, receber fonte técnica e ser publicada individualmente. Rascunhos e itens desativados nunca aparecem para as oficinas.
+
+Na tela Clientes, o veículo pode ser vinculado à configuração técnica exata. No orçamento, o botão **Buscar no catálogo técnico PRO** exibe somente tempos publicados e compatíveis com o veículo e o ano selecionados. Ao adicionar uma sugestão, descrição, horas e valor/hora continuam editáveis; o orçamento registra quando o tempo sugerido foi modificado.
+
+Os arquivos `data/vehicle-configs.json` e `data/labor-operations.json` são carregados apenas quando alguém abre a base técnica. Os tempos aprovados ficam na coleção global `labor_time_catalog`, protegida pelas regras do Firestore. Por isso, esta versão exige publicar `firestore.rules` junto com o site.
 
 Nesta atualização, publique `firestore.rules` antes de liberar os novos arquivos do site. Depois, entre uma vez com a conta proprietária de cada oficina para concluir automaticamente a migração. Se o site for atualizado primeiro, o proprietário continua salvando no esquema 2 de forma compatível, mas os colaboradores permanecem bloqueados até que as regras sejam publicadas e a migração seja concluída.
 

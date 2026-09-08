@@ -5,12 +5,16 @@ $firebasePath = Join-Path $projectRoot "firebase-sync.js"
 $scriptPath = Join-Path $projectRoot "script.js"
 $rulesPath = Join-Path $projectRoot "firestore.rules"
 $teamPath = Join-Path $projectRoot "equipe.html"
+$budgetsPath = Join-Path $projectRoot "orcamentos.html"
 $stylesPath = Join-Path $projectRoot "style.css"
+$vehicleCatalogPath = Join-Path $projectRoot "data/vehicle-configs.json"
+$laborOperationsPath = Join-Path $projectRoot "data/labor-operations.json"
 
 $firebase = [System.IO.File]::ReadAllText($firebasePath)
 $appScript = [System.IO.File]::ReadAllText($scriptPath)
 $rules = [System.IO.File]::ReadAllText($rulesPath)
 $teamHtml = [System.IO.File]::ReadAllText($teamPath)
+$budgetsHtml = [System.IO.File]::ReadAllText($budgetsPath)
 $styles = [System.IO.File]::ReadAllText($stylesPath)
 $htmlFiles = Get-ChildItem -LiteralPath $projectRoot -Filter "*.html" -File
 $allHtml = ($htmlFiles | ForEach-Object { [System.IO.File]::ReadAllText($_.FullName) }) -join "`n"
@@ -145,9 +149,9 @@ foreach ($htmlFile in $htmlFiles) {
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
-  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=129')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=114')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=80')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=130')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=115')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=81')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -170,5 +174,24 @@ Assert-True ($firebase.Contains(': "Carregando"')) "Status do usuario ainda info
 Assert-True (-not $firebase.Contains("setAppLocked(true);`r`nclearSensitiveLocalData();") -and -not $firebase.Contains("setAppLocked(true);`nclearSensitiveLocalData();")) "Inicializacao ainda apaga todo o cache em cada troca de pagina."
 Assert-True ($styles.Contains('.auth-restoring #firebaseLoginForm')) "Restauracao da sessao ainda exibe o formulario de login."
 Assert-True ($teamHtml.Contains('Operação') -or $teamHtml.Contains('Opera&ccedil;&atilde;o')) "Texto da equipe foi corrompido."
+
+Assert-True (Test-Path -LiteralPath $vehicleCatalogPath) "Base normalizada de veiculos ausente."
+Assert-True (Test-Path -LiteralPath $laborOperationsPath) "Base normalizada de operacoes ausente."
+$vehicleCatalog = Get-Content -LiteralPath $vehicleCatalogPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$laborOperations = Get-Content -LiteralPath $laborOperationsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+Assert-True ($vehicleCatalog.Count -eq 999) "Base tecnica deveria conter 999 configuracoes de veiculos."
+Assert-True ($laborOperations.Count -eq 664) "Catalogo deveria conter 664 operacoes de oficina."
+Assert-True (($vehicleCatalog.id | Select-Object -Unique).Count -eq $vehicleCatalog.Count) "IDs duplicados na base de veiculos."
+Assert-True (($laborOperations.code | Select-Object -Unique).Count -eq $laborOperations.Count) "Codigos duplicados no catalogo de operacoes."
+Assert-True ($firebase.Contains('const TECHNICAL_CATALOG_COLLECTION = "labor_time_catalog"')) "Colecao do catalogo tecnico nao configurada."
+Assert-True ($firebase.Contains('laborCatalog: false') -and $firebase.Contains('laborCatalog: true')) "Catalogo tecnico nao esta separado entre Essencial e Pro."
+Assert-True ($firebase.Contains('where("status", "==", "published")')) "Oficinas podem carregar tempos ainda nao publicados."
+Assert-True ($rules.Contains('match /labor_time_catalog/{docId}')) "Catalogo tecnico nao possui regras dedicadas."
+Assert-True ($rules.Contains("resource.data.status == 'published'")) "Rascunhos do catalogo podem ser lidos por oficinas."
+Assert-True ($rules.Contains('allow create, update: if isAdmin()')) "Uma oficina pode publicar tempos tecnicos."
+Assert-True ($budgetsHtml.Contains('id="openLaborCatalog"') -and $budgetsHtml.Contains('data-requires-plan="laborCatalog"')) "Botao Pro do catalogo nao esta no orcamento."
+Assert-True ($appScript.Contains('catalogModified: descricao !==')) "Alteracao da sugestao tecnica nao e rastreada."
+Assert-True ($appScript.Contains('function openVehicleCatalogForClient') -and $appScript.Contains('catalogVehicleId: selected.id')) "Cadastro do carro nao permite vinculo tecnico exato."
+Assert-True ($styles.Contains('.labor-catalog-modal')) "Catalogo tecnico nao possui interface responsiva."
 
 Write-Host "OK: $checks verificacoes da matriz de permissoes passaram." -ForegroundColor Green

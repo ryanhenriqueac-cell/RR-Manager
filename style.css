@@ -7567,6 +7567,44 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 }
 .manager-client-choice[hidden],
 .manager-client-result[hidden] { display: none; }
+
+.admin-technical-catalog { display: grid; gap: 22px; }
+.admin-catalog-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.admin-catalog-metrics article { display: grid; gap: 4px; padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(7, 17, 31, .72); }
+.admin-catalog-metrics span,.admin-catalog-metrics small { color: var(--muted); }
+.admin-catalog-metrics strong { color: var(--gold); font-size: 28px; }
+.admin-catalog-form { display: grid; gap: 16px; padding: 20px; border: 1px solid rgba(241,199,91,.25); border-radius: 8px; background: rgba(7,17,31,.72); }
+.admin-catalog-form fieldset { padding: 16px; border: 1px solid var(--line); border-radius: 8px; }
+.admin-catalog-form legend { padding: 0 8px; color: var(--gold); font-weight: 900; }
+.admin-catalog-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.admin-catalog-grid label { display: grid; gap: 7px; color: var(--text); font-weight: 800; }
+.admin-catalog-operation-field { grid-column: span 2; }
+.admin-catalog-notes { grid-column: span 3; }
+.admin-catalog-actions,.admin-catalog-list-head,.admin-catalog-item { display: flex; align-items: center; gap: 10px; }
+.admin-catalog-actions .form-status { margin-left: auto; }
+.admin-catalog-list-head { justify-content: space-between; }
+.admin-catalog-list-head > div:last-child { display: flex; gap: 8px; }
+.admin-catalog-list { display: grid; gap: 10px; }
+.admin-catalog-item { justify-content: space-between; padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: rgba(7,17,31,.66); }
+.admin-catalog-item > div:first-child { display: grid; gap: 5px; }
+.admin-catalog-item small,.admin-catalog-item span { color: var(--muted); }
+.admin-catalog-status { width: max-content; padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 900; text-transform: uppercase; }
+.admin-catalog-status.is-published { background: rgba(79,209,161,.14); color: #74e6bb; }
+.admin-catalog-status.is-draft { background: rgba(241,199,91,.14); color: var(--gold); }
+.admin-catalog-status.is-disabled { background: rgba(255,143,143,.14); color: #ff9d9d; }
+
+@media (max-width: 980px) {
+  .admin-catalog-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-catalog-operation-field,.admin-catalog-notes { grid-column: span 2; }
+}
+
+@media (max-width: 640px) {
+  .admin-catalog-metrics,.admin-catalog-grid { grid-template-columns: 1fr; }
+  .admin-catalog-operation-field,.admin-catalog-notes { grid-column: auto; }
+  .admin-catalog-list-head,.admin-catalog-item { align-items: stretch; flex-direction: column; }
+  .admin-catalog-list-head > div:last-child { flex-direction: column; }
+}
 .manager-client-choice > span { font-size: 10px; }
 .manager-client-choice > strong { font-size: 15px; }
 .manager-client-choice > div { display: flex; justify-content: center; gap: 7px; }
@@ -10185,3 +10223,51 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .manager-plan-summary strong { color: var(--gold-2); }
 .manager-plan-summary p { margin: 0; }
 .manager-plan-summary small { margin-top: 5px; color: var(--muted); }
+
+.vehicle-catalog-button { grid-column: span 2; }
+.catalog-suggestion-badge {
+  display: block;
+  margin: 3px 0 5px;
+  color: #8bc8ff;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.labor-catalog-modal,
+.vehicle-catalog-modal {
+  width: min(980px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid rgba(215,166,58,.35);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(18,36,60,.99), rgba(7,17,31,.99));
+  box-shadow: var(--shadow);
+}
+.vehicle-catalog-modal { width: min(760px, 100%); }
+.labor-catalog-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+.labor-catalog-title h2 { margin: 8px 0 4px; }
+.labor-catalog-title p { margin: 0; color: var(--muted); }
+.modal-close { width: 42px; min-height: 42px; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.04); color: var(--text); font-size: 1.7rem; cursor: pointer; }
+.labor-catalog-vehicle { display: grid; gap: 7px; margin-bottom: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(5,13,24,.42); }
+.labor-catalog-vehicle small { color: var(--muted); }
+.labor-catalog-filters { display: grid; grid-template-columns: minmax(0,2fr) minmax(180px,1fr); gap: 12px; margin-bottom: 14px; }
+.labor-catalog-results { display: grid; gap: 9px; max-height: 390px; overflow: auto; padding-right: 4px; }
+.labor-catalog-result { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: start; gap: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 10px; background: rgba(5,13,24,.42); cursor: pointer; }
+.labor-catalog-result:has(input:checked) { border-color: rgba(87,184,255,.5); background: rgba(47,124,246,.1); }
+.labor-catalog-result input { width: 18px; height: 18px; min-height: 0; margin-top: 2px; accent-color: #2f7cf6; }
+.labor-catalog-result span { display: grid; gap: 4px; }
+.labor-catalog-result small,.labor-catalog-result em { color: var(--muted); font-size: .78rem; font-style: normal; }
+.labor-catalog-result b { color: #f3d982; font-size: .76rem; }
+.labor-catalog-modal footer,.vehicle-catalog-modal footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.labor-catalog-modal footer > div { display: flex; gap: 10px; }
+.vehicle-catalog-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.vehicle-catalog-detail { align-self: end; min-height: 44px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font-size: .82rem; }
+@media (max-width: 700px) {
+  .labor-catalog-modal,.vehicle-catalog-modal { max-height: calc(100vh - 16px); padding: 16px; }
+  .labor-catalog-filters,.vehicle-catalog-grid { grid-template-columns: 1fr; }
+  .vehicle-catalog-grid .span-2 { grid-column: auto; }
+  .labor-catalog-modal footer,.vehicle-catalog-modal footer { align-items: stretch; flex-direction: column; }
+  .labor-catalog-modal footer > div { display: grid; grid-template-columns: 1fr 1fr; }
+}

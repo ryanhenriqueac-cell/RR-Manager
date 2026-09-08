@@ -51,6 +51,39 @@ service cloud.firestore {
         && get(workspacePath(id)).data.subscription.planId == 'pro';
     }
 
+    function canUseTechnicalLaborCatalog() {
+      return isSignedIn()
+        && ((isActiveOwner(request.auth.uid) && isPro(request.auth.uid))
+          || (hasVerifiedEmail()
+            && exists(teamPath())
+            && isActiveTeamMember(get(teamPath()).data.workspaceId)
+            && hasPermission(get(teamPath()).data.workspaceId, 'orcamentosGerenciar')));
+    }
+
+    function isSafeTechnicalLaborTime(data) {
+      return data.keys().hasOnly([
+          'id', 'vehicleId', 'make', 'model', 'engine', 'fuel', 'aspiration',
+          'yearStart', 'yearEnd', 'serviceCode', 'system', 'subsystem', 'description',
+          'operationType', 'unit', 'overlap', 'timeMinutes', 'source', 'notes',
+          'status', 'revisions', 'revision', 'createdAt', 'updatedAt', 'updatedAtISO',
+          'publishedAt', 'updatedBy'
+        ])
+        && data.id is string
+        && data.vehicleId is string
+        && data.serviceCode is string
+        && data.description is string
+        && data.timeMinutes is int
+        && data.timeMinutes > 0
+        && data.yearStart is int
+        && data.yearEnd is int
+        && data.yearStart <= data.yearEnd
+        && data.source is string
+        && data.source.size() > 0
+        && data.status in ['draft', 'published', 'disabled']
+        && data.revisions is list
+        && data.revisions.size() <= 20;
+    }
+
     function isTeamIndexed(id, email) {
       return exists(workspacePath(id))
         && 'teamAccessEmails' in get(workspacePath(id)).data
@@ -518,6 +551,15 @@ service cloud.firestore {
 
     match /admin_platform/{docId} {
       allow read, write: if isAdmin();
+    }
+
+    match /labor_time_catalog/{docId} {
+      allow read: if isAdmin()
+        || (canUseTechnicalLaborCatalog() && resource.data.status == 'published');
+      allow create, update: if isAdmin()
+        && request.resource.data.id == docId
+        && isSafeTechnicalLaborTime(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /public_orcamentos/{shareId} {

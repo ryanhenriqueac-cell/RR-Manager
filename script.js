@@ -6,7 +6,7 @@
     if (!access?.uid || !access?.workspaceId || !branding || context !== `${access.uid}:${access.workspaceId}`) return;
     const teamAccess = access.teamAccess || null;
     const subscription = branding.subscription || {};
-    const proFallback = ["operacao", "dre", "financeiroAvancado", "recorrencias", "exportacaoContador", "equipe"];
+    const proFallback = ["operacao", "laborCatalog", "dre", "financeiroAvancado", "recorrencias", "exportacaoContador", "equipe"];
     window.rrHasPermission = (permission) => {
       if (!teamAccess) return true;
       return teamAccess.status === "active" && teamAccess.permissions?.[permission] === true;
@@ -243,6 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setActiveMenu();
   bindClearButtons();
   initInternalPagePrefetch();
+  applyPlanVisibility();
 
   if (page === "dashboard") initDashboard();
   if (page === "clientes") initClientes();
@@ -257,6 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "inspecao") initInspecao();
   if (page === "contrato") initContrato();
 });
+
+window.addEventListener("rr-plan-ready", () => applyPlanVisibility());
 
 window.addEventListener("rr-cloud-data-updated", (event) => {
   const key = event.detail?.key;
@@ -452,6 +455,15 @@ function getValue(id) {
   return byId(id)?.value.trim() || "";
 }
 
+function normalizeCatalogSearch(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 function setText(id, value) {
   const element = byId(id);
   if (element) element.textContent = value;
@@ -465,7 +477,10 @@ function normalizeCarro(carro) {
     motor: carro.motor || "",
     ano: carro.ano || "",
     placa: formatPlateBR(carro.placa),
-    obs: carro.obs || ""
+    obs: carro.obs || "",
+    catalogVehicleId: carro.catalogVehicleId || "",
+    catalogFuel: carro.catalogFuel || "",
+    catalogAspiration: carro.catalogAspiration || ""
   };
 }
 
@@ -1641,7 +1656,7 @@ function initClientes() {
 }
 
 function blankCarro() {
-  return { id: createId("car"), marca: "", modelo: "", motor: "", ano: "", placa: "", obs: "" };
+  return { id: createId("car"), marca: "", modelo: "", motor: "", ano: "", placa: "", obs: "", catalogVehicleId: "", catalogFuel: "", catalogAspiration: "" };
 }
 
 function syncClienteCarrosDraft() {
@@ -1652,7 +1667,10 @@ function syncClienteCarrosDraft() {
     motor: row.querySelector("[data-field='motor']").value.trim(),
     ano: row.querySelector("[data-field='ano']").value.trim(),
     placa: formatPlateBR(row.querySelector("[data-field='placa']").value),
-    obs: row.querySelector("[data-field='obs']").value.trim()
+    obs: row.querySelector("[data-field='obs']").value.trim(),
+    catalogVehicleId: row.querySelector("[data-field='catalogVehicleId']")?.value || "",
+    catalogFuel: row.querySelector("[data-field='catalogFuel']")?.value || "",
+    catalogAspiration: row.querySelector("[data-field='catalogAspiration']")?.value || ""
   }));
 }
 
@@ -1662,15 +1680,115 @@ function renderClienteCarrosDraft() {
 
   container.innerHTML = clienteCarrosDraft.map((carro, index) => `
     <div class="nested-item" data-carro-index="${index}" data-carro-id="${escapeHtml(carro.id)}">
+      <input data-field="catalogVehicleId" type="hidden" value="${escapeHtml(carro.catalogVehicleId)}">
+      <input data-field="catalogFuel" type="hidden" value="${escapeHtml(carro.catalogFuel)}">
+      <input data-field="catalogAspiration" type="hidden" value="${escapeHtml(carro.catalogAspiration)}">
       <label>Marca<input data-field="marca" value="${escapeHtml(carro.marca)}" placeholder="Ex: Honda"></label>
       <label>Carro<input data-field="modelo" value="${escapeHtml(carro.modelo)}" placeholder="Ex: Civic"></label>
       <label>Motor<input data-field="motor" value="${escapeHtml(carro.motor)}" placeholder="Ex: 2.0 Flex"></label>
       <label>Ano<input data-field="ano" value="${escapeHtml(carro.ano)}" placeholder="Ex: 2019"></label>
       <label>Placa<input data-field="placa" value="${escapeHtml(formatPlateBR(carro.placa))}" placeholder="ABC-1D23" maxlength="8" oninput="this.value = formatPlateBR(this.value)"></label>
       <label>Observações<input data-field="obs" value="${escapeHtml(carro.obs)}" placeholder="Detalhes do carro"></label>
+      <button class="btn btn-ghost vehicle-catalog-button" data-requires-plan="laborCatalog" type="button" onclick="openVehicleCatalogForClient(${index})">Selecionar na base técnica PRO</button>
       <button class="btn btn-danger" type="button" onclick="removeCarroCliente(${index})">Remover</button>
     </div>
   `).join("");
+  applyPlanVisibility(container);
+}
+
+async function openVehicleCatalogForClient(index) {
+  if (!hasAccess("veiculosGerenciar")) return;
+  syncClienteCarrosDraft();
+  const current = clienteCarrosDraft[index];
+  if (!current) return;
+  try {
+    if (typeof window.rrLoadVehicleCatalog !== "function") throw new Error("Aguarde a confirmação do acesso online.");
+    const vehicles = await window.rrLoadVehicleCatalog();
+    showVehicleCatalogModal(index, current, vehicles);
+  } catch (error) {
+    await rrAlert(error?.message || "Não foi possível consultar a base de veículos.", "Base técnica indisponível");
+  }
+}
+
+function showVehicleCatalogModal(index, current, vehicles) {
+  const overlay = document.createElement("div");
+  overlay.className = "auth-modal-overlay vehicle-catalog-overlay";
+  overlay.innerHTML = `
+    <section class="vehicle-catalog-modal" role="dialog" aria-modal="true" aria-labelledby="vehicleCatalogTitle">
+      <div class="labor-catalog-title"><div><span class="dre-pro-badge">RR MANAGER PRO</span><h2 id="vehicleCatalogTitle">Selecionar veículo na base técnica</h2><p>Vincule a configuração correta para receber os tempos compatíveis no orçamento.</p></div><button type="button" class="modal-close" data-vehicle-close aria-label="Fechar">&times;</button></div>
+      <div class="vehicle-catalog-grid">
+        <label>Montadora<select data-vehicle-make><option value="">Selecione</option></select></label>
+        <label>Modelo<select data-vehicle-model disabled><option value="">Selecione</option></select></label>
+        <label class="span-2">Motor e configuração<select data-vehicle-config disabled><option value="">Selecione</option></select></label>
+        <label>Ano<select data-vehicle-year disabled><option value="">Selecione</option></select></label>
+        <div class="vehicle-catalog-detail" data-vehicle-detail>Selecione montadora, modelo e configuração.</div>
+      </div>
+      <footer><button class="btn btn-muted" type="button" data-vehicle-close>Cancelar</button><button class="btn btn-primary" type="button" data-vehicle-apply disabled>Usar este veículo</button></footer>
+    </section>`;
+  const close = () => overlay.remove();
+  overlay.querySelectorAll("[data-vehicle-close]").forEach((item) => item.addEventListener("click", close));
+  overlay.addEventListener("click", (event) => { if (event.target === overlay) close(); });
+  document.body.appendChild(overlay);
+
+  const makeSelect = overlay.querySelector("[data-vehicle-make]");
+  const modelSelect = overlay.querySelector("[data-vehicle-model]");
+  const configSelect = overlay.querySelector("[data-vehicle-config]");
+  const yearSelect = overlay.querySelector("[data-vehicle-year]");
+  const detail = overlay.querySelector("[data-vehicle-detail]");
+  const applyButton = overlay.querySelector("[data-vehicle-apply]");
+  const unique = (values) => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+  const fill = (select, values, placeholder) => {
+    select.innerHTML = `<option value="">${placeholder}</option>${values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("")}`;
+    select.disabled = values.length === 0;
+  };
+  fill(makeSelect, unique(vehicles.map((item) => item.make)), "Selecione a montadora");
+
+  const updateModels = () => {
+    fill(modelSelect, unique(vehicles.filter((item) => item.make === makeSelect.value).map((item) => item.model)), "Selecione o modelo");
+    fill(configSelect, [], "Selecione motor e configuração");
+    fill(yearSelect, [], "Selecione o ano");
+    applyButton.disabled = true;
+  };
+  const updateConfigs = () => {
+    const options = vehicles.filter((item) => item.make === makeSelect.value && item.model === modelSelect.value);
+    configSelect.innerHTML = `<option value="">Selecione motor e configuração</option>${options.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(`${item.engine} · ${item.fuel} · ${item.aspiration} · ${item.yearStart}–${item.yearEnd}`)}</option>`).join("")}`;
+    configSelect.disabled = options.length === 0;
+    fill(yearSelect, [], "Selecione o ano");
+    applyButton.disabled = true;
+  };
+  const updateYears = () => {
+    const selected = vehicles.find((item) => item.id === configSelect.value);
+    const years = selected ? Array.from({ length: Number(selected.yearEnd) - Number(selected.yearStart) + 1 }, (_, offset) => String(Number(selected.yearStart) + offset)).reverse() : [];
+    fill(yearSelect, years, "Selecione o ano");
+    detail.textContent = selected ? [selected.mechanicalNote, selected.confidence ? `Confiança da base: ${selected.confidence}` : ""].filter(Boolean).join(" · ") : "Selecione montadora, modelo e configuração.";
+    applyButton.disabled = true;
+  };
+  makeSelect.addEventListener("change", updateModels);
+  modelSelect.addEventListener("change", updateConfigs);
+  configSelect.addEventListener("change", updateYears);
+  yearSelect.addEventListener("change", () => { applyButton.disabled = !yearSelect.value; });
+  applyButton.addEventListener("click", () => {
+    const selected = vehicles.find((item) => item.id === configSelect.value);
+    if (!selected || !yearSelect.value || !clienteCarrosDraft[index]) return;
+    clienteCarrosDraft[index] = normalizeCarro({
+      ...clienteCarrosDraft[index], marca: selected.make, modelo: selected.model, motor: selected.engine,
+      ano: yearSelect.value, catalogVehicleId: selected.id, catalogFuel: selected.fuel, catalogAspiration: selected.aspiration
+    });
+    renderClienteCarrosDraft();
+    close();
+  });
+
+  const exact = vehicles.find((item) => item.id === current.catalogVehicleId);
+  if (exact) {
+    makeSelect.value = exact.make;
+    updateModels();
+    modelSelect.value = exact.model;
+    updateConfigs();
+    configSelect.value = exact.id;
+    updateYears();
+    if ([...yearSelect.options].some((option) => option.value === String(current.ano))) yearSelect.value = String(current.ano);
+    applyButton.disabled = !yearSelect.value;
+  }
 }
 
 function removeCarroCliente(index) {
@@ -1820,6 +1938,7 @@ function initOrcamentos() {
     orcamentoServicosDraft.push(blankServicoOrcamento());
     renderOrcamentoDrafts();
   });
+  byId("openLaborCatalog")?.addEventListener("click", openLaborCatalog);
   byId("addServicoTerceirizado").addEventListener("click", () => {
     syncOrcamentoDrafts();
     orcamentoTerceirizadosDraft.push(blankServicoTerceirizado());
@@ -1929,16 +2048,27 @@ function syncOrcamentoDrafts() {
     cortesia: row.querySelector("[data-field='cortesia']")?.checked === true
     };
   });
-
   orcamentoServicosDraft = [...document.querySelectorAll("[data-servico-orcamento-index]")].map((row) => {
     const valorHoraInput = row.querySelector("[data-field='valorHora']");
+    const previous = orcamentoServicosDraft.find((item) => item.id === row.dataset.servicoId) || {};
+    const descricao = row.querySelector("[data-field='descricao']").value.trim();
+    const horas = parseDecimal(row.querySelector("[data-field='horas']").value);
     return {
     id: row.dataset.servicoId || createId("mao"),
-    descricao: row.querySelector("[data-field='descricao']").value.trim(),
-    horas: parseDecimal(row.querySelector("[data-field='horas']").value),
+    descricao,
+    horas,
     valorHora: parseDecimal(valorHoraInput.value),
     valorHoraInformado: isMoneyInputInformed(valorHoraInput),
-    cortesia: row.querySelector("[data-field='cortesia']")?.checked === true
+    cortesia: row.querySelector("[data-field='cortesia']")?.checked === true,
+    ...(previous.catalogTimeId ? {
+      catalogTimeId: previous.catalogTimeId,
+      catalogVehicleId: previous.catalogVehicleId || "",
+      catalogServiceCode: previous.catalogServiceCode || "",
+      catalogDescription: previous.catalogDescription || previous.descricao || "",
+      suggestedMinutes: Number(previous.suggestedMinutes) || 0,
+      catalogSource: previous.catalogSource || "",
+      catalogModified: descricao !== (previous.catalogDescription || previous.descricao || "") || Math.abs((horas * 60) - Number(previous.suggestedMinutes || 0)) > 0.1
+    } : {})
     };
   });
 
@@ -1978,7 +2108,7 @@ function renderOrcamentoDrafts() {
 
   servicosContainer.innerHTML = orcamentoServicosDraft.map((servico, index) => `
     <div class="nested-item servico-orcamento-item" data-servico-orcamento-index="${index}" data-servico-id="${escapeHtml(servico.id)}">
-      <label>Serviço<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Revisão de freios"></label>
+      <label>Serviço${servico.catalogTimeId ? `<small class="catalog-suggestion-badge">Sugestão técnica${servico.catalogModified ? " · modificada" : ""}</small>` : ""}<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Revisão de freios"></label>
       <label>Horas<input data-field="horas" type="number" min="0" step="0.01" value="${parseDecimal(servico.horas)}"></label>
       <label>Valor/hora${saleOrCourtesyInput("valorHora", servico.valorHora, servico.cortesia, wasMoneyFieldInformed(servico, "valorHoraInformado", servico.valorHora))}</label>
       <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${servico.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('servico',${index},this.checked)"><span>Cortesia</span></label>
@@ -1999,6 +2129,101 @@ function renderOrcamentoDrafts() {
   `).join("");
 
   updateOrcamentoPreview();
+}
+
+function getSelectedOrcamentoVehicle() {
+  const cliente = getCliente(getValue("orcamentoCliente"));
+  return (cliente?.carros || []).find((carro) => carro.id === getValue("orcamentoCarro")) || null;
+}
+
+async function openLaborCatalog() {
+  const selectedVehicle = getSelectedOrcamentoVehicle();
+  if (!selectedVehicle) {
+    await rrAlert("Selecione o cliente e o carro antes de consultar a mão de obra.", "Catálogo técnico");
+    return;
+  }
+  const button = byId("openLaborCatalog");
+  button.disabled = true;
+  const originalText = button.innerHTML;
+  button.textContent = "Carregando catálogo...";
+  try {
+    if (typeof window.rrLoadLaborCatalog !== "function") throw new Error("Aguarde a confirmação do acesso online.");
+    const catalog = await window.rrLoadLaborCatalog(selectedVehicle);
+    if (!catalog.matchedVehicles?.length) {
+      throw new Error("Vincule este carro à base técnica na tela Clientes antes de consultar os tempos.");
+    }
+    showLaborCatalogModal(selectedVehicle, catalog);
+  } catch (error) {
+    await rrAlert(error?.message || "Não foi possível abrir o catálogo técnico.", "Catálogo indisponível");
+  } finally {
+    button.disabled = false;
+    button.innerHTML = originalText;
+  }
+}
+
+function showLaborCatalogModal(selectedVehicle, catalog) {
+  const overlay = document.createElement("div");
+  overlay.className = "auth-modal-overlay labor-catalog-overlay";
+  const matchedIds = new Set((catalog.matchedVehicles || []).map((item) => item.id));
+  const availableVehicleIds = new Set((catalog.times || []).map((item) => item.vehicleId));
+  const relevantVehicles = catalog.vehicles.filter((item) => availableVehicleIds.has(item.id));
+  const orderedVehicles = [...relevantVehicles].sort((a, b) => (matchedIds.has(b.id) ? 1 : 0) - (matchedIds.has(a.id) ? 1 : 0) || `${a.make} ${a.model}`.localeCompare(`${b.make} ${b.model}`, "pt-BR"));
+  const initialVehicle = orderedVehicles.find((item) => matchedIds.has(item.id)) || orderedVehicles[0];
+  overlay.innerHTML = `
+    <section class="labor-catalog-modal">
+      <div class="labor-catalog-title"><div><span class="dre-pro-badge">RR MANAGER PRO</span><h2>Catálogo técnico de mão de obra</h2><p>Escolha tempos revisados e publicados. Descrição, horas e valor continuarão editáveis.</p></div><button type="button" class="modal-close" data-labor-close aria-label="Fechar">&times;</button></div>
+      <div class="labor-catalog-vehicle"><label>Configuração do veículo<select data-labor-vehicle>${orderedVehicles.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === initialVehicle?.id ? " selected" : ""}>${escapeHtml(`${item.make} ${item.model} · ${item.engine} · ${item.fuel} · ${item.aspiration} · ${item.yearStart}–${item.yearEnd}`)}</option>`).join("")}</select></label><small>Veículo do orçamento: ${escapeHtml([selectedVehicle.marca, selectedVehicle.modelo, selectedVehicle.motor, selectedVehicle.ano].filter(Boolean).join(" · "))}</small></div>
+      <div class="labor-catalog-filters"><input type="search" data-labor-search placeholder="Buscar serviço, sistema ou código"><select data-labor-system><option value="">Todos os sistemas</option></select></div>
+      <div class="labor-catalog-results" data-labor-results></div>
+      <footer><span data-labor-selection>Nenhum serviço selecionado</span><div><button class="btn btn-muted" type="button" data-labor-close>Cancelar</button><button class="btn btn-primary" type="button" data-labor-add>Adicionar ao orçamento</button></div></footer>
+    </section>`;
+  const close = () => overlay.remove();
+  overlay.querySelectorAll("[data-labor-close]").forEach((item) => item.addEventListener("click", close));
+  overlay.addEventListener("click", (event) => { if (event.target === overlay) close(); });
+  document.body.appendChild(overlay);
+
+  const vehicleSelect = overlay.querySelector("[data-labor-vehicle]");
+  const systemSelect = overlay.querySelector("[data-labor-system]");
+  const search = overlay.querySelector("[data-labor-search]");
+  const results = overlay.querySelector("[data-labor-results]");
+  const selection = overlay.querySelector("[data-labor-selection]");
+  const selectedIds = new Set();
+  const selectedYear = Number(String(selectedVehicle.ano || "").match(/\d{4}/)?.[0] || 0);
+
+  const getAvailableTimes = () => (catalog.times || []).filter((item) => item.vehicleId === vehicleSelect.value && (!selectedYear || (selectedYear >= Number(item.yearStart) && selectedYear <= Number(item.yearEnd))));
+  const updateSystems = () => {
+    const current = systemSelect.value;
+    const systems = [...new Set(getAvailableTimes().map((item) => item.system).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+    systemSelect.innerHTML = `<option value="">Todos os sistemas</option>${systems.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("")}`;
+    if (systems.includes(current)) systemSelect.value = current;
+  };
+  const render = () => {
+    const term = normalizeCatalogSearch(search.value);
+    const times = getAvailableTimes().filter((item) => (!systemSelect.value || item.system === systemSelect.value) && (!term || normalizeCatalogSearch(`${item.serviceCode} ${item.system} ${item.subsystem} ${item.description}`).includes(term)));
+    results.innerHTML = times.map((item) => `<label class="labor-catalog-result"><input type="checkbox" value="${escapeHtml(item.id)}"${selectedIds.has(item.id) ? " checked" : ""}><span><strong>${escapeHtml(item.description)}</strong><small>${escapeHtml(`${item.serviceCode} · ${item.system} · ${item.timeMinutes} min (${(Number(item.timeMinutes) / 60).toFixed(2).replace(".", ",")} h)`)}</small>${item.notes ? `<em>${escapeHtml(item.notes)}</em>` : ""}${item.overlap ? `<b>Atenção a possível sobreposição de tempo</b>` : ""}</span></label>`).join("") || `<div class="empty-state muted">Nenhum tempo publicado para esta configuração${selectedYear ? ` no ano ${selectedYear}` : ""}.</div>`;
+    results.querySelectorAll("input[type='checkbox']").forEach((input) => input.addEventListener("change", () => { input.checked ? selectedIds.add(input.value) : selectedIds.delete(input.value); selection.textContent = `${selectedIds.size} ${selectedIds.size === 1 ? "serviço selecionado" : "serviços selecionados"}`; }));
+  };
+  vehicleSelect.addEventListener("change", () => { selectedIds.clear(); updateSystems(); render(); });
+  systemSelect.addEventListener("change", render);
+  search.addEventListener("input", render);
+  overlay.querySelector("[data-labor-add]").addEventListener("click", () => {
+    if (!selectedIds.size) return;
+    syncOrcamentoDrafts();
+    const vehicleId = vehicleSelect.value;
+    (catalog.times || []).filter((item) => selectedIds.has(item.id)).forEach((item) => {
+      orcamentoServicosDraft.push({
+        ...blankServicoOrcamento(), descricao: item.description, horas: Number(item.timeMinutes) / 60,
+        catalogTimeId: item.id, catalogVehicleId: vehicleId, catalogServiceCode: item.serviceCode,
+        catalogDescription: item.description, suggestedMinutes: Number(item.timeMinutes), catalogSource: item.source || "", catalogModified: false
+      });
+    });
+    const emptyIndex = orcamentoServicosDraft.findIndex((item) => !item.descricao && !item.catalogTimeId);
+    if (emptyIndex >= 0 && orcamentoServicosDraft.length > 1) orcamentoServicosDraft.splice(emptyIndex, 1);
+    renderOrcamentoDrafts();
+    close();
+  });
+  updateSystems();
+  render();
 }
 
 function saleOrCourtesyInput(field, value, courtesy, informed) {
