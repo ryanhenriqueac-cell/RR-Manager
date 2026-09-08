@@ -16,6 +16,7 @@ Sistema de gestão para oficinas, feito com HTML, CSS e JavaScript e sincronizad
 | Clientes, veículos, orçamentos e inspeções | Sim | Sim |
 | Peças, mão de obra, terceirizados e cortesias | Sim | Sim |
 | PDFs, WhatsApp, aprovação e financeiro básico | Sim | Sim |
+| Operação e ordens de serviço da equipe | Não | Sim |
 | DRE gerencial, metas, rankings e comparações | Não | Sim |
 | Lançamentos financeiros recorrentes | Não | Sim |
 | Até quatro colaboradores com permissões | Não | Sim |

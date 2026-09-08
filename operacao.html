@@ -13,10 +13,10 @@
       <a class="brand" href="dashboard.html"><img class="brand-logo" src="assets/logo-rr-manager.png" alt="RR Manager"><span><strong>RR Manager</strong></span></a>
       <nav class="nav-menu" aria-label="Menu principal">
         <a href="dashboard.html" data-nav="dashboard">Dashboard</a>
-        <a href="operacao.html" data-nav="operacao">Opera&ccedil;&atilde;o</a>
         <a href="clientes.html" data-nav="clientes">Clientes</a>
         <a href="orcamentos.html" data-nav="orcamentos">Or&ccedil;amentos</a>
         <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
+        <a href="operacao.html" data-nav="operacao">Opera&ccedil;&atilde;o <small>PRO</small></a>
         <a href="dre.html" data-nav="dre">DRE <small>PRO</small></a>
         <a href="equipe.html" data-nav="equipe">Equipe <small>PRO</small></a>
         <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
@@ -26,6 +26,15 @@
       <header class="topbar">
         <div><p class="eyebrow">Rotina da oficina</p><h1 id="operacaoTitulo">Servi&ccedil;os atribu&iacute;dos</h1></div>
       </header>
+      <section id="operacaoLoading" class="panel"><p class="muted">Carregando informa&ccedil;&otilde;es do plano...</p></section>
+      <section id="operacaoUpgrade" class="panel dre-upgrade" hidden>
+        <span class="dre-pro-badge">RR MANAGER PRO</span>
+        <h2>Organize a execu&ccedil;&atilde;o dos servi&ccedil;os da equipe</h2>
+        <p>A Opera&ccedil;&atilde;o transforma or&ccedil;amentos aprovados em ordens protegidas, distribu&iacute;das para cada colaborador sem expor dados financeiros ou pessoais.</p>
+        <div class="dre-upgrade-features"><span>&check; Fila por respons&aacute;vel</span><span>&check; Status do servi&ccedil;o</span><span>&check; Observa&ccedil;&otilde;es t&eacute;cnicas</span><span>&check; Inspe&ccedil;&otilde;es vinculadas</span></div>
+        <a class="btn btn-primary" href="index.html#planos">Conhecer o Plano Pro</a>
+      </section>
+      <div id="operacaoContent" hidden>
       <section class="stats-grid compact operation-stats">
         <article class="stat-card"><span>Pendentes</span><strong id="operacaoPendentes">0</strong><small>Aguardando in&iacute;cio</small></article>
         <article class="stat-card"><span>Em andamento</span><strong id="operacaoAndamento">0</strong><small>Em execu&ccedil;&atilde;o</small></article>
@@ -43,10 +52,11 @@
         <div class="operation-privacy-note"><strong>Vis&atilde;o operacional:</strong> esta &aacute;rea n&atilde;o apresenta telefone, e-mail, documento, valores de venda, custos, faturamento ou lucro.</div>
         <div id="operacaoLista" class="operation-list"></div>
       </section>
+      </div>
     </main>
   </div>
-  <script src="script.js?v=109"></script>
+  <script src="script.js?v=110"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=74"></script>
+  <script type="module" src="firebase-sync.js?v=75"></script>
 </body>
 </html>

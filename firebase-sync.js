@@ -71,11 +71,11 @@ const CONTRACT_PLAN = {
 const PLAN_CATALOG = {
   essential: {
     name: "Essencial",
-    features: { core: true, financeiroBasico: true, dre: false, financeiroAvancado: false, recorrencias: false, notaFiscal: false, exportacaoContador: false, estoque: false, equipe: false }
+    features: { core: true, financeiroBasico: true, operacao: false, dre: false, financeiroAvancado: false, recorrencias: false, notaFiscal: false, exportacaoContador: false, estoque: false, equipe: false }
   },
   pro: {
     name: "Pro",
-    features: { core: true, financeiroBasico: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: false, exportacaoContador: true, estoque: false, equipe: true }
+    features: { core: true, financeiroBasico: true, operacao: true, dre: true, financeiroAvancado: true, recorrencias: true, notaFiscal: false, exportacaoContador: true, estoque: false, equipe: true }
   }
 };
 const PLAN_PRICING = {
@@ -1294,6 +1294,7 @@ function configureTeamInviteRegistration() {
 }
 
 function canAccessStorageKey(key, write = false) {
+  if (key === "rr_ordens_servico" && activeWorkspaceSubscription?.features?.operacao !== true) return false;
   if (!activeTeamAccess) return true;
   const permissionMap = {
     rr_clientes: write ? ["clientesGerenciar"] : ["clientesVer", "veiculosVer"],

@@ -240,7 +240,7 @@ window.addEventListener("rr-cloud-data-updated", (event) => {
   if (page === "orcamentos" && key === STORAGE_KEYS.orcamentos) renderOrcamentos();
   if (page === "financeiro" && key === STORAGE_KEYS.financeiro) refreshFinanceiro();
   if (page === "dre" && (key === STORAGE_KEYS.financeiro || key === STORAGE_KEYS.orcamentos || key === STORAGE_KEYS.dreConfig)) renderDre();
-  if (page === "operacao" && key === STORAGE_KEYS.ordensServico) renderOperacao();
+  if (page === "operacao" && key === STORAGE_KEYS.ordensServico && byId("operacaoContent")?.hidden === false) renderOperacao();
 });
 
 window.addEventListener("rr-workspace-ready", () => {
@@ -253,7 +253,6 @@ window.addEventListener("rr-workspace-ready", () => {
     renderOrcamentos();
   }
   if (page === "financeiro") refreshFinanceiro();
-  if (page === "operacao") renderOperacao();
   if (page === "inspecao") initInspecao();
   if (page === "orcamento-print") initOrcamentoPrint();
   if (page === "financeiro-print") initFinanceiroPrint();
@@ -279,6 +278,12 @@ function hasAnyAccess(expression) {
 function applyPermissionVisibility(root = document) {
   root.querySelectorAll("[data-requires-permission]").forEach((element) => {
     element.hidden = !hasAnyAccess(element.dataset.requiresPermission);
+  });
+}
+
+function applyPlanVisibility(root = document) {
+  root.querySelectorAll("[data-requires-plan]").forEach((element) => {
+    element.hidden = window.rrHasPlanFeature?.(element.dataset.requiresPlan) !== true;
   });
 }
 
@@ -1265,12 +1270,14 @@ function getNextOrcamentoNumber(orcamentos) {
 
 function initDashboard() {
   applyPermissionVisibility();
-  const canSeeOperational = hasAccess("dashboardOperacional");
+  applyPlanVisibility();
+  const hasOperationPlan = window.rrHasPlanFeature?.("operacao") === true;
+  const canSeeOperational = hasOperationPlan && hasAccess("dashboardOperacional");
   const canSeeClients = hasAccess("clientesVer");
   const canSeeVehicles = hasAccess("veiculosVer") || canSeeClients;
   const canSeeCommercial = hasAccess("dashboardComercial");
   const canSeeFinancial = hasAccess("dashboardFinanceiro");
-  const canSeeOrders = hasAccess("ordensServicoVer");
+  const canSeeOrders = hasOperationPlan && hasAccess("ordensServicoVer");
   const canAssignOrders = hasAccess("ordensServicoAtribuir");
   const clientes = canSeeClients || canSeeVehicles ? readData("clientes") : [];
   const orcamentos = canSeeCommercial || canSeeFinancial ? readData("orcamentos") : [];
@@ -1480,7 +1487,18 @@ function getOperationStatusLabel(status) {
 function initOperacao() {
   byId("operacaoBusca")?.addEventListener("input", renderOperacao);
   byId("operacaoStatus")?.addEventListener("change", renderOperacao);
-  renderOperacao();
+  window.addEventListener("rr-workspace-ready", applyOperacaoPlanAccess);
+  applyOperacaoPlanAccess();
+}
+
+function applyOperacaoPlanAccess(event) {
+  const plan = event?.detail || window.rrGetActivePlan?.();
+  if (!plan) return;
+  const allowed = plan.features?.operacao === true && hasAccess("ordensServicoVer");
+  if (byId("operacaoLoading")) byId("operacaoLoading").hidden = true;
+  if (byId("operacaoUpgrade")) byId("operacaoUpgrade").hidden = !allowed;
+  if (byId("operacaoContent")) byId("operacaoContent").hidden = !allowed;
+  if (allowed) renderOperacao();
 }
 
 function renderOperacao() {

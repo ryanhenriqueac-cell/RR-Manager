@@ -133,18 +133,26 @@ foreach ($htmlFile in $htmlFiles) {
   $duplicateIds = @($ids | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name })
   Assert-True ($duplicateIds.Count -eq 0) "IDs duplicados em $($htmlFile.Name): $($duplicateIds -join ', ')"
   if ($content.Contains('class="nav-menu"')) {
-    $dashboardPosition = $content.IndexOf('href="dashboard.html"')
+    $financePosition = $content.IndexOf('href="financeiro.html"')
     $operationPosition = $content.IndexOf('href="operacao.html"')
-    $clientsPosition = $content.IndexOf('href="clientes.html"')
-    Assert-True ($dashboardPosition -ge 0 -and $operationPosition -gt $dashboardPosition -and $operationPosition -lt $clientsPosition) "Operacao nao aparece logo apos Dashboard em $($htmlFile.Name)."
+    $drePosition = $content.IndexOf('href="dre.html"')
+    Assert-True ($financePosition -ge 0 -and $operationPosition -gt $financePosition -and $operationPosition -lt $drePosition) "Operacao nao aparece imediatamente antes do DRE em $($htmlFile.Name)."
+    Assert-True ([regex]::IsMatch($content, 'href="operacao\.html"[^>]*>.*?<small>PRO</small></a>')) "Operacao nao possui selo PRO em $($htmlFile.Name)."
   }
   $localPages = [regex]::Matches($content, 'href="([^"?#]+\.html)(?:[?#][^"]*)?"') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=128')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=109')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=74')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=110')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=75')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
+
+Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
+Assert-True ($firebase.Contains('operacao: true')) "Plano Pro nao libera Operacao."
+Assert-True ($firebase.Contains('key === "rr_ordens_servico"') -and $firebase.Contains('features?.operacao !== true')) "Plano Essencial ainda sincroniza ordens de servico."
+Assert-True ($appScript.Contains('plan.features?.operacao === true')) "Pagina Operacao nao valida o plano ativo."
+Assert-True ($appScript.Contains('window.rrHasPlanFeature?.("operacao") === true')) "Dashboard nao valida o plano da Operacao."
+Assert-True ($teamHtml.Contains('Operação') -or $teamHtml.Contains('Opera&ccedil;&atilde;o')) "Texto da equipe foi corrompido."
 
 Write-Host "OK: $checks verificacoes da matriz de permissoes passaram." -ForegroundColor Green
