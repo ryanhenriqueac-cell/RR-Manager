@@ -151,7 +151,7 @@ foreach ($htmlFile in $htmlFiles) {
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=130')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=116')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=83')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=84')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -188,6 +188,7 @@ Assert-True ($firebase.Contains('laborCatalog: false') -and $firebase.Contains('
 Assert-True ($firebase.Contains('where("status", "==", "published")')) "Oficinas podem carregar tempos ainda nao publicados."
 Assert-True ($firebase.Contains('id="adminCatalogHours"') -and $firebase.Contains('step="0.01"')) "Tempo tecnico nao e informado em horas decimais."
 Assert-True (-not $firebase.Contains('id="adminCatalogMinutes"')) "Painel administrativo ainda solicita minutos."
+Assert-True (-not $firebase.Contains('id="adminCatalogSource"')) "Painel administrativo ainda solicita fonte tecnica."
 Assert-True ($rules.Contains('match /labor_time_catalog/{docId}')) "Catalogo tecnico nao possui regras dedicadas."
 Assert-True ($rules.Contains("resource.data.status == 'published'")) "Rascunhos do catalogo podem ser lidos por oficinas."
 Assert-True ($rules.Contains('allow create, update: if isAdmin()')) "Uma oficina pode publicar tempos tecnicos."

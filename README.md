@@ -72,7 +72,7 @@ As regras garantem que cada usuário acesse apenas o workspace da própria empre
 
 ## Catálogo técnico de mão de obra
 
-O Plano Pro inclui uma base normalizada com 999 configurações de veículos e 664 operações de oficina. A base de referência não atribui tempos automaticamente: cada combinação veículo, intervalo de anos e operação precisa ser revisada no painel administrativo, receber fonte técnica e ser publicada individualmente. Rascunhos e itens desativados nunca aparecem para as oficinas.
+O Plano Pro inclui uma base normalizada com 999 configurações de veículos e 664 operações de oficina. A base de referência não atribui tempos automaticamente: cada combinação veículo, intervalo de anos e operação precisa ser revisada no painel administrativo e publicada individualmente. Rascunhos e itens desativados nunca aparecem para as oficinas.
 
 Na tela Clientes, o veículo pode ser vinculado à configuração técnica exata. No orçamento, o botão **Buscar no catálogo técnico PRO** exibe somente tempos publicados e compatíveis com o veículo e o ano selecionados. Ao adicionar uma sugestão, descrição, horas e valor/hora continuam editáveis; o orçamento registra quando o tempo sugerido foi modificado.
 

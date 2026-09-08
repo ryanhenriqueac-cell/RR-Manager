@@ -64,7 +64,7 @@ service cloud.firestore {
       return data.keys().hasOnly([
           'id', 'vehicleId', 'make', 'model', 'engine', 'fuel', 'aspiration',
           'yearStart', 'yearEnd', 'serviceCode', 'system', 'subsystem', 'description',
-          'operationType', 'unit', 'overlap', 'timeHours', 'timeMinutes', 'source', 'notes',
+          'operationType', 'unit', 'overlap', 'timeMinutes', 'source', 'notes',
           'status', 'revisions', 'revision', 'createdAt', 'updatedAt', 'updatedAtISO',
           'publishedAt', 'updatedBy'
         ])
@@ -74,9 +74,6 @@ service cloud.firestore {
         && data.description is string
         && data.timeMinutes is int
         && data.timeMinutes > 0
-        && data.timeHours is number
-        && data.timeHours > 0
-        && data.timeHours <= 166.67
         && data.yearStart is int
         && data.yearEnd is int
         && data.yearStart <= data.yearEnd

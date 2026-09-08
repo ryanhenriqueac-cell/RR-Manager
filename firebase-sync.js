@@ -832,7 +832,7 @@ function buildAuthShell() {
         <form id="adminCatalogForm" class="admin-catalog-form">
           <input id="adminCatalogId" type="hidden">
           <fieldset><legend>1. Veículo</legend><div class="admin-catalog-grid"><label>Montadora<select id="adminCatalogMake" required><option value="">Selecione</option></select></label><label>Modelo<select id="adminCatalogModel" required disabled><option value="">Selecione</option></select></label><label>Configuração / motor<select id="adminCatalogVehicle" required disabled><option value="">Selecione</option></select></label><label>Ano inicial<input id="adminCatalogYearStart" type="number" min="1900" max="2100" required></label><label>Ano final<input id="adminCatalogYearEnd" type="number" min="1900" max="2100" required></label></div><p id="adminCatalogVehicleDetail" class="muted"></p></fieldset>
-          <fieldset><legend>2. Operação</legend><div class="admin-catalog-grid"><label>Sistema<select id="adminCatalogSystem" required><option value="">Selecione</option></select></label><label class="admin-catalog-operation-field">Serviço / operação<select id="adminCatalogOperation" required disabled><option value="">Selecione</option></select></label><label>Quantidade de horas<input id="adminCatalogHours" type="number" min="0.01" max="166.67" step="0.01" required placeholder="Ex.: 3,5"></label><label>Fonte técnica<input id="adminCatalogSource" required maxlength="300" placeholder="Manual, fabricante ou referência"></label><label class="admin-catalog-notes">Observação específica<textarea id="adminCatalogNotes" rows="3" maxlength="1000" placeholder="Condições, ferramentas ou ressalvas"></textarea></label></div><p id="adminCatalogOperationDetail" class="muted"></p></fieldset>
+          <fieldset><legend>2. Operação</legend><div class="admin-catalog-grid"><label>Sistema<select id="adminCatalogSystem" required><option value="">Selecione</option></select></label><label class="admin-catalog-operation-field">Serviço / operação<select id="adminCatalogOperation" required disabled><option value="">Selecione</option></select></label><label>Quantidade de horas<input id="adminCatalogHours" type="number" min="0.01" max="166.67" step="0.01" required placeholder="Ex.: 3,5"></label><label class="admin-catalog-notes">Observação específica<textarea id="adminCatalogNotes" rows="3" maxlength="1000" placeholder="Condições, ferramentas ou ressalvas"></textarea></label></div><p id="adminCatalogOperationDetail" class="muted"></p></fieldset>
           <div class="admin-catalog-actions"><button class="btn btn-muted" id="adminCatalogSaveDraft" type="button">Salvar rascunho</button><button class="btn btn-primary" id="adminCatalogPublish" type="button">Revisar e publicar</button><button class="btn btn-ghost" id="adminCatalogCancel" type="button">Limpar</button><span id="adminCatalogMessage" class="form-status"></span></div>
         </form>
         <div class="admin-catalog-list-head"><div><h3>Tempos cadastrados</h3><p class="muted">Edite, publique ou desative cada vínculo individualmente.</p></div><div><input id="adminCatalogSearch" type="search" placeholder="Buscar veículo ou serviço"><select id="adminCatalogStatus"><option value="">Todos</option><option value="published">Publicados</option><option value="draft">Rascunhos</option><option value="disabled">Desativados</option></select></div></div>
@@ -3243,13 +3243,13 @@ function getAdminCatalogFormData(status) {
   const yearStart = Number(document.getElementById("adminCatalogYearStart")?.value || 0);
   const yearEnd = Number(document.getElementById("adminCatalogYearEnd")?.value || 0);
   const rawTimeHours = Number(document.getElementById("adminCatalogHours")?.value || 0);
-  const source = String(document.getElementById("adminCatalogSource")?.value || "").trim();
+  const existing = adminLaborTimes.find((item) => item.id === adminCatalogEditingId);
+  const source = String(existing?.source || "Catálogo RR Manager");
   if (!vehicle || !operation) throw new Error("Selecione o veículo e a operação.");
   if (!yearStart || !yearEnd || yearStart > yearEnd || yearStart < vehicle.yearStart || yearEnd > vehicle.yearEnd) throw new Error(`Informe anos entre ${vehicle.yearStart} e ${vehicle.yearEnd}.`);
   if (!Number.isFinite(rawTimeHours) || rawTimeHours <= 0 || rawTimeHours > 166.67) throw new Error("Informe a quantidade de horas, por exemplo 3,5.");
   const timeHours = Math.round(rawTimeHours * 100) / 100;
   const timeMinutes = Math.max(1, Math.round(timeHours * 60));
-  if (!source) throw new Error("Informe a fonte técnica usada para revisar o tempo.");
   const conflict = adminLaborTimes.find((item) => item.id !== adminCatalogEditingId
     && item.status !== "disabled"
     && item.vehicleId === vehicle.id
@@ -3262,7 +3262,7 @@ function getAdminCatalogFormData(status) {
     fuel: vehicle.fuel, aspiration: vehicle.aspiration, yearStart, yearEnd,
     serviceCode: operation.code, system: operation.system, subsystem: operation.subsystem,
     description: operation.description, operationType: operation.operationType, unit: operation.unit,
-    overlap: operation.overlap === true, timeHours, timeMinutes, source,
+    overlap: operation.overlap === true, timeMinutes, source,
     notes: String(document.getElementById("adminCatalogNotes")?.value || "").trim(), status
   };
 }
@@ -3327,7 +3327,6 @@ function editAdminLaborTime(id) {
   updateAdminCatalogOperations(item.serviceCode);
   document.getElementById("adminCatalogOperation").value = item.serviceCode;
   document.getElementById("adminCatalogHours").value = item.timeHours ?? Math.round((Number(item.timeMinutes) / 60) * 100) / 100;
-  document.getElementById("adminCatalogSource").value = item.source || "";
   document.getElementById("adminCatalogNotes").value = item.notes || "";
   updateAdminCatalogVehicleDetail();
   document.getElementById("adminCatalogYearStart").value = item.yearStart;
@@ -3365,7 +3364,7 @@ function renderAdminTechnicalCatalogList() {
   const filtered = adminLaborTimes.filter((item) => (!status || item.status === status) && (!search || normalizeCatalogText(`${item.make} ${item.model} ${item.engine} ${item.description} ${item.serviceCode}`).includes(search)));
   root.innerHTML = filtered.map((item) => `
     <article class="admin-catalog-item">
-      <div><span class="admin-catalog-status is-${escapeHtml(item.status || "draft")}">${item.status === "published" ? "Publicado" : item.status === "disabled" ? "Desativado" : "Rascunho"}</span><strong>${escapeHtml(`${item.make} ${item.model} ${item.engine}`)}</strong><small>${escapeHtml(`${item.yearStart}–${item.yearEnd} · ${item.serviceCode} · ${item.description}`)}</small><span>${escapeHtml(`${formatCatalogHours(item.timeHours ?? Number(item.timeMinutes) / 60)} h · Fonte: ${item.source || "-"}`)}</span></div>
+      <div><span class="admin-catalog-status is-${escapeHtml(item.status || "draft")}">${item.status === "published" ? "Publicado" : item.status === "disabled" ? "Desativado" : "Rascunho"}</span><strong>${escapeHtml(`${item.make} ${item.model} ${item.engine}`)}</strong><small>${escapeHtml(`${item.yearStart}–${item.yearEnd} · ${item.serviceCode} · ${item.description}`)}</small><span>${escapeHtml(`${formatCatalogHours(item.timeHours ?? Number(item.timeMinutes) / 60)} h`)}</span></div>
       <div class="actions"><button class="btn btn-muted" type="button" data-catalog-edit="${escapeHtml(item.id)}">Editar</button>${item.status === "published" ? `<button class="btn btn-danger" type="button" data-catalog-status="disabled" data-catalog-id="${escapeHtml(item.id)}">Desativar</button>` : `<button class="btn btn-primary" type="button" data-catalog-status="published" data-catalog-id="${escapeHtml(item.id)}">Publicar</button>`}</div>
     </article>`).join("") || `<div class="admin-empty">Nenhum tempo técnico cadastrado com estes filtros.</div>`;
   root.querySelectorAll("[data-catalog-edit]").forEach((button) => button.addEventListener("click", () => editAdminLaborTime(button.dataset.catalogEdit)));
