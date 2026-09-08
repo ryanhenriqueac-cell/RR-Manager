@@ -132,6 +132,12 @@ foreach ($htmlFile in $htmlFiles) {
   $ids = [regex]::Matches($content, '\bid="([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
   $duplicateIds = @($ids | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name })
   Assert-True ($duplicateIds.Count -eq 0) "IDs duplicados em $($htmlFile.Name): $($duplicateIds -join ', ')"
+  if ($content.Contains('class="nav-menu"')) {
+    $dashboardPosition = $content.IndexOf('href="dashboard.html"')
+    $operationPosition = $content.IndexOf('href="operacao.html"')
+    $clientsPosition = $content.IndexOf('href="clientes.html"')
+    Assert-True ($dashboardPosition -ge 0 -and $operationPosition -gt $dashboardPosition -and $operationPosition -lt $clientsPosition) "Operacao nao aparece logo apos Dashboard em $($htmlFile.Name)."
+  }
   $localPages = [regex]::Matches($content, 'href="([^"?#]+\.html)(?:[?#][^"]*)?"') | ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
