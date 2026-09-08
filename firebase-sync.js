@@ -369,9 +369,10 @@ function startTeamAccessListener() {
 
 buildAuthShell();
 setAppLocked(true);
-clearSensitiveLocalData();
+setAuthRestoring(true);
 
 if (!configReady) {
+  setAuthRestoring(false);
   showAuthMessage("Configure o Firebase em firebase-config.js para ativar login e banco online.");
   setAppLocked(true);
 } else {
@@ -400,6 +401,7 @@ if (!configReady) {
     cloudReady = false;
 
     if (!user) {
+      setAuthRestoring(false);
       stopCollectionListeners();
       stopTeamAccessListener();
       clearSensitiveLocalData();
@@ -503,8 +505,15 @@ if (!configReady) {
 
     setAdminSelecting(false);
     setUserStatus(user.email);
+    const restoredFromCache = restoreCachedWorkspace(user, activeWorkspaceId);
+    if (restoredFromCache) {
+      setAuthRestoring(false);
+      setAppLocked(false);
+      applyTeamAccessToInterface();
+    }
     const loadedWorkspace = await loadCloudData(activeWorkspaceId);
     if (!loadedWorkspace) {
+      setAuthRestoring(false);
       setAppLocked(true);
       return;
     }
@@ -516,6 +525,7 @@ if (!configReady) {
     setUserStatus(user.email);
     cloudReady = true;
     window.rrFirebaseReady = true;
+    setAuthRestoring(false);
     setAppLocked(false);
     startCollectionListeners(activeWorkspaceId);
     startTeamAccessListener();
@@ -917,6 +927,24 @@ function togglePasswordVisibility(inputId = "firebasePassword", buttonId = "togg
   button.innerHTML = visible ? "&#128065;" : "&#9679;";
   button.setAttribute("aria-label", visible ? "Mostrar senha" : "Ocultar senha");
   button.title = visible ? "Mostrar senha" : "Ocultar senha";
+}
+
+function restoreCachedWorkspace(user, workspaceId) {
+  const expectedContext = `${user?.uid || "anonymous"}:${workspaceId || "none"}`;
+  if (!workspaceId || localStorage.getItem(CACHE_CONTEXT_KEY) !== expectedContext) return false;
+  try {
+    const cached = JSON.parse(localStorage.getItem(WORKSPACE_BRANDING_KEY) || "null");
+    if (!cached || typeof cached !== "object") return false;
+    activeWorkspaceData = { id: workspaceId, ...cached };
+    activeWorkspaceEmail = cached.ownerEmail || activeWorkspaceEmail;
+    setWorkspaceBrandingContext(cached);
+    renderMeuCadastro(cached);
+    renderContractDocument(cached);
+    dispatchWorkspaceReady();
+    return true;
+  } catch (_error) {
+    return false;
+  }
 }
 
 function getSharedWorkspaceSettings(workspace = {}) {
@@ -3978,6 +4006,11 @@ function setUserStatus(email) {
   if (adminBack) adminBack.hidden = !adminViewing;
   if (onboardingReplay) onboardingReplay.hidden = !email || adminViewing || !isTutorialAvailablePage();
   document.body.classList.toggle("firebase-logged-in", Boolean(email));
+}
+
+function setAuthRestoring(restoring) {
+  document.body.classList.toggle("auth-restoring", restoring);
+  if (restoring) showAuthMessage("Restaurando seu acesso...");
 }
 
 function applyTeamAccessToInterface() {

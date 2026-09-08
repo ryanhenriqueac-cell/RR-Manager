@@ -5,11 +5,13 @@ $firebasePath = Join-Path $projectRoot "firebase-sync.js"
 $scriptPath = Join-Path $projectRoot "script.js"
 $rulesPath = Join-Path $projectRoot "firestore.rules"
 $teamPath = Join-Path $projectRoot "equipe.html"
+$stylesPath = Join-Path $projectRoot "style.css"
 
 $firebase = [System.IO.File]::ReadAllText($firebasePath)
 $appScript = [System.IO.File]::ReadAllText($scriptPath)
 $rules = [System.IO.File]::ReadAllText($rulesPath)
 $teamHtml = [System.IO.File]::ReadAllText($teamPath)
+$styles = [System.IO.File]::ReadAllText($stylesPath)
 $htmlFiles = Get-ChildItem -LiteralPath $projectRoot -Filter "*.html" -File
 $allHtml = ($htmlFiles | ForEach-Object { [System.IO.File]::ReadAllText($_.FullName) }) -join "`n"
 $checks = 0
@@ -143,9 +145,9 @@ foreach ($htmlFile in $htmlFiles) {
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
-  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=128')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=129')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=110')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=75')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=76')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -153,6 +155,9 @@ Assert-True ($firebase.Contains('operacao: true')) "Plano Pro nao libera Operaca
 Assert-True ($firebase.Contains('key === "rr_ordens_servico"') -and $firebase.Contains('features?.operacao !== true')) "Plano Essencial ainda sincroniza ordens de servico."
 Assert-True ($appScript.Contains('plan.features?.operacao === true')) "Pagina Operacao nao valida o plano ativo."
 Assert-True ($appScript.Contains('window.rrHasPlanFeature?.("operacao") === true')) "Dashboard nao valida o plano da Operacao."
+Assert-True ($firebase.Contains('function restoreCachedWorkspace')) "Navegacao interna nao restaura o cache validado da oficina."
+Assert-True (-not $firebase.Contains("setAppLocked(true);`r`nclearSensitiveLocalData();") -and -not $firebase.Contains("setAppLocked(true);`nclearSensitiveLocalData();")) "Inicializacao ainda apaga todo o cache em cada troca de pagina."
+Assert-True ($styles.Contains('.auth-restoring #firebaseLoginForm')) "Restauracao da sessao ainda exibe o formulario de login."
 Assert-True ($teamHtml.Contains('Operação') -or $teamHtml.Contains('Opera&ccedil;&atilde;o')) "Texto da equipe foi corrompido."
 
 Write-Host "OK: $checks verificacoes da matriz de permissoes passaram." -ForegroundColor Green

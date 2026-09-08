@@ -1007,6 +1007,29 @@ td {
   display: grid;
 }
 
+.auth-restoring #firebaseAuthShell .auth-card > p,
+.auth-restoring #firebaseLoginForm,
+.auth-restoring #firebaseRegisterForm {
+  display: none;
+}
+
+.auth-restoring #firebaseAuthMessage::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 9px;
+  border: 2px solid rgba(241, 199, 91, 0.28);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  vertical-align: -2px;
+  animation: auth-loading-spin 0.75s linear infinite;
+}
+
+@keyframes auth-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
 .auth-locked .app-shell,
 .auth-locked .print-toolbar,
 .auth-locked #printRoot {
