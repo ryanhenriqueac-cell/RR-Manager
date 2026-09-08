@@ -1488,13 +1488,14 @@ function initOperacao() {
   byId("operacaoBusca")?.addEventListener("input", renderOperacao);
   byId("operacaoStatus")?.addEventListener("change", renderOperacao);
   window.addEventListener("rr-workspace-ready", applyOperacaoPlanAccess);
+  window.addEventListener("rr-plan-ready", applyOperacaoPlanAccess);
   applyOperacaoPlanAccess();
 }
 
 function applyOperacaoPlanAccess(event) {
-  const plan = event?.detail || window.rrGetActivePlan?.();
+  const plan = window.rrGetActivePlan?.() || event?.detail;
   if (!plan) return;
-  const allowed = plan.features?.operacao === true && hasAccess("ordensServicoVer");
+  const allowed = window.rrHasPlanFeature?.("operacao") === true && hasAccess("ordensServicoVer");
   if (byId("operacaoLoading")) byId("operacaoLoading").hidden = true;
   if (byId("operacaoUpgrade")) byId("operacaoUpgrade").hidden = !allowed;
   if (byId("operacaoContent")) byId("operacaoContent").hidden = !allowed;

@@ -43,6 +43,7 @@ const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
 const REGISTER_PREFILL_KEY = "rr_register_prefill";
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
 const CACHE_CONTEXT_KEY = "rr_cache_context";
+const VALIDATED_ACCESS_KEY = "rr_validated_access";
 const ONBOARDING_EXPLORE_KEY = "rr_onboarding_explore_page";
 const DEFAULT_WORKSHOP_TAGLINE = "Manuten\u00e7\u00e3o Especializada | Paix\u00e3o por Carros";
 const DEFAULT_WORKSHOP_LOGO = "assets/logo-rr-manager.png";
@@ -314,6 +315,25 @@ function stopTeamAccessListener() {
   workspaceAccessUnsubscribe = null;
 }
 
+function readValidatedAccess(user) {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(VALIDATED_ACCESS_KEY) || "null");
+    if (!cached || cached.uid !== user?.uid || !cached.workspaceId) return null;
+    return cached;
+  } catch (_error) {
+    return null;
+  }
+}
+
+function cacheValidatedAccess(user) {
+  if (!user?.uid || !activeWorkspaceId) return;
+  sessionStorage.setItem(VALIDATED_ACCESS_KEY, JSON.stringify({
+    uid: user.uid,
+    workspaceId: activeWorkspaceId,
+    teamAccess: activeTeamAccess ? { ...activeTeamAccess } : null
+  }));
+}
+
 function getTeamAccessSignature(access = {}) {
   return JSON.stringify({ status: access.status || "", role: access.role || "", permissions: normalizeTeamPermissions(access.role || "custom", access.permissions || {}) });
 }
@@ -325,6 +345,7 @@ async function revokeCurrentTeamSession(message) {
   stopCollectionListeners();
   stopTeamAccessListener();
   clearSensitiveLocalData();
+  sessionStorage.removeItem(VALIDATED_ACCESS_KEY);
   try {
     await signOut(auth);
   } finally {
@@ -349,6 +370,7 @@ function startTeamAccessListener() {
     stopCollectionListeners();
     clearSensitiveLocalData();
     sessionStorage.removeItem(SYNC_FLAG);
+    sessionStorage.removeItem(VALIDATED_ACCESS_KEY);
     window.location.reload();
   }, async (error) => {
     if (error?.code !== "permission-denied") return;
@@ -384,6 +406,11 @@ if (!configReady) {
 
   async function resolveUserWorkspace(user) {
     activeTeamAccess = null;
+    const cachedAccess = readValidatedAccess(user);
+    if (cachedAccess) {
+      activeTeamAccess = cachedAccess.teamAccess || null;
+      return cachedAccess.workspaceId;
+    }
     const ownWorkspace = await getDoc(doc(db, "workspaces", user.uid));
     if (ownWorkspace.exists()) return user.uid;
     const email = normalizeEmail(user.email);
@@ -408,6 +435,7 @@ if (!configReady) {
       pendingCollectionChanges.clear();
       workspaceSchemaVersion = 1;
       sessionStorage.removeItem(SYNC_FLAG);
+      sessionStorage.removeItem(VALIDATED_ACCESS_KEY);
       sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
       localStorage.removeItem(WORKSPACE_BRANDING_KEY);
       localStorage.removeItem(CACHE_CONTEXT_KEY);
@@ -486,7 +514,9 @@ if (!configReady) {
         await signOut(auth);
         return;
       }
-      const accessStatus = await getWorkspaceAccessStatus(activeWorkspaceId);
+      const accessStatus = readValidatedAccess(user)?.workspaceId === activeWorkspaceId
+        ? ACCESS_STATUS.ACTIVE
+        : await getWorkspaceAccessStatus(activeWorkspaceId);
       if (accessStatus === ACCESS_STATUS.PENDING || accessStatus === ACCESS_STATUS.BLOCKED) {
         const isPending = accessStatus === ACCESS_STATUS.PENDING;
         pendingAuthMessage = isPending
@@ -522,6 +552,7 @@ if (!configReady) {
       await signOut(auth);
       return;
     }
+    cacheValidatedAccess(user);
     setUserStatus(user.email);
     cloudReady = true;
     window.rrFirebaseReady = true;
@@ -1598,6 +1629,7 @@ function setWorkspaceBrandingContext(workspace = {}) {
     registration,
     subscription: activeWorkspaceSubscription
   }));
+  if (currentUser) setUserStatus(currentUser.email);
   window.dispatchEvent(new CustomEvent("rr-plan-ready", { detail: { ...activeWorkspaceSubscription } }));
 }
 
@@ -3999,7 +4031,7 @@ function setUserStatus(email) {
   const onboardingReplay = document.getElementById("rrOnboardingReplay");
   const adminViewing = currentUser && isAdminUser(currentUser) && activeWorkspaceId;
   if (status) {
-    const planName = activeWorkspaceSubscription ? getPlanName(activeWorkspaceSubscription) : "Essencial";
+    const planName = activeWorkspaceSubscription ? getPlanName(activeWorkspaceSubscription) : "Carregando";
     const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId} · Plano ${planName}` : activeTeamAccess ? `${activeTeamAccess.name || email} · Equipe · Plano ${planName}` : `Plano ${planName} · Online`;
     status.textContent = email ? detail : "";
   }
