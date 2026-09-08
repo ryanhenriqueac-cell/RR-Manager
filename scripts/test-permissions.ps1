@@ -146,7 +146,7 @@ foreach ($htmlFile in $htmlFiles) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=129')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=111')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=112')) "Cache do script desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=77')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
@@ -154,6 +154,8 @@ Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda liber
 Assert-True ($firebase.Contains('operacao: true')) "Plano Pro nao libera Operacao."
 Assert-True ($firebase.Contains('key === "rr_ordens_servico"') -and $firebase.Contains('features?.operacao !== true')) "Plano Essencial ainda sincroniza ordens de servico."
 Assert-True ($appScript.Contains('const plan = window.rrGetActivePlan?.() || event?.detail;')) "Pagina Operacao nao prioriza o plano ativo."
+Assert-True ($appScript.Contains('byId("operacaoUpgrade").hidden = allowed')) "Painel de upgrade da Operacao aparece para assinantes Pro."
+Assert-True ($appScript.Contains('byId("operacaoContent").hidden = !allowed')) "Conteudo da Operacao permanece oculto para assinantes Pro."
 Assert-True ($appScript.Contains('window.rrHasPlanFeature?.("operacao") === true')) "Dashboard nao valida o plano da Operacao."
 Assert-True ($firebase.Contains('function restoreCachedWorkspace')) "Navegacao interna nao restaura o cache validado da oficina."
 Assert-True ($firebase.Contains('function readValidatedAccess') -and $firebase.Contains('function cacheValidatedAccess')) "Navegacao interna nao reutiliza a sessao de acesso validada."

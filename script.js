@@ -1497,7 +1497,7 @@ function applyOperacaoPlanAccess(event) {
   if (!plan) return;
   const allowed = window.rrHasPlanFeature?.("operacao") === true && hasAccess("ordensServicoVer");
   if (byId("operacaoLoading")) byId("operacaoLoading").hidden = true;
-  if (byId("operacaoUpgrade")) byId("operacaoUpgrade").hidden = !allowed;
+  if (byId("operacaoUpgrade")) byId("operacaoUpgrade").hidden = allowed;
   if (byId("operacaoContent")) byId("operacaoContent").hidden = !allowed;
   if (allowed) renderOperacao();
 }
