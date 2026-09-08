@@ -251,6 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "financeiro") initFinanceiro();
   if (page === "dre") initDre();
   if (page === "operacao") initOperacao();
+  if (page === "equipe") applyEquipePlanAccess();
   if (page === "orcamento-print") initOrcamentoPrint();
   if (page === "orcamento-publico") initOrcamentoPublico();
   if (page === "financeiro-print") initFinanceiroPrint();
@@ -260,6 +261,16 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener("rr-plan-ready", () => applyPlanVisibility());
+
+function applyEquipePlanAccess(event) {
+  if (page !== "equipe") return;
+  const plan = window.rrGetActivePlan?.() || event?.detail;
+  const allowed = plan?.features?.equipe === true || window.rrHasPlanFeature?.("equipe") === true;
+  if (byId("teamUpgrade")) byId("teamUpgrade").hidden = allowed;
+  if (byId("teamContent")) byId("teamContent").hidden = !allowed;
+}
+
+window.addEventListener("rr-plan-ready", applyEquipePlanAccess);
 
 window.addEventListener("rr-cloud-data-updated", (event) => {
   const key = event.detail?.key;

@@ -132,6 +132,11 @@ foreach ($expression in $declaredPermissionExpressions) {
 }
 Assert-True ($teamHtml.Contains('href="equipe.html" data-nav="equipe"')) "A pagina Equipe nao possui navegacao dedicada."
 Assert-True (-not $teamHtml.Contains('id="meuCadastroForm"')) "A pagina Equipe voltou a incorporar o formulario Meu cadastro."
+Assert-True ($teamHtml.Contains('id="teamUpgrade"') -and $teamHtml.Contains('id="teamContent"')) "Pagina Equipe nao separa a oferta Pro do conteudo protegido."
+Assert-True ($teamHtml.Contains('Conhecer o Plano Pro')) "Plano Essencial nao recebe uma apresentacao comercial do recurso Equipe."
+Assert-True ($appScript.Contains('function applyEquipePlanAccess')) "Pagina Equipe nao valida o plano ativo."
+Assert-True ($appScript.Contains('byId("teamUpgrade").hidden = allowed')) "Oferta da Equipe aparece para assinantes Pro."
+Assert-True ($appScript.Contains('byId("teamContent").hidden = !allowed')) "Conteudo da Equipe aparece para assinantes Essencial."
 
 foreach ($htmlFile in $htmlFiles) {
   $content = [System.IO.File]::ReadAllText($htmlFile.FullName)
@@ -150,7 +155,7 @@ foreach ($htmlFile in $htmlFiles) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=131')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=117')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=118')) "Cache do script desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=85')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
