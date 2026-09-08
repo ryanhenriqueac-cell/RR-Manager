@@ -334,6 +334,17 @@ function cacheValidatedAccess(user) {
   }));
 }
 
+function hasWarmNavigationCache() {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(VALIDATED_ACCESS_KEY) || "null");
+    if (!cached?.uid || !cached?.workspaceId) return false;
+    if (localStorage.getItem(CACHE_CONTEXT_KEY) !== `${cached.uid}:${cached.workspaceId}`) return false;
+    return Boolean(localStorage.getItem(WORKSPACE_BRANDING_KEY));
+  } catch (_error) {
+    return false;
+  }
+}
+
 function getTeamAccessSignature(access = {}) {
   return JSON.stringify({ status: access.status || "", role: access.role || "", permissions: normalizeTeamPermissions(access.role || "custom", access.permissions || {}) });
 }
@@ -390,8 +401,9 @@ function startTeamAccessListener() {
 }
 
 buildAuthShell();
-setAppLocked(true);
-setAuthRestoring(true);
+const warmNavigation = hasWarmNavigationCache();
+setAppLocked(!warmNavigation);
+setAuthRestoring(!warmNavigation);
 
 if (!configReady) {
   setAuthRestoring(false);
