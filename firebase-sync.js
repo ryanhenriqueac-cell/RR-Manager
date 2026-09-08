@@ -330,7 +330,10 @@ function cacheValidatedAccess(user) {
   sessionStorage.setItem(VALIDATED_ACCESS_KEY, JSON.stringify({
     uid: user.uid,
     workspaceId: activeWorkspaceId,
-    teamAccess: activeTeamAccess ? { ...activeTeamAccess } : null
+    teamAccess: activeTeamAccess ? {
+      ...activeTeamAccess,
+      permissions: normalizeTeamPermissions(activeTeamAccess.role || "custom", activeTeamAccess.permissions || {})
+    } : null
   }));
 }
 
@@ -553,7 +556,7 @@ if (!configReady) {
       setAppLocked(false);
       applyTeamAccessToInterface();
     }
-    const loadedWorkspace = await loadCloudData(activeWorkspaceId);
+    const loadedWorkspace = await loadCloudData(activeWorkspaceId, restoredFromCache);
     if (!loadedWorkspace) {
       setAuthRestoring(false);
       setAppLocked(true);
@@ -1128,7 +1131,7 @@ async function loadMemberWorkspaceSettings(uid) {
   return { ...(publicSnapshot.data() || {}), ...commercial, ...financialSettings, ...teamDirectory };
 }
 
-async function loadCloudData(uid) {
+async function loadCloudData(uid, reuseCachedCollections = false) {
   try {
     showAuthMessage("Sincronizando dados...");
     confirmedCollectionState.clear();
@@ -1180,7 +1183,10 @@ async function loadCloudData(uid) {
       }
     }
     workspaceSchemaVersion = schemaVersion;
-    const data = await loadV2Collections(uid, schemaVersion);
+    const canReuseCachedCollections = reuseCachedCollections && schemaVersion >= APP_SCHEMA_VERSION;
+    const data = canReuseCachedCollections
+      ? Object.fromEntries(APP_KEYS.map((key) => [key, canAccessStorageKey(key) ? readLocalArray(key) : []]))
+      : await loadV2Collections(uid, schemaVersion);
     if (!activeTeamAccess) {
       try {
         await cleanupVerifiedLegacyData(uid, cloudData, data);

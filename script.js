@@ -1,3 +1,27 @@
+(function bootstrapCachedAuthorization() {
+  try {
+    const access = JSON.parse(sessionStorage.getItem("rr_validated_access") || "null");
+    const branding = JSON.parse(localStorage.getItem("rr_workspace_branding") || "null");
+    const context = localStorage.getItem("rr_cache_context") || "";
+    if (!access?.uid || !access?.workspaceId || !branding || context !== `${access.uid}:${access.workspaceId}`) return;
+    const teamAccess = access.teamAccess || null;
+    const subscription = branding.subscription || {};
+    const proFallback = ["operacao", "dre", "financeiroAvancado", "recorrencias", "exportacaoContador", "equipe"];
+    window.rrHasPermission = (permission) => {
+      if (!teamAccess) return true;
+      return teamAccess.status === "active" && teamAccess.permissions?.[permission] === true;
+    };
+    window.rrHasPlanFeature = (feature) => subscription.features?.[feature] === true
+      || (subscription.planId === "pro" && proFallback.includes(feature));
+    window.rrGetActivePlan = () => ({ ...subscription });
+    window.rrIsWorkspaceOwner = () => !teamAccess;
+    window.rrBootstrapReady = true;
+    document.body.dataset.plan = subscription.planId || "";
+  } catch (_error) {
+    // O Firebase fará a validação completa quando não houver cache íntegro.
+  }
+})();
+
 const STORAGE_KEYS = {
   clientes: "rr_clientes",
   veiculos: "rr_veiculos",
@@ -218,6 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
   migrateLegacyData();
   setActiveMenu();
   bindClearButtons();
+  initInternalPagePrefetch();
 
   if (page === "dashboard") initDashboard();
   if (page === "clientes") initClientes();
@@ -242,6 +267,29 @@ window.addEventListener("rr-cloud-data-updated", (event) => {
   if (page === "dre" && (key === STORAGE_KEYS.financeiro || key === STORAGE_KEYS.orcamentos || key === STORAGE_KEYS.dreConfig)) renderDre();
   if (page === "operacao" && key === STORAGE_KEYS.ordensServico && byId("operacaoContent")?.hidden === false) renderOperacao();
 });
+
+function initInternalPagePrefetch() {
+  const prefetched = new Set();
+  const pages = [...document.querySelectorAll('.nav-menu a[href$=".html"]')]
+    .map((link) => link.href)
+    .filter((href, index, values) => href !== window.location.href && values.indexOf(href) === index);
+  const prefetch = (href) => {
+    if (prefetched.has(href)) return;
+    prefetched.add(href);
+    const hint = document.createElement("link");
+    hint.rel = "prefetch";
+    hint.href = href;
+    hint.as = "document";
+    document.head.appendChild(hint);
+  };
+  document.querySelectorAll('.nav-menu a[href$=".html"]').forEach((link) => {
+    link.addEventListener("pointerenter", () => prefetch(link.href), { once: true });
+    link.addEventListener("focus", () => prefetch(link.href), { once: true });
+  });
+  const warmPages = () => pages.forEach(prefetch);
+  if ("requestIdleCallback" in window) window.requestIdleCallback(warmPages, { timeout: 2500 });
+  else window.setTimeout(warmPages, 1200);
+}
 
 window.addEventListener("rr-workspace-ready", () => {
   applyPermissionVisibility();
@@ -2858,10 +2906,14 @@ function getVariableRecurrencePending(template) {
 }
 
 function applyFinanceRecurringAccess(event) {
-  const allowed = event?.detail?.features?.recorrencias === true && hasAccess("financeiroGerenciar");
+  const allowed = (event?.detail?.features?.recorrencias === true || window.rrHasPlanFeature?.("recorrencias") === true) && hasAccess("financeiroGerenciar");
   byId("financeiroRecorrenciaPro").hidden = !allowed;
   byId("financeiroRecorrenciasPanel").hidden = !allowed;
   if (!allowed) return;
+  if (!event) {
+    renderFinanceiroRecorrencias();
+    return;
+  }
   processRecurringFinancialEntries().finally(() => { renderFinanceiro(); renderFinanceiroRelatorio(); renderFinanceiroRecorrencias(); });
 }
 
@@ -2914,6 +2966,7 @@ function initFinanceiro() {
   setValue("financeiroRecorrenciaInicio", today());
   byId("financeiroRepetir").addEventListener("change", () => { byId("financeiroRecorrenciaCampos").hidden = !byId("financeiroRepetir").checked; });
   window.addEventListener("rr-workspace-ready", applyFinanceRecurringAccess);
+  applyFinanceRecurringAccess();
   document.querySelectorAll("input[name='financeiroTipo']").forEach((input) => input.addEventListener("change", () => hydrateFinanceiroClassificacao()));
   byId("financeiroGrupo").addEventListener("change", () => hydrateFinanceiroClassificacao(getValue("financeiroGrupo")));
   byId("financeiroCategoria").addEventListener("change", updateFinanceiroOutraCategoria);
@@ -3772,6 +3825,7 @@ function initDre() {
   });
   byId("dreExcel")?.addEventListener("click", exportDreExcel);
   window.addEventListener("rr-workspace-ready", applyDrePlanAccess);
+  applyDrePlanAccess();
 }
 
 function setDefaultDreDates() {
@@ -3787,6 +3841,10 @@ async function applyDrePlanAccess(event) {
   if (byId("dreUpgrade")) byId("dreUpgrade").hidden = allowed;
   if (byId("dreContent")) byId("dreContent").hidden = !allowed;
   if (allowed) {
+    if (!event) {
+      renderDre();
+      return;
+    }
     if (hasAccess("orcamentosGerenciar") && hasAccess("aprovarOrcamentos")) await repairOrcamentoApprovalDates();
     await processRecurringFinancialEntries();
     renderDre();
@@ -4231,7 +4289,7 @@ function initDrePrint() {
       printButton.onclick = () => handlePrintDocumentAction(`RR - DRE gerencial ${getDrePeriodName(start, end, periodPreset)}`);
     }
   };
-  if (window.rrFirebaseReady) render();
+  if (window.rrFirebaseReady || window.rrBootstrapReady) render();
   else window.addEventListener("rr-workspace-ready", (event) => render(event.detail), { once: true });
 }
 
