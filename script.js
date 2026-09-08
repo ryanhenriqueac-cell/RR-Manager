@@ -1729,7 +1729,6 @@ function showVehicleCatalogModal(index, current, vehicles) {
         <label>Modelo<select data-vehicle-model disabled><option value="">Selecione</option></select></label>
         <label class="span-2">Motor e configuração<select data-vehicle-config disabled><option value="">Selecione</option></select></label>
         <label>Ano<select data-vehicle-year disabled><option value="">Selecione</option></select></label>
-        <div class="vehicle-catalog-detail" data-vehicle-detail>Selecione montadora, modelo e configuração.</div>
       </div>
       <footer><button class="btn btn-muted" type="button" data-vehicle-close>Cancelar</button><button class="btn btn-primary" type="button" data-vehicle-apply disabled>Usar este veículo</button></footer>
     </section>`;
@@ -1742,7 +1741,6 @@ function showVehicleCatalogModal(index, current, vehicles) {
   const modelSelect = overlay.querySelector("[data-vehicle-model]");
   const configSelect = overlay.querySelector("[data-vehicle-config]");
   const yearSelect = overlay.querySelector("[data-vehicle-year]");
-  const detail = overlay.querySelector("[data-vehicle-detail]");
   const applyButton = overlay.querySelector("[data-vehicle-apply]");
   const unique = (values) => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
   const fill = (select, values, placeholder) => {
@@ -1768,7 +1766,6 @@ function showVehicleCatalogModal(index, current, vehicles) {
     const selected = vehicles.find((item) => item.id === configSelect.value);
     const years = selected ? Array.from({ length: Number(selected.yearEnd) - Number(selected.yearStart) + 1 }, (_, offset) => String(Number(selected.yearStart) + offset)).reverse() : [];
     fill(yearSelect, years, "Selecione o ano");
-    detail.textContent = selected ? [selected.mechanicalNote, selected.confidence ? `Confiança da base: ${selected.confidence}` : ""].filter(Boolean).join(" · ") : "Selecione montadora, modelo e configuração.";
     applyButton.disabled = true;
   };
   makeSelect.addEventListener("change", updateModels);

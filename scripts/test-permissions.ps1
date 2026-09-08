@@ -149,8 +149,8 @@ foreach ($htmlFile in $htmlFiles) {
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
-  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=130')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=116')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=131')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=117')) "Cache do script desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=84')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
@@ -195,6 +195,7 @@ Assert-True ($rules.Contains('allow create, update: if isAdmin()')) "Uma oficina
 Assert-True ($budgetsHtml.Contains('id="openLaborCatalog"') -and $budgetsHtml.Contains('data-requires-plan="laborCatalog"')) "Botao Pro do catalogo nao esta no orcamento."
 Assert-True ($appScript.Contains('catalogModified: descricao !==')) "Alteracao da sugestao tecnica nao e rastreada."
 Assert-True ($appScript.Contains('function openVehicleCatalogForClient') -and $appScript.Contains('catalogVehicleId: selected.id')) "Cadastro do carro nao permite vinculo tecnico exato."
+Assert-True (-not $appScript.Contains('Confiança da base:')) "Seletor do veiculo ainda exibe a confianca interna da base."
 Assert-True ($styles.Contains('.labor-catalog-modal')) "Catalogo tecnico nao possui interface responsiva."
 
 Write-Host "OK: $checks verificacoes da matriz de permissoes passaram." -ForegroundColor Green

@@ -10263,7 +10263,6 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .labor-catalog-modal footer,.vehicle-catalog-modal footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 .labor-catalog-modal footer > div { display: flex; gap: 10px; }
 .vehicle-catalog-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
-.vehicle-catalog-detail { align-self: end; min-height: 44px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font-size: .82rem; }
 @media (max-width: 700px) {
   .labor-catalog-modal,.vehicle-catalog-modal { max-height: calc(100vh - 16px); padding: 16px; }
   .labor-catalog-filters,.vehicle-catalog-grid { grid-template-columns: 1fr; }
