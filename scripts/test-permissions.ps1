@@ -150,8 +150,8 @@ foreach ($htmlFile in $htmlFiles) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=130')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=115')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=81')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=116')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=82')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -186,6 +186,8 @@ Assert-True (($laborOperations.code | Select-Object -Unique).Count -eq $laborOpe
 Assert-True ($firebase.Contains('const TECHNICAL_CATALOG_COLLECTION = "labor_time_catalog"')) "Colecao do catalogo tecnico nao configurada."
 Assert-True ($firebase.Contains('laborCatalog: false') -and $firebase.Contains('laborCatalog: true')) "Catalogo tecnico nao esta separado entre Essencial e Pro."
 Assert-True ($firebase.Contains('where("status", "==", "published")')) "Oficinas podem carregar tempos ainda nao publicados."
+Assert-True ($firebase.Contains('id="adminCatalogHours"') -and $firebase.Contains('step="0.01"')) "Tempo tecnico nao e informado em horas decimais."
+Assert-True (-not $firebase.Contains('id="adminCatalogMinutes"')) "Painel administrativo ainda solicita minutos."
 Assert-True ($rules.Contains('match /labor_time_catalog/{docId}')) "Catalogo tecnico nao possui regras dedicadas."
 Assert-True ($rules.Contains("resource.data.status == 'published'")) "Rascunhos do catalogo podem ser lidos por oficinas."
 Assert-True ($rules.Contains('allow create, update: if isAdmin()')) "Uma oficina pode publicar tempos tecnicos."

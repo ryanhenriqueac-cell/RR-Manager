@@ -464,6 +464,14 @@ function normalizeCatalogSearch(value) {
     .trim();
 }
 
+function getTechnicalTimeHours(item = {}) {
+  return Number(item.timeHours ?? (Number(item.timeMinutes || 0) / 60));
+}
+
+function formatCatalogHours(hours) {
+  return Number(hours || 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+}
+
 function setText(id, value) {
   const element = byId(id);
   if (element) element.textContent = value;
@@ -2065,9 +2073,10 @@ function syncOrcamentoDrafts() {
       catalogVehicleId: previous.catalogVehicleId || "",
       catalogServiceCode: previous.catalogServiceCode || "",
       catalogDescription: previous.catalogDescription || previous.descricao || "",
+      suggestedHours: Number(previous.suggestedHours ?? (Number(previous.suggestedMinutes || 0) / 60)),
       suggestedMinutes: Number(previous.suggestedMinutes) || 0,
       catalogSource: previous.catalogSource || "",
-      catalogModified: descricao !== (previous.catalogDescription || previous.descricao || "") || Math.abs((horas * 60) - Number(previous.suggestedMinutes || 0)) > 0.1
+      catalogModified: descricao !== (previous.catalogDescription || previous.descricao || "") || Math.abs(horas - Number(previous.suggestedHours ?? (Number(previous.suggestedMinutes || 0) / 60))) > 0.001
     } : {})
     };
   });
@@ -2200,7 +2209,7 @@ function showLaborCatalogModal(selectedVehicle, catalog) {
   const render = () => {
     const term = normalizeCatalogSearch(search.value);
     const times = getAvailableTimes().filter((item) => (!systemSelect.value || item.system === systemSelect.value) && (!term || normalizeCatalogSearch(`${item.serviceCode} ${item.system} ${item.subsystem} ${item.description}`).includes(term)));
-    results.innerHTML = times.map((item) => `<label class="labor-catalog-result"><input type="checkbox" value="${escapeHtml(item.id)}"${selectedIds.has(item.id) ? " checked" : ""}><span><strong>${escapeHtml(item.description)}</strong><small>${escapeHtml(`${item.serviceCode} · ${item.system} · ${item.timeMinutes} min (${(Number(item.timeMinutes) / 60).toFixed(2).replace(".", ",")} h)`)}</small>${item.notes ? `<em>${escapeHtml(item.notes)}</em>` : ""}${item.overlap ? `<b>Atenção a possível sobreposição de tempo</b>` : ""}</span></label>`).join("") || `<div class="empty-state muted">Nenhum tempo publicado para esta configuração${selectedYear ? ` no ano ${selectedYear}` : ""}.</div>`;
+    results.innerHTML = times.map((item) => `<label class="labor-catalog-result"><input type="checkbox" value="${escapeHtml(item.id)}"${selectedIds.has(item.id) ? " checked" : ""}><span><strong>${escapeHtml(item.description)}</strong><small>${escapeHtml(`${item.serviceCode} · ${item.system} · ${formatCatalogHours(getTechnicalTimeHours(item))} h`)}</small>${item.notes ? `<em>${escapeHtml(item.notes)}</em>` : ""}${item.overlap ? `<b>Atenção a possível sobreposição de tempo</b>` : ""}</span></label>`).join("") || `<div class="empty-state muted">Nenhum tempo publicado para esta configuração${selectedYear ? ` no ano ${selectedYear}` : ""}.</div>`;
     results.querySelectorAll("input[type='checkbox']").forEach((input) => input.addEventListener("change", () => { input.checked ? selectedIds.add(input.value) : selectedIds.delete(input.value); selection.textContent = `${selectedIds.size} ${selectedIds.size === 1 ? "serviço selecionado" : "serviços selecionados"}`; }));
   };
   vehicleSelect.addEventListener("change", () => { selectedIds.clear(); updateSystems(); render(); });
@@ -2212,9 +2221,9 @@ function showLaborCatalogModal(selectedVehicle, catalog) {
     const vehicleId = vehicleSelect.value;
     (catalog.times || []).filter((item) => selectedIds.has(item.id)).forEach((item) => {
       orcamentoServicosDraft.push({
-        ...blankServicoOrcamento(), descricao: item.description, horas: Number(item.timeMinutes) / 60,
+        ...blankServicoOrcamento(), descricao: item.description, horas: getTechnicalTimeHours(item),
         catalogTimeId: item.id, catalogVehicleId: vehicleId, catalogServiceCode: item.serviceCode,
-        catalogDescription: item.description, suggestedMinutes: Number(item.timeMinutes), catalogSource: item.source || "", catalogModified: false
+        catalogDescription: item.description, suggestedHours: getTechnicalTimeHours(item), suggestedMinutes: Number(item.timeMinutes), catalogSource: item.source || "", catalogModified: false
       });
     });
     const emptyIndex = orcamentoServicosDraft.findIndex((item) => !item.descricao && !item.catalogTimeId);
