@@ -147,7 +147,7 @@ foreach ($htmlFile in $htmlFiles) {
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=129')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=114')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=79')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=80')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -161,6 +161,8 @@ Assert-True ($firebase.Contains('function restoreCachedWorkspace')) "Navegacao i
 Assert-True ($firebase.Contains('function readValidatedAccess') -and $firebase.Contains('function cacheValidatedAccess')) "Navegacao interna nao reutiliza a sessao de acesso validada."
 Assert-True ($firebase.Contains('function hasWarmNavigationCache') -and $firebase.Contains('setAppLocked(!warmNavigation)')) "Navegacao interna ainda exibe a tela de restauracao mesmo com sessao validada."
 Assert-True ($appScript.Contains('function bootstrapCachedAuthorization') -and $appScript.Contains('window.rrBootstrapReady = true')) "Interface ainda inicia antes das permissoes armazenadas da sessao."
+Assert-True ($firebase.Contains('const cachedAuthorization =') -and $firebase.Contains('cachedAuthorization.hasPermission?.(permission) === true')) "Firebase descarta as permissoes validadas antes da primeira renderizacao."
+Assert-True ($firebase.Contains('cachedAuthorization.hasPlanFeature?.(feature) === true')) "Firebase descarta o plano validado antes da primeira renderizacao."
 Assert-True ($appScript.Contains('function initInternalPagePrefetch') -and $appScript.Contains('requestIdleCallback')) "Paginas internas nao sao preparadas antecipadamente durante o tempo ocioso."
 Assert-True ($appScript.Contains('window.rrFirebaseReady || window.rrBootstrapReady')) "Documentos protegidos ignoram a sessao local ja validada."
 Assert-True ($firebase.Contains('reuseCachedCollections') -and $firebase.Contains('canReuseCachedCollections')) "Navegacao interna ainda baixa novamente todas as colecoes antes da sincronizacao em tempo real."

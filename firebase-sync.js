@@ -192,6 +192,12 @@ const TEAM_ROLE_PROFILES = {
 };
 const config = window.firebaseConfig || {};
 const adminAccess = window.rrAdminAccess || {};
+const cachedAuthorization = {
+  hasPlanFeature: window.rrHasPlanFeature,
+  getActivePlan: window.rrGetActivePlan,
+  isWorkspaceOwner: window.rrIsWorkspaceOwner,
+  hasPermission: window.rrHasPermission
+};
 const ADMIN_EMAILS = Array.isArray(adminAccess.adminEmails)
   ? adminAccess.adminEmails.map((email) => normalizeEmail(email)).filter(Boolean)
   : [];
@@ -248,11 +254,17 @@ function getPlanName(subscription = {}) {
   return PLAN_CATALOG[normalizeSubscription(subscription).planId].name;
 }
 
-window.rrHasPlanFeature = (feature) => Boolean(activeWorkspaceSubscription?.features?.[feature]);
-window.rrGetActivePlan = () => activeWorkspaceSubscription ? { ...activeWorkspaceSubscription } : null;
-window.rrIsWorkspaceOwner = () => Boolean(currentUser && !activeTeamAccess);
+window.rrHasPlanFeature = (feature) => activeWorkspaceSubscription
+  ? Boolean(activeWorkspaceSubscription.features?.[feature])
+  : cachedAuthorization.hasPlanFeature?.(feature) === true;
+window.rrGetActivePlan = () => activeWorkspaceSubscription
+  ? { ...activeWorkspaceSubscription }
+  : cachedAuthorization.getActivePlan?.() || null;
+window.rrIsWorkspaceOwner = () => currentUser
+  ? !activeTeamAccess
+  : cachedAuthorization.isWorkspaceOwner?.() === true;
 window.rrHasPermission = (permission) => {
-  if (!currentUser) return false;
+  if (!currentUser) return cachedAuthorization.hasPermission?.(permission) === true;
   if (!activeTeamAccess) return true;
   const permissions = normalizeTeamPermissions(activeTeamAccess.role || "custom", activeTeamAccess.permissions || {});
   return activeTeamAccess.status === "active" && permissions[permission] === true;
