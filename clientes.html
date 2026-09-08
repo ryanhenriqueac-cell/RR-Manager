@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clientes | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=123">
+  <link rel="stylesheet" href="style.css?v=128">
 </head>
 <body data-page="clientes">
   <div class="app-shell">
@@ -17,13 +17,14 @@
         <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
         <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
         <a href="dre.html" data-nav="dre">DRE <small>PRO</small></a>
+        <a href="operacao.html" data-nav="operacao">Opera&ccedil;&atilde;o</a>
         <a href="equipe.html" data-nav="equipe">Equipe <small>PRO</small></a>
         <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
       </nav>
     </aside>
     <main class="main-content">
       <header class="topbar"><div><p class="eyebrow">Relacionamento</p><h1>Clientes</h1></div></header>
-      <section class="form-panel">
+      <section class="form-panel" data-requires-permission="clientesGerenciar">
         <form id="clienteForm" class="form-grid">
           <input type="hidden" id="clienteId">
           <label>Nome completo<input id="clienteNome" required placeholder="Ex: Ryan Costa"></label>
@@ -32,7 +33,7 @@
           <label>CPF/CNPJ<input id="clienteDocumento" placeholder="Documento"></label>
           <label class="span-2">Endereço<input id="clienteEndereco" placeholder="Rua, número, bairro"></label>
           <label class="span-2">Observações<textarea id="clienteObs" rows="3" placeholder="Preferências, histórico ou alertas"></textarea></label>
-          <div class="span-2 nested-section">
+          <div class="span-2 nested-section" data-requires-permission="veiculosGerenciar">
             <div class="panel-header">
               <div>
                 <p class="eyebrow">Garagem do cliente</p>
@@ -54,8 +55,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=103"></script>
+  <script src="script.js?v=109"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=71"></script>
+  <script type="module" src="firebase-sync.js?v=74"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orçamentos | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=123">
+  <link rel="stylesheet" href="style.css?v=128">
 </head>
 <body data-page="orcamentos">
   <div class="app-shell">
@@ -17,27 +17,29 @@
         <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
         <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
         <a href="dre.html" data-nav="dre">DRE <small>PRO</small></a>
+        <a href="operacao.html" data-nav="operacao">Opera&ccedil;&atilde;o</a>
         <a href="equipe.html" data-nav="equipe">Equipe <small>PRO</small></a>
         <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
       </nav>
     </aside>
     <main class="main-content">
       <header class="topbar"><div><p class="eyebrow">Comercial</p><h1>Orçamentos</h1></div></header>
-      <section class="form-panel">
+      <section class="form-panel" data-requires-permission="orcamentosGerenciar">
         <form id="orcamentoForm" class="form-grid">
           <input type="hidden" id="orcamentoId">
           <label>Cliente<select id="orcamentoCliente" required></select></label>
           <label>Carro<select id="orcamentoCarro" required></select></label>
           <label>Data<input id="orcamentoData" type="date" required></label>
           <label>Status<input value="Pré-orçamento" disabled></label>
-          <div class="span-2 panel-header inspection-launch">
+          <label data-requires-permission="ordensServicoAtribuir">Responsável pelo serviço<select id="orcamentoResponsavel"><option value="">Não atribuído</option></select></label>
+          <div class="span-2 panel-header inspection-launch" data-requires-permission="inspecoesGerenciar">
             <div>
               <strong>Lista de inspeção do veículo</strong>
               <span>Gere o checklist com os dados do cliente e do carro antes de montar o orçamento.</span>
             </div>
             <button class="btn btn-ghost" type="button" id="gerarInspecao" disabled>Gerar lista de inspeção</button>
           </div>
-          <p class="span-2 courtesy-help"><strong>Como funciona a cortesia:</strong> o preço do item não é cobrado. Custos de peças e terceirizados continuam no Financeiro; na mão de obra, apenas as horas são registradas, sem criar despesa automática.</p>
+          <p class="span-2 courtesy-help" data-requires-permission="orcamentosVerCustos"><strong>Como funciona a cortesia:</strong> o preço do item não é cobrado. Custos de peças e terceirizados continuam no Financeiro; na mão de obra, apenas as horas são registradas, sem criar despesa automática.</p>
           <div class="span-2 nested-section">
             <div class="panel-header">
               <div>
@@ -67,14 +69,14 @@
           </div>
           <div class="span-2 totals-box">
             <span>Peças: <strong id="totalPecasPreview">R$ 0,00</strong></span>
-            <span>Custo peças: <strong id="totalCustoPecasPreview">R$ 0,00</strong></span>
+            <span data-requires-permission="orcamentosVerCustos">Custo peças: <strong id="totalCustoPecasPreview">R$ 0,00</strong></span>
             <span>Serviços: <strong id="totalServicosPreview">R$ 0,00</strong></span>
             <span>Terceirizados: <strong id="totalTerceirizadosPreview">R$ 0,00</strong></span>
-            <span>Custo terceirizados: <strong id="totalCustoTerceirizadosPreview">R$ 0,00</strong></span>
-            <span>Custos de cortesias: <strong id="totalCortesiaPreview">R$ 0,00</strong></span>
+            <span data-requires-permission="orcamentosVerCustos">Custo terceirizados: <strong id="totalCustoTerceirizadosPreview">R$ 0,00</strong></span>
+            <span data-requires-permission="orcamentosVerCustos">Custos de cortesias: <strong id="totalCortesiaPreview">R$ 0,00</strong></span>
             <span>Horas em cortesia: <strong id="horasCortesiaPreview">0</strong></span>
             <span>Total: <strong id="totalOrcamentoPreview">R$ 0,00</strong></span>
-            <span>Lucro estimado: <strong id="lucroOrcamentoPreview">R$ 0,00</strong></span>
+            <span data-requires-permission="orcamentosVerCustos">Lucro estimado: <strong id="lucroOrcamentoPreview">R$ 0,00</strong></span>
           </div>
           <label class="span-2">Valor final manual
             <input id="orcamentoValorFinal" type="number" min="0" step="0.01" placeholder="Opcional: se preencher, este valor prevalece no orçamento">
@@ -91,8 +93,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=103"></script>
+  <script src="script.js?v=109"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=71"></script>
+  <script type="module" src="firebase-sync.js?v=74"></script>
 </body>
 </html>

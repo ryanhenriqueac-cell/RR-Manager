@@ -24,16 +24,36 @@ Na condição de lançamento, o Essencial custa R$ 59,90 por mês durante 12 mes
 
 ## Dados e login
 
-Cada empresa possui um workspace próprio no Firestore. A partir da versão 2, clientes, veículos, serviços, orçamentos e lançamentos financeiros são armazenados em documentos separados dentro de subcoleções. Isso evita o limite de 1 MiB do documento antigo e reduz conflitos entre computador e celular.
+Cada empresa possui um workspace próprio no Firestore. A partir da versão 3, clientes, veículos, serviços, orçamentos, ordens de serviço e lançamentos financeiros são armazenados em documentos separados dentro de subcoleções. Isso evita o limite de 1 MiB do documento antigo, reduz conflitos entre computador e celular e permite aplicar acesso granular no servidor.
 
 No Plano Pro, o responsável pode vincular até quatro contas de colaboradores. Cada pessoa entra com o próprio e-mail, compartilha o workspace da oficina e recebe apenas as coleções e ações autorizadas. Os vínculos ficam em `team_access` e as regras do Firestore validam plano, status e permissão em cada operação.
 
-No primeiro acesso após a atualização, o sistema:
+## Permissões da equipe
 
-1. copia os registros antigos para as novas subcoleções;
-2. confere se todos foram copiados;
-3. ativa o formato 2;
-4. no acesso seguinte, após nova conferência, remove as listas antigas do documento principal.
+Os perfis sugeridos aplicam o princípio do menor privilégio e podem ser personalizados:
+
+| Perfil | Acesso padrão |
+| --- | --- |
+| Atendente | Clientes, veículos, orçamentos e inspeções; sem custos, aprovação ou financeiro |
+| Mecânico | Somente ordens atribuídas e inspeções técnicas; sem dados pessoais, preços, custos ou faturamento |
+| Financeiro | Caixa, custos, DRE e exportações; sem cadastros pessoais dos clientes |
+| Gerente | Operação, clientes, orçamentos, aprovações e análises; sem alterar o caixa, metas do DRE, equipe ou cadastro da oficina |
+
+As permissões são separadas entre visualizar, gerenciar, excluir, aprovar, distribuir e exportar. A interface apenas oculta o que não deve aparecer; a proteção real também é repetida nas regras do Firestore. Dados pessoais usam `clientes`, a consulta básica usa `clientes_resumo`, custos internos usam `orcamento_custos` e a oficina executa serviços pela coleção sanitizada `ordens_servico`.
+
+O proprietário continua sendo o único responsável por convites, bloqueios e alterações da equipe. Contas de colaboradores exigem e-mail verificado. Remoção do vínculo, bloqueio da oficina ou saída do Plano Pro encerra a sessão e limpa o cache operacional do navegador.
+
+Na migração de segurança, links públicos antigos com identificadores curtos são invalidados. O próximo envio do orçamento cria automaticamente um link novo com identificador criptograficamente aleatório.
+
+No primeiro acesso do proprietário após a atualização, o sistema:
+
+1. copia e confere os registros antigos nas subcoleções;
+2. cria resumos de clientes sem telefone, e-mail, documento ou endereço;
+3. separa os custos privados dos orçamentos;
+4. converte os colaboradores para a matriz de permissões versão 3;
+5. publica configurações mínimas para a equipe e remove os dados legados somente após a verificação.
+
+Na conversão, perfis antigos padronizados recebem os novos conjuntos conservadores. Isso evita manter liberações amplas que tinham outro significado na versão anterior. O proprietário pode revisar e personalizar cada colaborador na página Equipe após a migração.
 
 Se as novas regras ainda não estiverem publicadas, o sistema mantém temporariamente o formato anterior, sem apagar os dados.
 
@@ -47,6 +67,8 @@ Se as novas regras ainda não estiverem publicadas, o sistema mantém temporaria
 6. Copie todo o conteúdo de `firestore.rules`, cole no editor e clique em **Publicar**.
 
 As regras garantem que cada usuário acesse apenas o workspace da própria empresa e, no caso dos colaboradores do Plano Pro, somente os módulos liberados. O administrador definido nas regras pode consultar e gerenciar todos os workspaces.
+
+Nesta atualização, publique `firestore.rules` antes de liberar os novos arquivos do site. Depois, entre uma vez com a conta proprietária de cada oficina para concluir automaticamente a migração. Se o site for atualizado primeiro, o proprietário continua salvando no esquema 2 de forma compatível, mas os colaboradores permanecem bloqueados até que as regras sejam publicadas e a migração seja concluída.
 
 ## Controle administrativo de cobranças
 

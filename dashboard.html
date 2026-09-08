@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=123">
+  <link rel="stylesheet" href="style.css?v=128">
 </head>
 <body data-page="dashboard">
   <div class="app-shell">
@@ -22,6 +22,7 @@
         <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
         <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
         <a href="dre.html" data-nav="dre">DRE <small>PRO</small></a>
+        <a href="operacao.html" data-nav="operacao">Opera&ccedil;&atilde;o</a>
         <a href="equipe.html" data-nav="equipe">Equipe <small>PRO</small></a>
         <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
       </nav>
@@ -34,41 +35,47 @@
           <h1>Dashboard</h1>
         </div>
         <div class="topbar-actions">
-          <a class="btn btn-ghost" href="orcamentos.html">Novo orçamento</a>
-          <a class="btn btn-primary" href="clientes.html">Cadastrar cliente</a>
+          <a class="btn btn-ghost" href="operacao.html" data-requires-permission="ordensServicoVer">Abrir operação</a>
+          <a class="btn btn-ghost" href="orcamentos.html" data-requires-permission="orcamentosGerenciar">Novo orçamento</a>
+          <a class="btn btn-primary" href="clientes.html" data-requires-permission="clientesGerenciar">Cadastrar cliente</a>
         </div>
       </header>
 
       <section class="stats-grid dashboard-stats">
-        <article class="stat-card">
+        <article class="stat-card" data-requires-permission="clientesVer">
           <span>Clientes</span>
           <strong id="totalClientes">0</strong>
           <small>Base cadastrada</small>
         </article>
-        <article class="stat-card">
+        <article class="stat-card" data-requires-permission="veiculosVer|clientesVer">
           <span>Carros</span>
           <strong id="totalCarros">0</strong>
           <small>Vinculados aos clientes</small>
         </article>
-        <article class="stat-card">
+        <article class="stat-card" data-requires-permission="dashboardComercial">
           <span>Pré-orçamentos</span>
           <strong id="totalPreDashboard">0</strong>
           <small>Aguardando decisão</small>
         </article>
-        <article class="stat-card highlight">
+        <article class="stat-card highlight" data-requires-permission="dashboardFinanceiro">
           <span>Saldo total</span>
           <strong id="saldoFinanceiro">R$ 0,00</strong>
           <small>Todo o período</small>
         </article>
-        <article class="stat-card highlight monthly-balance">
+        <article class="stat-card highlight monthly-balance" data-requires-permission="dashboardFinanceiro">
           <span id="saldoMesTitulo">Saldo do mês</span>
           <strong id="saldoFinanceiroMes">R$ 0,00</strong>
           <small>Receitas menos custos e despesas</small>
         </article>
+        <article class="stat-card" data-requires-permission="dashboardOperacional">
+          <span id="ordensDashboardTitulo">Meus serviços</span>
+          <strong id="totalOrdensAtribuidas">0</strong>
+          <small id="ordensDashboardDescricao">Ordens atribuídas a você</small>
+        </article>
       </section>
 
       <section class="content-grid">
-        <div class="panel">
+        <div class="panel" data-requires-permission="dashboardComercial">
           <div class="panel-header">
             <div>
               <p class="eyebrow">Fila comercial</p>
@@ -79,7 +86,7 @@
           <div id="dashboardOrcamentos" class="timeline"></div>
         </div>
 
-        <div class="panel">
+        <div class="panel" data-requires-permission="dashboardComercial">
           <div class="panel-header">
             <div>
               <p class="eyebrow">Orçamentos</p>
@@ -95,10 +102,16 @@
           </div>
         </div>
       </section>
+      <section id="dashboardRestrictedState" class="panel dashboard-restricted-state" hidden>
+        <p class="eyebrow">Acesso protegido</p>
+        <h2>Seu painel mostra somente o que foi liberado</h2>
+        <p class="muted">Quando uma nova tarefa for atribuída a você, ela aparecerá na área operacional.</p>
+        <a class="btn btn-primary" href="operacao.html" data-requires-permission="ordensServicoVer">Abrir meus serviços</a>
+      </section>
     </main>
   </div>
-  <script src="script.js?v=107"></script>
+  <script src="script.js?v=109"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=71"></script>
+  <script type="module" src="firebase-sync.js?v=74"></script>
 </body>
 </html>

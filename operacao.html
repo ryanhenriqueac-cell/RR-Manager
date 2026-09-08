@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opera&ccedil;&atilde;o | RR Manager</title>
+  <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
+  <link rel="stylesheet" href="style.css?v=128">
+</head>
+<body data-page="operacao">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html"><img class="brand-logo" src="assets/logo-rr-manager.png" alt="RR Manager"><span><strong>RR Manager</strong></span></a>
+      <nav class="nav-menu" aria-label="Menu principal">
+        <a href="dashboard.html" data-nav="dashboard">Dashboard</a>
+        <a href="clientes.html" data-nav="clientes">Clientes</a>
+        <a href="orcamentos.html" data-nav="orcamentos">Or&ccedil;amentos</a>
+        <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
+        <a href="dre.html" data-nav="dre">DRE <small>PRO</small></a>
+        <a href="operacao.html" data-nav="operacao">Opera&ccedil;&atilde;o</a>
+        <a href="equipe.html" data-nav="equipe">Equipe <small>PRO</small></a>
+        <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div><p class="eyebrow">Rotina da oficina</p><h1 id="operacaoTitulo">Servi&ccedil;os atribu&iacute;dos</h1></div>
+      </header>
+      <section class="stats-grid compact operation-stats">
+        <article class="stat-card"><span>Pendentes</span><strong id="operacaoPendentes">0</strong><small>Aguardando in&iacute;cio</small></article>
+        <article class="stat-card"><span>Em andamento</span><strong id="operacaoAndamento">0</strong><small>Em execu&ccedil;&atilde;o</small></article>
+        <article class="stat-card"><span>Aguardando</span><strong id="operacaoAguardando">0</strong><small>Pe&ccedil;a ou libera&ccedil;&atilde;o</small></article>
+        <article class="stat-card highlight"><span>Conclu&iacute;dos</span><strong id="operacaoConcluidos">0</strong><small>Finalizados</small></article>
+      </section>
+      <section class="panel operation-panel">
+        <div class="panel-header operation-toolbar">
+          <div><p class="eyebrow">Fila protegida</p><h2 id="operacaoListaTitulo">Minhas ordens de servi&ccedil;o</h2></div>
+          <div class="operation-filters">
+            <select id="operacaoStatus" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="pendente">Pendente</option><option value="em_andamento">Em andamento</option><option value="aguardando">Aguardando</option><option value="concluida">Conclu&iacute;da</option></select>
+            <input class="search-input" id="operacaoBusca" placeholder="Buscar por OS, ve&iacute;culo ou servi&ccedil;o">
+          </div>
+        </div>
+        <div class="operation-privacy-note"><strong>Vis&atilde;o operacional:</strong> esta &aacute;rea n&atilde;o apresenta telefone, e-mail, documento, valores de venda, custos, faturamento ou lucro.</div>
+        <div id="operacaoLista" class="operation-list"></div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js?v=109"></script>
+  <script src="firebase-config.js?v=13"></script>
+  <script type="module" src="firebase-sync.js?v=74"></script>
+</body>
+</html>

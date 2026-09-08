@@ -3,9 +3,11 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   createUserWithEmailAndPassword,
+  deleteUser,
   fetchSignInMethodsForEmail,
   getAuth,
   onAuthStateChanged,
+  sendEmailVerification,
   sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
@@ -21,20 +23,26 @@ import {
   getDocs,
   getFirestore,
   onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
+  where,
   writeBatch
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro", "rr_dre_config"];
-const APP_COLLECTIONS = { rr_clientes: "clientes", rr_veiculos: "veiculos", rr_servicos: "servicos", rr_orcamentos: "orcamentos", rr_financeiro: "financeiro", rr_dre_config: "dre_config" };
-const APP_SCHEMA_VERSION = 2;
+const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro", "rr_dre_config", "rr_ordens_servico"];
+const APP_COLLECTIONS = { rr_clientes: "clientes", rr_veiculos: "veiculos", rr_servicos: "servicos", rr_orcamentos: "orcamentos", rr_financeiro: "financeiro", rr_dre_config: "dre_config", rr_ordens_servico: "ordens_servico" };
+const LEGACY_V2_APP_KEYS = APP_KEYS.filter((key) => key !== "rr_ordens_servico");
+const APP_SCHEMA_VERSION = 3;
 const MIGRATION_BATCH_SIZE = 400;
+const CLIENT_SUMMARY_COLLECTION = "clientes_resumo";
+const BUDGET_COST_COLLECTION = "orcamento_custos";
 const SYNC_FLAG = "rr_firebase_loaded_user";
 const REMEMBER_KEY = "rr_firebase_remember";
 const ADMIN_WORKSPACE_KEY = "rr_admin_workspace_id";
 const REGISTER_PREFILL_KEY = "rr_register_prefill";
 const WORKSPACE_BRANDING_KEY = "rr_workspace_branding";
+const CACHE_CONTEXT_KEY = "rr_cache_context";
 const ONBOARDING_EXPLORE_KEY = "rr_onboarding_explore_page";
 const DEFAULT_WORKSHOP_TAGLINE = "Manuten\u00e7\u00e3o Especializada | Paix\u00e3o por Carros";
 const DEFAULT_WORKSHOP_LOGO = "assets/logo-rr-manager.png";
@@ -95,13 +103,91 @@ const ACCESS_STATUS = {
   BLOCKED: "blocked"
 };
 const TEAM_MEMBER_LIMIT = 4;
-const TEAM_PERMISSION_KEYS = ["dashboard", "clientes", "orcamentos", "aprovarOrcamentos", "financeiro", "dre", "inspecoes"];
+const TEAM_PERMISSION_SCHEMA_VERSION = 3;
+const TEAM_PERMISSION_KEYS = [
+  "dashboardOperacional", "dashboardComercial", "dashboardFinanceiro",
+  "clientesVer", "clientesGerenciar", "clientesExcluir", "clientesDadosSensiveis",
+  "veiculosVer", "veiculosGerenciar",
+  "orcamentosVer", "orcamentosGerenciar", "orcamentosExcluir", "orcamentosVerCustos", "aprovarOrcamentos",
+  "ordensServicoVer", "ordensServicoGerenciar", "ordensServicoAtribuir",
+  "financeiroVer", "financeiroGerenciar", "financeiroExportar",
+  "dreVer", "dreConfigurar", "dreExportar",
+  "inspecoesVer", "inspecoesGerenciar"
+];
+const TEAM_SENSITIVE_PERMISSION_KEYS = [
+  "dashboardFinanceiro", "clientesExcluir", "clientesDadosSensiveis",
+  "orcamentosExcluir", "orcamentosVerCustos", "aprovarOrcamentos", "ordensServicoAtribuir",
+  "financeiroVer", "financeiroGerenciar", "financeiroExportar",
+  "dreVer", "dreConfigurar", "dreExportar"
+];
+const TEAM_PERMISSION_LABELS = {
+  dashboardOperacional: "Dashboard operacional",
+  dashboardComercial: "Dashboard comercial",
+  dashboardFinanceiro: "Dashboard financeiro",
+  clientesVer: "Ver clientes",
+  clientesGerenciar: "Gerenciar clientes",
+  clientesExcluir: "Excluir clientes",
+  clientesDadosSensiveis: "Dados pessoais",
+  veiculosVer: "Ver veículos",
+  veiculosGerenciar: "Gerenciar veículos",
+  orcamentosVer: "Ver orçamentos",
+  orcamentosGerenciar: "Gerenciar orçamentos",
+  orcamentosExcluir: "Excluir orçamentos",
+  orcamentosVerCustos: "Custos e margens",
+  aprovarOrcamentos: "Aprovar orçamentos",
+  ordensServicoVer: "Ver serviços atribuídos",
+  ordensServicoGerenciar: "Atualizar serviços atribuídos",
+  ordensServicoAtribuir: "Distribuir serviços",
+  financeiroVer: "Ver financeiro",
+  financeiroGerenciar: "Gerenciar financeiro",
+  financeiroExportar: "Exportar financeiro",
+  dreVer: "Ver DRE",
+  dreConfigurar: "Configurar metas do DRE",
+  dreExportar: "Exportar DRE",
+  inspecoesVer: "Ver inspeções",
+  inspecoesGerenciar: "Realizar inspeções"
+};
 const TEAM_ROLE_PROFILES = {
-  attendant: { name: "Atendente", permissions: { dashboard: true, clientes: true, orcamentos: true, aprovarOrcamentos: false, financeiro: false, dre: false, inspecoes: true } },
-  mechanic: { name: "Mecânico", permissions: { dashboard: true, clientes: true, orcamentos: false, aprovarOrcamentos: false, financeiro: false, dre: false, inspecoes: true } },
-  financial: { name: "Financeiro", permissions: { dashboard: true, clientes: false, orcamentos: false, aprovarOrcamentos: false, financeiro: true, dre: true, inspecoes: false } },
-  manager: { name: "Gerente", permissions: { dashboard: true, clientes: true, orcamentos: true, aprovarOrcamentos: true, financeiro: true, dre: true, inspecoes: true } },
-  custom: { name: "Personalizado", permissions: { dashboard: true, clientes: false, orcamentos: false, aprovarOrcamentos: false, financeiro: false, dre: false, inspecoes: false } }
+  attendant: { name: "Atendente", permissions: {
+    dashboardOperacional: true, dashboardComercial: true, dashboardFinanceiro: false,
+    clientesVer: true, clientesGerenciar: true, clientesExcluir: false, clientesDadosSensiveis: true, veiculosVer: true, veiculosGerenciar: true,
+    orcamentosVer: true, orcamentosGerenciar: true, orcamentosExcluir: false, orcamentosVerCustos: false, aprovarOrcamentos: false,
+    ordensServicoVer: true, ordensServicoGerenciar: false, ordensServicoAtribuir: false,
+    financeiroVer: false, financeiroGerenciar: false, financeiroExportar: false,
+    dreVer: false, dreConfigurar: false, dreExportar: false, inspecoesVer: true, inspecoesGerenciar: true
+  } },
+  mechanic: { name: "Mecânico", permissions: {
+    dashboardOperacional: true, dashboardComercial: false, dashboardFinanceiro: false,
+    clientesVer: false, clientesGerenciar: false, clientesExcluir: false, clientesDadosSensiveis: false, veiculosVer: false, veiculosGerenciar: false,
+    orcamentosVer: false, orcamentosGerenciar: false, orcamentosExcluir: false, orcamentosVerCustos: false, aprovarOrcamentos: false,
+    ordensServicoVer: true, ordensServicoGerenciar: true, ordensServicoAtribuir: false,
+    financeiroVer: false, financeiroGerenciar: false, financeiroExportar: false,
+    dreVer: false, dreConfigurar: false, dreExportar: false, inspecoesVer: true, inspecoesGerenciar: true
+  } },
+  financial: { name: "Financeiro", permissions: {
+    dashboardOperacional: false, dashboardComercial: false, dashboardFinanceiro: true,
+    clientesVer: false, clientesGerenciar: false, clientesExcluir: false, clientesDadosSensiveis: false, veiculosVer: false, veiculosGerenciar: false,
+    orcamentosVer: false, orcamentosGerenciar: false, orcamentosExcluir: false, orcamentosVerCustos: true, aprovarOrcamentos: false,
+    ordensServicoVer: false, ordensServicoGerenciar: false, ordensServicoAtribuir: false,
+    financeiroVer: true, financeiroGerenciar: true, financeiroExportar: true,
+    dreVer: true, dreConfigurar: false, dreExportar: true, inspecoesVer: false, inspecoesGerenciar: false
+  } },
+  manager: { name: "Gerente", permissions: {
+    dashboardOperacional: true, dashboardComercial: true, dashboardFinanceiro: true,
+    clientesVer: true, clientesGerenciar: true, clientesExcluir: true, clientesDadosSensiveis: true, veiculosVer: true, veiculosGerenciar: true,
+    orcamentosVer: true, orcamentosGerenciar: true, orcamentosExcluir: true, orcamentosVerCustos: true, aprovarOrcamentos: true,
+    ordensServicoVer: true, ordensServicoGerenciar: true, ordensServicoAtribuir: true,
+    financeiroVer: true, financeiroGerenciar: false, financeiroExportar: true,
+    dreVer: true, dreConfigurar: false, dreExportar: true, inspecoesVer: true, inspecoesGerenciar: true
+  } },
+  custom: { name: "Personalizado", permissions: {
+    dashboardOperacional: true, dashboardComercial: false, dashboardFinanceiro: false,
+    clientesVer: false, clientesGerenciar: false, clientesExcluir: false, clientesDadosSensiveis: false, veiculosVer: false, veiculosGerenciar: false,
+    orcamentosVer: false, orcamentosGerenciar: false, orcamentosExcluir: false, orcamentosVerCustos: false, aprovarOrcamentos: false,
+    ordensServicoVer: false, ordensServicoGerenciar: false, ordensServicoAtribuir: false,
+    financeiroVer: false, financeiroGerenciar: false, financeiroExportar: false,
+    dreVer: false, dreConfigurar: false, dreExportar: false, inspecoesVer: false, inspecoesGerenciar: false
+  } }
 };
 const config = window.firebaseConfig || {};
 const adminAccess = window.rrAdminAccess || {};
@@ -163,15 +249,127 @@ function getPlanName(subscription = {}) {
 
 window.rrHasPlanFeature = (feature) => Boolean(activeWorkspaceSubscription?.features?.[feature]);
 window.rrGetActivePlan = () => activeWorkspaceSubscription ? { ...activeWorkspaceSubscription } : null;
-window.rrIsWorkspaceOwner = () => !activeTeamAccess;
-window.rrHasPermission = (permission) => !activeTeamAccess || (activeTeamAccess.status === "active" && activeTeamAccess.permissions?.[permission] === true);
-window.rrGetActor = () => ({ email: currentUser?.email || "", name: activeTeamAccess?.name || activeWorkspaceData?.registration?.nome || "", role: activeTeamAccess ? "member" : "owner" });
+window.rrIsWorkspaceOwner = () => Boolean(currentUser && !activeTeamAccess);
+window.rrHasPermission = (permission) => {
+  if (!currentUser) return false;
+  if (!activeTeamAccess) return true;
+  const permissions = normalizeTeamPermissions(activeTeamAccess.role || "custom", activeTeamAccess.permissions || {});
+  return activeTeamAccess.status === "active" && permissions[permission] === true;
+};
+window.rrGetActor = () => ({
+  uid: currentUser?.uid || "",
+  email: currentUser?.email || "",
+  name: activeTeamAccess?.name || activeWorkspaceData?.registration?.nome || "",
+  role: activeTeamAccess?.role || (activeTeamAccess ? "member" : "owner"),
+  permissionSchemaVersion: activeTeamAccess ? TEAM_PERMISSION_SCHEMA_VERSION : null
+});
+window.rrGetAssignableTeam = () => {
+  if (!currentUser || (activeTeamAccess && !window.rrHasPermission("ordensServicoAtribuir"))) return [];
+  return (Array.isArray(activeWorkspaceData?.teamMembers) ? activeWorkspaceData.teamMembers : [])
+    .filter((member) => member.status !== "blocked")
+    .filter((member) => normalizeTeamPermissions(member.role || "custom", member.permissions || {}).ordensServicoVer)
+    .map((member) => ({ name: member.name || "Colaborador", email: normalizeEmail(member.email), role: member.role || "custom" }));
+};
 let pendingAuthMessage = "";
 let pendingAuthModal = null;
 let creatingAccessRequest = false;
+let teamAccessUnsubscribe = null;
+let workspaceAccessUnsubscribe = null;
+let revokingTeamAccess = false;
 window.rrFirebaseReady = false;
 
+function clearSensitiveLocalData() {
+  syncingFromCloud = true;
+  APP_KEYS.forEach((key) => localStorage.removeItem(key));
+  localStorage.removeItem(WORKSPACE_BRANDING_KEY);
+  confirmedCollectionState.clear();
+  pendingCollectionChanges.clear();
+  syncingFromCloud = false;
+  for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
+    const key = sessionStorage.key(index) || "";
+    if (key.startsWith("rr_inspecao_draft_") || key.startsWith("rr_public_")) sessionStorage.removeItem(key);
+  }
+}
+
+function readLocalArray(key) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function setCacheContext(user, workspaceId) {
+  const next = `${user?.uid || "anonymous"}:${workspaceId || "none"}`;
+  const previous = localStorage.getItem(CACHE_CONTEXT_KEY) || "";
+  if (previous && previous !== next) clearSensitiveLocalData();
+  localStorage.setItem(CACHE_CONTEXT_KEY, next);
+}
+
+function stopTeamAccessListener() {
+  if (typeof teamAccessUnsubscribe === "function") teamAccessUnsubscribe();
+  if (typeof workspaceAccessUnsubscribe === "function") workspaceAccessUnsubscribe();
+  teamAccessUnsubscribe = null;
+  workspaceAccessUnsubscribe = null;
+}
+
+function getTeamAccessSignature(access = {}) {
+  return JSON.stringify({ status: access.status || "", role: access.role || "", permissions: normalizeTeamPermissions(access.role || "custom", access.permissions || {}) });
+}
+
+async function revokeCurrentTeamSession(message) {
+  if (revokingTeamAccess) return;
+  revokingTeamAccess = true;
+  pendingAuthMessage = message;
+  stopCollectionListeners();
+  stopTeamAccessListener();
+  clearSensitiveLocalData();
+  try {
+    await signOut(auth);
+  } finally {
+    revokingTeamAccess = false;
+  }
+}
+
+function startTeamAccessListener() {
+  stopTeamAccessListener();
+  if (!currentUser || !activeTeamAccess?.id || !db) return;
+  let initialSignature = getTeamAccessSignature(activeTeamAccess);
+  teamAccessUnsubscribe = onSnapshot(doc(db, "team_access", activeTeamAccess.id), async (snapshot) => {
+    if (!snapshot.exists() || snapshot.data()?.status !== "active") {
+      await revokeCurrentTeamSession("Seu acesso à equipe foi removido ou bloqueado.");
+      return;
+    }
+    const nextAccess = { id: activeTeamAccess.id, ...snapshot.data() };
+    const nextSignature = getTeamAccessSignature(nextAccess);
+    if (nextSignature === initialSignature) return;
+    initialSignature = nextSignature;
+    activeTeamAccess = nextAccess;
+    stopCollectionListeners();
+    clearSensitiveLocalData();
+    sessionStorage.removeItem(SYNC_FLAG);
+    window.location.reload();
+  }, async (error) => {
+    if (error?.code !== "permission-denied") return;
+    await revokeCurrentTeamSession("Não foi possível confirmar as permissões da sua equipe.");
+  });
+  workspaceAccessUnsubscribe = onSnapshot(
+    doc(db, "workspaces", activeWorkspaceId, "settings", "public"),
+    async (snapshot) => {
+      if (!snapshot.exists()) await revokeCurrentTeamSession("O acesso à oficina não está mais disponível.");
+    },
+    async (error) => {
+      if (error?.code === "permission-denied") {
+        await revokeCurrentTeamSession("O acesso à oficina foi bloqueado ou o Plano Pro não está mais ativo.");
+      }
+    }
+  );
+}
+
 buildAuthShell();
+setAppLocked(true);
+clearSensitiveLocalData();
 
 if (!configReady) {
   showAuthMessage("Configure o Firebase em firebase-config.js para ativar login e banco online.");
@@ -203,11 +401,14 @@ if (!configReady) {
 
     if (!user) {
       stopCollectionListeners();
+      stopTeamAccessListener();
+      clearSensitiveLocalData();
       pendingCollectionChanges.clear();
       workspaceSchemaVersion = 1;
       sessionStorage.removeItem(SYNC_FLAG);
       sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
       localStorage.removeItem(WORKSPACE_BRANDING_KEY);
+      localStorage.removeItem(CACHE_CONTEXT_KEY);
       activeWorkspaceId = null;
       activeWorkspaceEmail = "";
       activeTeamAccess = null;
@@ -242,6 +443,28 @@ if (!configReady) {
     if (isAdminPage && isAdminUser(user)) sessionStorage.removeItem(ADMIN_WORKSPACE_KEY);
     activeWorkspaceId = isAdminUser(user) ? getWorkspaceId(user) : await resolveUserWorkspace(user);
     activeWorkspaceEmail = "";
+    setCacheContext(user, activeWorkspaceId);
+
+    if (activeTeamAccess && !user.emailVerified) {
+      try { await sendEmailVerification(user); } catch (error) { console.warn("Não foi possível reenviar a verificação de e-mail.", error); }
+      pendingAuthMessage = "Confirme o e-mail enviado para você antes de acessar a equipe.";
+      pendingAuthModal = {
+        title: "Confirme seu e-mail",
+        message: "Enviamos um link de verificação. Abra sua caixa de entrada, confirme o endereço e depois entre novamente."
+      };
+      await signOut(auth);
+      return;
+    }
+
+    if (activeTeamAccess && Number(activeTeamAccess.permissionSchemaVersion) < TEAM_PERMISSION_SCHEMA_VERSION) {
+      pendingAuthMessage = "O responsável da oficina precisa entrar uma vez para concluir a atualização segura das permissões da equipe.";
+      pendingAuthModal = {
+        title: "Permissões em atualização",
+        message: "Peça ao proprietário da oficina para acessar o RR Manager. A migração é automática e, depois disso, você poderá entrar novamente."
+      };
+      await signOut(auth);
+      return;
+    }
 
     if (isAdminUser(user) && !activeWorkspaceId) {
       if (!isAdminPage) {
@@ -295,6 +518,7 @@ if (!configReady) {
     window.rrFirebaseReady = true;
     setAppLocked(false);
     startCollectionListeners(activeWorkspaceId);
+    startTeamAccessListener();
     applyTeamAccessToInterface();
 
     if (sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId) {
@@ -311,12 +535,16 @@ if (!configReady) {
 }
 
 function createPublicShareId() {
-  return Math.random().toString(36).slice(2, 8).toUpperCase();
+  const bytes = new Uint8Array(18);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 window.rrPublishPublicOrcamento = async (data, existingId = "") => {
   if (!currentUser || !db) throw new Error("Login indisponível para publicar orçamento.");
-  const id = existingId || createPublicShareId();
+  if (activeTeamAccess && !window.rrHasPermission("orcamentosGerenciar")) throw new Error("Sem permissão para publicar orçamento.");
+  const reusableId = /^[a-zA-Z0-9_-]{24,}$/.test(existingId) ? existingId : "";
+  const id = reusableId || createPublicShareId();
   await setDoc(doc(db, "public_orcamentos", id), {
     owner: activeWorkspaceId || currentUser.uid,
     ownerUid: activeWorkspaceId || currentUser.uid,
@@ -590,6 +818,8 @@ async function submitAccessRequest() {
   const businessName = document.getElementById("registerBusinessName").value.trim();
   const password = document.getElementById("registerPassword").value;
   const passwordConfirm = document.getElementById("registerPasswordConfirm").value;
+  let createdTeamCredential = null;
+  let invalidTeamInvite = false;
   try {
     emailInput.value = email;
     if (!email) {
@@ -616,11 +846,18 @@ async function submitAccessRequest() {
     }
     creatingAccessRequest = true;
     const credential = await createUserWithEmailAndPassword(auth, email, password);
+    if (teamInviteEmail) createdTeamCredential = credential;
     currentUser = credential.user;
     if (teamInviteEmail) {
       const accessSnapshot = await getDoc(doc(db, "team_access", email));
-      if (!accessSnapshot.exists() || accessSnapshot.data()?.status !== "active") throw new Error("Este convite não está mais ativo. Peça um novo convite ao responsável da oficina.");
-      pendingAuthMessage = "Acesso da equipe criado. Entre com seu e-mail e sua senha.";
+      if (!accessSnapshot.exists() || accessSnapshot.data()?.status !== "active") {
+        invalidTeamInvite = true;
+        const inviteError = new Error("Este convite não está mais ativo. Peça um novo convite ao responsável da oficina.");
+        inviteError.code = "team/invite-invalid";
+        throw inviteError;
+      }
+      await sendEmailVerification(credential.user);
+      pendingAuthMessage = "Acesso criado. Confirme seu e-mail antes de entrar.";
     } else {
       activeWorkspaceId = currentUser.uid;
       activeWorkspaceEmail = currentUser.email;
@@ -631,10 +868,19 @@ async function submitAccessRequest() {
     sessionStorage.removeItem(REGISTER_PREFILL_KEY);
     await showAuthStatusModal(
       teamInviteEmail ? "Acesso criado" : "Cadastro concluído",
-      teamInviteEmail ? "Sua conta foi vinculada à oficina. Agora você já pode entrar no RR Manager." : "Seu cadastro foi enviado e será analisado para confirmação de acesso."
+      teamInviteEmail ? "Enviamos um link para confirmar seu e-mail. Depois da confirmação, entre no RR Manager com sua senha." : "Seu cadastro foi enviado e será analisado para confirmação de acesso."
     );
     window.location.href = "dashboard.html";
   } catch (error) {
+    if (invalidTeamInvite && createdTeamCredential?.user) {
+      try {
+        await deleteUser(createdTeamCredential.user);
+      } catch (cleanupError) {
+        console.warn("Não foi possível remover a conta criada para um convite inválido.", cleanupError);
+        try { await signOut(auth); } catch (_signOutError) { /* A tela continuará bloqueada. */ }
+      }
+      currentUser = null;
+    }
     showAuthMessage(firebaseError(error));
   } finally {
     creatingAccessRequest = false;
@@ -673,12 +919,150 @@ function togglePasswordVisibility(inputId = "firebasePassword", buttonId = "togg
   button.title = visible ? "Mostrar senha" : "Ocultar senha";
 }
 
+function getSharedWorkspaceSettings(workspace = {}) {
+  const registration = workspace.registration || {};
+  const subscription = getWorkspaceSubscription(workspace);
+  return {
+    schemaVersion: Number(workspace.schemaVersion) || 1,
+    businessName: workspace.businessName || registration.empresa || "",
+    reportName: workspace.reportName || "",
+    logoUrl: workspace.logoUrl || "",
+    tagline: workspace.tagline || "",
+    subscription: { planId: subscription.planId, features: { ...subscription.features } },
+    updatedAt: serverTimestamp()
+  };
+}
+
+function getCommercialWorkspaceSettings(workspace = {}) {
+  return {
+    pixKey: workspace.pixKey || "",
+    pixName: workspace.pixName || "",
+    pixCity: workspace.pixCity || "",
+    laborHourRate: normalizeLaborHourRate(workspace.laborHourRate),
+    updatedAt: serverTimestamp()
+  };
+}
+
+function getFinancialWorkspaceSettings(workspace = {}) {
+  return {
+    partsMarkupPercent: normalizePartsMarkupPercent(workspace.partsMarkupPercent),
+    paymentRates: normalizePaymentRates(workspace.paymentRates),
+    updatedAt: serverTimestamp()
+  };
+}
+
+async function publishWorkspaceSettings(uid, workspace = {}) {
+  if (!currentUser || activeTeamAccess || !uid) return;
+  const batch = writeBatch(db);
+  batch.set(doc(db, "workspaces", uid, "settings", "public"), getSharedWorkspaceSettings(workspace), { merge: true });
+  batch.set(doc(db, "workspaces", uid, "settings", "commercial"), getCommercialWorkspaceSettings(workspace));
+  batch.set(doc(db, "workspaces", uid, "settings", "financial"), getFinancialWorkspaceSettings(workspace));
+  batch.set(doc(db, "workspaces", uid, "settings", "team_directory"), {
+    members: (Array.isArray(workspace.teamMembers) ? workspace.teamMembers : [])
+      .filter((member) => member.status !== "blocked")
+      .map((member) => ({ name: member.name || "Colaborador", email: normalizeEmail(member.email), role: member.role || "custom" })),
+    updatedAt: serverTimestamp()
+  });
+  await batch.commit();
+}
+
+async function ensureTeamPermissionMigration(uid, workspace = {}) {
+  if (!currentUser || activeTeamAccess || !uid) return workspace;
+  const sourceMembers = (Array.isArray(workspace.teamMembers) ? workspace.teamMembers : []).slice(0, TEAM_MEMBER_LIMIT);
+  const members = sourceMembers.map((member) => {
+    const role = TEAM_ROLE_PROFILES[member.role] ? member.role : "custom";
+    const alreadyGranular = Number(member.permissionSchemaVersion) >= TEAM_PERMISSION_SCHEMA_VERSION
+      && TEAM_PERMISSION_KEYS.some((permission) => Object.prototype.hasOwnProperty.call(member.permissions || {}, permission));
+    const migratedPermissions = alreadyGranular
+      ? normalizeTeamPermissions(role, member.permissions || {})
+      : role === "custom"
+        ? normalizeTeamPermissions("custom", member.permissions || {})
+        : normalizeTeamPermissions(role, TEAM_ROLE_PROFILES[role].permissions);
+    return {
+      email: normalizeEmail(member.email),
+      name: String(member.name || "Colaborador").trim(),
+      role,
+      roleName: TEAM_ROLE_PROFILES[role]?.name || "Personalizado",
+      status: member.status === "blocked" ? "blocked" : "active",
+      permissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION,
+      permissions: migratedPermissions,
+      createdAt: member.createdAt || new Date().toISOString(),
+      updatedAt: member.updatedAt || new Date().toISOString()
+    };
+  }).filter((member) => member.email);
+  const teamAccessEmails = members.map((member) => member.email);
+  const currentEmails = Array.isArray(workspace.teamAccessEmails) ? workspace.teamAccessEmails.map(normalizeEmail).filter(Boolean) : [];
+  const migrationCurrent = Number(workspace.teamPermissionSchemaVersion) >= TEAM_PERMISSION_SCHEMA_VERSION
+    && JSON.stringify(currentEmails) === JSON.stringify(teamAccessEmails)
+    && sourceMembers.every((member) => Number(member.permissionSchemaVersion) >= TEAM_PERMISSION_SCHEMA_VERSION);
+  if (migrationCurrent) return workspace;
+
+  // O indice do workspace e os documentos de acesso precisam mudar juntos.
+  // Assim, uma falha de rede nunca deixa a migracao marcada como concluida pela metade.
+  const batch = writeBatch(db);
+  batch.set(doc(db, "workspaces", uid), {
+    teamMembers: members,
+    teamAccessEmails,
+    teamPermissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION,
+    teamUpdatedAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+
+  members.forEach((member) => {
+    batch.set(doc(db, "team_access", member.email), {
+      ...member,
+      workspaceId: uid,
+      ownerEmail: workspace.ownerEmail || currentUser.email || "",
+      businessName: workspace.businessName || workspace.registration?.empresa || "",
+      updatedAt: serverTimestamp()
+    });
+  });
+  await batch.commit();
+
+  workspace.teamMembers = members;
+  workspace.teamAccessEmails = teamAccessEmails;
+  workspace.teamPermissionSchemaVersion = TEAM_PERMISSION_SCHEMA_VERSION;
+  return workspace;
+}
+
+async function loadMemberWorkspaceSettings(uid) {
+  const publicSnapshot = await getDoc(doc(db, "workspaces", uid, "settings", "public"));
+  if (!publicSnapshot.exists()) {
+    throw new Error("A oficina ainda precisa concluir a atualização segura da equipe. Peça ao proprietário para entrar no sistema e tente novamente.");
+  }
+  let commercial = {};
+  const canReadCommercial = window.rrHasPermission("orcamentosVer")
+    || window.rrHasPermission("orcamentosGerenciar")
+    || window.rrHasPermission("financeiroVer")
+    || window.rrHasPermission("dreVer");
+  if (canReadCommercial) {
+    const commercialSnapshot = await getDoc(doc(db, "workspaces", uid, "settings", "commercial"));
+    if (commercialSnapshot.exists()) commercial = commercialSnapshot.data() || {};
+  }
+  let financialSettings = {};
+  const canReadFinancialSettings = window.rrHasPermission("orcamentosVerCustos")
+    || window.rrHasPermission("aprovarOrcamentos")
+    || window.rrHasPermission("financeiroVer")
+    || window.rrHasPermission("dreVer")
+    || window.rrHasPermission("dashboardFinanceiro");
+  if (canReadFinancialSettings) {
+    const financialSnapshot = await getDoc(doc(db, "workspaces", uid, "settings", "financial"));
+    if (financialSnapshot.exists()) financialSettings = financialSnapshot.data() || {};
+  }
+  let teamDirectory = {};
+  if (window.rrHasPermission("ordensServicoAtribuir")) {
+    const directorySnapshot = await getDoc(doc(db, "workspaces", uid, "settings", "team_directory"));
+    if (directorySnapshot.exists()) teamDirectory = { teamMembers: directorySnapshot.data()?.members || [] };
+  }
+  return { ...(publicSnapshot.data() || {}), ...commercial, ...financialSettings, ...teamDirectory };
+}
+
 async function loadCloudData(uid) {
   try {
     showAuthMessage("Sincronizando dados...");
     confirmedCollectionState.clear();
-    const snap = await getDoc(doc(db, "workspaces", uid));
-    if (!snap.exists()) {
+    const snap = activeTeamAccess ? null : await getDoc(doc(db, "workspaces", uid));
+    if (!activeTeamAccess && !snap.exists()) {
       await saveLegacyCloudData();
       const workspace = { ownerEmail: activeWorkspaceEmail || currentUser.email };
       activeWorkspaceData = workspace;
@@ -690,28 +1074,47 @@ async function loadCloudData(uid) {
       return workspace;
     }
 
-    const cloudData = snap.data() || {};
+    const cloudData = activeTeamAccess ? await loadMemberWorkspaceSettings(uid) : snap.data() || {};
     activeWorkspaceData = { id: uid, ...cloudData };
     activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
+    let secureSettingsReady = true;
+    if (!activeTeamAccess) {
+      try { await publishWorkspaceSettings(uid, cloudData); }
+      catch (settingsError) {
+        secureSettingsReady = false;
+        console.warn("As novas regras ainda não estão publicadas; a migração segura ficará pendente.", settingsError);
+      }
+      if (secureSettingsReady) await ensureTeamPermissionMigration(uid, cloudData);
+      activeWorkspaceData = { id: uid, ...cloudData };
+    }
     setWorkspaceBrandingContext(cloudData);
     renderMeuCadastro(cloudData);
     renderContractDocument(cloudData);
-    let data = cloudData.data || {};
-    if (Number(cloudData.schemaVersion) >= APP_SCHEMA_VERSION) {
-      workspaceSchemaVersion = APP_SCHEMA_VERSION;
-      data = await loadV2Collections(uid);
+    let schemaVersion = Number(cloudData.schemaVersion) || 1;
+    if (activeTeamAccess && schemaVersion < APP_SCHEMA_VERSION) {
+      throw new Error("A migração segura deve ser concluída pelo proprietário da oficina antes do acesso da equipe.");
+    }
+    if (!activeTeamAccess && schemaVersion < 2) {
+      await migrateWorkspaceToV2(uid, cloudData);
+      schemaVersion = 2;
+    }
+    if (!activeTeamAccess && schemaVersion < APP_SCHEMA_VERSION && secureSettingsReady) {
+      try {
+        await migrateWorkspaceToV3(uid);
+        schemaVersion = APP_SCHEMA_VERSION;
+        cloudData.schemaVersion = APP_SCHEMA_VERSION;
+        await publishWorkspaceSettings(uid, cloudData);
+      } catch (securityMigrationError) {
+        console.warn("A migração de segurança será tentada novamente após a publicação das regras.", securityMigrationError);
+      }
+    }
+    workspaceSchemaVersion = schemaVersion;
+    const data = await loadV2Collections(uid, schemaVersion);
+    if (!activeTeamAccess) {
       try {
         await cleanupVerifiedLegacyData(uid, cloudData, data);
       } catch (cleanupError) {
         console.warn("A limpeza dos dados antigos será tentada novamente no próximo acesso.", cleanupError);
-      }
-    } else {
-      try {
-        data = await migrateWorkspaceToV2(uid, cloudData);
-        workspaceSchemaVersion = APP_SCHEMA_VERSION;
-      } catch (migrationError) {
-        workspaceSchemaVersion = 1;
-        console.warn("Migração v2 adiada; usando sincronização compatível.", migrationError);
       }
     }
     syncingFromCloud = true;
@@ -735,6 +1138,145 @@ function getCollectionName(key) {
   return APP_COLLECTIONS[key];
 }
 
+function sanitizeClientSummary(client = {}) {
+  return {
+    id: client.id || "",
+    nome: client.nome || "",
+    carros: (Array.isArray(client.carros) ? client.carros : []).map((vehicle) => ({
+      id: vehicle.id || "",
+      marca: vehicle.marca || "",
+      modelo: vehicle.modelo || "",
+      motor: vehicle.motor || "",
+      ano: vehicle.ano || "",
+      placa: vehicle.placa || ""
+    })),
+    updatedAt: client.updatedAt || ""
+  };
+}
+
+const PUBLIC_BUDGET_FIELDS = [
+  "id", "numero", "clienteId", "carroId", "veiculoId", "data", "status",
+  "totalPecas", "totalServicos", "totalTerceirizados", "totalCalculado",
+  "valorFinalManual", "total", "assignedToEmail", "assignedToName",
+  "publicShareId", "pagamento", "decidedAt", "decidedBy", "approvalDateRecoveredAt",
+  "createdBy", "updatedBy", "updatedAt"
+];
+const PUBLIC_PART_FIELDS = ["id", "nome", "quantidade", "valorUnitario", "valorUnitarioInformado", "cortesia"];
+const PUBLIC_LABOR_FIELDS = ["id", "descricao", "horas", "valorHora", "valorHoraInformado", "cortesia"];
+const PUBLIC_OUTSOURCED_FIELDS = ["id", "descricao", "valor", "valorInformado", "cortesia"];
+const PUBLIC_PAYMENT_FIELDS = ["tipo", "parcelas", "taxaRepassada", "acrescimoValor", "totalCobrado", "descontoPercentual", "descontoValor", "label"];
+const PRIVATE_PAYMENT_FIELDS = ["taxaPercentual", "taxaValor"];
+
+function pickAllowedFields(source = {}, fields = []) {
+  return fields.reduce((safe, field) => {
+    if (Object.prototype.hasOwnProperty.call(source, field)) safe[field] = source[field];
+    return safe;
+  }, {});
+}
+
+function sanitizeBudgetLineItems(items, fields) {
+  if (!Array.isArray(items)) return items ?? [];
+  return items.map((item) => pickAllowedFields(item, fields));
+}
+
+function sanitizeBudgetForTeam(budget = {}) {
+  const safe = pickAllowedFields(budget, PUBLIC_BUDGET_FIELDS);
+  if (safe.publicShareId && !/^[a-zA-Z0-9_-]{24,}$/.test(safe.publicShareId)) delete safe.publicShareId;
+  safe.pecas = sanitizeBudgetLineItems(budget.pecas, PUBLIC_PART_FIELDS);
+  safe.servicos = sanitizeBudgetLineItems(budget.servicos, PUBLIC_LABOR_FIELDS);
+  safe.terceirizados = sanitizeBudgetLineItems(budget.terceirizados, PUBLIC_OUTSOURCED_FIELDS);
+  if (budget.pagamento && typeof budget.pagamento === "object") safe.pagamento = pickAllowedFields(budget.pagamento, PUBLIC_PAYMENT_FIELDS);
+  safe.historicoVersoes = (Array.isArray(budget.historicoVersoes) ? budget.historicoVersoes : []).map((version) => ({
+    ...sanitizeBudgetForTeam({ ...version, historicoVersoes: [] }),
+    ...pickAllowedFields(version, ["versionId", "savedAt"])
+  }));
+  return safe;
+}
+
+function extractBudgetCosts(budget = {}) {
+  return {
+    id: budget.id || "",
+    totalCustoPecas: Number(budget.totalCustoPecas) || 0,
+    totalCustoTerceirizados: Number(budget.totalCustoTerceirizados) || 0,
+    lucroEstimado: Number(budget.lucroEstimado) || 0,
+    pecas: (Array.isArray(budget.pecas) ? budget.pecas : []).map((item) => ({
+      id: item.id || "",
+      custoUnitario: Number(item.custoUnitario) || 0,
+      custoUnitarioInformado: item.custoUnitarioInformado === true
+    })),
+    terceirizados: (Array.isArray(budget.terceirizados) ? budget.terceirizados : []).map((item) => ({
+      id: item.id || "",
+      custo: Number(item.custo) || 0,
+      custoInformado: item.custoInformado === true
+    })),
+    pagamento: budget.pagamento && typeof budget.pagamento === "object"
+      ? pickAllowedFields(budget.pagamento, PRIVATE_PAYMENT_FIELDS)
+      : {},
+    historicoVersoes: (Array.isArray(budget.historicoVersoes) ? budget.historicoVersoes : []).map((version) => ({
+      versionId: version.versionId || "",
+      ...extractBudgetCosts({ ...version, historicoVersoes: [] })
+    })),
+    updatedAt: budget.updatedAt || new Date().toISOString()
+  };
+}
+
+function mergeBudgetLineCosts(items, costs, fields) {
+  const list = Array.isArray(costs) ? costs : [];
+  return (Array.isArray(items) ? items : []).map((item, index) => {
+    const cost = list.find((entry) => entry.id && entry.id === item.id) || list[index] || {};
+    return fields.reduce((merged, field) => ({ ...merged, [field]: cost[field] ?? merged[field] }), { ...item });
+  });
+}
+
+function mergeBudgetCosts(budget = {}, costs = {}) {
+  const merged = {
+    ...budget,
+    totalCustoPecas: Number(costs.totalCustoPecas) || 0,
+    totalCustoTerceirizados: Number(costs.totalCustoTerceirizados) || 0,
+    lucroEstimado: Number(costs.lucroEstimado) || 0,
+    pecas: mergeBudgetLineCosts(budget.pecas, costs.pecas, ["custoUnitario", "custoUnitarioInformado"]),
+    terceirizados: mergeBudgetLineCosts(budget.terceirizados, costs.terceirizados, ["custo", "custoInformado"]),
+    pagamento: budget.pagamento && typeof budget.pagamento === "object"
+      ? { ...budget.pagamento, ...(costs.pagamento || {}) }
+      : budget.pagamento
+  };
+  if (Array.isArray(budget.historicoVersoes)) {
+    merged.historicoVersoes = budget.historicoVersoes.map((version, index) => {
+      const versionCosts = (costs.historicoVersoes || []).find((entry) => entry.versionId && entry.versionId === version.versionId)
+        || (costs.historicoVersoes || [])[index] || {};
+      return mergeBudgetCosts(version, versionCosts);
+    });
+  }
+  return merged;
+}
+
+function extractBudgetPaymentCosts(budget = {}) {
+  return {
+    id: budget.id || "",
+    pagamento: budget.pagamento && typeof budget.pagamento === "object"
+      ? pickAllowedFields(budget.pagamento, PRIVATE_PAYMENT_FIELDS)
+      : {},
+    updatedBy: window.rrGetActor?.() || {},
+    updatedAt: budget.updatedAt || new Date().toISOString()
+  };
+}
+
+function canReadPrivateClients() {
+  return !activeTeamAccess || window.rrHasPermission("clientesDadosSensiveis") || window.rrHasPermission("clientesGerenciar");
+}
+
+function canReadBudgetCosts() {
+  return !activeTeamAccess || window.rrHasPermission("orcamentosVerCustos") || window.rrHasPermission("financeiroVer") || window.rrHasPermission("dreVer");
+}
+
+function getCollectionSource(uid, key) {
+  const collectionName = key === "rr_clientes" && !canReadPrivateClients() ? CLIENT_SUMMARY_COLLECTION : getCollectionName(key);
+  const baseCollection = collection(db, "workspaces", uid, collectionName);
+  return key === "rr_ordens_servico" && activeTeamAccess && !window.rrHasPermission("ordensServicoAtribuir")
+    ? query(baseCollection, where("assignedToEmail", "==", normalizeEmail(currentUser?.email)))
+    : baseCollection;
+}
+
 function configureTeamInviteRegistration() {
   if (!teamInviteEmail) return;
   document.body.classList.add("team-invite-registration");
@@ -753,16 +1295,18 @@ function configureTeamInviteRegistration() {
 
 function canAccessStorageKey(key, write = false) {
   if (!activeTeamAccess) return true;
-  const permissions = activeTeamAccess.permissions || {};
   const permissionMap = {
-    rr_clientes: ["clientes", "orcamentos", "aprovarOrcamentos", "inspecoes", "dre"],
-    rr_veiculos: ["clientes", "orcamentos", "aprovarOrcamentos", "inspecoes", "dre"],
-    rr_orcamentos: write ? ["orcamentos", "aprovarOrcamentos"] : ["orcamentos", "aprovarOrcamentos", "dre"],
-    rr_servicos: ["orcamentos"],
-    rr_financeiro: write ? ["financeiro"] : ["financeiro", "dre"],
-    rr_dre_config: ["dre"]
+    rr_clientes: write ? ["clientesGerenciar"] : ["clientesVer", "veiculosVer"],
+    rr_veiculos: write ? ["veiculosGerenciar"] : ["veiculosVer", "clientesVer"],
+    rr_orcamentos: write
+      ? ["orcamentosGerenciar", "aprovarOrcamentos"]
+      : ["orcamentosVer", "aprovarOrcamentos", "financeiroVer", "dreVer", "dashboardComercial", "dashboardFinanceiro"],
+    rr_servicos: write ? ["orcamentosGerenciar"] : ["orcamentosVer", "orcamentosGerenciar"],
+    rr_financeiro: write ? ["financeiroGerenciar"] : ["financeiroVer", "dreVer", "dashboardFinanceiro"],
+    rr_dre_config: write ? ["dreConfigurar"] : ["dreVer"],
+    rr_ordens_servico: write ? ["ordensServicoGerenciar", "ordensServicoAtribuir"] : ["ordensServicoVer", "ordensServicoAtribuir"]
   };
-  return (permissionMap[key] || []).some((permission) => permissions[permission] === true);
+  return (permissionMap[key] || []).some((permission) => window.rrHasPermission(permission));
 }
 
 function getAccessibleAppKeys(write = false) {
@@ -773,19 +1317,26 @@ function getRecordDocumentId(item, index, key) {
   return encodeURIComponent(String(item?.id || `${key}-${index + 1}`)).slice(0, 1200);
 }
 
-async function loadV2Collections(uid) {
-  const entries = await Promise.all(getAccessibleAppKeys().map(async (key) => {
-    const snap = await getDocs(collection(db, "workspaces", uid, getCollectionName(key)));
-    return [key, snap.docs.map((record) => record.data())];
+async function loadV2Collections(uid, schemaVersion = APP_SCHEMA_VERSION) {
+  const accessibleKeys = getAccessibleAppKeys().filter((key) => schemaVersion >= APP_SCHEMA_VERSION || LEGACY_V2_APP_KEYS.includes(key));
+  const entries = await Promise.all(accessibleKeys.map(async (key) => {
+    const snap = await getDocs(getCollectionSource(uid, key));
+    let records = snap.docs.map((record) => record.data());
+    if (key === "rr_orcamentos" && schemaVersion >= APP_SCHEMA_VERSION && canReadBudgetCosts()) {
+      const costSnapshot = await getDocs(collection(db, "workspaces", uid, BUDGET_COST_COLLECTION));
+      const costs = new Map(costSnapshot.docs.map((record) => [record.id, record.data()]));
+      records = records.map((budget, index) => mergeBudgetCosts(budget, costs.get(getRecordDocumentId(budget, index, key)) || {}));
+    }
+    return [key, records];
   }));
-  return Object.fromEntries(entries);
+  return { ...Object.fromEntries(APP_KEYS.map((key) => [key, []])), ...Object.fromEntries(entries) };
 }
 
 async function migrateWorkspaceToV2(uid, workspace) {
   if (activeTeamAccess) throw new Error("A migração dos dados deve ser concluída pelo responsável da oficina.");
   const legacyData = workspace.data || {};
   const operations = [];
-  APP_KEYS.forEach((key) => {
+  LEGACY_V2_APP_KEYS.forEach((key) => {
     const items = Array.isArray(legacyData[key]) ? legacyData[key] : [];
     items.forEach((item, index) => {
       const value = item?.id ? item : { ...item, id: getRecordDocumentId(item, index, key) };
@@ -802,21 +1353,62 @@ async function migrateWorkspaceToV2(uid, workspace) {
     await batch.commit();
   }
 
-  const migratedData = await loadV2Collections(uid);
+  const migratedData = await loadV2Collections(uid, 2);
   const stats = {};
-  for (const key of APP_KEYS) {
+  for (const key of LEGACY_V2_APP_KEYS) {
     const expected = Array.isArray(legacyData[key]) ? legacyData[key].length : 0;
     const received = migratedData[key].length;
     if (received < expected) throw new Error(`Migração incompleta em ${key}: ${received} de ${expected}.`);
     stats[getCollectionName(key)] = received;
   }
   await setDoc(doc(db, "workspaces", uid), {
-    schemaVersion: APP_SCHEMA_VERSION,
+    schemaVersion: 2,
     stats,
     migration: { status: "verified", legacyDataRetained: true, verifiedAt: serverTimestamp() },
     updatedAt: serverTimestamp()
   }, { merge: true });
   return migratedData;
+}
+
+async function migrateWorkspaceToV3(uid) {
+  if (activeTeamAccess) throw new Error("A migração de segurança deve ser concluída pelo proprietário da oficina.");
+  const [clientsSnapshot, budgetsSnapshot] = await Promise.all([
+    getDocs(collection(db, "workspaces", uid, "clientes")),
+    getDocs(collection(db, "workspaces", uid, "orcamentos"))
+  ]);
+  const operations = [];
+  const legacyShareIds = [];
+  clientsSnapshot.docs.forEach((record) => {
+    operations.push({ ref: doc(db, "workspaces", uid, CLIENT_SUMMARY_COLLECTION, record.id), value: sanitizeClientSummary(record.data()) });
+  });
+  budgetsSnapshot.docs.forEach((record) => {
+    const budget = record.data() || {};
+    operations.push({ ref: record.ref, value: sanitizeBudgetForTeam(budget) });
+    operations.push({ ref: doc(db, "workspaces", uid, BUDGET_COST_COLLECTION, record.id), value: extractBudgetCosts(budget) });
+    const legacyShareId = String(budget.publicShareId || "");
+    if (/^[a-zA-Z0-9_-]{1,23}$/.test(legacyShareId)) legacyShareIds.push(legacyShareId);
+  });
+  const uniqueLegacyShareIds = [...new Set(legacyShareIds)];
+  for (let start = 0; start < uniqueLegacyShareIds.length; start += 50) {
+    const ids = uniqueLegacyShareIds.slice(start, start + 50);
+    const snapshots = await Promise.all(ids.map((shareId) => getDoc(doc(db, "public_orcamentos", shareId))));
+    snapshots.forEach((snapshot) => {
+      if (snapshot.exists() && snapshot.data()?.owner === uid) operations.push({ ref: snapshot.ref, type: "delete" });
+    });
+  }
+  for (let start = 0; start < operations.length; start += MIGRATION_BATCH_SIZE) {
+    const batch = writeBatch(db);
+    operations.slice(start, start + MIGRATION_BATCH_SIZE).forEach(({ ref, value, type }) => {
+      if (type === "delete") batch.delete(ref);
+      else batch.set(ref, value);
+    });
+    await batch.commit();
+  }
+  await setDoc(doc(db, "workspaces", uid), {
+    schemaVersion: APP_SCHEMA_VERSION,
+    securityMigration: { version: APP_SCHEMA_VERSION, completedAt: serverTimestamp() },
+    updatedAt: serverTimestamp()
+  }, { merge: true });
 }
 
 async function cleanupVerifiedLegacyData(uid, workspace, v2Data) {
@@ -855,6 +1447,7 @@ async function saveLegacyCloudData() {
 
 async function flushV2Changes() {
   if (!currentUser || !db || !activeWorkspaceId || !pendingCollectionChanges.size) return;
+  const secureSchema = workspaceSchemaVersion >= APP_SCHEMA_VERSION;
   const changes = Array.from(pendingCollectionChanges.entries());
   pendingCollectionChanges.clear();
   changes.forEach(([key]) => savingCollectionKeys.add(key));
@@ -864,10 +1457,36 @@ async function flushV2Changes() {
         ...Array.from(change.upserts.entries()).map(([id, value]) => ({ type: "set", id, value })),
         ...Array.from(change.deletes).map((id) => ({ type: "delete", id }))
       ];
-      for (let start = 0; start < operations.length; start += MIGRATION_BATCH_SIZE) {
+      for (let start = 0; start < operations.length; start += 150) {
         const batch = writeBatch(db);
-        operations.slice(start, start + MIGRATION_BATCH_SIZE).forEach((operation) => {
+        operations.slice(start, start + 150).forEach((operation) => {
           const ref = doc(db, "workspaces", activeWorkspaceId, getCollectionName(key), operation.id);
+          if (secureSchema && key === "rr_orcamentos") {
+            const costRef = doc(db, "workspaces", activeWorkspaceId, BUDGET_COST_COLLECTION, operation.id);
+            if (operation.type === "set") {
+              batch.set(ref, sanitizeBudgetForTeam(operation.value));
+              if (!activeTeamAccess || (window.rrHasPermission("orcamentosGerenciar") && window.rrHasPermission("orcamentosVerCustos"))) {
+                batch.set(costRef, extractBudgetCosts(operation.value));
+              } else if (window.rrHasPermission("aprovarOrcamentos")) {
+                batch.set(costRef, extractBudgetPaymentCosts(operation.value), { merge: true });
+              }
+            } else {
+              batch.delete(ref);
+              if (!activeTeamAccess || window.rrHasPermission("orcamentosVerCustos")) batch.delete(costRef);
+            }
+            return;
+          }
+          if (secureSchema && key === "rr_clientes") {
+            const summaryRef = doc(db, "workspaces", activeWorkspaceId, CLIENT_SUMMARY_COLLECTION, operation.id);
+            if (operation.type === "set") {
+              batch.set(ref, operation.value);
+              batch.set(summaryRef, sanitizeClientSummary(operation.value));
+            } else {
+              batch.delete(ref);
+              batch.delete(summaryRef);
+            }
+            return;
+          }
           if (operation.type === "set") batch.set(ref, operation.value);
           else batch.delete(ref);
         });
@@ -908,15 +1527,17 @@ function mergePendingChange(key, incoming) {
 function persistCloudData() {
   clearTimeout(saveTimer);
   saveQueue = saveQueue.catch(() => {}).then(() => (
-    workspaceSchemaVersion >= APP_SCHEMA_VERSION ? flushV2Changes() : saveLegacyCloudData()
+    workspaceSchemaVersion >= 2 ? flushV2Changes() : saveLegacyCloudData()
   ));
   return saveQueue;
 }
 
 window.rrPersistAppData = async (storageKey = "") => {
   if (cloudReady === false) throw new Error('A sincronizacao ainda nao esta pronta.');
-  if (workspaceSchemaVersion >= APP_SCHEMA_VERSION) {
-    const keys = (APP_KEYS.includes(storageKey) ? [storageKey] : APP_KEYS).filter((key) => canAccessStorageKey(key, true));
+  if (workspaceSchemaVersion >= 2) {
+    const keys = (APP_KEYS.includes(storageKey) ? [storageKey] : APP_KEYS)
+      .filter((key) => canAccessStorageKey(key, true))
+      .filter((key) => workspaceSchemaVersion >= APP_SCHEMA_VERSION || LEGACY_V2_APP_KEYS.includes(key));
     keys.forEach((key) => {
       if (pendingCollectionChanges.has(key)) return;
       queueCollectionDiff(
@@ -953,6 +1574,7 @@ function setWorkspaceBrandingContext(workspace = {}) {
 
 function dispatchWorkspaceReady() {
   if (!activeWorkspaceSubscription) return;
+  window.rrFirebaseReady = true;
   window.dispatchEvent(new CustomEvent("rr-workspace-ready", { detail: { ...activeWorkspaceSubscription } }));
 }
 
@@ -983,6 +1605,7 @@ async function saveAccessRequest(user) {
 }
 
 async function getWorkspaceAccessStatus(workspaceId) {
+  if (activeTeamAccess) return activeTeamAccess.status === "active" ? ACCESS_STATUS.ACTIVE : ACCESS_STATUS.BLOCKED;
   const snap = await getDoc(doc(db, "workspaces", workspaceId));
   if (!snap.exists()) return ACCESS_STATUS.ACTIVE;
   return snap.data().accessStatus || ACCESS_STATUS.ACTIVE;
@@ -1012,6 +1635,10 @@ function bindMeuCadastroEvents() {
   document.getElementById("teamMemberForm")?.addEventListener("submit", saveTeamMember);
   document.getElementById("teamMemberRole")?.addEventListener("change", applyTeamRoleProfile);
   document.getElementById("teamMemberCancel")?.addEventListener("click", resetTeamMemberForm);
+  document.querySelectorAll("[data-team-permission]").forEach((input) => input.addEventListener("change", () => {
+    enforceTeamPermissionDependencies(input);
+    markTeamRoleAsCustomIfNeeded();
+  }));
   if (!document.getElementById("meuCadastroForm")) return;
   document.getElementById("meuCadastroForm").addEventListener("submit", saveMeuCadastro);
   document.getElementById("empresaPersonalizacaoForm")?.addEventListener("submit", saveEmpresaPersonalizacao);
@@ -1031,7 +1658,106 @@ function bindMeuCadastroEvents() {
 
 function normalizeTeamPermissions(role = "custom", permissions = {}) {
   const profile = TEAM_ROLE_PROFILES[role] || TEAM_ROLE_PROFILES.custom;
-  return TEAM_PERMISSION_KEYS.reduce((result, key) => ({ ...result, [key]: key === "dashboard" ? true : permissions[key] ?? profile.permissions[key] === true }), {});
+  const hasGranularPermissions = TEAM_PERMISSION_KEYS.some((key) => Object.prototype.hasOwnProperty.call(permissions, key));
+  const hasLegacyPermissions = ["dashboard", "clientes", "orcamentos", "aprovarOrcamentos", "financeiro", "dre", "inspecoes"]
+    .some((key) => Object.prototype.hasOwnProperty.call(permissions, key));
+  const legacy = {
+    dashboardOperacional: permissions.dashboard !== false,
+    dashboardComercial: permissions.orcamentos === true || permissions.aprovarOrcamentos === true,
+    dashboardFinanceiro: permissions.financeiro === true || permissions.dre === true,
+    clientesVer: permissions.clientes === true,
+    clientesGerenciar: permissions.clientes === true,
+    clientesExcluir: role === "manager" && permissions.clientes === true,
+    clientesDadosSensiveis: permissions.clientes === true,
+    veiculosVer: permissions.clientes === true,
+    veiculosGerenciar: permissions.clientes === true,
+    orcamentosVer: permissions.orcamentos === true || permissions.aprovarOrcamentos === true,
+    orcamentosGerenciar: permissions.orcamentos === true,
+    orcamentosExcluir: role === "manager" && permissions.orcamentos === true,
+    orcamentosVerCustos: permissions.financeiro === true || permissions.dre === true || role === "manager",
+    aprovarOrcamentos: permissions.aprovarOrcamentos === true,
+    ordensServicoVer: permissions.inspecoes === true,
+    ordensServicoGerenciar: role === "mechanic" && permissions.inspecoes === true,
+    ordensServicoAtribuir: role === "manager" && permissions.orcamentos === true,
+    financeiroVer: permissions.financeiro === true,
+    financeiroGerenciar: permissions.financeiro === true,
+    financeiroExportar: permissions.financeiro === true,
+    dreVer: permissions.dre === true,
+    dreConfigurar: permissions.dre === true && role !== "financial",
+    dreExportar: permissions.dre === true,
+    inspecoesVer: permissions.inspecoes === true,
+    inspecoesGerenciar: permissions.inspecoes === true
+  };
+  const fallback = hasGranularPermissions || !hasLegacyPermissions ? profile.permissions : { ...profile.permissions, ...legacy };
+  const normalized = TEAM_PERMISSION_KEYS.reduce((result, key) => {
+    result[key] = permissions[key] !== undefined ? permissions[key] === true : fallback[key] === true;
+    return result;
+  }, {});
+
+  if (normalized.clientesGerenciar) normalized.clientesDadosSensiveis = true;
+  if (normalized.clientesGerenciar || normalized.clientesExcluir || normalized.clientesDadosSensiveis) normalized.clientesVer = true;
+  if (normalized.veiculosGerenciar) normalized.veiculosVer = true;
+  if (normalized.orcamentosGerenciar) {
+    normalized.clientesVer = true;
+    normalized.veiculosVer = true;
+  }
+  if (normalized.orcamentosGerenciar || normalized.orcamentosExcluir || normalized.aprovarOrcamentos) normalized.orcamentosVer = true;
+  if (normalized.ordensServicoGerenciar || normalized.ordensServicoAtribuir) normalized.ordensServicoVer = true;
+  if (normalized.financeiroGerenciar || normalized.financeiroExportar) normalized.financeiroVer = true;
+  if (normalized.dreConfigurar || normalized.dreExportar) normalized.dreVer = true;
+  if (normalized.inspecoesGerenciar) normalized.inspecoesVer = true;
+  if (normalized.dashboardComercial && !normalized.orcamentosVer && !normalized.clientesVer) normalized.dashboardComercial = false;
+  if (normalized.dashboardFinanceiro && !normalized.financeiroVer && !normalized.dreVer) normalized.dashboardFinanceiro = false;
+  return normalized;
+}
+
+function teamPermissionsMatchRole(role, permissions) {
+  if (!TEAM_ROLE_PROFILES[role] || role === "custom") return role === "custom";
+  const selected = normalizeTeamPermissions("custom", permissions);
+  const preset = normalizeTeamPermissions(role, TEAM_ROLE_PROFILES[role].permissions);
+  return TEAM_PERMISSION_KEYS.every((key) => selected[key] === preset[key]);
+}
+
+function markTeamRoleAsCustomIfNeeded() {
+  const roleSelect = document.getElementById("teamMemberRole");
+  if (!roleSelect || roleSelect.value === "custom") return;
+  const permissions = {};
+  document.querySelectorAll("[data-team-permission]").forEach((input) => { permissions[input.dataset.teamPermission] = input.checked; });
+  if (!teamPermissionsMatchRole(roleSelect.value, permissions)) roleSelect.value = "custom";
+}
+
+function enforceTeamPermissionDependencies(changedInput) {
+  const prerequisites = {
+    clientesGerenciar: ["clientesVer", "clientesDadosSensiveis"],
+    clientesExcluir: ["clientesVer"],
+    clientesDadosSensiveis: ["clientesVer"],
+    veiculosGerenciar: ["veiculosVer"],
+    orcamentosGerenciar: ["orcamentosVer", "clientesVer", "veiculosVer"],
+    orcamentosExcluir: ["orcamentosVer"],
+    aprovarOrcamentos: ["orcamentosVer"],
+    ordensServicoGerenciar: ["ordensServicoVer"],
+    ordensServicoAtribuir: ["ordensServicoVer"],
+    financeiroGerenciar: ["financeiroVer"],
+    financeiroExportar: ["financeiroVer"],
+    dreConfigurar: ["dreVer"],
+    dreExportar: ["dreVer"],
+    inspecoesGerenciar: ["inspecoesVer"]
+  };
+  const inputs = new Map(Array.from(document.querySelectorAll("[data-team-permission]")).map((input) => [input.dataset.teamPermission, input]));
+  const setChecked = (permission, checked, visited = new Set()) => {
+    if (visited.has(permission)) return;
+    visited.add(permission);
+    const input = inputs.get(permission);
+    if (input) input.checked = checked;
+    if (checked) {
+      (prerequisites[permission] || []).forEach((required) => setChecked(required, true, visited));
+      return;
+    }
+    Object.entries(prerequisites).forEach(([dependent, required]) => {
+      if (required.includes(permission)) setChecked(dependent, false, visited);
+    });
+  };
+  setChecked(changedInput.dataset.teamPermission, changedInput.checked);
 }
 
 function applyTeamRoleProfile() {
@@ -1051,10 +1777,11 @@ function resetTeamMemberForm() {
 }
 
 function getTeamMemberPayload() {
-  const role = document.getElementById("teamMemberRole").value || "custom";
-  const permissions = { dashboard: true };
+  let role = document.getElementById("teamMemberRole").value || "custom";
+  const permissions = {};
   document.querySelectorAll("[data-team-permission]").forEach((input) => { permissions[input.dataset.teamPermission] = input.checked; });
-  return { email: normalizeEmail(document.getElementById("teamMemberEmail").value), name: document.getElementById("teamMemberName").value.trim(), role, roleName: TEAM_ROLE_PROFILES[role]?.name || "Personalizado", status: document.getElementById("teamMemberStatus").value === "blocked" ? "blocked" : "active", permissions: normalizeTeamPermissions("custom", permissions) };
+  if (!teamPermissionsMatchRole(role, permissions)) role = "custom";
+  return { email: normalizeEmail(document.getElementById("teamMemberEmail").value), name: document.getElementById("teamMemberName").value.trim(), role, roleName: TEAM_ROLE_PROFILES[role]?.name || "Personalizado", status: document.getElementById("teamMemberStatus").value === "blocked" ? "blocked" : "active", permissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION, permissions: normalizeTeamPermissions("custom", permissions) };
 }
 
 async function saveTeamMember(event) {
@@ -1080,16 +1807,32 @@ async function saveTeamMember(event) {
     document.getElementById("teamAccessMessage").textContent = "Este e-mail já está na equipe.";
     return;
   }
+  const previousPermissions = existingIndex >= 0
+    ? normalizeTeamPermissions(members[existingIndex].role || "custom", members[existingIndex].permissions || {})
+    : {};
+  const newlyGrantedSensitive = TEAM_SENSITIVE_PERMISSION_KEYS.filter((permission) => member.permissions[permission] && !previousPermissions[permission]);
+  if (newlyGrantedSensitive.length) {
+    const labels = newlyGrantedSensitive.map((permission) => TEAM_PERMISSION_LABELS[permission] || permission).join(", ");
+    const confirmed = await showAuthConfirmModal(
+      "Confirmar acessos sensíveis",
+      `Você está liberando: ${labels}. Confirme somente se isso for necessário para o trabalho desta pessoa.`,
+      "Liberar acessos",
+      "primary"
+    );
+    if (!confirmed) return;
+  }
   const saved = { ...member, updatedAt: new Date().toISOString(), createdAt: existingIndex >= 0 ? members[existingIndex].createdAt || new Date().toISOString() : new Date().toISOString() };
   if (existingIndex >= 0) members[existingIndex] = saved; else members.push(saved);
   const batch = writeBatch(db);
-  batch.set(doc(db, "workspaces", activeWorkspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+  batch.set(doc(db, "workspaces", activeWorkspaceId), { teamMembers: members, teamAccessEmails: members.map((item) => normalizeEmail(item.email)), teamPermissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
   batch.set(doc(db, "team_access", member.email), { ...saved, workspaceId: activeWorkspaceId, ownerEmail: activeWorkspaceData?.ownerEmail || currentUser.email, businessName: activeWorkspaceData?.businessName || "", updatedAt: serverTimestamp() });
   if (originalEmail && originalEmail !== member.email) batch.delete(doc(db, "team_access", originalEmail));
   document.getElementById("teamAccessMessage").textContent = "Salvando colaborador...";
   try {
+    await publishWorkspaceSettings(activeWorkspaceId, activeWorkspaceData || {});
     await batch.commit();
     activeWorkspaceData.teamMembers = members;
+    await publishWorkspaceSettings(activeWorkspaceId, activeWorkspaceData);
     document.getElementById("teamAccessMessage").textContent = "Colaborador salvo.";
     resetTeamMemberForm();
     renderTeamManagement();
@@ -1100,6 +1843,19 @@ async function saveTeamMember(event) {
 
 function getTeamInviteUrl(email) {
   return `${window.location.origin}${window.location.pathname.replace(/[^/]+$/, "cadastro-acesso.html")}?equipe=${encodeURIComponent(email)}`;
+}
+
+function getTeamPermissionBadges(member = {}) {
+  const permissions = normalizeTeamPermissions(member.role || "custom", member.permissions || {});
+  const priority = [
+    "dashboardOperacional", "dashboardComercial", "dashboardFinanceiro",
+    "clientesGerenciar", "orcamentosGerenciar", "aprovarOrcamentos", "orcamentosVerCustos",
+    "ordensServicoGerenciar", "financeiroGerenciar", "dreVer", "inspecoesGerenciar"
+  ];
+  const enabled = priority.filter((key) => permissions[key]);
+  const visible = enabled.slice(0, 6).map((key) => `<span>${escapeHtml(TEAM_PERMISSION_LABELS[key] || key)}</span>`).join("");
+  const remaining = enabled.length - 6;
+  return visible + (remaining > 0 ? `<span>+${remaining} acessos</span>` : "");
 }
 
 function renderTeamManagement() {
@@ -1120,7 +1876,7 @@ function renderTeamManagement() {
     if (window.location.hash === "#teamAccessPanel") requestAnimationFrame(() => panel.scrollIntoView({ behavior: "smooth", block: "start" }));
     return;
   }
-  list.innerHTML = members.map((member) => `<article class="team-member-card"><div><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.email)}</span><small>${escapeHtml(member.roleName || TEAM_ROLE_PROFILES[member.role]?.name || "Personalizado")} · ${member.status === "blocked" ? "Bloqueado" : "Ativo"}</small></div><div class="team-member-permission-list">${TEAM_PERMISSION_KEYS.filter((key) => key !== "dashboard" && member.permissions?.[key]).map((key) => `<span>${escapeHtml({ clientes: "Clientes", orcamentos: "Orçamentos", aprovarOrcamentos: "Aprovar", financeiro: "Financeiro", dre: "DRE", inspecoes: "Inspeções" }[key])}</span>`).join("") || `<span>Somente dashboard</span>`}</div><div class="actions"><button class="btn btn-muted" type="button" data-team-copy="${escapeHtml(member.email)}">Copiar convite</button><button class="btn btn-ghost" type="button" data-team-edit="${escapeHtml(member.email)}">Editar</button><button class="btn btn-danger" type="button" data-team-remove="${escapeHtml(member.email)}">Remover</button></div></article>`).join("") || `<div class="empty-state muted">Nenhum colaborador cadastrado.</div>`;
+  list.innerHTML = members.map((member) => `<article class="team-member-card"><div><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.email)}</span><small>${escapeHtml(member.roleName || TEAM_ROLE_PROFILES[member.role]?.name || "Personalizado")} · ${member.status === "blocked" ? "Bloqueado" : "Ativo"}</small></div><div class="team-member-permission-list">${getTeamPermissionBadges(member) || `<span>Acesso mínimo</span>`}</div><div class="actions"><button class="btn btn-muted" type="button" data-team-copy="${escapeHtml(member.email)}">Copiar convite</button><button class="btn btn-ghost" type="button" data-team-edit="${escapeHtml(member.email)}">Editar</button><button class="btn btn-danger" type="button" data-team-remove="${escapeHtml(member.email)}">Remover</button></div></article>`).join("") || `<div class="empty-state muted">Nenhum colaborador cadastrado.</div>`;
   list.querySelectorAll("[data-team-copy]").forEach((button) => button.addEventListener("click", async () => { await navigator.clipboard.writeText(getTeamInviteUrl(button.dataset.teamCopy)); button.textContent = "Convite copiado"; }));
   list.querySelectorAll("[data-team-edit]").forEach((button) => button.addEventListener("click", () => editTeamMember(button.dataset.teamEdit)));
   list.querySelectorAll("[data-team-remove]").forEach((button) => button.addEventListener("click", () => removeTeamMember(button.dataset.teamRemove)));
@@ -1135,7 +1891,8 @@ function editTeamMember(email) {
   document.getElementById("teamMemberEmail").value = member.email || "";
   document.getElementById("teamMemberRole").value = member.role || "custom";
   document.getElementById("teamMemberStatus").value = member.status || "active";
-  document.querySelectorAll("[data-team-permission]").forEach((input) => { input.checked = member.permissions?.[input.dataset.teamPermission] === true; });
+  const permissions = normalizeTeamPermissions(member.role || "custom", member.permissions || {});
+  document.querySelectorAll("[data-team-permission]").forEach((input) => { input.checked = permissions[input.dataset.teamPermission] === true; });
   document.getElementById("teamMemberForm").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
@@ -1143,10 +1900,11 @@ async function removeTeamMember(email) {
   if (!await showAuthConfirmModal("Remover colaborador", `Deseja remover o acesso de ${email}?`)) return;
   const members = (activeWorkspaceData?.teamMembers || []).filter((item) => normalizeEmail(item.email) !== normalizeEmail(email));
   const batch = writeBatch(db);
-  batch.set(doc(db, "workspaces", activeWorkspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+  batch.set(doc(db, "workspaces", activeWorkspaceId), { teamMembers: members, teamAccessEmails: members.map((item) => normalizeEmail(item.email)), teamPermissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
   batch.delete(doc(db, "team_access", normalizeEmail(email)));
   await batch.commit();
   activeWorkspaceData.teamMembers = members;
+  await publishWorkspaceSettings(activeWorkspaceId, activeWorkspaceData);
   renderTeamManagement();
 }
 
@@ -1628,7 +2386,8 @@ async function saveMeuCadastro(event) {
       },
       updatedAt: serverTimestamp()
     }, { merge: true });
-    setWorkspaceBrandingContext({
+    const updatedWorkspace = {
+      ...currentData,
       ownerEmail: activeWorkspaceEmail || currentUser.email,
       businessName,
       ...customization,
@@ -1640,7 +2399,10 @@ async function saveMeuCadastro(event) {
         documentoTipo: docType,
         documento: formatCadastroDocument(document.getElementById("meuCadastroDocumento").value, docType)
       }
-    });
+    };
+    activeWorkspaceData = { ...(activeWorkspaceData || {}), ...updatedWorkspace };
+    setWorkspaceBrandingContext(updatedWorkspace);
+    await publishWorkspaceSettings(activeWorkspaceId, updatedWorkspace);
     updatePersonalizacaoPreview();
     setMeuCadastroStatus("Cadastro salvo.");
   } catch (error) {
@@ -1731,12 +2493,16 @@ async function saveEmpresaPersonalizacao(event) {
       ...customization,
       updatedAt: serverTimestamp()
     }, { merge: true });
-    setWorkspaceBrandingContext({
+    const updatedWorkspace = {
+      ...(activeWorkspaceData || {}),
       ownerEmail: activeWorkspaceEmail || currentUser.email,
       businessName,
       ...customization,
       registration: { empresa: businessName }
-    });
+    };
+    activeWorkspaceData = updatedWorkspace;
+    setWorkspaceBrandingContext(updatedWorkspace);
+    await publishWorkspaceSettings(activeWorkspaceId, updatedWorkspace);
     updatePersonalizacaoPreview();
     setMeuCadastroPersonalizacaoStatus("Personalização salva.");
   } catch (error) {
@@ -2108,7 +2874,7 @@ function showOnboarding(force = false, cloudStep = 0) {
   document.body.appendChild(overlay);
   render();
 }
-function showAuthConfirmModal(title, message) {
+function showAuthConfirmModal(title, message, confirmLabel = "Excluir", confirmVariant = "danger") {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "auth-modal-overlay";
@@ -2119,7 +2885,7 @@ function showAuthConfirmModal(title, message) {
         <p>${escapeHtml(message)}</p>
         <div class="auth-modal-actions">
           <button class="btn btn-muted" type="button" data-confirm-value="false">Cancelar</button>
-          <button class="btn btn-danger" type="button" data-confirm-value="true">Excluir</button>
+          <button class="btn btn-${escapeHtml(confirmVariant)}" type="button" data-confirm-value="true">${escapeHtml(confirmLabel)}</button>
         </div>
       </div>
     `;
@@ -2560,11 +3326,11 @@ function getBillingMarkup(workspace) {
 
 function getAdminTeamMarkup(workspace, subscription, members) {
   const id = escapeHtml(workspace.id);
-  const permissionLabels = { clientes: "Clientes", orcamentos: "Orçamentos", aprovarOrcamentos: "Aprovar", financeiro: "Financeiro", dre: "DRE", inspecoes: "Inspeções" };
+  const permissionLabels = TEAM_PERMISSION_LABELS;
   const cards = members.map((member) => `
     <article class="admin-team-member">
       <div><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.email)}</span><small>${escapeHtml(member.roleName || TEAM_ROLE_PROFILES[member.role]?.name || "Personalizado")} · ${member.status === "blocked" ? "Bloqueado" : "Ativo"}</small></div>
-      <div class="team-member-permission-list">${TEAM_PERMISSION_KEYS.filter((key) => key !== "dashboard" && member.permissions?.[key]).map((key) => `<span>${permissionLabels[key]}</span>`).join("") || "<span>Somente dashboard</span>"}</div>
+      <div class="team-member-permission-list">${getTeamPermissionBadges(member) || "<span>Acesso mínimo</span>"}</div>
       <div class="actions"><button class="btn btn-muted" type="button" data-admin-team-copy="${escapeHtml(member.email)}">Copiar convite</button><button class="btn btn-ghost" type="button" data-admin-team-edit="${escapeHtml(member.email)}" data-workspace-id="${id}">Editar</button><button class="btn ${member.status === "blocked" ? "btn-primary" : "btn-danger"}" type="button" data-admin-team-status="${escapeHtml(member.email)}" data-workspace-id="${id}" data-next-status="${member.status === "blocked" ? "active" : "blocked"}">${member.status === "blocked" ? "Desbloquear" : "Bloquear"}</button><button class="btn btn-danger" type="button" data-admin-team-remove="${escapeHtml(member.email)}" data-workspace-id="${id}">Remover</button></div>
     </article>`).join("") || `<div class="admin-empty">Nenhum colaborador cadastrado.</div>`;
   return `
@@ -2851,6 +3617,14 @@ function applyAdminTeamRole(form) {
   form.querySelectorAll("[data-admin-team-permission]").forEach((input) => { input.checked = permissions[input.dataset.adminTeamPermission] === true; });
 }
 
+function markAdminTeamRoleAsCustom(form) {
+  const roleSelect = form?.querySelector("[data-admin-team-field='role']");
+  if (!roleSelect || roleSelect.value === "custom") return;
+  const permissions = {};
+  form.querySelectorAll("[data-admin-team-permission]").forEach((input) => { permissions[input.dataset.adminTeamPermission] = input.checked; });
+  if (!teamPermissionsMatchRole(roleSelect.value, permissions)) roleSelect.value = "custom";
+}
+
 function resetAdminTeamForm(form) {
   if (!form) return;
   form.reset();
@@ -2869,6 +3643,7 @@ function bindAdminTeamEvents(list) {
     resetAdminTeamForm(form);
     form.addEventListener("submit", saveAdminTeamMember);
     form.querySelector("[data-admin-team-field='role']").addEventListener("change", () => applyAdminTeamRole(form));
+    form.querySelectorAll("[data-admin-team-permission]").forEach((input) => input.addEventListener("change", () => markAdminTeamRoleAsCustom(form)));
     form.querySelector("[data-admin-team-cancel]").addEventListener("click", () => resetAdminTeamForm(form));
   });
   list.querySelectorAll("[data-admin-team-copy]").forEach((button) => button.addEventListener("click", async () => {
@@ -2890,10 +3665,11 @@ async function saveAdminTeamMember(event) {
   const originalEmail = normalizeEmail(form.querySelector("[data-admin-team-field='originalEmail']").value);
   const email = normalizeEmail(form.querySelector("[data-admin-team-field='email']").value);
   const name = form.querySelector("[data-admin-team-field='name']").value.trim();
-  const role = form.querySelector("[data-admin-team-field='role']").value;
+  let role = form.querySelector("[data-admin-team-field='role']").value;
   const status = form.querySelector("[data-admin-team-field='status']").value === "blocked" ? "blocked" : "active";
-  const permissions = { dashboard: true };
+  const permissions = {};
   form.querySelectorAll("[data-admin-team-permission]").forEach((input) => { permissions[input.dataset.adminTeamPermission] = input.checked; });
+  if (!teamPermissionsMatchRole(role, permissions)) role = "custom";
   const members = Array.isArray(workspace.teamMembers) ? [...workspace.teamMembers] : [];
   const existingIndex = members.findIndex((item) => normalizeEmail(item.email) === (originalEmail || email));
   if (!name || !email) return;
@@ -2901,16 +3677,18 @@ async function saveAdminTeamMember(event) {
   if (existingIndex < 0 && members.length >= TEAM_MEMBER_LIMIT) { message.textContent = "Limite de quatro colaboradores atingido."; return; }
   if (members.some((item, index) => index !== existingIndex && normalizeEmail(item.email) === email)) { message.textContent = "Este e-mail já está na equipe."; return; }
   const previous = existingIndex >= 0 ? members[existingIndex] : {};
-  const saved = { email, name, role, roleName: TEAM_ROLE_PROFILES[role]?.name || "Personalizado", status, permissions: normalizeTeamPermissions("custom", permissions), createdAt: previous.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
+  const saved = { email, name, role, roleName: TEAM_ROLE_PROFILES[role]?.name || "Personalizado", status, permissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION, permissions: normalizeTeamPermissions("custom", permissions), createdAt: previous.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
   if (existingIndex >= 0) members[existingIndex] = saved; else members.push(saved);
   message.textContent = "Salvando colaborador...";
   try {
+    await publishWorkspaceSettings(workspaceId, workspace);
     const batch = writeBatch(db);
-    batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+    batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamAccessEmails: members.map((item) => normalizeEmail(item.email)), teamPermissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION, teamUpdatedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
     batch.set(doc(db, "team_access", email), { ...saved, workspaceId, ownerEmail: workspace.ownerEmail || "", businessName: workspace.businessName || workspace.registration?.empresa || "", updatedAt: serverTimestamp() });
     if (originalEmail && originalEmail !== email) batch.delete(doc(db, "team_access", originalEmail));
     await batch.commit();
     workspace.teamMembers = members;
+    await publishWorkspaceSettings(workspaceId, workspace);
     renderAdminWorkspaceList();
   } catch (error) { message.textContent = firebaseError(error); }
 }
@@ -2927,7 +3705,8 @@ function editAdminTeamMember(workspaceId, email) {
   form.querySelector("[data-admin-team-field='email']").value = member.email || "";
   form.querySelector("[data-admin-team-field='role']").value = member.role || "custom";
   form.querySelector("[data-admin-team-field='status']").value = member.status || "active";
-  form.querySelectorAll("[data-admin-team-permission]").forEach((input) => { input.checked = member.permissions?.[input.dataset.adminTeamPermission] === true; });
+  const permissions = normalizeTeamPermissions(member.role || "custom", member.permissions || {});
+  form.querySelectorAll("[data-admin-team-permission]").forEach((input) => { input.checked = permissions[input.dataset.adminTeamPermission] === true; });
   form.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
@@ -2937,10 +3716,11 @@ async function updateAdminTeamMemberStatus(workspaceId, email, status) {
   const member = members.find((item) => normalizeEmail(item.email) === normalizeEmail(email));
   if (!workspace || !member) return;
   const batch = writeBatch(db);
-  batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp() }, { merge: true });
+  batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamAccessEmails: members.map((item) => normalizeEmail(item.email)), teamPermissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION, teamUpdatedAt: serverTimestamp() }, { merge: true });
   batch.set(doc(db, "team_access", normalizeEmail(email)), { ...member, workspaceId, ownerEmail: workspace.ownerEmail || "", businessName: workspace.businessName || workspace.registration?.empresa || "", updatedAt: serverTimestamp() }, { merge: true });
   await batch.commit();
   workspace.teamMembers = members;
+  await publishWorkspaceSettings(workspaceId, workspace);
   renderAdminWorkspaceList();
 }
 
@@ -2950,10 +3730,11 @@ async function removeAdminTeamMember(workspaceId, email) {
   if (!workspace) return;
   const members = (workspace.teamMembers || []).filter((member) => normalizeEmail(member.email) !== normalizeEmail(email));
   const batch = writeBatch(db);
-  batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamUpdatedAt: serverTimestamp() }, { merge: true });
+  batch.set(doc(db, "workspaces", workspaceId), { teamMembers: members, teamAccessEmails: members.map((item) => normalizeEmail(item.email)), teamPermissionSchemaVersion: TEAM_PERMISSION_SCHEMA_VERSION, teamUpdatedAt: serverTimestamp() }, { merge: true });
   batch.delete(doc(db, "team_access", normalizeEmail(email)));
   await batch.commit();
   workspace.teamMembers = members;
+  await publishWorkspaceSettings(workspaceId, workspace);
   renderAdminWorkspaceList();
 }
 
@@ -3005,6 +3786,7 @@ async function updateWorkspacePlan(workspaceId) {
     updatedAt: serverTimestamp()
   }, { merge: true });
   if (previous) { previous.subscription = subscription; previous.billing = billing; }
+  await publishWorkspaceSettings(workspaceId, previous || { subscription });
   renderAdminWorkspaceList();
 }
 
@@ -3021,7 +3803,8 @@ async function deleteWorkspace(workspaceId, email) {
     teamMembers.slice(start, start + MIGRATION_BATCH_SIZE).forEach((member) => batch.delete(doc(db, "team_access", normalizeEmail(member.email))));
     await batch.commit();
   }
-  for (const collectionName of Object.values(APP_COLLECTIONS)) {
+  const workspaceCollections = [...new Set([...Object.values(APP_COLLECTIONS), CLIENT_SUMMARY_COLLECTION, BUDGET_COST_COLLECTION, "settings"] )];
+  for (const collectionName of workspaceCollections) {
     const records = await getDocs(collection(db, "workspaces", workspaceId, collectionName));
     for (let start = 0; start < records.docs.length; start += MIGRATION_BATCH_SIZE) {
       const batch = writeBatch(db);
@@ -3092,7 +3875,9 @@ function patchLocalStorageSync() {
     const previousValue = APP_KEYS.includes(key) ? localStorage.getItem(key) : null;
     originalSetItem(key, value);
     if (!APP_KEYS.includes(key) || !cloudReady || syncingFromCloud || !canAccessStorageKey(key, true)) return;
-    if (workspaceSchemaVersion >= APP_SCHEMA_VERSION) queueCollectionDiff(key, previousValue, value);
+    if (workspaceSchemaVersion >= 2 && (workspaceSchemaVersion >= APP_SCHEMA_VERSION || LEGACY_V2_APP_KEYS.includes(key))) {
+      queueCollectionDiff(key, previousValue, value);
+    }
     scheduleCloudSave();
   };
 }
@@ -3124,10 +3909,15 @@ function startCollectionListeners(uid) {
   if (workspaceSchemaVersion < APP_SCHEMA_VERSION) return;
   getAccessibleAppKeys().forEach((key) => {
     const unsubscribe = onSnapshot(
-      collection(db, "workspaces", uid, getCollectionName(key)),
-      (snapshot) => {
+      getCollectionSource(uid, key),
+      async (snapshot) => {
         if (!cloudReady || pendingCollectionChanges.has(key) || savingCollectionKeys.has(key)) return;
-        const records = snapshot.docs.map((record) => record.data());
+        let records = snapshot.docs.map((record) => record.data());
+        if (key === "rr_orcamentos" && canReadBudgetCosts()) {
+          const costSnapshot = await getDocs(collection(db, "workspaces", uid, BUDGET_COST_COLLECTION));
+          const costs = new Map(costSnapshot.docs.map((record) => [record.id, record.data()]));
+          records = records.map((budget, index) => mergeBudgetCosts(budget, costs.get(getRecordDocumentId(budget, index, key)) || {}));
+        }
         const current = localStorage.getItem(key) || "[]";
         const next = JSON.stringify(records);
         if (current === next) return;
@@ -3141,6 +3931,21 @@ function startCollectionListeners(uid) {
     );
     collectionUnsubscribers.push(unsubscribe);
   });
+  if (canAccessStorageKey("rr_orcamentos") && canReadBudgetCosts()) {
+    const unsubscribeCosts = onSnapshot(collection(db, "workspaces", uid, BUDGET_COST_COLLECTION), (snapshot) => {
+      if (!cloudReady || pendingCollectionChanges.has("rr_orcamentos") || savingCollectionKeys.has("rr_orcamentos")) return;
+      const costs = new Map(snapshot.docs.map((record) => [record.id, record.data()]));
+      const publicBudgets = readLocalArray("rr_orcamentos").map((budget) => sanitizeBudgetForTeam(budget));
+      const merged = publicBudgets.map((budget, index) => mergeBudgetCosts(budget, costs.get(getRecordDocumentId(budget, index, "rr_orcamentos")) || {}));
+      const next = JSON.stringify(merged);
+      confirmedCollectionState.set("rr_orcamentos", next);
+      syncingFromCloud = true;
+      localStorage.setItem("rr_orcamentos", next);
+      syncingFromCloud = false;
+      window.dispatchEvent(new CustomEvent("rr-cloud-data-updated", { detail: { key: "rr_orcamentos" } }));
+    }, (error) => console.warn("Sincronização de custos de orçamentos indisponível.", error));
+    collectionUnsubscribers.push(unsubscribeCosts);
+  }
 }
 
 function scheduleCloudSave() {
@@ -3176,15 +3981,20 @@ function setUserStatus(email) {
 
 function applyTeamAccessToInterface() {
   if (!activeTeamAccess) return;
-  const permissionByPage = { clientes: "clientes", veiculos: "clientes", orcamentos: "orcamentos", servicos: "orcamentos", "orcamento-print": "orcamentos", financeiro: "financeiro", "financeiro-print": "financeiro", dre: "dre", "dre-print": "dre", inspecao: "inspecoes", equipe: "owner", "meu-cadastro": "owner", contrato: "owner" };
-  const navPermission = { "clientes.html": "clientes", "orcamentos.html": "orcamentos", "financeiro.html": "financeiro", "dre.html": "dre", "equipe.html": "owner", "meu-cadastro.html": "owner" };
+  const permissionByPage = { clientes: "clientesVer", veiculos: "veiculosVer", orcamentos: "orcamentosVer", servicos: "orcamentosVer", "orcamento-print": "orcamentosVer", financeiro: "financeiroVer", "financeiro-print": "financeiroExportar", dre: "dreVer", "dre-print": "dreExportar", inspecao: "inspecoesVer", operacao: "ordensServicoVer", equipe: "owner", "meu-cadastro": "owner", contrato: "owner" };
+  const navPermission = { "clientes.html": "clientesVer", "orcamentos.html": "orcamentosVer", "financeiro.html": "financeiroVer", "dre.html": "dreVer", "operacao.html": "ordensServicoVer", "equipe.html": "owner", "meu-cadastro.html": "owner" };
+  document.body.dataset.teamRole = activeTeamAccess.role || "custom";
   document.querySelectorAll(".nav-menu a").forEach((link) => {
     const target = (link.getAttribute("href") || "").split(/[?#]/)[0];
     const permission = navPermission[target];
     if (permission && (permission === "owner" || !window.rrHasPermission(permission))) link.hidden = true;
   });
-  document.querySelectorAll("a[href='clientes.html']").forEach((link) => { if (!window.rrHasPermission("clientes")) link.hidden = true; });
-  document.querySelectorAll("a[href='orcamentos.html']").forEach((link) => { if (!window.rrHasPermission("orcamentos")) link.hidden = true; });
+  document.querySelectorAll("a[href='clientes.html']").forEach((link) => { if (!window.rrHasPermission("clientesVer")) link.hidden = true; });
+  document.querySelectorAll("a[href='orcamentos.html']").forEach((link) => { if (!window.rrHasPermission("orcamentosVer")) link.hidden = true; });
+  document.querySelectorAll("[data-requires-permission]").forEach((element) => {
+    const requiredPermissions = String(element.dataset.requiresPermission || "").split(/[|,]/).map((value) => value.trim()).filter(Boolean);
+    if (requiredPermissions.length && !requiredPermissions.some((permission) => window.rrHasPermission(permission))) element.hidden = true;
+  });
   const required = permissionByPage[document.body.dataset.page || ""];
   if (required && (required === "owner" || !window.rrHasPermission(required))) {
     window.location.replace("dashboard.html?acesso=negado");
@@ -3198,6 +4008,7 @@ function showAuthMessage(message) {
 
 function firebaseError(error) {
   const code = error?.code || "";
+  if (code === "team/invite-invalid") return error.message;
   if (code.includes("auth/invalid-email")) return "Informe um e-mail valido.";
   if (code.includes("auth/too-many-requests")) return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
   console.error("Firebase error:", error);

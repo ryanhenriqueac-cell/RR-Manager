@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equipe | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=124">
+  <link rel="stylesheet" href="style.css?v=128">
 </head>
 <body data-page="equipe">
   <div class="app-shell">
@@ -20,6 +20,7 @@
         <a href="orcamentos.html" data-nav="orcamentos">Or&ccedil;amentos</a>
         <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
         <a href="dre.html" data-nav="dre">DRE <small>PRO</small></a>
+        <a href="operacao.html" data-nav="operacao">Opera&ccedil;&atilde;o</a>
         <a href="equipe.html" data-nav="equipe">Equipe <small>PRO</small></a>
         <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
       </nav>
@@ -31,13 +32,187 @@
       <section class="form-panel team-access-panel" id="teamAccessPanel">
         <div class="panel-header"><div><p class="eyebrow">Gest&atilde;o de acessos</p><h2>Colaboradores</h2></div><span id="teamAccessCount" class="team-access-count"></span></div>
         <p>Convide at&eacute; quatro colaboradores. Cada pessoa usa o pr&oacute;prio e-mail e acessa somente as &aacute;reas autorizadas.</p>
+        <div class="team-access-guidance" role="note">
+          <strong>Princ&iacute;pio do menor acesso</strong>
+          <span>Libere apenas o que a pessoa precisa para trabalhar. Custos, faturamento, exporta&ccedil;&otilde;es e dados pessoais exigem cuidado adicional.</span>
+        </div>
+        <div class="team-role-guide" aria-label="Resumo dos perfis sugeridos">
+          <article><strong>Atendente</strong><span>Clientes e or&ccedil;amentos, sem custos, aprova&ccedil;&atilde;o ou financeiro.</span></article>
+          <article><strong>Mec&acirc;nico</strong><span>Somente servi&ccedil;os atribu&iacute;dos e inspe&ccedil;&otilde;es, sem dados pessoais ou valores.</span></article>
+          <article><strong>Financeiro</strong><span>Caixa, custos, DRE e exporta&ccedil;&otilde;es, sem cadastros de clientes.</span></article>
+          <article><strong>Gerente</strong><span>Opera&ccedil;&atilde;o, aprova&ccedil;&otilde;es e an&aacute;lise; equipe e configura&ccedil;&otilde;es seguem com o propriet&aacute;rio.</span></article>
+        </div>
         <form id="teamMemberForm" class="form-grid team-member-form">
           <input id="teamMemberOriginalEmail" type="hidden">
           <label>Nome do colaborador<input id="teamMemberName" required placeholder="Ex.: Jo&atilde;o da Silva"></label>
           <label>E-mail de acesso<input id="teamMemberEmail" type="email" required placeholder="joao@email.com"></label>
           <label>Perfil<select id="teamMemberRole"><option value="attendant">Atendente</option><option value="mechanic">Mec&acirc;nico</option><option value="financial">Financeiro</option><option value="manager">Gerente</option><option value="custom">Personalizado</option></select></label>
           <label>Status<select id="teamMemberStatus"><option value="active">Ativo</option><option value="blocked">Bloqueado</option></select></label>
-          <fieldset class="span-2 team-permissions"><legend>&Aacute;reas permitidas</legend><label><input type="checkbox" data-team-permission="clientes"> Clientes e ve&iacute;culos</label><label><input type="checkbox" data-team-permission="orcamentos"> Or&ccedil;amentos</label><label><input type="checkbox" data-team-permission="aprovarOrcamentos"> Aprovar or&ccedil;amentos</label><label><input type="checkbox" data-team-permission="financeiro"> Financeiro</label><label><input type="checkbox" data-team-permission="dre"> DRE</label><label><input type="checkbox" data-team-permission="inspecoes"> Inspe&ccedil;&otilde;es</label></fieldset>
+          <fieldset class="span-2 team-permissions">
+            <legend>Permiss&otilde;es do colaborador</legend>
+            <div class="team-permissions-intro">
+              <div>
+                <strong>Defina exatamente o que este colaborador pode ver e alterar</strong>
+                <span>O perfil selecionado sugere um conjunto inicial. Voc&ecirc; pode revisar cada acesso antes de salvar.</span>
+              </div>
+              <span class="team-sensitive-legend"><i aria-hidden="true"></i> Dados sens&iacute;veis</span>
+            </div>
+
+            <section class="team-permission-group" aria-labelledby="teamPermissionDashboardTitle">
+              <header class="team-permission-group-header">
+                <div><span class="team-permission-group-index">01</span><div><h3 id="teamPermissionDashboardTitle">Dashboard</h3><p>Escolha quais indicadores aparecem na p&aacute;gina inicial.</p></div></div>
+              </header>
+              <div class="team-permission-options">
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="dashboardOperacional">
+                  <span class="team-permission-copy"><strong>Painel operacional</strong><small>Visualiza volumes e andamento da opera&ccedil;&atilde;o, sem valores financeiros.</small></span>
+                </label>
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="dashboardComercial">
+                  <span class="team-permission-copy"><strong>Painel comercial</strong><small>Visualiza or&ccedil;amentos, aprova&ccedil;&otilde;es e indicadores de convers&atilde;o.</small></span>
+                </label>
+                <label class="team-permission-option team-permission-sensitive">
+                  <input type="checkbox" data-team-permission="dashboardFinanceiro">
+                  <span class="team-permission-copy"><strong>Painel financeiro <em>Sens&iacute;vel</em></strong><small>Exibe faturamento, custos, saldo e lucro no dashboard.</small></span>
+                </label>
+              </div>
+            </section>
+
+            <section class="team-permission-group" aria-labelledby="teamPermissionCustomersTitle">
+              <header class="team-permission-group-header">
+                <div><span class="team-permission-group-index">02</span><div><h3 id="teamPermissionCustomersTitle">Clientes e ve&iacute;culos</h3><p>Separe a consulta dos cadastros da permiss&atilde;o para alter&aacute;-los.</p></div></div>
+              </header>
+              <div class="team-permission-options">
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="clientesVer">
+                  <span class="team-permission-copy"><strong>Ver clientes</strong><small>Consulta a lista e os dados b&aacute;sicos dos clientes.</small></span>
+                </label>
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="clientesGerenciar">
+                  <span class="team-permission-copy"><strong>Gerenciar clientes</strong><small>Cria e altera cadastros; por isso tamb&eacute;m libera os dados pessoais.</small></span>
+                </label>
+                <label class="team-permission-option team-permission-critical">
+                  <input type="checkbox" data-team-permission="clientesExcluir">
+                  <span class="team-permission-copy"><strong>Excluir clientes <em>Cr&iacute;tico</em></strong><small>Remove definitivamente o cadastro e seus ve&iacute;culos vinculados.</small></span>
+                </label>
+                <label class="team-permission-option team-permission-sensitive">
+                  <input type="checkbox" data-team-permission="clientesDadosSensiveis">
+                  <span class="team-permission-copy"><strong>Ver dados pessoais <em>Sens&iacute;vel</em></strong><small>Libera telefone, e-mail, documento e endere&ccedil;o do cliente.</small></span>
+                </label>
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="veiculosVer">
+                  <span class="team-permission-copy"><strong>Ver ve&iacute;culos</strong><small>Consulta ve&iacute;culos, hist&oacute;rico e informa&ccedil;&otilde;es t&eacute;cnicas.</small></span>
+                </label>
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="veiculosGerenciar">
+                  <span class="team-permission-copy"><strong>Gerenciar ve&iacute;culos</strong><small>Cria e altera cadastros e informa&ccedil;&otilde;es dos ve&iacute;culos.</small></span>
+                </label>
+              </div>
+            </section>
+
+            <section class="team-permission-group" aria-labelledby="teamPermissionQuotesTitle">
+              <header class="team-permission-group-header">
+                <div><span class="team-permission-group-index">03</span><div><h3 id="teamPermissionQuotesTitle">Or&ccedil;amentos</h3><p>Controle a opera&ccedil;&atilde;o comercial sem expor custos internos.</p></div></div>
+              </header>
+              <div class="team-permission-options">
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="orcamentosVer">
+                  <span class="team-permission-copy"><strong>Ver or&ccedil;amentos</strong><small>Consulta or&ccedil;amentos e os valores apresentados ao cliente.</small></span>
+                </label>
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="orcamentosGerenciar">
+                  <span class="team-permission-copy"><strong>Criar e editar</strong><small>Monta novos or&ccedil;amentos e altera os existentes.</small></span>
+                </label>
+                <label class="team-permission-option team-permission-critical">
+                  <input type="checkbox" data-team-permission="orcamentosExcluir">
+                  <span class="team-permission-copy"><strong>Excluir or&ccedil;amentos <em>Cr&iacute;tico</em></strong><small>Permite remover registros de or&ccedil;amentos.</small></span>
+                </label>
+                <label class="team-permission-option team-permission-sensitive">
+                  <input type="checkbox" data-team-permission="orcamentosVerCustos">
+                  <span class="team-permission-copy"><strong>Ver custos e margens <em>Sens&iacute;vel</em></strong><small>Exibe custo de pe&ccedil;as, custo dos servi&ccedil;os e lucro estimado.</small></span>
+                </label>
+                <label class="team-permission-option team-permission-sensitive">
+                  <input type="checkbox" data-team-permission="aprovarOrcamentos">
+                  <span class="team-permission-copy"><strong>Aprovar or&ccedil;amentos <em>Sens&iacute;vel</em></strong><small>Autoriza a aprova&ccedil;&atilde;o e mudan&ccedil;a de status comercial.</small></span>
+                </label>
+              </div>
+            </section>
+
+            <section class="team-permission-group team-permission-financial-group" aria-labelledby="teamPermissionFinancialTitle">
+              <header class="team-permission-group-header">
+                <div><span class="team-permission-group-index">04</span><div><h3 id="teamPermissionFinancialTitle">Financeiro e DRE</h3><p>Informa&ccedil;&otilde;es estrat&eacute;gicas da oficina. Conceda somente a pessoas autorizadas.</p></div></div>
+                <span class="team-sensitive-badge">Dados sens&iacute;veis</span>
+              </header>
+              <div class="team-financial-warning" role="note"><strong>Aten&ccedil;&atilde;o:</strong> estes acessos podem revelar faturamento, despesas, saldo, lucro e relat&oacute;rios export&aacute;veis.</div>
+              <div class="team-permission-subgroup">
+                <h4>Financeiro</h4>
+                <div class="team-permission-options">
+                  <label class="team-permission-option team-permission-sensitive">
+                    <input type="checkbox" data-team-permission="financeiroVer">
+                    <span class="team-permission-copy"><strong>Ver financeiro</strong><small>Consulta receitas, despesas, recebimentos e saldo.</small></span>
+                  </label>
+                  <label class="team-permission-option team-permission-sensitive">
+                    <input type="checkbox" data-team-permission="financeiroGerenciar">
+                    <span class="team-permission-copy"><strong>Gerenciar financeiro</strong><small>Cria, altera e registra movimenta&ccedil;&otilde;es financeiras.</small></span>
+                  </label>
+                  <label class="team-permission-option team-permission-sensitive">
+                    <input type="checkbox" data-team-permission="financeiroExportar">
+                    <span class="team-permission-copy"><strong>Exportar financeiro</strong><small>Baixa relat&oacute;rios com informa&ccedil;&otilde;es financeiras.</small></span>
+                  </label>
+                </div>
+              </div>
+              <div class="team-permission-subgroup">
+                <h4>DRE</h4>
+                <div class="team-permission-options">
+                  <label class="team-permission-option team-permission-sensitive">
+                    <input type="checkbox" data-team-permission="dreVer">
+                    <span class="team-permission-copy"><strong>Ver DRE</strong><small>Consulta resultados, margens e indicadores de desempenho.</small></span>
+                  </label>
+                  <label class="team-permission-option team-permission-sensitive">
+                    <input type="checkbox" data-team-permission="dreConfigurar">
+                    <span class="team-permission-copy"><strong>Configurar DRE</strong><small>Altera metas, categorias e regras do demonstrativo.</small></span>
+                  </label>
+                  <label class="team-permission-option team-permission-sensitive">
+                    <input type="checkbox" data-team-permission="dreExportar">
+                    <span class="team-permission-copy"><strong>Exportar DRE</strong><small>Baixa demonstrativos e relat&oacute;rios de resultado.</small></span>
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <section class="team-permission-group" aria-labelledby="teamPermissionWorkshopTitle">
+              <header class="team-permission-group-header">
+                <div><span class="team-permission-group-index">05</span><div><h3 id="teamPermissionWorkshopTitle">Oficina</h3><p>Libere a rotina t&eacute;cnica de inspe&ccedil;&otilde;es sem acesso financeiro.</p></div></div>
+              </header>
+              <div class="team-permission-options">
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="ordensServicoVer">
+                  <span class="team-permission-copy"><strong>Ver servi&ccedil;os atribu&iacute;dos</strong><small>Acessa somente ordens destinadas a este colaborador, sem pre&ccedil;os nem dados pessoais.</small></span>
+                </label>
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="ordensServicoGerenciar">
+                  <span class="team-permission-copy"><strong>Atualizar servi&ccedil;os atribu&iacute;dos</strong><small>Registra andamento e observa&ccedil;&otilde;es apenas nas pr&oacute;prias ordens.</small></span>
+                </label>
+                <label class="team-permission-option team-permission-sensitive">
+                  <input type="checkbox" data-team-permission="ordensServicoAtribuir">
+                  <span class="team-permission-copy"><strong>Distribuir servi&ccedil;os <em>Sens&iacute;vel</em></strong><small>Escolhe qual colaborador receber&aacute; cada ordem de servi&ccedil;o.</small></span>
+                </label>
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="inspecoesVer">
+                  <span class="team-permission-copy"><strong>Ver inspe&ccedil;&otilde;es</strong><small>Consulta inspe&ccedil;&otilde;es e informa&ccedil;&otilde;es t&eacute;cnicas dos ve&iacute;culos.</small></span>
+                </label>
+                <label class="team-permission-option">
+                  <input type="checkbox" data-team-permission="inspecoesGerenciar">
+                  <span class="team-permission-copy"><strong>Gerenciar inspe&ccedil;&otilde;es</strong><small>Cria, preenche e altera inspe&ccedil;&otilde;es da oficina.</small></span>
+                </label>
+              </div>
+            </section>
+
+            <div class="team-owner-note" role="note">
+              <strong>Gest&atilde;o da equipe continua exclusiva do propriet&aacute;rio</strong>
+              <span>Nenhuma permiss&atilde;o acima autoriza convidar, editar, bloquear ou remover colaboradores.</span>
+            </div>
+          </fieldset>
           <div class="form-actions span-2"><button class="btn btn-primary" type="submit">Salvar colaborador</button><button class="btn btn-muted" type="button" id="teamMemberCancel">Cancelar edi&ccedil;&atilde;o</button></div>
         </form>
         <div id="teamAccessMessage" class="form-status"></div>
@@ -45,8 +220,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=103"></script>
+  <script src="script.js?v=109"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=72"></script>
+  <script type="module" src="firebase-sync.js?v=74"></script>
 </body>
 </html>

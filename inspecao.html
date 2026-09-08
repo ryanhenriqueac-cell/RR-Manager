@@ -5,17 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de inspeção | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=123">
+  <link rel="stylesheet" href="style.css?v=128">
 </head>
 <body data-page="inspecao" class="print-preview-page inspection-page">
   <div class="print-toolbar inspection-toolbar">
-    <a class="btn btn-muted" href="orcamentos.html">Voltar</a>
+    <a class="btn btn-muted" id="inspectionBackLink" href="orcamentos.html">Voltar</a>
     <button class="btn btn-ghost" type="button" id="clearInspectionButton">Limpar marcações</button>
+    <button class="btn btn-primary" type="button" id="saveInspectionButton">Salvar inspeção</button>
     <button class="btn btn-primary" type="button" id="printButton">Imprimir / Salvar PDF</button>
   </div>
   <main id="printRoot"></main>
-  <script src="script.js?v=89"></script>
+  <script src="script.js?v=109"></script>
   <script src="firebase-config.js?v=13"></script>
-<script type="module" src="firebase-sync.js?v=71"></script>
+<script type="module" src="firebase-sync.js?v=74"></script>
 </body>
 </html>

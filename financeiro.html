@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financeiro | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=123">
+  <link rel="stylesheet" href="style.css?v=128">
 </head>
 <body data-page="financeiro">
   <div class="app-shell">
@@ -20,6 +20,7 @@
         <a href="orcamentos.html" data-nav="orcamentos">Orçamentos</a>
         <a href="financeiro.html" data-nav="financeiro">Financeiro</a>
         <a href="dre.html" data-nav="dre">DRE <small>PRO</small></a>
+        <a href="operacao.html" data-nav="operacao">Opera&ccedil;&atilde;o</a>
         <a href="equipe.html" data-nav="equipe">Equipe <small>PRO</small></a>
         <a href="meu-cadastro.html" data-nav="meu-cadastro">Meu cadastro</a>
       </nav>
@@ -40,7 +41,7 @@
         <article class="stat-card highlight"><span>Lucro</span><strong id="saldoFinanceiroPagina">R$ 0,00</strong><small>Receitas menos custos e despesas</small></article>
       </section>
 
-      <section class="form-panel">
+      <section class="form-panel" data-requires-permission="financeiroGerenciar">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Caixa da empresa</p>
@@ -87,7 +88,7 @@
         </form>
       </section>
 
-      <section id="financeiroRecorrenciasPanel" class="panel" hidden>
+      <section id="financeiroRecorrenciasPanel" class="panel" data-requires-permission="financeiroGerenciar" hidden>
         <div class="panel-header"><div><p class="eyebrow">Plano Pro</p><h2>Lançamentos recorrentes</h2></div></div>
         <p class="report-status">Valores fixos são lançados automaticamente. Valores variáveis aparecem como lembrete para confirmação.</p>
         <div id="financeiroRecorrenciasLista" class="recurring-list"></div>
@@ -106,7 +107,7 @@
           <div class="form-actions span-2">
             <button class="btn btn-primary" type="submit">Gerar relatório</button>
             <button class="btn btn-muted" type="button" id="limparRelatorio">Ver tudo</button>
-            <button class="btn btn-ghost" type="button" id="imprimirRelatorioFinanceiro">Gerar PDF</button>
+            <button class="btn btn-ghost" type="button" id="imprimirRelatorioFinanceiro" data-requires-permission="financeiroExportar">Gerar PDF</button>
           </div>
         </form>
         <p class="report-status" id="financeiroRelatorioStatus"></p>
@@ -150,8 +151,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=103"></script>
+  <script src="script.js?v=109"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=71"></script>
+  <script type="module" src="firebase-sync.js?v=74"></script>
 </body>
 </html>
