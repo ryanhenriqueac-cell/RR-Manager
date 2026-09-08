@@ -656,7 +656,8 @@ if (!configReady) {
     const loadedWorkspace = await loadCloudData(activeWorkspaceId, restoredFromCache);
     if (!loadedWorkspace) {
       setAuthRestoring(false);
-      setAppLocked(true);
+      setAppLocked(!restoredFromCache);
+      if (restoredFromCache) applyTeamAccessToInterface();
       return;
     }
     if (activeTeamAccess && getWorkspaceSubscription(loadedWorkspace).planId !== "pro") {
@@ -674,11 +675,7 @@ if (!configReady) {
     startTeamAccessListener();
     applyTeamAccessToInterface();
 
-    if (sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId) {
-      sessionStorage.setItem(SYNC_FLAG, activeWorkspaceId);
-      window.location.reload();
-      return;
-    }
+    sessionStorage.setItem(SYNC_FLAG, activeWorkspaceId);
 
     if (!activeTeamAccess) {
       await ensureLegalAcceptance(loadedWorkspace);
@@ -1244,6 +1241,7 @@ async function loadCloudData(uid, reuseCachedCollections = false) {
   try {
     showAuthMessage("Sincronizando dados...");
     confirmedCollectionState.clear();
+    const adminViewingWorkspace = isAdminUser(currentUser);
     const snap = activeTeamAccess ? null : await getDoc(doc(db, "workspaces", uid));
     if (!activeTeamAccess && !snap.exists()) {
       await saveLegacyCloudData();
@@ -1261,7 +1259,7 @@ async function loadCloudData(uid, reuseCachedCollections = false) {
     activeWorkspaceData = { id: uid, ...cloudData };
     activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
     let secureSettingsReady = true;
-    if (!activeTeamAccess) {
+    if (!activeTeamAccess && !adminViewingWorkspace) {
       try { await publishWorkspaceSettings(uid, cloudData); }
       catch (settingsError) {
         secureSettingsReady = false;
@@ -1277,11 +1275,20 @@ async function loadCloudData(uid, reuseCachedCollections = false) {
     if (activeTeamAccess && schemaVersion < APP_SCHEMA_VERSION) {
       throw new Error("A migração segura deve ser concluída pelo proprietário da oficina antes do acesso da equipe.");
     }
-    if (!activeTeamAccess && schemaVersion < 2) {
-      await migrateWorkspaceToV2(uid, cloudData);
-      schemaVersion = 2;
+    let data = null;
+    if (adminViewingWorkspace && schemaVersion < 2) {
+      data = { ...Object.fromEntries(APP_KEYS.map((key) => [key, []])), ...(cloudData.data || {}) };
+    } else if (!activeTeamAccess && schemaVersion < 2) {
+      try {
+        data = await migrateWorkspaceToV2(uid, cloudData);
+        schemaVersion = 2;
+      } catch (migrationError) {
+        schemaVersion = 1;
+        data = { ...Object.fromEntries(APP_KEYS.map((key) => [key, []])), ...(cloudData.data || {}) };
+        console.warn("Migração adiada; usando os dados compatíveis da oficina.", migrationError);
+      }
     }
-    if (!activeTeamAccess && schemaVersion < APP_SCHEMA_VERSION && secureSettingsReady) {
+    if (!activeTeamAccess && !adminViewingWorkspace && schemaVersion >= 2 && schemaVersion < APP_SCHEMA_VERSION && secureSettingsReady) {
       try {
         await migrateWorkspaceToV3(uid);
         schemaVersion = APP_SCHEMA_VERSION;
@@ -1293,10 +1300,12 @@ async function loadCloudData(uid, reuseCachedCollections = false) {
     }
     workspaceSchemaVersion = schemaVersion;
     const canReuseCachedCollections = reuseCachedCollections && schemaVersion >= APP_SCHEMA_VERSION;
-    const data = canReuseCachedCollections
-      ? Object.fromEntries(APP_KEYS.map((key) => [key, canAccessStorageKey(key) ? readLocalArray(key) : []]))
-      : await loadV2Collections(uid, schemaVersion);
-    if (!activeTeamAccess) {
+    if (!data) {
+      data = canReuseCachedCollections
+        ? Object.fromEntries(APP_KEYS.map((key) => [key, canAccessStorageKey(key) ? readLocalArray(key) : []]))
+        : await loadV2Collections(uid, schemaVersion);
+    }
+    if (!activeTeamAccess && !adminViewingWorkspace) {
       try {
         await cleanupVerifiedLegacyData(uid, cloudData, data);
       } catch (cleanupError) {
@@ -3791,7 +3800,8 @@ function renderAdminWorkspaceList() {
   }
 
   list.innerHTML = filtered.map((workspace) => {
-    const email = workspace.ownerEmail || "Sem e-mail salvo";
+    const ownerEmail = workspace.ownerEmail || "";
+    const email = ownerEmail || "Sem e-mail salvo";
     const businessName = workspace.businessName || workspace.registration?.empresa || "";
     const clientes = Number(workspace.stats?.clientes ?? (Array.isArray(workspace.data?.rr_clientes) ? workspace.data.rr_clientes.length : 0));
     const orcamentos = Number(workspace.stats?.orcamentos ?? (Array.isArray(workspace.data?.rr_orcamentos) ? workspace.data.rr_orcamentos.length : 0));
@@ -3801,7 +3811,7 @@ function renderAdminWorkspaceList() {
     const teamMembers = Array.isArray(workspace.teamMembers) ? workspace.teamMembers : [];
     return `
       <div class="admin-workspace-item">
-        <button class="admin-workspace-open" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(email)}">
+        <button class="admin-workspace-open" type="button" data-workspace-id="${escapeHtml(workspace.id)}" data-workspace-email="${escapeHtml(ownerEmail)}">
           <span class="admin-workspace-identity">
             ${businessName ? `<strong>${escapeHtml(businessName)}</strong>` : ""}
             <small>${escapeHtml(email)}</small>
@@ -4254,15 +4264,25 @@ function dedupeWorkspaces(workspaces) {
   return Array.from(byEmail.values());
 }
 
-async function openAdminWorkspace(workspaceId, workspaceEmail = "") {
+function openAdminWorkspace(workspaceId, workspaceEmail = "") {
+  const workspace = adminWorkspaces.find((item) => item.id === workspaceId) || { id: workspaceId, ownerEmail: workspaceEmail };
+  const cacheContext = `${currentUser?.uid || "anonymous"}:${workspaceId}`;
+  const sameCachedWorkspace = localStorage.getItem(CACHE_CONTEXT_KEY) === cacheContext;
   activeWorkspaceId = workspaceId;
   activeWorkspaceEmail = workspaceEmail;
   sessionStorage.setItem(ADMIN_WORKSPACE_KEY, workspaceId);
-  sessionStorage.removeItem(SYNC_FLAG);
+  sessionStorage.setItem(SYNC_FLAG, workspaceId);
   setAdminSelecting(false);
-  await loadCloudData(workspaceId);
-  cloudReady = true;
-  window.rrFirebaseReady = true;
+  setCacheContext(currentUser, workspaceId);
+  if (!sameCachedWorkspace) {
+    const legacyData = Number(workspace.schemaVersion || 1) < 2 ? workspace.data || {} : {};
+    syncingFromCloud = true;
+    APP_KEYS.forEach((key) => localStorage.setItem(key, JSON.stringify(Array.isArray(legacyData[key]) ? legacyData[key] : [])));
+    syncingFromCloud = false;
+  }
+  activeWorkspaceData = { ...workspace };
+  setWorkspaceBrandingContext(workspace);
+  cacheValidatedAccess(currentUser);
   window.location.href = "dashboard.html";
 }
 

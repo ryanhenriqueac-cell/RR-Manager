@@ -151,7 +151,7 @@ foreach ($htmlFile in $htmlFiles) {
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=131')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=117')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=84')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=85')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -170,6 +170,13 @@ Assert-True ($firebase.Contains('cachedAuthorization.hasPlanFeature?.(feature) =
 Assert-True ($appScript.Contains('function initInternalPagePrefetch') -and $appScript.Contains('requestIdleCallback')) "Paginas internas nao sao preparadas antecipadamente durante o tempo ocioso."
 Assert-True ($appScript.Contains('window.rrFirebaseReady || window.rrBootstrapReady')) "Documentos protegidos ignoram a sessao local ja validada."
 Assert-True ($firebase.Contains('reuseCachedCollections') -and $firebase.Contains('canReuseCachedCollections')) "Navegacao interna ainda baixa novamente todas as colecoes antes da sincronizacao em tempo real."
+Assert-True ($firebase.Contains('const adminViewingWorkspace = isAdminUser(currentUser);')) "Visualizacao administrativa nao esta separada das migracoes do proprietario."
+Assert-True ($firebase.Contains('catch (migrationError)') -and $firebase.Contains('...(cloudData.data || {})')) "Falha de migracao ainda pode bloquear oficinas antigas."
+$adminOpenBlock = Get-CapturedBlock $firebase 'function openAdminWorkspace(?<body>.*?)function backToAdminDashboard' "abertura administrativa da oficina"
+Assert-True (-not $adminOpenBlock.Contains('await loadCloudData')) "Painel administrativo ainda aguarda toda a sincronizacao antes de abrir a oficina."
+Assert-True ($adminOpenBlock.Contains('cacheValidatedAccess(currentUser)')) "Entrada administrativa nao prepara a sessao validada antes da navegacao."
+Assert-True ($adminOpenBlock.Contains('setWorkspaceBrandingContext(workspace)')) "Entrada administrativa nao prepara plano e identidade da oficina."
+Assert-True (-not $firebase.Contains('sessionStorage.getItem(SYNC_FLAG) !== activeWorkspaceId')) "Primeira sincronizacao ainda forca um recarregamento completo da pagina."
 Assert-True ($firebase.Contains(': "Carregando"')) "Status do usuario ainda informa Essencial antes de conhecer o plano real."
 Assert-True (-not $firebase.Contains("setAppLocked(true);`r`nclearSensitiveLocalData();") -and -not $firebase.Contains("setAppLocked(true);`nclearSensitiveLocalData();")) "Inicializacao ainda apaga todo o cache em cada troca de pagina."
 Assert-True ($styles.Contains('.auth-restoring #firebaseLoginForm')) "Restauracao da sessao ainda exibe o formulario de login."
