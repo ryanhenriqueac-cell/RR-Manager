@@ -151,7 +151,7 @@ foreach ($htmlFile in $htmlFiles) {
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=130')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=116')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=82')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=83')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
