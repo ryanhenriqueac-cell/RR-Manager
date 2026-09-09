@@ -10224,7 +10224,11 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .manager-plan-summary p { margin: 0; }
 .manager-plan-summary small { margin-top: 5px; color: var(--muted); }
 
+.vehicle-link-help { max-width: 720px; margin: 5px 0 0; color: var(--muted); font-size: .88rem; line-height: 1.45; }
 .vehicle-catalog-button { grid-column: span 2; }
+.vehicle-ready-link-button { display: grid; gap: 3px; text-align: left; }
+.vehicle-ready-link-button span { line-height: 1.15; }
+.vehicle-ready-link-button small { color: rgba(9,18,32,.7); font-size: .68rem; font-weight: 900; letter-spacing: .025em; }
 .catalog-suggestion-badge {
   display: block;
   margin: 3px 0 5px;

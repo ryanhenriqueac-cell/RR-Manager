@@ -6,6 +6,7 @@ $scriptPath = Join-Path $projectRoot "script.js"
 $rulesPath = Join-Path $projectRoot "firestore.rules"
 $teamPath = Join-Path $projectRoot "equipe.html"
 $budgetsPath = Join-Path $projectRoot "orcamentos.html"
+$clientsPath = Join-Path $projectRoot "clientes.html"
 $stylesPath = Join-Path $projectRoot "style.css"
 $vehicleCatalogPath = Join-Path $projectRoot "data/vehicle-configs.json"
 $laborOperationsPath = Join-Path $projectRoot "data/labor-operations.json"
@@ -15,6 +16,7 @@ $appScript = [System.IO.File]::ReadAllText($scriptPath)
 $rules = [System.IO.File]::ReadAllText($rulesPath)
 $teamHtml = [System.IO.File]::ReadAllText($teamPath)
 $budgetsHtml = [System.IO.File]::ReadAllText($budgetsPath)
+$clientsHtml = [System.IO.File]::ReadAllText($clientsPath)
 $styles = [System.IO.File]::ReadAllText($stylesPath)
 $htmlFiles = Get-ChildItem -LiteralPath $projectRoot -Filter "*.html" -File
 $allHtml = ($htmlFiles | ForEach-Object { [System.IO.File]::ReadAllText($_.FullName) }) -join "`n"
@@ -154,8 +156,8 @@ foreach ($htmlFile in $htmlFiles) {
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
-  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=132')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=120')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=133')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=121')) "Cache do script desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=86')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
@@ -219,6 +221,11 @@ Assert-True ($firebase.Contains('"veiculoId", "quilometragem", "data"')) "Sincro
 Assert-True ($rules.Contains("'veiculoId', 'quilometragem', 'data'")) "Firestore bloqueia orcamentos com quilometragem."
 Assert-True ($appScript.Contains('catalogModified: descricao !==')) "Alteracao da sugestao tecnica nao e rastreada."
 Assert-True ($appScript.Contains('function openVehicleCatalogForClient') -and $appScript.Contains('catalogVehicleId: selected.id')) "Cadastro do carro nao permite vinculo tecnico exato."
+Assert-True ($clientsHtml.Contains('vehicle-link-help') -and $clientsHtml.Contains('lista pronta de servi')) "Cadastro de clientes nao explica o beneficio do vinculo do veiculo."
+Assert-True ($appScript.Contains('vehicle-ready-link-button') -and $appScript.Contains('Vincular ')) "Acao do veiculo ainda usa um nome tecnico pouco comercial."
+Assert-True (-not [regex]::IsMatch($appScript, 'vehicle-catalog-button[^>]*data-requires-plan')) "Plano Essencial ainda esconde a oferta de vinculo do veiculo."
+Assert-True ([regex]::IsMatch($appScript, 'title: "Vincule o ve.culo . lista pronta"')) "Oferta Pro do vinculo do veiculo nao foi criada."
+Assert-True ([regex]::IsMatch($appScript, 'Lista pronta dispon.vel no or.amento')) "Oferta do vinculo nao explica o resultado no orcamento."
 Assert-True (-not $appScript.Contains('Confiança da base:')) "Seletor do veiculo ainda exibe a confianca interna da base."
 Assert-True ($styles.Contains('.labor-catalog-modal')) "Catalogo tecnico nao possui interface responsiva."
 

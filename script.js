@@ -1710,7 +1710,7 @@ function renderClienteCarrosDraft() {
       <label>Ano<input data-field="ano" value="${escapeHtml(carro.ano)}" placeholder="Ex: 2019"></label>
       <label>Placa<input data-field="placa" value="${escapeHtml(formatPlateBR(carro.placa))}" placeholder="ABC-1D23" maxlength="8" oninput="this.value = formatPlateBR(this.value)"></label>
       <label>Observações<input data-field="obs" value="${escapeHtml(carro.obs)}" placeholder="Detalhes do carro"></label>
-      <button class="btn btn-ghost vehicle-catalog-button" data-requires-plan="laborCatalog" type="button" onclick="openVehicleCatalogForClient(${index})">Selecionar na base técnica PRO</button>
+      <button class="btn btn-primary vehicle-catalog-button vehicle-ready-link-button" type="button" onclick="openVehicleCatalogForClient(${index})"><span>Vincular à lista pronta de mão de obra</span><small>Preenche o veículo e libera serviços e tempos · PRO</small></button>
       <button class="btn btn-danger" type="button" onclick="removeCarroCliente(${index})">Remover</button>
     </div>
   `).join("");
@@ -1719,6 +1719,23 @@ function renderClienteCarrosDraft() {
 
 async function openVehicleCatalogForClient(index) {
   if (!hasAccess("veiculosGerenciar")) return;
+  if (window.rrHasPlanFeature?.("laborCatalog") !== true) {
+    const seePlans = await rrModal({
+      eyebrow: "Recurso do Plano Pro",
+      title: "Vincule o veículo à lista pronta",
+      message: `${modalText("Escolha a configuração exata do carro uma única vez e use, nos orçamentos, serviços com tempos de mão de obra compatíveis.")}${modalList([
+        "Marca, modelo, motor e ano preenchidos",
+        "Vínculo correto com cada configuração",
+        "Lista pronta disponível no orçamento"
+      ])}<p class="rr-modal-note">Disponível exclusivamente no Plano Pro.</p>`,
+      options: [
+        { label: "Ver Plano Pro", value: true, variant: "primary" },
+        { label: "Continuar no Essencial", value: false, variant: "muted" }
+      ]
+    });
+    if (seePlans) window.location.href = "index.html#planos";
+    return;
+  }
   syncClienteCarrosDraft();
   const current = clienteCarrosDraft[index];
   if (!current) return;
@@ -1727,7 +1744,7 @@ async function openVehicleCatalogForClient(index) {
     const vehicles = await window.rrLoadVehicleCatalog();
     showVehicleCatalogModal(index, current, vehicles);
   } catch (error) {
-    await rrAlert(error?.message || "Não foi possível consultar a base de veículos.", "Base técnica indisponível");
+    await rrAlert(error?.message || "Não foi possível abrir a lista de veículos.", "Lista indisponível");
   }
 }
 
@@ -1736,7 +1753,7 @@ function showVehicleCatalogModal(index, current, vehicles) {
   overlay.className = "auth-modal-overlay vehicle-catalog-overlay";
   overlay.innerHTML = `
     <section class="vehicle-catalog-modal" role="dialog" aria-modal="true" aria-labelledby="vehicleCatalogTitle">
-      <div class="labor-catalog-title"><div><span class="dre-pro-badge">RR MANAGER PRO</span><h2 id="vehicleCatalogTitle">Selecionar veículo na base técnica</h2><p>Vincule a configuração correta para receber os tempos compatíveis no orçamento.</p></div><button type="button" class="modal-close" data-vehicle-close aria-label="Fechar">&times;</button></div>
+      <div class="labor-catalog-title"><div><span class="dre-pro-badge">RR MANAGER PRO</span><h2 id="vehicleCatalogTitle">Escolher veículo para a lista pronta</h2><p>Vincule a configuração correta para receber serviços e tempos compatíveis no orçamento.</p></div><button type="button" class="modal-close" data-vehicle-close aria-label="Fechar">&times;</button></div>
       <div class="vehicle-catalog-grid">
         <label>Montadora<select data-vehicle-make><option value="">Selecione</option></select></label>
         <label>Modelo<select data-vehicle-model disabled><option value="">Selecione</option></select></label>
@@ -2186,7 +2203,7 @@ async function openLaborCatalog() {
     if (typeof window.rrLoadLaborCatalog !== "function") throw new Error("Aguarde a confirmação do acesso online.");
     const catalog = await window.rrLoadLaborCatalog(selectedVehicle);
     if (!catalog.matchedVehicles?.length) {
-      throw new Error("Vincule este carro à base técnica na tela Clientes antes de consultar os tempos.");
+      throw new Error("Vincule este carro à lista pronta na tela Clientes antes de consultar os tempos.");
     }
     showLaborCatalogModal(selectedVehicle, catalog);
   } catch (error) {
