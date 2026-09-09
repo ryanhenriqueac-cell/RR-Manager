@@ -205,7 +205,7 @@ Assert-True ($rules.Contains('match /labor_time_catalog/{docId}')) "Catalogo tec
 Assert-True ($rules.Contains("resource.data.status == 'published'")) "Rascunhos do catalogo podem ser lidos por oficinas."
 Assert-True ($rules.Contains('allow create, update: if isAdmin()')) "Uma oficina pode publicar tempos tecnicos."
 Assert-True ($budgetsHtml.Contains('id="openLaborCatalog"') -and $budgetsHtml.Contains('data-requires-plan="laborCatalog"')) "Botao Pro do catalogo nao esta no orcamento."
-Assert-True ($budgetsHtml.Contains('id="orcamentoQuilometragem"') -and $budgetsHtml.Contains('placeholder="Opcional: ex. 125000"')) "Orcamento nao oferece quilometragem opcional."
+Assert-True ($budgetsHtml.Contains('id="orcamentoQuilometragem"') -and $budgetsHtml.Contains('placeholder="125000"')) "Orcamento nao oferece quilometragem opcional."
 Assert-True ($appScript.Contains('quilometragem: getValue("orcamentoQuilometragem") === "" ? ""')) "Quilometragem vazia nao e preservada como opcional."
 Assert-True ($appScript.Contains('setValue("orcamentoQuilometragem", orcamento.quilometragem ?? "")')) "Edicao do orcamento nao restaura a quilometragem."
 Assert-True ($appScript.Contains('const quilometragemLinha = quilometragem !== ""')) "Impressao nao omite a quilometragem vazia."
