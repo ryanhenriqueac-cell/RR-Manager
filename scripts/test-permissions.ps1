@@ -222,6 +222,7 @@ Assert-True ($appScript.Contains('if (window.rrHasPlanFeature?.("laborCatalog") 
 Assert-True ($appScript.Contains('label: "Ver Plano Pro"') -and $appScript.Contains('window.location.href = "index.html#planos"')) "Oferta da lista pronta nao direciona para o Plano Pro."
 Assert-True ($styles.Contains('.labor-heading-actions') -and $styles.Contains('gap: 14px')) "Acoes de mao de obra permanecem visualmente coladas."
 Assert-True ($budgetsHtml.Contains('id="orcamentoQuilometragem"') -and $budgetsHtml.Contains('placeholder="125000"')) "Orcamento nao oferece quilometragem opcional."
+Assert-True ([regex]::IsMatch($budgetsHtml, 'class="btn btn-primary"[^>]*id="gerarInspecao"')) "Botao da lista de inspecao nao possui destaque amarelo."
 Assert-True ($appScript.Contains('quilometragem: getValue("orcamentoQuilometragem") === "" ? ""')) "Quilometragem vazia nao e preservada como opcional."
 Assert-True ($appScript.Contains('setValue("orcamentoQuilometragem", orcamento.quilometragem ?? "")')) "Edicao do orcamento nao restaura a quilometragem."
 Assert-True ($appScript.Contains('const quilometragemLinha = quilometragem !== ""')) "Impressao nao omite a quilometragem vazia."
