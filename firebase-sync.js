@@ -295,6 +295,38 @@ function normalizeCatalogText(value) {
   return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
+function normalizeReadyLaborText(value, replaceTrocar = false) {
+  const uppercase = String(value || "").trim().toLocaleUpperCase("pt-BR");
+  return replaceTrocar ? uppercase.replace(/\bTROCAR\b/g, "SUBST.") : uppercase;
+}
+
+function normalizeReadyLaborOperation(item = {}) {
+  return {
+    ...item,
+    system: normalizeReadyLaborText(item.system),
+    subsystem: normalizeReadyLaborText(item.subsystem),
+    description: normalizeReadyLaborText(item.description, true),
+    operationType: normalizeReadyLaborText(item.operationType),
+    unit: normalizeReadyLaborText(item.unit),
+    application: normalizeReadyLaborText(item.application),
+    note: normalizeReadyLaborText(item.note),
+    internalNote: normalizeReadyLaborText(item.internalNote)
+  };
+}
+
+function normalizePublishedLaborTime(item = {}) {
+  return {
+    ...item,
+    system: normalizeReadyLaborText(item.system),
+    subsystem: normalizeReadyLaborText(item.subsystem),
+    description: normalizeReadyLaborText(item.description, true),
+    operationType: normalizeReadyLaborText(item.operationType),
+    unit: normalizeReadyLaborText(item.unit),
+    notes: normalizeReadyLaborText(item.notes),
+    source: normalizeReadyLaborText(item.source)
+  };
+}
+
 function formatCatalogHours(hours) {
   return Number(hours || 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 }
@@ -309,13 +341,13 @@ async function loadTechnicalReferenceData() {
         if (!response.ok) throw new Error("Base de veículos indisponível.");
         return response.json();
       }),
-      fetch("data/labor-operations.json?v=1").then((response) => {
+      fetch("data/labor-operations.json?v=2").then((response) => {
         if (!response.ok) throw new Error("Catálogo de operações indisponível.");
         return response.json();
       })
     ]).then(([vehicles, operations]) => {
       technicalVehicleConfigs = Array.isArray(vehicles) ? vehicles : [];
-      technicalLaborOperations = Array.isArray(operations) ? operations.filter((item) => item.active !== false) : [];
+      technicalLaborOperations = Array.isArray(operations) ? operations.filter((item) => item.active !== false).map(normalizeReadyLaborOperation) : [];
       return { vehicles: technicalVehicleConfigs, operations: technicalLaborOperations };
     }).catch((error) => {
       technicalReferencePromise = null;
@@ -357,7 +389,7 @@ window.rrLoadLaborCatalog = async (vehicle = {}) => {
       ? where("vehicleId", "==", vehicleIds[0])
       : where("vehicleId", "in", vehicleIds);
     const snapshot = await getDocs(query(collection(db, TECHNICAL_CATALOG_COLLECTION), where("status", "==", "published"), vehicleConstraint));
-    publishedLaborTimes.set(cacheKey, snapshot.docs.map((record) => ({ id: record.id, ...record.data() })));
+    publishedLaborTimes.set(cacheKey, snapshot.docs.map((record) => normalizePublishedLaborTime({ id: record.id, ...record.data() })));
   }
   return { ...reference, times: publishedLaborTimes.get(cacheKey), matchedVehicles };
 };
@@ -3162,7 +3194,7 @@ async function loadAdminTechnicalCatalog() {
   try {
     await loadTechnicalReferenceData();
     const snapshot = await getDocs(collection(db, TECHNICAL_CATALOG_COLLECTION));
-    adminLaborTimes = snapshot.docs.map((record) => ({ id: record.id, ...record.data() }));
+    adminLaborTimes = snapshot.docs.map((record) => normalizePublishedLaborTime({ id: record.id, ...record.data() }));
     bindAdminTechnicalCatalog();
     renderAdminTechnicalCatalog();
   } catch (error) {
@@ -3253,7 +3285,7 @@ function getAdminCatalogFormData(status) {
   const yearEnd = Number(document.getElementById("adminCatalogYearEnd")?.value || 0);
   const rawTimeHours = Number(document.getElementById("adminCatalogHours")?.value || 0);
   const existing = adminLaborTimes.find((item) => item.id === adminCatalogEditingId);
-  const source = String(existing?.source || "Catálogo RR Manager");
+  const source = normalizeReadyLaborText(existing?.source || "Catálogo RR Manager");
   if (!vehicle || !operation) throw new Error("Selecione o veículo e a operação.");
   if (!yearStart || !yearEnd || yearStart > yearEnd || yearStart < vehicle.yearStart || yearEnd > vehicle.yearEnd) throw new Error(`Informe anos entre ${vehicle.yearStart} e ${vehicle.yearEnd}.`);
   if (!Number.isFinite(rawTimeHours) || rawTimeHours <= 0 || rawTimeHours > 166.67) throw new Error("Informe a quantidade de horas, por exemplo 3,5.");
@@ -3269,10 +3301,10 @@ function getAdminCatalogFormData(status) {
   return {
     vehicleId: vehicle.id, make: vehicle.make, model: vehicle.model, engine: vehicle.engine,
     fuel: vehicle.fuel, aspiration: vehicle.aspiration, yearStart, yearEnd,
-    serviceCode: operation.code, system: operation.system, subsystem: operation.subsystem,
-    description: operation.description, operationType: operation.operationType, unit: operation.unit,
+    serviceCode: operation.code, system: normalizeReadyLaborText(operation.system), subsystem: normalizeReadyLaborText(operation.subsystem),
+    description: normalizeReadyLaborText(operation.description, true), operationType: normalizeReadyLaborText(operation.operationType), unit: normalizeReadyLaborText(operation.unit),
     overlap: operation.overlap === true, timeMinutes, source,
-    notes: String(document.getElementById("adminCatalogNotes")?.value || "").trim(), status
+    notes: normalizeReadyLaborText(document.getElementById("adminCatalogNotes")?.value), status
   };
 }
 

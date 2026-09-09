@@ -1995,6 +1995,8 @@ function updateOrcamentoInspectionButton() {
 }
 
 function handleOrcamentoFormInput(event) {
+  const descriptionInput = event.target.closest("[data-field='nome'], [data-field='descricao']");
+  if (descriptionInput) forceUppercaseBudgetInput(descriptionInput);
   const manuallyEditedSale = event.target.closest("[data-field='valorUnitario']");
   if (manuallyEditedSale) manuallyEditedSale.dataset.priceMode = "manual";
   const costInput = event.target.closest("[data-field='custoUnitario']");
@@ -2020,6 +2022,19 @@ function resetOrcamentoDrafts() {
 
 function blankPeca() {
   return { id: createId("pec"), nome: "", quantidade: 1, custoUnitario: 0, custoUnitarioInformado: false, valorUnitario: 0, valorUnitarioInformado: false, cortesia: false };
+}
+
+function normalizeBudgetItemText(value) {
+  return String(value || "").trim().toLocaleUpperCase("pt-BR");
+}
+
+function forceUppercaseBudgetInput(input) {
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  const uppercase = String(input.value || "").toLocaleUpperCase("pt-BR");
+  if (uppercase === input.value) return;
+  input.value = uppercase;
+  if (typeof input.setSelectionRange === "function" && start !== null && end !== null) input.setSelectionRange(start, end);
 }
 
 function getCourtesyPartsCost(orcamento) {
@@ -2074,7 +2089,7 @@ function syncOrcamentoDrafts() {
     const vendaInput = row.querySelector("[data-field='valorUnitario']");
     return {
     id: row.dataset.pecaId || createId("pec"),
-    nome: row.querySelector("[data-field='nome']").value.trim(),
+    nome: normalizeBudgetItemText(row.querySelector("[data-field='nome']").value),
     quantidade: parseInteger(row.querySelector("[data-field='quantidade']").value),
     custoUnitario: parseDecimal(custoInput.value),
     custoUnitarioInformado: isMoneyInputInformed(custoInput),
@@ -2086,7 +2101,7 @@ function syncOrcamentoDrafts() {
   orcamentoServicosDraft = [...document.querySelectorAll("[data-servico-orcamento-index]")].map((row) => {
     const valorHoraInput = row.querySelector("[data-field='valorHora']");
     const previous = orcamentoServicosDraft.find((item) => item.id === row.dataset.servicoId) || {};
-    const descricao = row.querySelector("[data-field='descricao']").value.trim();
+    const descricao = normalizeBudgetItemText(row.querySelector("[data-field='descricao']").value);
     const horas = parseDecimal(row.querySelector("[data-field='horas']").value);
     return {
     id: row.dataset.servicoId || createId("mao"),
@@ -2099,11 +2114,11 @@ function syncOrcamentoDrafts() {
       catalogTimeId: previous.catalogTimeId,
       catalogVehicleId: previous.catalogVehicleId || "",
       catalogServiceCode: previous.catalogServiceCode || "",
-      catalogDescription: previous.catalogDescription || previous.descricao || "",
+      catalogDescription: normalizeBudgetItemText(previous.catalogDescription || previous.descricao || ""),
       suggestedHours: Number(previous.suggestedHours ?? (Number(previous.suggestedMinutes || 0) / 60)),
       suggestedMinutes: Number(previous.suggestedMinutes) || 0,
       catalogSource: previous.catalogSource || "",
-      catalogModified: descricao !== (previous.catalogDescription || previous.descricao || "") || Math.abs(horas - Number(previous.suggestedHours ?? (Number(previous.suggestedMinutes || 0) / 60))) > 0.001
+      catalogModified: descricao !== normalizeBudgetItemText(previous.catalogDescription || previous.descricao || "") || Math.abs(horas - Number(previous.suggestedHours ?? (Number(previous.suggestedMinutes || 0) / 60))) > 0.001
     } : {})
     };
   });
@@ -2113,7 +2128,7 @@ function syncOrcamentoDrafts() {
     const vendaInput = row.querySelector("[data-field='valor']");
     return {
     id: row.dataset.terceirizadoId || createId("ter"),
-    descricao: row.querySelector("[data-field='descricao']").value.trim(),
+    descricao: normalizeBudgetItemText(row.querySelector("[data-field='descricao']").value),
     custo: parseDecimal(custoInput.value),
     custoInformado: isMoneyInputInformed(custoInput),
     valor: parseDecimal(vendaInput.value),
@@ -2132,7 +2147,7 @@ function renderOrcamentoDrafts() {
 
   pecasContainer.innerHTML = orcamentoPecasDraft.map((peca, index) => `
     <div class="nested-item peca-item" data-peca-index="${index}" data-peca-id="${escapeHtml(peca.id)}">
-      <label>Peça<input data-field="nome" value="${escapeHtml(peca.nome)}" placeholder="Ex: Pastilha de freio"></label>
+      <label>Peça<input data-field="nome" value="${escapeHtml(normalizeBudgetItemText(peca.nome))}" placeholder="EX: PASTILHA DE FREIO"></label>
       <label>Qtd<input data-field="quantidade" type="number" min="0" step="1" value="${parseInteger(peca.quantidade)}"></label>
       ${canSeeCosts ? `<label>Custo unitário${moneyDraftInput("custoUnitario", peca.custoUnitario, wasMoneyFieldInformed(peca, "custoUnitarioInformado", peca.custoUnitario))}</label>` : `<input data-field="custoUnitario" data-informed="false" type="hidden" value="0">`}
       <label>Venda unitária${saleOrCourtesyInput("valorUnitario", peca.valorUnitario, peca.cortesia, wasMoneyFieldInformed(peca, "valorUnitarioInformado", peca.valorUnitario))}</label>
@@ -2144,7 +2159,7 @@ function renderOrcamentoDrafts() {
 
   servicosContainer.innerHTML = orcamentoServicosDraft.map((servico, index) => `
     <div class="nested-item servico-orcamento-item" data-servico-orcamento-index="${index}" data-servico-id="${escapeHtml(servico.id)}">
-      <label>Serviço${servico.catalogTimeId ? `<small class="catalog-suggestion-badge">Sugestão técnica${servico.catalogModified ? " · modificada" : ""}</small>` : ""}<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Revisão de freios"></label>
+      <label>Serviço${servico.catalogTimeId ? `<small class="catalog-suggestion-badge">Sugestão técnica${servico.catalogModified ? " · modificada" : ""}</small>` : ""}<input data-field="descricao" value="${escapeHtml(normalizeBudgetItemText(servico.descricao))}" placeholder="EX: REVISÃO DE FREIOS"></label>
       <label>Horas<input data-field="horas" type="number" min="0" step="0.01" value="${parseDecimal(servico.horas)}"></label>
       <label>Valor/hora${saleOrCourtesyInput("valorHora", servico.valorHora, servico.cortesia, wasMoneyFieldInformed(servico, "valorHoraInformado", servico.valorHora))}</label>
       <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${servico.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('servico',${index},this.checked)"><span>Cortesia</span></label>
@@ -2155,7 +2170,7 @@ function renderOrcamentoDrafts() {
 
   terceirizadosContainer.innerHTML = orcamentoTerceirizadosDraft.map((servico, index) => `
     <div class="nested-item terceirizado-item" data-terceirizado-index="${index}" data-terceirizado-id="${escapeHtml(servico.id)}">
-      <label>Serviço terceirizado<input data-field="descricao" value="${escapeHtml(servico.descricao)}" placeholder="Ex: Retífica do cabeçote"></label>
+      <label>Serviço terceirizado<input data-field="descricao" value="${escapeHtml(normalizeBudgetItemText(servico.descricao))}" placeholder="EX: RETÍFICA DO CABEÇOTE"></label>
       ${canSeeCosts ? `<label>Custo${moneyDraftInput("custo", servico.custo, wasMoneyFieldInformed(servico, "custoInformado", servico.custo))}</label>` : `<input data-field="custo" data-informed="false" type="hidden" value="0">`}
       <label>Valor cobrado${saleOrCourtesyInput("valor", servico.valor, servico.cortesia, wasMoneyFieldInformed(servico, "valorInformado", servico.valor))}</label>
       <label class="courtesy-toggle"><input data-field="cortesia" type="checkbox" ${servico.cortesia ? "checked" : ""} onchange="toggleOrcamentoCortesia('terceirizado',${index},this.checked)"><span>Cortesia</span></label>
@@ -2265,9 +2280,9 @@ function showLaborCatalogModal(selectedVehicle, catalog) {
     const vehicleId = vehicleSelect.value;
     (catalog.times || []).filter((item) => selectedIds.has(item.id)).forEach((item) => {
       orcamentoServicosDraft.push({
-        ...blankServicoOrcamento(), descricao: item.description, horas: getTechnicalTimeHours(item),
+        ...blankServicoOrcamento(), descricao: normalizeBudgetItemText(item.description), horas: getTechnicalTimeHours(item),
         catalogTimeId: item.id, catalogVehicleId: vehicleId, catalogServiceCode: item.serviceCode,
-        catalogDescription: item.description, suggestedHours: getTechnicalTimeHours(item), suggestedMinutes: Number(item.timeMinutes), catalogSource: item.source || "", catalogModified: false
+        catalogDescription: normalizeBudgetItemText(item.description), suggestedHours: getTechnicalTimeHours(item), suggestedMinutes: Number(item.timeMinutes), catalogSource: item.source || "", catalogModified: false
       });
     });
     const emptyIndex = orcamentoServicosDraft.findIndex((item) => !item.descricao && !item.catalogTimeId);
@@ -2580,9 +2595,13 @@ function loadOrcamentoIntoForm(orcamento) {
   setValue("orcamentoData", orcamento.data);
   hydrateOrcamentoAssigneeSelect(orcamento.assignedToEmail || "");
   setValue("orcamentoValorFinal", orcamento.valorFinalManual || "");
-  orcamentoPecasDraft = Array.isArray(orcamento.pecas) ? orcamento.pecas.map((peca) => ({ custoUnitario: 0, ...peca })) : [{ ...blankPeca(), nome: "Peças", quantidade: 1, valorUnitario: Number(orcamento.pecas) || 0, valorUnitarioInformado: Number(orcamento.pecas) > 0 }];
-  orcamentoServicosDraft = Array.isArray(orcamento.servicos) ? orcamento.servicos : [{ ...blankServicoOrcamento(), descricao: "Mão de obra", horas: 1, valorHora: Number(orcamento.maoObra) || getLaborHourRate() }];
-  orcamentoTerceirizadosDraft = Array.isArray(orcamento.terceirizados) && orcamento.terceirizados.length ? orcamento.terceirizados : [blankServicoTerceirizado()];
+  orcamentoPecasDraft = Array.isArray(orcamento.pecas) ? orcamento.pecas.map((peca) => ({ custoUnitario: 0, ...peca, nome: normalizeBudgetItemText(peca.nome) })) : [{ ...blankPeca(), nome: "PEÇAS", quantidade: 1, valorUnitario: Number(orcamento.pecas) || 0, valorUnitarioInformado: Number(orcamento.pecas) > 0 }];
+  orcamentoServicosDraft = Array.isArray(orcamento.servicos)
+    ? orcamento.servicos.map((item) => ({ ...item, descricao: normalizeBudgetItemText(item.descricao), ...(item.catalogDescription ? { catalogDescription: normalizeBudgetItemText(item.catalogDescription) } : {}) }))
+    : [{ ...blankServicoOrcamento(), descricao: "MÃO DE OBRA", horas: 1, valorHora: Number(orcamento.maoObra) || getLaborHourRate() }];
+  orcamentoTerceirizadosDraft = Array.isArray(orcamento.terceirizados) && orcamento.terceirizados.length
+    ? orcamento.terceirizados.map((item) => ({ ...item, descricao: normalizeBudgetItemText(item.descricao) }))
+    : [blankServicoTerceirizado()];
   renderOrcamentoDrafts();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -3063,7 +3082,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <h3>Peças</h3>
         <table class="print-table">
           <thead><tr><th>Item</th><th>Qtd</th><th>Valor unit.</th><th>Total</th></tr></thead>
-          <tbody>${pecas.map((peca) => `<tr><td>${escapeHtml(peca.nome)}</td><td class="right">${parseInteger(peca.quantidade)}</td><td class="right">${peca.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(peca.valorUnitario)}</td><td class="right">${peca.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</td></tr>`).join("")}</tbody>
+          <tbody>${pecas.map((peca) => `<tr><td>${escapeHtml(normalizeBudgetItemText(peca.nome))}</td><td class="right">${parseInteger(peca.quantidade)}</td><td class="right">${peca.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(peca.valorUnitario)}</td><td class="right">${peca.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(parseInteger(peca.quantidade) * parseDecimal(peca.valorUnitario))}</td></tr>`).join("")}</tbody>
         </table>
       </section>` : ""}
 
@@ -3071,7 +3090,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <h3>Mão de obra</h3>
         <table class="print-table">
           <thead><tr><th>Serviço</th><th>Horas</th><th>Valor/hora</th><th>Total</th></tr></thead>
-          <tbody>${servicos.map((servico) => `<tr><td>${escapeHtml(servico.descricao)}</td><td class="right">${parseDecimal(servico.horas)}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(servico.valorHora)}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</td></tr>`).join("")}</tbody>
+          <tbody>${servicos.map((servico) => `<tr><td>${escapeHtml(normalizeBudgetItemText(servico.descricao))}</td><td class="right">${parseDecimal(servico.horas)}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(servico.valorHora)}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(parseDecimal(servico.horas) * parseDecimal(servico.valorHora))}</td></tr>`).join("")}</tbody>
         </table>
       </section>` : ""}
 
@@ -3079,7 +3098,7 @@ function buildOrcamentoPrintHtml(orcamento) {
         <h3>Serviços terceirizados</h3>
         <table class="print-table">
           <thead><tr><th>Serviço</th><th class="right">Valor</th></tr></thead>
-          <tbody>${terceirizados.map((servico) => `<tr><td>${escapeHtml(servico.descricao)}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(servico.valor)}</td></tr>`).join("")}</tbody>
+          <tbody>${terceirizados.map((servico) => `<tr><td>${escapeHtml(normalizeBudgetItemText(servico.descricao))}</td><td class="right">${servico.cortesia ? `<strong class="print-courtesy">CORTESIA</strong>` : money(servico.valor)}</td></tr>`).join("")}</tbody>
         </table>
       </section>` : ""}
 

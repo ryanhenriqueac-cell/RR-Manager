@@ -157,8 +157,8 @@ foreach ($htmlFile in $htmlFiles) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=133')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=121')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=86')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=122')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=87')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -197,6 +197,15 @@ Assert-True ($vehicleCatalog.Count -eq 999) "Base tecnica deveria conter 999 con
 Assert-True ($laborOperations.Count -eq 664) "Catalogo deveria conter 664 operacoes de oficina."
 Assert-True (($vehicleCatalog.id | Select-Object -Unique).Count -eq $vehicleCatalog.Count) "IDs duplicados na base de veiculos."
 Assert-True (($laborOperations.code | Select-Object -Unique).Count -eq $laborOperations.Count) "Codigos duplicados no catalogo de operacoes."
+$ptBrCulture = [System.Globalization.CultureInfo]::GetCultureInfo('pt-BR')
+$laborTextFields = @('system', 'subsystem', 'description', 'operationType', 'unit', 'application', 'note', 'internalNote')
+$invalidUppercaseOperations = @($laborOperations | Where-Object {
+  $operation = $_
+  @($laborTextFields | Where-Object { [string]$operation.$_ -cne ([string]$operation.$_).ToUpper($ptBrCulture) }).Count -gt 0
+})
+Assert-True ($invalidUppercaseOperations.Count -eq 0) "Base de operacoes ainda possui textos em minusculas."
+Assert-True (@($laborOperations | Where-Object { $_.description -match '(?i)\bTrocar\b' }).Count -eq 0) "Base de operacoes ainda usa a palavra Trocar."
+Assert-True (@($laborOperations | Where-Object { $_.description -match '^SUBST\.' }).Count -gt 0) "Abreviacao SUBST. nao foi aplicada na base de operacoes."
 Assert-True ($firebase.Contains('const TECHNICAL_CATALOG_COLLECTION = "labor_time_catalog"')) "Colecao do catalogo tecnico nao configurada."
 Assert-True ($firebase.Contains('laborCatalog: false') -and $firebase.Contains('laborCatalog: true')) "Catalogo tecnico nao esta separado entre Essencial e Pro."
 Assert-True ($firebase.Contains('where("status", "==", "published")')) "Oficinas podem carregar tempos ainda nao publicados."
@@ -220,6 +229,13 @@ Assert-True ($appScript.Contains('Km: ${Math.max(0, parseInteger(quilometragem))
 Assert-True ($firebase.Contains('"veiculoId", "quilometragem", "data"')) "Sincronizacao segura descarta a quilometragem do orcamento."
 Assert-True ($rules.Contains("'veiculoId', 'quilometragem', 'data'")) "Firestore bloqueia orcamentos com quilometragem."
 Assert-True ($appScript.Contains('catalogModified: descricao !==')) "Alteracao da sugestao tecnica nao e rastreada."
+Assert-True ($appScript.Contains('function normalizeBudgetItemText') -and $appScript.Contains('toLocaleUpperCase("pt-BR")')) "Itens do orcamento nao sao normalizados para maiusculas."
+Assert-True ($appScript.Contains('forceUppercaseBudgetInput(descriptionInput)')) "Digitacao do orcamento nao muda para maiusculas em tempo real."
+Assert-True ($appScript.Contains('nome: normalizeBudgetItemText(row.querySelector')) "Pecas podem ser salvas em minusculas."
+Assert-True ($appScript.Contains('descricao: normalizeBudgetItemText(row.querySelector')) "Servicos podem ser salvos em minusculas."
+Assert-True ($appScript.Contains('escapeHtml(normalizeBudgetItemText(peca.nome))') -and $appScript.Contains('escapeHtml(normalizeBudgetItemText(servico.descricao))')) "PDF nao garante itens em maiusculas."
+Assert-True ($firebase.Contains('function normalizeReadyLaborText') -and $firebase.Contains('uppercase.replace(/\bTROCAR\b/g, "SUBST.")')) "Lista pronta nao padroniza TROCAR como SUBST."
+Assert-True ($firebase.Contains('data/labor-operations.json?v=2')) "Navegador pode reutilizar a versao antiga da lista de operacoes."
 Assert-True ($appScript.Contains('function openVehicleCatalogForClient') -and $appScript.Contains('catalogVehicleId: selected.id')) "Cadastro do carro nao permite vinculo tecnico exato."
 Assert-True ($clientsHtml.Contains('vehicle-link-help') -and $clientsHtml.Contains('lista pronta de servi')) "Cadastro de clientes nao explica o beneficio do vinculo do veiculo."
 Assert-True ($appScript.Contains('vehicle-ready-link-button') -and $appScript.Contains('Vincular ')) "Acao do veiculo ainda usa um nome tecnico pouco comercial."
