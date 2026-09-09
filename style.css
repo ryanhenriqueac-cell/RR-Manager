@@ -10234,6 +10234,10 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   letter-spacing: .03em;
   text-transform: uppercase;
 }
+.labor-heading-actions { display: flex; align-items: stretch; gap: 14px; flex-wrap: wrap; }
+.labor-ready-list-button { display: grid; gap: 2px; text-align: left; }
+.labor-ready-list-button span { line-height: 1.15; }
+.labor-ready-list-button small { color: rgba(9,18,32,.7); font-size: .68rem; font-weight: 900; letter-spacing: .035em; }
 .labor-catalog-modal,
 .vehicle-catalog-modal {
   width: min(980px, 100%);
@@ -10265,6 +10269,8 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .vehicle-catalog-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
 @media (max-width: 700px) {
   .labor-catalog-modal,.vehicle-catalog-modal { max-height: calc(100vh - 16px); padding: 16px; }
+  .labor-heading-actions { width: 100%; display: grid; grid-template-columns: 1fr; }
+  .labor-heading-actions .btn { width: 100%; }
   .labor-catalog-filters,.vehicle-catalog-grid { grid-template-columns: 1fr; }
   .vehicle-catalog-grid .span-2 { grid-column: auto; }
   .labor-catalog-modal footer,.vehicle-catalog-modal footer { align-items: stretch; flex-direction: column; }

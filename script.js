@@ -2156,15 +2156,32 @@ function getSelectedOrcamentoVehicle() {
 }
 
 async function openLaborCatalog() {
+  if (window.rrHasPlanFeature?.("laborCatalog") !== true) {
+    const seePlans = await rrModal({
+      eyebrow: "Recurso do Plano Pro",
+      title: "Lista pronta de mão de obra",
+      message: `${modalText("Monte orçamentos mais rápido usando uma lista de serviços automotivos com tempos de execução já sugeridos para o veículo selecionado.")}${modalList([
+        "Serviços organizados por sistema",
+        "Horas preenchidas automaticamente",
+        "Descrição e tempo continuam editáveis"
+      ])}<p class="rr-modal-note">Disponível exclusivamente no Plano Pro.</p>`,
+      options: [
+        { label: "Ver Plano Pro", value: true, variant: "primary" },
+        { label: "Continuar no Essencial", value: false, variant: "muted" }
+      ]
+    });
+    if (seePlans) window.location.href = "index.html#planos";
+    return;
+  }
   const selectedVehicle = getSelectedOrcamentoVehicle();
   if (!selectedVehicle) {
-    await rrAlert("Selecione o cliente e o carro antes de consultar a mão de obra.", "Catálogo técnico");
+    await rrAlert("Selecione o cliente e o carro antes de abrir a lista pronta de mão de obra.", "Lista pronta de mão de obra");
     return;
   }
   const button = byId("openLaborCatalog");
   button.disabled = true;
   const originalText = button.innerHTML;
-  button.textContent = "Carregando catálogo...";
+  button.textContent = "Carregando lista pronta...";
   try {
     if (typeof window.rrLoadLaborCatalog !== "function") throw new Error("Aguarde a confirmação do acesso online.");
     const catalog = await window.rrLoadLaborCatalog(selectedVehicle);
@@ -2173,7 +2190,7 @@ async function openLaborCatalog() {
     }
     showLaborCatalogModal(selectedVehicle, catalog);
   } catch (error) {
-    await rrAlert(error?.message || "Não foi possível abrir o catálogo técnico.", "Catálogo indisponível");
+    await rrAlert(error?.message || "Não foi possível abrir a lista pronta de mão de obra.", "Lista indisponível");
   } finally {
     button.disabled = false;
     button.innerHTML = originalText;
@@ -2190,7 +2207,7 @@ function showLaborCatalogModal(selectedVehicle, catalog) {
   const initialVehicle = orderedVehicles.find((item) => matchedIds.has(item.id)) || orderedVehicles[0];
   overlay.innerHTML = `
     <section class="labor-catalog-modal">
-      <div class="labor-catalog-title"><div><span class="dre-pro-badge">RR MANAGER PRO</span><h2>Catálogo técnico de mão de obra</h2><p>Escolha tempos revisados e publicados. Descrição, horas e valor continuarão editáveis.</p></div><button type="button" class="modal-close" data-labor-close aria-label="Fechar">&times;</button></div>
+      <div class="labor-catalog-title"><div><span class="dre-pro-badge">RR MANAGER PRO</span><h2>Lista pronta de mão de obra</h2><p>Escolha serviços e tempos sugeridos. Descrição, horas e valor continuarão editáveis.</p></div><button type="button" class="modal-close" data-labor-close aria-label="Fechar">&times;</button></div>
       <div class="labor-catalog-vehicle"><label>Configuração do veículo<select data-labor-vehicle>${orderedVehicles.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === initialVehicle?.id ? " selected" : ""}>${escapeHtml(`${item.make} ${item.model} · ${item.engine} · ${item.fuel} · ${item.aspiration} · ${item.yearStart}–${item.yearEnd}`)}</option>`).join("")}</select></label><small>Veículo do orçamento: ${escapeHtml([selectedVehicle.marca, selectedVehicle.modelo, selectedVehicle.motor, selectedVehicle.ano].filter(Boolean).join(" · "))}</small></div>
       <div class="labor-catalog-filters"><input type="search" data-labor-search placeholder="Buscar serviço, sistema ou código"><select data-labor-system><option value="">Todos os sistemas</option></select></div>
       <div class="labor-catalog-results" data-labor-results></div>

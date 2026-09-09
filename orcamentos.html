@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orçamentos | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=131">
+  <link rel="stylesheet" href="style.css?v=132">
 </head>
 <body data-page="orcamentos">
   <div class="app-shell">
@@ -57,7 +57,10 @@
                 <p class="eyebrow">Mão de obra</p>
                 <h2>Serviços</h2>
               </div>
-              <div class="labor-heading-actions"><button class="btn btn-primary" type="button" id="openLaborCatalog" data-requires-plan="laborCatalog">Buscar no catálogo técnico <small>PRO</small></button><button class="btn btn-ghost" type="button" id="addServicoOrcamento">Adicionar serviço manual</button></div>
+              <div class="labor-heading-actions">
+                <button class="btn btn-primary labor-ready-list-button" type="button" id="openLaborCatalog"><span>Lista pronta de mão de obra</span><small>Serviços e tempos sugeridos · PRO</small></button>
+                <button class="btn btn-ghost" type="button" id="addServicoOrcamento">Adicionar serviço manual</button>
+              </div>
             </div>
             <div id="orcamentoServicosLista" class="nested-list"></div>
           </div>
@@ -94,7 +97,7 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=119"></script>
+  <script src="script.js?v=120"></script>
   <script src="firebase-config.js?v=13"></script>
   <script type="module" src="firebase-sync.js?v=86"></script>
 </body>

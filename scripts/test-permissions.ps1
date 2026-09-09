@@ -154,8 +154,8 @@ foreach ($htmlFile in $htmlFiles) {
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
-  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=131')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=119')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=132')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=120')) "Cache do script desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=86')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
@@ -204,7 +204,12 @@ Assert-True (-not $firebase.Contains('id="adminCatalogSource"')) "Painel adminis
 Assert-True ($rules.Contains('match /labor_time_catalog/{docId}')) "Catalogo tecnico nao possui regras dedicadas."
 Assert-True ($rules.Contains("resource.data.status == 'published'")) "Rascunhos do catalogo podem ser lidos por oficinas."
 Assert-True ($rules.Contains('allow create, update: if isAdmin()')) "Uma oficina pode publicar tempos tecnicos."
-Assert-True ($budgetsHtml.Contains('id="openLaborCatalog"') -and $budgetsHtml.Contains('data-requires-plan="laborCatalog"')) "Botao Pro do catalogo nao esta no orcamento."
+Assert-True ($budgetsHtml.Contains('id="openLaborCatalog"') -and $budgetsHtml.Contains('labor-ready-list-button')) "Lista pronta de mao de obra nao aparece no orcamento."
+Assert-True (-not [regex]::IsMatch($budgetsHtml, 'id="openLaborCatalog"[^>]*data-requires-plan')) "Plano Essencial ainda esconde a oferta da lista pronta."
+Assert-True ([regex]::IsMatch($budgetsHtml, 'Servi.os e tempos sugeridos.+PRO')) "Botao da lista pronta nao explica o beneficio do Plano Pro."
+Assert-True ($appScript.Contains('if (window.rrHasPlanFeature?.("laborCatalog") !== true)')) "Lista pronta pode ser aberta fora do Plano Pro."
+Assert-True ($appScript.Contains('label: "Ver Plano Pro"') -and $appScript.Contains('window.location.href = "index.html#planos"')) "Oferta da lista pronta nao direciona para o Plano Pro."
+Assert-True ($styles.Contains('.labor-heading-actions') -and $styles.Contains('gap: 14px')) "Acoes de mao de obra permanecem visualmente coladas."
 Assert-True ($budgetsHtml.Contains('id="orcamentoQuilometragem"') -and $budgetsHtml.Contains('placeholder="125000"')) "Orcamento nao oferece quilometragem opcional."
 Assert-True ($appScript.Contains('quilometragem: getValue("orcamentoQuilometragem") === "" ? ""')) "Quilometragem vazia nao e preservada como opcional."
 Assert-True ($appScript.Contains('setValue("orcamentoQuilometragem", orcamento.quilometragem ?? "")')) "Edicao do orcamento nao restaura a quilometragem."
