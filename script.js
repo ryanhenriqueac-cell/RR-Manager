@@ -1677,7 +1677,6 @@ function initClientes() {
     event.target.value = formatPhoneBR(event.target.value);
   });
   byId("clienteCarros").addEventListener("focusin", handleClienteVehicleCatalogFocus);
-  byId("clienteCarros").addEventListener("click", handleClienteVehicleCatalogFocus);
   byId("clienteCarros").addEventListener("input", handleClienteVehicleCatalogInput);
   byId("clienteCarros").addEventListener("change", handleClienteVehicleCatalogInput);
   byId("buscaClientes").addEventListener("input", renderClientes);
@@ -1820,12 +1819,7 @@ async function prepareClienteVehicleCatalog() {
 function handleClienteVehicleCatalogFocus(event) {
   if (!event.target.matches?.("[data-vehicle-catalog-field]")) return;
   const input = event.target;
-  prepareClienteVehicleCatalog().then(() => {
-    refreshClienteVehicleCatalogSuggestions(input.closest("[data-carro-index]"));
-    if (event.type === "click" && typeof input.showPicker === "function") {
-      try { input.showPicker(); } catch (_error) { /* A lista nativa segue disponível pela seta do campo. */ }
-    }
-  });
+  prepareClienteVehicleCatalog().then(() => refreshClienteVehicleCatalogSuggestions(input.closest("[data-carro-index]")));
 }
 
 function handleClienteVehicleCatalogInput(event) {

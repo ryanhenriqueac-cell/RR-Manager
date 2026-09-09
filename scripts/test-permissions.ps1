@@ -157,7 +157,7 @@ foreach ($htmlFile in $htmlFiles) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=133')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=123')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=124')) "Cache do script desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=87')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
@@ -246,7 +246,7 @@ Assert-True ($appScript.Contains('function updateClienteVehicleAutomaticLink')) 
 Assert-True ($appScript.Contains('matches.length === 1 ? matches[0] : null')) "Vinculo automatico pode escolher uma configuracao ambigua."
 Assert-True ([regex]::IsMatch($appScript, 'MAIS DE UMA CONFIGURA..O . SELECIONE PELO BOT.O')) "Configuracao ambigua nao orienta a selecao exata."
 Assert-True ($appScript.Contains('idInput.value = selected?.id || ""')) "Vinculo antigo nao e removido quando os dados do veiculo mudam."
-Assert-True ($appScript.Contains('typeof input.showPicker === "function"')) "Clique no campo nao tenta abrir a lista de sugestoes."
+Assert-True (-not $appScript.Contains('input.showPicker()')) "Abertura manual duplica o clique da seta e fecha a lista de sugestoes."
 Assert-True ($appScript.Contains('window.rrHasPlanFeature?.("laborCatalog") !== true')) "Listas inteligentes nao respeitam o Plano Pro."
 Assert-True (-not [regex]::IsMatch($appScript, 'vehicle-catalog-button[^>]*data-requires-plan')) "Plano Essencial ainda esconde a oferta de vinculo do veiculo."
 Assert-True ([regex]::IsMatch($appScript, 'title: "Vincule o ve.culo . lista pronta"')) "Oferta Pro do vinculo do veiculo nao foi criada."
