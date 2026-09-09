@@ -157,8 +157,8 @@ foreach ($htmlFile in $htmlFiles) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=133')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=124')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=87')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=125')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=88')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -238,8 +238,8 @@ Assert-True ($appScript.Contains('escapeHtml(normalizeBudgetItemText(peca.nome))
 Assert-True ($firebase.Contains('function normalizeReadyLaborText') -and $firebase.Contains('uppercase.replace(/\bTROCAR\b/g, "SUBST.")')) "Lista pronta nao padroniza TROCAR como SUBST."
 Assert-True ($firebase.Contains('data/labor-operations.json?v=2')) "Navegador pode reutilizar a versao antiga da lista de operacoes."
 Assert-True ($appScript.Contains('function openVehicleCatalogForClient') -and $appScript.Contains('catalogVehicleId: selected.id')) "Cadastro do carro nao permite vinculo tecnico exato."
-Assert-True ($clientsHtml.Contains('vehicle-link-help') -and $clientsHtml.Contains('lista pronta de servi')) "Cadastro de clientes nao explica o beneficio do vinculo do veiculo."
-Assert-True ($appScript.Contains('vehicle-ready-link-button') -and $appScript.Contains('Vincular ')) "Acao do veiculo ainda usa um nome tecnico pouco comercial."
+Assert-True ($clientsHtml.Contains('vehicle-link-help') -and $clientsHtml.Contains('No Plano Pro')) "Cadastro de clientes nao explica a separacao entre selecao do veiculo e mao de obra Pro."
+Assert-True ($appScript.Contains('vehicle-ready-link-button') -and [regex]::IsMatch($appScript, 'Selecionar ve.culo da lista')) "Acao do veiculo ainda usa um nome tecnico pouco comercial."
 Assert-True ([regex]::Matches($appScript, 'data-vehicle-catalog-field').Count -ge 4) "Marca, carro, motor e ano nao oferecem listas inteligentes."
 Assert-True ($appScript.Contains('function refreshClienteVehicleCatalogSuggestions')) "Sugestoes do veiculo nao sao filtradas em cascata."
 Assert-True ($appScript.Contains('function updateClienteVehicleAutomaticLink')) "Digitacao manual nao tenta vincular o veiculo automaticamente."
@@ -247,10 +247,12 @@ Assert-True ($appScript.Contains('matches.length === 1 ? matches[0] : null')) "V
 Assert-True ([regex]::IsMatch($appScript, 'MAIS DE UMA CONFIGURA..O . SELECIONE PELO BOT.O')) "Configuracao ambigua nao orienta a selecao exata."
 Assert-True ($appScript.Contains('idInput.value = selected?.id || ""')) "Vinculo antigo nao e removido quando os dados do veiculo mudam."
 Assert-True (-not $appScript.Contains('input.showPicker()')) "Abertura manual duplica o clique da seta e fecha a lista de sugestoes."
-Assert-True ($appScript.Contains('window.rrHasPlanFeature?.("laborCatalog") !== true')) "Listas inteligentes nao respeitam o Plano Pro."
+Assert-True ($firebase.Contains('async function loadVehicleReferenceData()') -and $firebase.Contains('async function loadLaborOperationsReferenceData()')) "Veiculos e operacoes de mao de obra ainda sao carregados juntos."
+Assert-True ($firebase.Contains('return loadVehicleReferenceData();')) "Selecao de veiculos nao usa a base independente."
+Assert-True (-not $appScript.Contains('page !== "clientes" || window.rrHasPlanFeature?.("laborCatalog")')) "Sugestoes de veiculos continuam bloqueadas no Plano Essencial."
 Assert-True (-not [regex]::IsMatch($appScript, 'vehicle-catalog-button[^>]*data-requires-plan')) "Plano Essencial ainda esconde a oferta de vinculo do veiculo."
-Assert-True ([regex]::IsMatch($appScript, 'title: "Vincule o ve.culo . lista pronta"')) "Oferta Pro do vinculo do veiculo nao foi criada."
-Assert-True ([regex]::IsMatch($appScript, 'Lista pronta dispon.vel no or.amento')) "Oferta do vinculo nao explica o resultado no orcamento."
+Assert-True ([regex]::IsMatch($appScript, 'dre-pro-badge">LISTA DE VE.CULOS</span>')) "Seletor geral de veiculos ainda se apresenta como recurso exclusivo Pro."
+Assert-True ([regex]::IsMatch($appScript, 'No Plano Pro, esse v.nculo tamb.m libera')) "Seletor de veiculos nao apresenta o beneficio adicional do Pro."
 Assert-True (-not $appScript.Contains('Confiança da base:')) "Seletor do veiculo ainda exibe a confianca interna da base."
 Assert-True ($styles.Contains('.labor-catalog-modal')) "Catalogo tecnico nao possui interface responsiva."
 

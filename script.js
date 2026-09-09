@@ -1719,7 +1719,7 @@ function renderClienteCarrosDraft() {
       <label>Ano<input data-field="ano" data-vehicle-catalog-field list="vehicleCatalogYears${index}" autocomplete="off" value="${escapeHtml(carro.ano)}" placeholder="Digite ou selecione"><datalist id="vehicleCatalogYears${index}" data-vehicle-options="ano"></datalist></label>
       <label>Placa<input data-field="placa" value="${escapeHtml(formatPlateBR(carro.placa))}" placeholder="ABC-1D23" maxlength="8" oninput="this.value = formatPlateBR(this.value)"></label>
       <label>Observações<input data-field="obs" value="${escapeHtml(carro.obs)}" placeholder="Detalhes do carro"></label>
-      <button class="btn btn-primary vehicle-catalog-button vehicle-ready-link-button" type="button" onclick="openVehicleCatalogForClient(${index})"><span>Vincular à lista pronta de mão de obra</span><small data-vehicle-link-message>${carro.catalogVehicleId ? "✓ VEÍCULO VINCULADO À LISTA PRONTA" : "Preenche o veículo e libera serviços e tempos · PRO"}</small></button>
+      <button class="btn btn-primary vehicle-catalog-button vehicle-ready-link-button" type="button" onclick="openVehicleCatalogForClient(${index})"><span>Selecionar veículo da lista</span><small data-vehicle-link-message>${carro.catalogVehicleId ? "✓ VEÍCULO IDENTIFICADO" : "Padroniza o cadastro · serviços e tempos no PRO"}</small></button>
       <button class="btn btn-danger" type="button" onclick="removeCarroCliente(${index})">Remover</button>
     </div>
   `).join("");
@@ -1790,17 +1790,17 @@ function updateClienteVehicleAutomaticLink(row) {
   if (aspirationInput) aspirationInput.value = selected?.aspiration || "";
   if (linkMessage) {
     linkMessage.textContent = selected
-      ? "✓ VEÍCULO VINCULADO À LISTA PRONTA"
+      ? "✓ VEÍCULO IDENTIFICADO"
       : matches.length > 1
         ? "MAIS DE UMA CONFIGURAÇÃO · SELECIONE PELO BOTÃO"
         : complete
           ? "VEÍCULO FORA DA LISTA · CADASTRO MANUAL"
-          : "Preenche o veículo e libera serviços e tempos · PRO";
+          : "Padroniza o cadastro · serviços e tempos no PRO";
   }
 }
 
 async function prepareClienteVehicleCatalog() {
-  if (page !== "clientes" || window.rrHasPlanFeature?.("laborCatalog") !== true || typeof window.rrLoadVehicleCatalog !== "function") return [];
+  if (page !== "clientes" || typeof window.rrLoadVehicleCatalog !== "function") return [];
   if (clienteVeiculosCatalogo.length) return clienteVeiculosCatalogo;
   if (!clienteVeiculosCatalogoPromise) {
     clienteVeiculosCatalogoPromise = window.rrLoadVehicleCatalog()
@@ -1831,23 +1831,6 @@ function handleClienteVehicleCatalogInput(event) {
 
 async function openVehicleCatalogForClient(index) {
   if (!hasAccess("veiculosGerenciar")) return;
-  if (window.rrHasPlanFeature?.("laborCatalog") !== true) {
-    const seePlans = await rrModal({
-      eyebrow: "Recurso do Plano Pro",
-      title: "Vincule o veículo à lista pronta",
-      message: `${modalText("Escolha a configuração exata do carro uma única vez e use, nos orçamentos, serviços com tempos de mão de obra compatíveis.")}${modalList([
-        "Marca, modelo, motor e ano preenchidos",
-        "Vínculo correto com cada configuração",
-        "Lista pronta disponível no orçamento"
-      ])}<p class="rr-modal-note">Disponível exclusivamente no Plano Pro.</p>`,
-      options: [
-        { label: "Ver Plano Pro", value: true, variant: "primary" },
-        { label: "Continuar no Essencial", value: false, variant: "muted" }
-      ]
-    });
-    if (seePlans) window.location.href = "index.html#planos";
-    return;
-  }
   syncClienteCarrosDraft();
   const current = clienteCarrosDraft[index];
   if (!current) return;
@@ -1865,7 +1848,7 @@ function showVehicleCatalogModal(index, current, vehicles) {
   overlay.className = "auth-modal-overlay vehicle-catalog-overlay";
   overlay.innerHTML = `
     <section class="vehicle-catalog-modal" role="dialog" aria-modal="true" aria-labelledby="vehicleCatalogTitle">
-      <div class="labor-catalog-title"><div><span class="dre-pro-badge">RR MANAGER PRO</span><h2 id="vehicleCatalogTitle">Escolher veículo para a lista pronta</h2><p>Vincule a configuração correta para receber serviços e tempos compatíveis no orçamento.</p></div><button type="button" class="modal-close" data-vehicle-close aria-label="Fechar">&times;</button></div>
+      <div class="labor-catalog-title"><div><span class="dre-pro-badge">LISTA DE VEÍCULOS</span><h2 id="vehicleCatalogTitle">Selecionar veículo</h2><p>Padronize marca, modelo, motor e ano. No Plano Pro, esse vínculo também libera os serviços e tempos compatíveis no orçamento.</p></div><button type="button" class="modal-close" data-vehicle-close aria-label="Fechar">&times;</button></div>
       <div class="vehicle-catalog-grid">
         <label>Montadora<select data-vehicle-make><option value="">Selecione</option></select></label>
         <label>Modelo<select data-vehicle-model disabled><option value="">Selecione</option></select></label>

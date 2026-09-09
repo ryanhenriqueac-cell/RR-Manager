@@ -230,6 +230,8 @@ let activeTeamAccess = null;
 let activeWorkspaceData = null;
 let technicalVehicleConfigs = [];
 let technicalLaborOperations = [];
+let technicalVehiclePromise = null;
+let technicalLaborOperationsPromise = null;
 let technicalReferencePromise = null;
 const publishedLaborTimes = new Map();
 let adminLaborTimes = [];
@@ -331,28 +333,54 @@ function formatCatalogHours(hours) {
   return Number(hours || 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 }
 
-async function loadTechnicalReferenceData() {
-  if (technicalVehicleConfigs.length && technicalLaborOperations.length) {
-    return { vehicles: technicalVehicleConfigs, operations: technicalLaborOperations };
-  }
-  if (!technicalReferencePromise) {
-    technicalReferencePromise = Promise.all([
-      fetch("data/vehicle-configs.json?v=1").then((response) => {
+async function loadVehicleReferenceData() {
+  if (technicalVehicleConfigs.length) return technicalVehicleConfigs;
+  if (!technicalVehiclePromise) {
+    technicalVehiclePromise = fetch("data/vehicle-configs.json?v=1")
+      .then((response) => {
         if (!response.ok) throw new Error("Base de veículos indisponível.");
         return response.json();
-      }),
-      fetch("data/labor-operations.json?v=2").then((response) => {
+      })
+      .then((vehicles) => {
+        technicalVehicleConfigs = Array.isArray(vehicles) ? vehicles : [];
+        return technicalVehicleConfigs;
+      })
+      .catch((error) => {
+        technicalVehiclePromise = null;
+        throw error;
+      });
+  }
+  return technicalVehiclePromise;
+}
+
+async function loadLaborOperationsReferenceData() {
+  if (technicalLaborOperations.length) return technicalLaborOperations;
+  if (!technicalLaborOperationsPromise) {
+    technicalLaborOperationsPromise = fetch("data/labor-operations.json?v=2")
+      .then((response) => {
         if (!response.ok) throw new Error("Catálogo de operações indisponível.");
         return response.json();
       })
-    ]).then(([vehicles, operations]) => {
-      technicalVehicleConfigs = Array.isArray(vehicles) ? vehicles : [];
-      technicalLaborOperations = Array.isArray(operations) ? operations.filter((item) => item.active !== false).map(normalizeReadyLaborOperation) : [];
-      return { vehicles: technicalVehicleConfigs, operations: technicalLaborOperations };
-    }).catch((error) => {
-      technicalReferencePromise = null;
-      throw error;
-    });
+      .then((operations) => {
+        technicalLaborOperations = Array.isArray(operations) ? operations.filter((item) => item.active !== false).map(normalizeReadyLaborOperation) : [];
+        return technicalLaborOperations;
+      })
+      .catch((error) => {
+        technicalLaborOperationsPromise = null;
+        throw error;
+      });
+  }
+  return technicalLaborOperationsPromise;
+}
+
+async function loadTechnicalReferenceData() {
+  if (!technicalReferencePromise) {
+    technicalReferencePromise = Promise.all([loadVehicleReferenceData(), loadLaborOperationsReferenceData()])
+      .then(([vehicles, operations]) => ({ vehicles, operations }))
+      .catch((error) => {
+        technicalReferencePromise = null;
+        throw error;
+      });
   }
   return technicalReferencePromise;
 }
@@ -395,10 +423,10 @@ window.rrLoadLaborCatalog = async (vehicle = {}) => {
 };
 
 window.rrLoadVehicleCatalog = async () => {
-  if (window.rrHasPlanFeature("laborCatalog") !== true || !window.rrHasPermission("veiculosGerenciar")) {
-    throw new Error("A seleção da base técnica exige Plano Pro e permissão para gerenciar veículos.");
+  if (!window.rrHasPermission("veiculosGerenciar")) {
+    throw new Error("Seu perfil não tem permissão para gerenciar veículos.");
   }
-  return (await loadTechnicalReferenceData()).vehicles;
+  return loadVehicleReferenceData();
 };
 let pendingAuthMessage = "";
 let pendingAuthModal = null;
