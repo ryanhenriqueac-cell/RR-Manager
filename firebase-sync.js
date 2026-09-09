@@ -1351,7 +1351,7 @@ function sanitizeClientSummary(client = {}) {
 }
 
 const PUBLIC_BUDGET_FIELDS = [
-  "id", "numero", "clienteId", "carroId", "veiculoId", "data", "status",
+  "id", "numero", "clienteId", "carroId", "veiculoId", "quilometragem", "data", "status",
   "totalPecas", "totalServicos", "totalTerceirizados", "totalCalculado",
   "valorFinalManual", "total", "assignedToEmail", "assignedToName",
   "publicShareId", "pagamento", "decidedAt", "decidedBy", "approvalDateRecoveredAt",

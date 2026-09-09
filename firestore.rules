@@ -237,7 +237,7 @@ service cloud.firestore {
 
     function isSafeBudgetDocument(data) {
       return data.keys().hasOnly([
-        'id', 'numero', 'clienteId', 'carroId', 'veiculoId', 'data', 'status',
+        'id', 'numero', 'clienteId', 'carroId', 'veiculoId', 'quilometragem', 'data', 'status',
         'pecas', 'servicos', 'terceirizados', 'totalPecas', 'totalServicos',
         'totalTerceirizados', 'totalCalculado', 'valorFinalManual', 'total',
         'assignedToEmail', 'assignedToName', 'historicoVersoes', 'publicShareId',
@@ -248,6 +248,9 @@ service cloud.firestore {
         && data.servicos is list
         && data.terceirizados is list
         && data.historicoVersoes is list
+        && (!('quilometragem' in data)
+          || data.quilometragem == ''
+          || (data.quilometragem is int && data.quilometragem >= 0))
         && (!('pagamento' in data)
           || (data.pagamento is map
             && data.pagamento.keys().hasOnly([

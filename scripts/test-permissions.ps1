@@ -155,8 +155,8 @@ foreach ($htmlFile in $htmlFiles) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
   if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=131')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=118')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=85')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=119')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=86')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
@@ -205,6 +205,13 @@ Assert-True ($rules.Contains('match /labor_time_catalog/{docId}')) "Catalogo tec
 Assert-True ($rules.Contains("resource.data.status == 'published'")) "Rascunhos do catalogo podem ser lidos por oficinas."
 Assert-True ($rules.Contains('allow create, update: if isAdmin()')) "Uma oficina pode publicar tempos tecnicos."
 Assert-True ($budgetsHtml.Contains('id="openLaborCatalog"') -and $budgetsHtml.Contains('data-requires-plan="laborCatalog"')) "Botao Pro do catalogo nao esta no orcamento."
+Assert-True ($budgetsHtml.Contains('id="orcamentoQuilometragem"') -and $budgetsHtml.Contains('placeholder="Opcional: ex. 125000"')) "Orcamento nao oferece quilometragem opcional."
+Assert-True ($appScript.Contains('quilometragem: getValue("orcamentoQuilometragem") === "" ? ""')) "Quilometragem vazia nao e preservada como opcional."
+Assert-True ($appScript.Contains('setValue("orcamentoQuilometragem", orcamento.quilometragem ?? "")')) "Edicao do orcamento nao restaura a quilometragem."
+Assert-True ($appScript.Contains('const quilometragemLinha = quilometragem !== ""')) "Impressao nao omite a quilometragem vazia."
+Assert-True ($appScript.Contains('Km: ${Math.max(0, parseInteger(quilometragem)).toLocaleString("pt-BR")} km')) "Quilometragem nao aparece junto aos dados do carro."
+Assert-True ($firebase.Contains('"veiculoId", "quilometragem", "data"')) "Sincronizacao segura descarta a quilometragem do orcamento."
+Assert-True ($rules.Contains("'veiculoId', 'quilometragem', 'data'")) "Firestore bloqueia orcamentos com quilometragem."
 Assert-True ($appScript.Contains('catalogModified: descricao !==')) "Alteracao da sugestao tecnica nao e rastreada."
 Assert-True ($appScript.Contains('function openVehicleCatalogForClient') -and $appScript.Contains('catalogVehicleId: selected.id')) "Cadastro do carro nao permite vinculo tecnico exato."
 Assert-True (-not $appScript.Contains('Confiança da base:')) "Seletor do veiculo ainda exibe a confianca interna da base."

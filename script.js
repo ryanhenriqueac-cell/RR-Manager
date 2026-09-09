@@ -846,6 +846,7 @@ function buildPublicOrcamentoData(orcamento) {
       n: orcamento.numero,
       d: orcamento.data,
       st: orcamento.status,
+      k: orcamento.quilometragem ?? "",
       p: pecas.map((peca) => ({
         n: peca.nome || "",
         q: parseInteger(peca.quantidade),
@@ -902,6 +903,7 @@ function normalizePublicOrcamentoData(data) {
       numero: data.o?.n,
       data: data.o?.d,
       status: data.o?.st,
+      quilometragem: data.o?.k ?? "",
       pecas: (data.o?.p || []).map((peca) => ({
         nome: peca.n || "",
         quantidade: parseInteger(peca.q),
@@ -2340,7 +2342,7 @@ function cloneOrcamentoVersion(orcamento) {
 
 function isSameOrcamentoVersion(a, b) {
   if (!a || !b) return false;
-  const fields = ["clienteId", "carroId", "veiculoId", "data", "status", "valorFinalManual", "total"];
+  const fields = ["clienteId", "carroId", "veiculoId", "quilometragem", "data", "status", "valorFinalManual", "total"];
   const basicFieldsMatch = fields.every((field) => String(a[field] ?? "") === String(b[field] ?? ""));
   return basicFieldsMatch
     && JSON.stringify(a.pecas || []) === JSON.stringify(b.pecas || [])
@@ -2352,7 +2354,7 @@ function getOrcamentoCustomerSignature(orcamento) {
   const parts = (Array.isArray(orcamento?.pecas) ? orcamento.pecas : []).map((item) => ({ nome: String(item.nome || "").trim(), quantidade: parseInteger(item.quantidade), valorUnitario: parseDecimal(item.valorUnitario), cortesia: item.cortesia === true }));
   const labor = (Array.isArray(orcamento?.servicos) ? orcamento.servicos : []).map((item) => ({ descricao: String(item.descricao || "").trim(), horas: parseDecimal(item.horas), valorHora: parseDecimal(item.valorHora), cortesia: item.cortesia === true }));
   const outsourced = (Array.isArray(orcamento?.terceirizados) ? orcamento.terceirizados : []).map((item) => ({ descricao: String(item.descricao || "").trim(), valor: parseDecimal(item.valor), cortesia: item.cortesia === true }));
-  return JSON.stringify({ clienteId: orcamento?.clienteId || "", carroId: orcamento?.carroId || orcamento?.veiculoId || "", data: orcamento?.data || "", valorFinalManual: parseDecimal(orcamento?.valorFinalManual), parts, labor, outsourced });
+  return JSON.stringify({ clienteId: orcamento?.clienteId || "", carroId: orcamento?.carroId || orcamento?.veiculoId || "", quilometragem: orcamento?.quilometragem ?? "", data: orcamento?.data || "", valorFinalManual: parseDecimal(orcamento?.valorFinalManual), parts, labor, outsourced });
 }
 
 function getRecoverableApprovalDate(orcamento) {
@@ -2415,6 +2417,7 @@ async function saveOrcamento(event) {
     numero: existente?.numero || getNextOrcamentoNumber(orcamentos),
     clienteId: getValue("orcamentoCliente"),
     carroId: getValue("orcamentoCarro"),
+    quilometragem: getValue("orcamentoQuilometragem") === "" ? "" : Math.max(0, parseInteger(getValue("orcamentoQuilometragem"))),
     data: getValue("orcamentoData"),
     status: existente?.status || "Pré-orçamento",
     pecas,
@@ -2539,6 +2542,7 @@ function loadOrcamentoIntoForm(orcamento) {
   setValue("orcamentoCliente", orcamento.clienteId);
   hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro", orcamento.carroId || orcamento.veiculoId);
   updateOrcamentoInspectionButton();
+  setValue("orcamentoQuilometragem", orcamento.quilometragem ?? "");
   setValue("orcamentoData", orcamento.data);
   hydrateOrcamentoAssigneeSelect(orcamento.assignedToEmail || "");
   setValue("orcamentoValorFinal", orcamento.valorFinalManual || "");
@@ -2996,6 +3000,10 @@ function buildOrcamentoPrintHtml(orcamento) {
   const branding = getDocumentBranding(orcamento);
   const logoUrl = new URL(branding.logoUrl, window.location.href).href;
   const manyPartsClass = pecas.length >= 14 ? " has-many-parts" : "";
+  const quilometragem = String(orcamento.quilometragem ?? "").trim();
+  const quilometragemLinha = quilometragem !== ""
+    ? `<br>${escapeHtml(`Km: ${Math.max(0, parseInteger(quilometragem)).toLocaleString("pt-BR")} km`)}`
+    : "";
 
   return `
     <article class="print-document${manyPartsClass}">
@@ -3012,7 +3020,7 @@ function buildOrcamentoPrintHtml(orcamento) {
 
       <section class="print-info-grid">
         <div><strong>Cliente</strong>${escapeHtml(cliente?.nome || "")}<br>${escapeHtml(formatPhoneBR(cliente?.telefone))}<br>${escapeHtml(cliente?.email || "")}</div>
-        <div><strong>Carro</strong>${escapeHtml([carro?.marca, carro?.modelo, carro?.motor, carro?.ano].filter(Boolean).join(" "))}<br>${escapeHtml(carro?.placa ? `Placa: ${carro.placa}` : "")}</div>
+        <div><strong>Carro</strong>${escapeHtml([carro?.marca, carro?.modelo, carro?.motor, carro?.ano].filter(Boolean).join(" "))}<br>${escapeHtml(carro?.placa ? `Placa: ${carro.placa}` : "")}${quilometragemLinha}</div>
         <div><strong>Data</strong>${escapeHtml(formatDateBR(orcamento.data))}</div>
         <div><strong>Número do orçamento</strong>${String(orcamento.numero || "").padStart(4, "0")}</div>
       </section>
