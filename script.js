@@ -189,6 +189,8 @@ const formatCurrency = new Intl.NumberFormat("pt-BR", {
 
 const page = document.body.dataset.page;
 let clienteCarrosDraft = [];
+let clienteVeiculosCatalogo = [];
+let clienteVeiculosCatalogoPromise = null;
 const publicOrcamentoResponses = new Map();
 const publicOrcamentoResponseWatchers = new Map();
 let orcamentoPecasDraft = [];
@@ -260,7 +262,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "contrato") initContrato();
 });
 
-window.addEventListener("rr-plan-ready", () => applyPlanVisibility());
+window.addEventListener("rr-plan-ready", () => {
+  applyPlanVisibility();
+  if (page === "clientes") prepareClienteVehicleCatalog();
+});
 
 function applyEquipePlanAccess(event) {
   if (page !== "equipe") return;
@@ -1671,8 +1676,13 @@ function initClientes() {
   byId("clienteTelefone").addEventListener("input", (event) => {
     event.target.value = formatPhoneBR(event.target.value);
   });
+  byId("clienteCarros").addEventListener("focusin", handleClienteVehicleCatalogFocus);
+  byId("clienteCarros").addEventListener("click", handleClienteVehicleCatalogFocus);
+  byId("clienteCarros").addEventListener("input", handleClienteVehicleCatalogInput);
+  byId("clienteCarros").addEventListener("change", handleClienteVehicleCatalogInput);
   byId("buscaClientes").addEventListener("input", renderClientes);
   renderClienteCarrosDraft();
+  prepareClienteVehicleCatalog();
   renderClientes();
 }
 
@@ -1704,17 +1714,125 @@ function renderClienteCarrosDraft() {
       <input data-field="catalogVehicleId" type="hidden" value="${escapeHtml(carro.catalogVehicleId)}">
       <input data-field="catalogFuel" type="hidden" value="${escapeHtml(carro.catalogFuel)}">
       <input data-field="catalogAspiration" type="hidden" value="${escapeHtml(carro.catalogAspiration)}">
-      <label>Marca<input data-field="marca" value="${escapeHtml(carro.marca)}" placeholder="Ex: Honda"></label>
-      <label>Carro<input data-field="modelo" value="${escapeHtml(carro.modelo)}" placeholder="Ex: Civic"></label>
-      <label>Motor<input data-field="motor" value="${escapeHtml(carro.motor)}" placeholder="Ex: 2.0 Flex"></label>
-      <label>Ano<input data-field="ano" value="${escapeHtml(carro.ano)}" placeholder="Ex: 2019"></label>
+      <label>Marca<input data-field="marca" data-vehicle-catalog-field list="vehicleCatalogMakes${index}" autocomplete="off" value="${escapeHtml(carro.marca)}" placeholder="Digite ou selecione"><datalist id="vehicleCatalogMakes${index}" data-vehicle-options="marca"></datalist></label>
+      <label>Carro<input data-field="modelo" data-vehicle-catalog-field list="vehicleCatalogModels${index}" autocomplete="off" value="${escapeHtml(carro.modelo)}" placeholder="Digite ou selecione"><datalist id="vehicleCatalogModels${index}" data-vehicle-options="modelo"></datalist></label>
+      <label>Motor<input data-field="motor" data-vehicle-catalog-field list="vehicleCatalogEngines${index}" autocomplete="off" value="${escapeHtml(carro.motor)}" placeholder="Digite ou selecione"><datalist id="vehicleCatalogEngines${index}" data-vehicle-options="motor"></datalist></label>
+      <label>Ano<input data-field="ano" data-vehicle-catalog-field list="vehicleCatalogYears${index}" autocomplete="off" value="${escapeHtml(carro.ano)}" placeholder="Digite ou selecione"><datalist id="vehicleCatalogYears${index}" data-vehicle-options="ano"></datalist></label>
       <label>Placa<input data-field="placa" value="${escapeHtml(formatPlateBR(carro.placa))}" placeholder="ABC-1D23" maxlength="8" oninput="this.value = formatPlateBR(this.value)"></label>
       <label>Observações<input data-field="obs" value="${escapeHtml(carro.obs)}" placeholder="Detalhes do carro"></label>
-      <button class="btn btn-primary vehicle-catalog-button vehicle-ready-link-button" type="button" onclick="openVehicleCatalogForClient(${index})"><span>Vincular à lista pronta de mão de obra</span><small>Preenche o veículo e libera serviços e tempos · PRO</small></button>
+      <button class="btn btn-primary vehicle-catalog-button vehicle-ready-link-button" type="button" onclick="openVehicleCatalogForClient(${index})"><span>Vincular à lista pronta de mão de obra</span><small data-vehicle-link-message>${carro.catalogVehicleId ? "✓ VEÍCULO VINCULADO À LISTA PRONTA" : "Preenche o veículo e libera serviços e tempos · PRO"}</small></button>
       <button class="btn btn-danger" type="button" onclick="removeCarroCliente(${index})">Remover</button>
     </div>
   `).join("");
   applyPlanVisibility(container);
+  refreshAllClienteVehicleCatalogSuggestions();
+}
+
+function sameCatalogValue(left, right) {
+  return normalizeCatalogSearch(left) === normalizeCatalogSearch(right);
+}
+
+function uniqueVehicleCatalogValues(items, field) {
+  return [...new Set(items.map((item) => String(item[field] || "").trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "pt-BR", { sensitivity: "base", numeric: true }));
+}
+
+function setVehicleCatalogDatalist(row, field, values) {
+  const datalist = row.querySelector(`[data-vehicle-options='${field}']`);
+  if (!datalist) return;
+  datalist.innerHTML = values.map((value) => `<option value="${escapeHtml(value)}"></option>`).join("");
+}
+
+function refreshClienteVehicleCatalogSuggestions(row) {
+  if (!row || !clienteVeiculosCatalogo.length) return;
+  const make = row.querySelector("[data-field='marca']")?.value || "";
+  const model = row.querySelector("[data-field='modelo']")?.value || "";
+  const engine = row.querySelector("[data-field='motor']")?.value || "";
+  const makeMatches = clienteVeiculosCatalogo.some((item) => sameCatalogValue(item.make, make));
+  const byMake = makeMatches ? clienteVeiculosCatalogo.filter((item) => sameCatalogValue(item.make, make)) : clienteVeiculosCatalogo;
+  const modelMatches = byMake.some((item) => sameCatalogValue(item.model, model));
+  const byModel = modelMatches ? byMake.filter((item) => sameCatalogValue(item.model, model)) : byMake;
+  const engineMatches = byModel.some((item) => sameCatalogValue(item.engine, engine));
+  const byEngine = engineMatches ? byModel.filter((item) => sameCatalogValue(item.engine, engine)) : byModel;
+  setVehicleCatalogDatalist(row, "marca", uniqueVehicleCatalogValues(clienteVeiculosCatalogo, "make"));
+  setVehicleCatalogDatalist(row, "modelo", uniqueVehicleCatalogValues(byMake, "model"));
+  setVehicleCatalogDatalist(row, "motor", uniqueVehicleCatalogValues(byModel, "engine"));
+  const years = [...new Set(byEngine.flatMap((item) => Array.from({ length: Number(item.yearEnd) - Number(item.yearStart) + 1 }, (_, offset) => String(Number(item.yearStart) + offset))))]
+    .sort((a, b) => Number(b) - Number(a));
+  setVehicleCatalogDatalist(row, "ano", years);
+}
+
+function refreshAllClienteVehicleCatalogSuggestions() {
+  if (!clienteVeiculosCatalogo.length) return;
+  document.querySelectorAll("[data-carro-index]").forEach(refreshClienteVehicleCatalogSuggestions);
+}
+
+function updateClienteVehicleAutomaticLink(row) {
+  if (!row || !clienteVeiculosCatalogo.length) return;
+  const make = row.querySelector("[data-field='marca']")?.value.trim() || "";
+  const model = row.querySelector("[data-field='modelo']")?.value.trim() || "";
+  const engine = row.querySelector("[data-field='motor']")?.value.trim() || "";
+  const year = Number(row.querySelector("[data-field='ano']")?.value || 0);
+  const idInput = row.querySelector("[data-field='catalogVehicleId']");
+  const fuelInput = row.querySelector("[data-field='catalogFuel']");
+  const aspirationInput = row.querySelector("[data-field='catalogAspiration']");
+  const linkMessage = row.querySelector("[data-vehicle-link-message]");
+  const complete = Boolean(make && model && engine && year);
+  const matches = complete
+    ? clienteVeiculosCatalogo.filter((item) => sameCatalogValue(item.make, make)
+      && sameCatalogValue(item.model, model)
+      && sameCatalogValue(item.engine, engine)
+      && year >= Number(item.yearStart) && year <= Number(item.yearEnd))
+    : [];
+  const current = matches.find((item) => item.id === idInput?.value);
+  const selected = current || (matches.length === 1 ? matches[0] : null);
+  if (idInput) idInput.value = selected?.id || "";
+  if (fuelInput) fuelInput.value = selected?.fuel || "";
+  if (aspirationInput) aspirationInput.value = selected?.aspiration || "";
+  if (linkMessage) {
+    linkMessage.textContent = selected
+      ? "✓ VEÍCULO VINCULADO À LISTA PRONTA"
+      : matches.length > 1
+        ? "MAIS DE UMA CONFIGURAÇÃO · SELECIONE PELO BOTÃO"
+        : complete
+          ? "VEÍCULO FORA DA LISTA · CADASTRO MANUAL"
+          : "Preenche o veículo e libera serviços e tempos · PRO";
+  }
+}
+
+async function prepareClienteVehicleCatalog() {
+  if (page !== "clientes" || window.rrHasPlanFeature?.("laborCatalog") !== true || typeof window.rrLoadVehicleCatalog !== "function") return [];
+  if (clienteVeiculosCatalogo.length) return clienteVeiculosCatalogo;
+  if (!clienteVeiculosCatalogoPromise) {
+    clienteVeiculosCatalogoPromise = window.rrLoadVehicleCatalog()
+      .then((items) => {
+        clienteVeiculosCatalogo = Array.isArray(items) ? items : [];
+        refreshAllClienteVehicleCatalogSuggestions();
+        document.querySelectorAll("[data-carro-index]").forEach(updateClienteVehicleAutomaticLink);
+        return clienteVeiculosCatalogo;
+      })
+      .catch(() => [])
+      .finally(() => { clienteVeiculosCatalogoPromise = null; });
+  }
+  return clienteVeiculosCatalogoPromise;
+}
+
+function handleClienteVehicleCatalogFocus(event) {
+  if (!event.target.matches?.("[data-vehicle-catalog-field]")) return;
+  const input = event.target;
+  prepareClienteVehicleCatalog().then(() => {
+    refreshClienteVehicleCatalogSuggestions(input.closest("[data-carro-index]"));
+    if (event.type === "click" && typeof input.showPicker === "function") {
+      try { input.showPicker(); } catch (_error) { /* A lista nativa segue disponível pela seta do campo. */ }
+    }
+  });
+}
+
+function handleClienteVehicleCatalogInput(event) {
+  if (!event.target.matches?.("[data-vehicle-catalog-field]")) return;
+  const row = event.target.closest("[data-carro-index]");
+  refreshClienteVehicleCatalogSuggestions(row);
+  updateClienteVehicleAutomaticLink(row);
 }
 
 async function openVehicleCatalogForClient(index) {
