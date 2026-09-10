@@ -7,6 +7,8 @@ $rulesPath = Join-Path $projectRoot "firestore.rules"
 $teamPath = Join-Path $projectRoot "equipe.html"
 $budgetsPath = Join-Path $projectRoot "orcamentos.html"
 $clientsPath = Join-Path $projectRoot "clientes.html"
+$termsPath = Join-Path $projectRoot "termos.html"
+$privacyPath = Join-Path $projectRoot "privacidade.html"
 $stylesPath = Join-Path $projectRoot "style.css"
 $vehicleCatalogPath = Join-Path $projectRoot "data/vehicle-configs.json"
 $laborOperationsPath = Join-Path $projectRoot "data/labor-operations.json"
@@ -17,6 +19,8 @@ $rules = [System.IO.File]::ReadAllText($rulesPath)
 $teamHtml = [System.IO.File]::ReadAllText($teamPath)
 $budgetsHtml = [System.IO.File]::ReadAllText($budgetsPath)
 $clientsHtml = [System.IO.File]::ReadAllText($clientsPath)
+$termsHtml = [System.IO.File]::ReadAllText($termsPath)
+$privacyHtml = [System.IO.File]::ReadAllText($privacyPath)
 $styles = [System.IO.File]::ReadAllText($stylesPath)
 $htmlFiles = Get-ChildItem -LiteralPath $projectRoot -Filter "*.html" -File
 $allHtml = ($htmlFiles | ForEach-Object { [System.IO.File]::ReadAllText($_.FullName) }) -join "`n"
@@ -156,10 +160,25 @@ foreach ($htmlFile in $htmlFiles) {
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
-  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=133')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=134')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=125')) "Cache do script desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=88')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=89')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
+
+Assert-True ($firebase.Contains('const LEGAL_TERMS_VERSION = "1.5"')) "Versao dos Termos nao foi atualizada."
+Assert-True ($firebase.Contains('const LEGAL_PRIVACY_VERSION = "1.4"')) "Versao da Privacidade nao foi atualizada."
+Assert-True ($firebase.Contains('const CONTRACT_VERSION = "2.5"')) "Versao do Contrato nao foi atualizada."
+Assert-True ([regex]::IsMatch($termsHtml, 'Vers.o 1\.5') -and [regex]::IsMatch($termsHtml, 'Opera..o') -and [regex]::IsMatch($termsHtml, 'lista pronta de m.o de obra')) "Termos nao refletem os novos recursos e planos."
+Assert-True ([regex]::IsMatch($privacyHtml, 'Vers.o 1\.4')) "Politica de Privacidade nao foi atualizada."
+Assert-True ([regex]::IsMatch($privacyHtml, '(?i)quilometragem') -and [regex]::IsMatch($privacyHtml, '(?i)armazenamento no navegador')) "Privacidade nao informa os novos dados ou armazenamento local."
+Assert-True ([regex]::IsMatch($firebase, 'ATUALIZA..O JUR.DICA') -and $firebase.Contains('hasPreviousAcceptance')) "Novo aceite nao explica a atualizacao juridica."
+Assert-True ($firebase.Contains('function isLegalAcceptancePage()') -and $firebase.Contains('"operacao", "equipe", "inspecao"')) "Novo aceite nao cobre todas as paginas autenticadas relevantes."
+Assert-True ($firebase.Contains('id="registerLegalConsent"') -and $firebase.Contains('type="checkbox" required')) "Cadastro nao exige ciencia dos documentos juridicos."
+Assert-True ($styles.Contains('.auth-legal-consent input')) "Confirmacao juridica do cadastro nao possui interface adequada."
+Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot 'docs/compliance/registro-operacoes-lgpd.md')) "Registro simplificado de tratamentos ausente."
+Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot 'docs/compliance/plano-resposta-incidentes.md')) "Plano de resposta a incidentes ausente."
+Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot 'docs/compliance/matriz-retencao.md')) "Matriz de retencao ausente."
+Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot 'docs/compliance/governanca-base-tecnica.md')) "Governanca da base tecnica ausente."
 
 Assert-True ($firebase.Contains('operacao: false')) "Plano Essencial ainda libera Operacao."
 Assert-True ($firebase.Contains('operacao: true')) "Plano Pro nao libera Operacao."

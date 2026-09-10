@@ -58,9 +58,9 @@ const DEFAULT_MACHINE_RATES = {
 const MAX_LOGO_DIMENSION = 1000;
 const MAX_LOGO_DATA_URL_LENGTH = 120000;
 const ONBOARDING_VERSION = "manager_intro_v2";
-const LEGAL_TERMS_VERSION = "1.4";
-const LEGAL_PRIVACY_VERSION = "1.3";
-const CONTRACT_VERSION = "2.4";
+const LEGAL_TERMS_VERSION = "1.5";
+const LEGAL_PRIVACY_VERSION = "1.4";
+const CONTRACT_VERSION = "2.5";
 const CONTRACT_PLAN = {
   code: "monthly_launch",
   name: "Mensal · condição de lançamento",
@@ -841,7 +841,10 @@ function buildAuthShell() {
             </div>
           </label>
         </div>
-        <p class="auth-legal-notice">Ao solicitar o acesso, você confirma que leu nossa <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. O aceite dos <a href="termos.html" target="_blank" rel="noopener">Termos de Uso</a> será solicitado no primeiro acesso liberado.</p>
+        <label class="auth-legal-notice auth-legal-consent">
+          <input id="registerLegalConsent" type="checkbox" required>
+          <span>${teamInviteEmail ? "Li e concordo com os <a href=\"termos.html\" target=\"_blank\" rel=\"noopener\">Termos de Uso</a> aplicáveis à minha conta e estou ciente da <a href=\"privacidade.html\" target=\"_blank\" rel=\"noopener\">Política de Privacidade</a>. O contrato da oficina é administrado pelo responsável." : "Li os <a href=\"termos.html\" target=\"_blank\" rel=\"noopener\">Termos de Uso</a> e estou ciente da <a href=\"privacidade.html\" target=\"_blank\" rel=\"noopener\">Política de Privacidade</a>. O aceite definitivo do contrato e das versões vigentes será registrado após a liberação."}</span>
+        </label>
         <div class="auth-register-actions">
           <a class="btn btn-ghost" href="index.html">Voltar &agrave; p&aacute;gina principal</a>
           <button class="btn btn-muted" type="button" id="firebaseBackToLogin">Voltar</button>
@@ -2416,7 +2419,7 @@ function renderContractDocument(workspace = {}) {
       <section class="contract-sheet" data-pdf-page>
         ${pageHeader(4, "Funcionalidades e operação")}
         <div class="contract-section"><h3>5. Funcionalidades efetivamente disponíveis</h3><p>Integram o serviço somente as funcionalidades disponibilizadas no plano e acessíveis à CONTRATANTE no momento da utilização:</p><div class="contract-feature-grid detailed">
-          <span><strong>Gestão cadastral</strong> Clientes, veículos, peças e serviços.</span>
+          <span><strong>Gestão cadastral</strong> Clientes, veículos e seleção padronizada de marca, modelo, motor e ano.</span>
           <span><strong>Orçamentos</strong> Peças, mão de obra, serviços terceirizados, cortesias, custos e valores de venda.</span>
           <span><strong>Compartilhamento</strong> Envio pelo WhatsApp e links públicos.</span>
           <span><strong>Inspeções</strong> Checklist e relatório visual em PDF.</span>
@@ -2424,11 +2427,11 @@ function renderContractDocument(workspace = {}) {
           <span><strong>Documentos</strong> Impressão, PDF e compartilhamento móvel.</span>
           <span><strong>Personalização</strong> Logo, dados da empresa, Pix e taxas.</span>
           <span><strong>Sincronização</strong> Dados vinculados ao ambiente da oficina.</span>
-          ${String(plan.planId || plan.code || "").startsWith("pro") ? `<span><strong>Recursos Pro</strong> DRE gerencial e exportação, recorrências financeiras e até quatro contas adicionais com permissões.</span>` : ""}
+          ${String(plan.planId || plan.code || "").startsWith("pro") ? `<span><strong>Recursos Pro</strong> Operação e distribuição de ordens, lista pronta de mão de obra e tempos por veículo, DRE gerencial e exportação, recorrências financeiras e até quatro contas adicionais com permissões individuais.</span>` : ""}
         </div></div>
         <div class="contract-section"><h3>6. Atualizações</h3><p>A CONTRATADA poderá corrigir, aprimorar, modificar ou atualizar o sistema para melhorar segurança, desempenho e usabilidade. Recursos futuros somente integrarão o serviço quando forem efetivamente disponibilizados. Funções obsoletas ou incompatíveis com fornecedores externos poderão ser descontinuadas, com comunicação prévia quando razoavelmente possível.</p></div>
         <div class="contract-section"><h3>7. Disponibilidade e suporte</h3><p>A CONTRATADA empregará esforços razoáveis para manter o serviço funcional. Poderão ocorrer manutenções, falhas de internet, indisponibilidade de hospedagem, autenticação, banco de dados, comunicação ou outros fornecedores, incidentes de segurança e eventos fora de seu controle. O suporte oferece orientação sobre as funções disponíveis pelos canais oficiais, de <strong>${escapeHtml(provider.supportHours || "segunda a sexta-feira, das 8h às 18h, exceto feriados")}</strong>, em prazos compatíveis com a natureza e complexidade da solicitação.</p></div>
-        <div class="contract-notice"><b>Recursos do plano:</b> as funções liberadas seguem o plano e as condições comerciais registrados para a oficina. Contas adicionais são restritas ao Plano Pro e aos limites exibidos no sistema.</div>
+        <div class="contract-notice"><b>Recursos do plano:</b> a seleção padronizada de veículos integra os planos disponíveis. Operação, serviços e tempos da lista pronta, DRE, recorrências e contas adicionais são restritos ao Plano Pro e aos limites exibidos no sistema.</div>
         ${pageFooter(4)}
       </section>
 
@@ -2446,7 +2449,7 @@ function renderContractDocument(workspace = {}) {
         ${pageHeader(6, "Responsabilidades e documentos")}
         <div class="contract-section"><h3>13. Responsabilidades da contratante</h3><p>A CONTRATANTE é responsável pela veracidade, necessidade, atualização e legalidade das informações inseridas, pela proteção de suas credenciais e pela conferência de orçamentos, peças, serviços, valores, taxas, descontos, documentos, diagnósticos e relatórios antes de utilizá-los ou enviá-los.</p></div>
         <div class="contract-section"><h3>14. Serviços automotivos</h3><p>A CONTRATANTE permanece exclusivamente responsável pela avaliação, qualidade, segurança, preço e execução dos serviços prestados aos seus clientes. O RR Manager é ferramenta de apoio e não toma decisões técnicas ou comerciais de forma autônoma.</p></div>
-        <div class="contract-section"><h3>15. Orçamentos, catálogo técnico, inspeções, financeiro e DRE</h3><p>Os resultados dependem dos dados e parâmetros configurados pela oficina. A CONTRATADA não garante preços de peças, mão de obra, serviços terceirizados, tributos, descontos ou diagnósticos. Veículos, operações e tempos do catálogo técnico são referências sujeitas a divergências de versão, motorização, equipamentos, estado do veículo e procedimento; a CONTRATANTE deve conferir VIN, documentação do fabricante, condições reais e possíveis sobreposições antes de usar ou enviar o orçamento. A descrição e o tempo podem ser alterados pela oficina, que permanece responsável pela estimativa final. A indicação feita pelo cliente em link público não conclui a aprovação: a oficina deve confirmá-la no sistema. Cortesias podem gerar custos sem receita, conforme os campos informados. Lançamentos recorrentes são automações que devem ser revisadas pela oficina. Para fins do DRE gerencial, o orçamento aprovado é tratado como realizado e recebido na data da aprovação; esse critério não substitui regime contábil, conciliação bancária, documento fiscal nem análise de profissional habilitado. As inspeções não substituem desmontagem ou diagnóstico especializado.</p></div>
+        <div class="contract-section"><h3>15. Orçamentos, veículos, lista pronta, inspeções, financeiro e DRE</h3><p>Os resultados dependem dos dados e parâmetros configurados pela oficina. A CONTRATADA não garante preços de peças, mão de obra, serviços terceirizados, tributos, descontos ou diagnósticos. A seleção padronizada auxilia a identificação do veículo, mas a CONTRATANTE deve conferir a configuração real, inclusive VIN quando necessário. No Plano Pro, operações e tempos publicados são referências sujeitas a divergências de versão, motorização, equipamentos, estado do veículo, procedimento e possíveis sobreposições; antes de usar ou enviar o orçamento, a CONTRATANTE deve conferir documentação do fabricante, condições reais, segurança do procedimento e adequação do tempo. A descrição e as horas podem ser alteradas pela oficina, que permanece responsável pela estimativa e execução finais. Quilometragem, inspeções e observações dependem das informações registradas e não substituem desmontagem ou diagnóstico especializado. A indicação feita pelo cliente em link público não conclui a aprovação: a oficina deve confirmá-la no sistema. Cortesias podem gerar custos sem receita. Lançamentos recorrentes devem ser revisados. Para fins do DRE gerencial, o orçamento aprovado é tratado como realizado e recebido na data da aprovação; esse critério não substitui regime contábil, conciliação bancária, documento fiscal nem análise de profissional habilitado.</p></div>
         <div class="contract-section"><h3>16. WhatsApp, links e terceiros</h3><p>Compartilhamentos dependem das regras e disponibilidade do WhatsApp, navegador, Firebase e outros fornecedores. A CONTRATANTE deve conferir destinatários, evitar dados desnecessários e utilizar links públicos de forma lícita. A CONTRATADA não responde por bloqueios ou falhas de terceiros que não decorram de conduta própria.</p></div>
         <div class="contract-notice"><b>Responsabilidade operacional:</b> antes de enviar qualquer documento, a oficina deve revisar cliente, veículo, itens, valores, forma de pagamento e destinatário.</div>
         ${pageFooter(6)}
@@ -2455,10 +2458,10 @@ function renderContractDocument(workspace = {}) {
       <section class="contract-sheet" data-pdf-page>
         ${pageHeader(7, "Dados, segurança e propriedade")}
         <div class="contract-section"><h3>17. Titularidade dos dados</h3><p>Os dados inseridos permanecem pertencentes à CONTRATANTE ou aos respectivos titulares. A CONTRATADA não adquire sua propriedade e os utiliza somente para fornecer, manter, proteger, desenvolver e prestar suporte ao RR Manager, conforme a Política de Privacidade.</p></div>
-        <div class="contract-section"><h3>18. LGPD</h3><p>As partes observarão a Lei nº 13.709/2018. Em relação aos dados de clientes, funcionários e fornecedores inseridos pela oficina, a CONTRATANTE atuará, em regra, como Controladora e a CONTRATADA como Operadora. A oficina deve possuir base legal, informar os titulares quando necessário, limitar os dados ao necessário e atender solicitações sob sua responsabilidade.</p></div>
-        <div class="contract-section"><h3>19. Segurança, equipe e incidentes</h3><p>A CONTRATADA adotará medidas técnicas e administrativas razoáveis considerando a natureza dos dados e os riscos envolvidos. A CONTRATANTE deverá proteger senhas e dispositivos, criar uma conta individual para cada colaborador, conceder somente as permissões necessárias e bloquear ou remover prontamente acessos que não sejam mais autorizados. Senhas são administradas pelo serviço de autenticação e não ficam disponíveis para visualização pela oficina ou pela CONTRATADA. As partes cooperarão na avaliação, registro e contenção de incidentes relevantes e nas comunicações legalmente exigidas.</p></div>
-        <div class="contract-section"><h3>20. Cópia, retenção e exclusão</h3><p>Antes do encerramento definitivo, a CONTRATANTE poderá solicitar uma cópia de seus dados dentro das possibilidades técnicas e legais. Após o cancelamento, informações poderão ser eliminadas ou anonimizadas quando não forem mais necessárias, ressalvadas obrigações legais, prevenção a fraudes, exercício de direitos e ciclos técnicos de segurança.</p></div>
-        <div class="contract-section"><h3>21. Propriedade intelectual e confidencialidade</h3><p>Código, marca, interface, design, documentação e funcionalidades pertencem à CONTRATADA. As partes preservarão informações comerciais, técnicas e estratégicas não públicas, exceto quando a divulgação for autorizada ou legalmente exigida.</p></div>
+        <div class="contract-section"><h3>18. LGPD e instruções de tratamento</h3><p>As partes observarão a Lei nº 13.709/2018. Em relação aos dados de clientes, colaboradores e fornecedores inseridos pela oficina, a CONTRATANTE atuará, em regra, como Controladora e a CONTRATADA como Operadora, tratando-os para hospedar, autenticar, sincronizar, proteger, gerar documentos, executar as funcionalidades solicitadas e prestar suporte. Estas finalidades, a configuração da conta e as ações autenticadas constituem instruções documentadas da CONTRATANTE. Solicitações incompatíveis com a lei ou com a segurança poderão ser recusadas mediante justificativa. A CONTRATANTE deve possuir base legal, informar os titulares quando necessário, limitar os dados ao necessário e atender solicitações sob sua responsabilidade. A CONTRATADA prestará auxílio razoável com as informações de que dispuser.</p></div>
+        <div class="contract-section"><h3>19. Segurança, equipe, suboperadores e incidentes</h3><p>A CONTRATADA adotará medidas técnicas e administrativas razoáveis considerando a natureza dos dados e os riscos envolvidos e poderá utilizar fornecedores necessários de autenticação, hospedagem, banco de dados, infraestrutura, comunicação e suporte. Transferências internacionais observarão os mecanismos admitidos pela LGPD e pela regulamentação aplicável. A CONTRATANTE deverá proteger senhas e dispositivos, criar conta individual para cada colaborador, conceder somente as permissões necessárias e bloquear ou remover prontamente acessos não autorizados. Senhas são administradas pelo serviço de autenticação e não ficam disponíveis para visualização pela oficina ou pela CONTRATADA. Ao atuar como Operadora, a CONTRATADA informará a CONTRATANTE sem demora injustificada sobre incidente envolvendo os dados operados. As partes cooperarão na avaliação, contenção, registro e nas comunicações legalmente exigidas.</p></div>
+        <div class="contract-section"><h3>20. Cópia, retenção e exclusão</h3><p>Antes do encerramento definitivo, a CONTRATANTE poderá solicitar uma cópia de seus dados dentro das possibilidades técnicas e legais. Após o cancelamento ou mediante instrução válida, informações poderão ser eliminadas, devolvidas ou anonimizadas quando não forem mais necessárias, ressalvadas obrigações legais, prevenção a fraudes, exercício de direitos, comprovação da contratação e ciclos técnicos de segurança. Links públicos devem ser substituídos ou excluídos quando houver compartilhamento indevido.</p></div>
+        <div class="contract-section"><h3>21. Propriedade intelectual, fontes e confidencialidade</h3><p>Código, marca, interface, design, documentação, estrutura das bases e funcionalidades pertencem à CONTRATADA na medida aplicável. Marcas, manuais, especificações e conteúdos de terceiros permanecem pertencentes aos respectivos titulares e sua referência não representa afiliação. As partes preservarão informações comerciais, técnicas e estratégicas não públicas, exceto quando a divulgação for autorizada ou legalmente exigida. A CONTRATANTE não poderá extrair em massa, copiar ou revender as bases disponibilizadas.</p></div>
         ${pageFooter(7)}
       </section>
 
@@ -2466,7 +2469,7 @@ function renderContractDocument(workspace = {}) {
         ${pageHeader(8, "Disposições finais")}
         <div class="contract-section contract-final-compact"><h3>22. Limitação de responsabilidade</h3><p>Na extensão permitida por lei, a CONTRATADA não responde por informações incorretas, decisões e serviços da oficina, preços definidos pela CONTRATANTE, credenciais compartilhadas, uso inadequado ou falhas externas. Esta cláusula não exclui responsabilidades que não possam ser afastadas pela legislação.</p></div>
         <div class="contract-section contract-final-compact"><h3>23. Documentos integrantes e prevalência</h3><p>Integram a contratação: (i) condição comercial específica registrada; (ii) este Contrato; (iii) Termos de Uso; e (iv) Política de Privacidade nas matérias de dados. Essa é a ordem de prevalência em caso de conflito, respeitada a legislação.</p></div>
-        <div class="contract-section contract-final-compact"><h3>24. Planos, alterações e comunicações</h3><p>O Plano Essencial reúne as funções básicas de operação; o Plano Pro acrescenta somente os recursos identificados como Pro no sistema e neste contrato. Upgrade e downgrade passam a valer conforme a condição comercial registrada. No downgrade, catálogo técnico, DRE, recorrências e contas adicionais podem ser bloqueados, sem promessa de disponibilidade fora do Pro. Mudanças relevantes serão identificadas por versão e comunicadas pelo sistema, e-mail ou canais oficiais, podendo exigir novo aceite. Alterações de preço serão informadas previamente. A CONTRATANTE deve manter seus contatos atualizados.</p></div>
+        <div class="contract-section contract-final-compact"><h3>24. Planos, alterações e comunicações</h3><p>O Plano Essencial reúne as funções básicas, inclusive cadastro e seleção padronizada de veículos; o Plano Pro acrescenta somente os recursos identificados como Pro no sistema e neste contrato. Upgrade e downgrade passam a valer conforme a condição comercial registrada. No downgrade, Operação, serviços e tempos da lista pronta de mão de obra, DRE, recorrências e contas adicionais podem ser bloqueados, sem promessa de disponibilidade fora do Pro; a seleção padronizada de veículos permanece disponível. Mudanças relevantes serão identificadas por versão e comunicadas pelo sistema, e-mail ou canais oficiais, podendo exigir novo aceite. Alterações de preço serão informadas previamente. A CONTRATANTE deve manter seus contatos atualizados.</p></div>
         <div class="contract-section contract-final-compact"><h3>25. Vigência e efeitos do encerramento</h3><p>A vigência começa no aceite eletrônico e permanece enquanto houver assinatura ativa. Obrigações de pagamento, propriedade intelectual, confidencialidade, dados e responsabilidades sobrevivem pelo período necessário.</p></div>
         <div class="contract-section contract-final-compact"><h3>26. Disposições gerais e foro</h3><p>Eventos inevitáveis fora do controle razoável afastam responsabilidade na medida legal. O contrato não cria sociedade, franquia, representação ou vínculo trabalhista. A invalidade de uma cláusula não prejudica as demais. Aplicam-se as leis brasileiras. Fica eleito o foro de <strong>${escapeHtml(provider.venue || "Belo Horizonte/MG")}</strong>, sem prejuízo de outro foro que seja obrigatório pela legislação aplicável.</p></div>
         <section class="contract-acceptance-record">
@@ -2789,7 +2792,7 @@ function hasCurrentLegalAcceptance(workspace = {}) {
 }
 
 async function ensureLegalAcceptance(workspace = {}) {
-  if (!currentUser || isAdminUser(currentUser) || !isOnboardingPage() || hasCurrentLegalAcceptance(workspace)) return;
+  if (!currentUser || isAdminUser(currentUser) || !isLegalAcceptancePage() || hasCurrentLegalAcceptance(workspace)) return;
   await showLegalAcceptanceModal(workspace);
 }
 
@@ -2798,6 +2801,7 @@ function showLegalAcceptanceModal(workspace = {}) {
     document.querySelector(".legal-acceptance-overlay")?.remove();
     document.body.classList.add("legal-acceptance-pending");
 
+    const hasPreviousAcceptance = Boolean(workspace.legalAcceptance?.acceptedAt || workspace.legalAcceptance?.acceptedAtClient);
     const overlay = document.createElement("div");
     overlay.className = "legal-acceptance-overlay";
     overlay.innerHTML = `
@@ -2805,11 +2809,11 @@ function showLegalAcceptanceModal(workspace = {}) {
         <div class="legal-acceptance-head">
           <img src="assets/logo-rr-manager.png" alt="RR Manager">
           <div>
-            <span>PRIMEIRO ACESSO</span>
-            <h2 id="legalAcceptanceTitle">Privacidade e Termos de Uso</h2>
+            <span>${hasPreviousAcceptance ? "ATUALIZAÇÃO JURÍDICA" : "PRIMEIRO ACESSO"}</span>
+            <h2 id="legalAcceptanceTitle">Contrato, Privacidade e Termos de Uso</h2>
           </div>
         </div>
-        <p>Antes do tutorial, leia os documentos que explicam a contratação, as regras do RR Manager e como os dados pessoais são tratados.</p>
+        <p>${hasPreviousAcceptance ? "Atualizamos os documentos para refletir Operação, permissões da equipe, seleção de veículos, lista pronta de mão de obra e tratamento dos novos registros." : "Antes do tutorial, leia os documentos que explicam a contratação, as regras do RR Manager e como os dados pessoais são tratados."}</p>
         <div class="legal-acceptance-links">
           <a href="contrato.html" target="_blank" rel="noopener">Ler Contrato <small>versão ${CONTRACT_VERSION}</small></a>
           <a href="termos.html" target="_blank" rel="noopener">Ler Termos de Uso <small>versão ${LEGAL_TERMS_VERSION}</small></a>
@@ -2888,6 +2892,10 @@ function showLegalAcceptanceModal(workspace = {}) {
     document.body.appendChild(overlay);
     contractCheckbox.focus();
   });
+}
+
+function isLegalAcceptancePage() {
+  return ["dashboard", "clientes", "orcamentos", "financeiro", "dre", "operacao", "equipe", "inspecao", "meu-cadastro", "servicos", "veiculos"].includes(document.body.dataset.page || "");
 }
 
 function isOnboardingPage() {

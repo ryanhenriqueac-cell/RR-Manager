@@ -9442,6 +9442,21 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   font-weight: 700;
 }
 
+.auth-legal-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.auth-legal-consent input {
+  width: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  margin-top: 2px;
+  accent-color: var(--gold-2);
+}
+
 .legal-acceptance-overlay {
   position: fixed;
   z-index: 10000;

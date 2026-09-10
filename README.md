@@ -14,6 +14,7 @@ Sistema de gestão para oficinas, feito com HTML, CSS e JavaScript e sincronizad
 | Recurso | Essencial | Pro |
 | --- | :---: | :---: |
 | Clientes, veículos, orçamentos e inspeções | Sim | Sim |
+| Seleção padronizada de marca, modelo, motor e ano | Sim | Sim |
 | Peças, mão de obra, terceirizados e cortesias | Sim | Sim |
 | PDFs, WhatsApp, aprovação e financeiro básico | Sim | Sim |
 | Operação e ordens de serviço da equipe | Não | Sim |
@@ -70,13 +71,13 @@ Se as novas regras ainda não estiverem publicadas, o sistema mantém temporaria
 
 As regras garantem que cada usuário acesse apenas o workspace da própria empresa e, no caso dos colaboradores do Plano Pro, somente os módulos liberados. O administrador definido nas regras pode consultar e gerenciar todos os workspaces.
 
-## Catálogo técnico de mão de obra
+## Veículos padronizados e lista pronta de mão de obra
 
-O Plano Pro inclui uma base normalizada com 999 configurações de veículos e 664 operações de oficina. A base de referência não atribui tempos automaticamente: cada combinação veículo, intervalo de anos e operação precisa ser revisada no painel administrativo e publicada individualmente. Rascunhos e itens desativados nunca aparecem para as oficinas.
+A seleção normalizada com 999 configurações de veículos está disponível nos planos Essencial e Pro. O Plano Pro acrescenta a lista com 664 operações de oficina e os tempos publicados por veículo. A base de referência não atribui tempos automaticamente: cada combinação veículo, intervalo de anos e operação precisa ser revisada no painel administrativo e publicada individualmente. Rascunhos e itens desativados nunca aparecem para as oficinas.
 
-Na tela Clientes, o veículo pode ser vinculado à configuração técnica exata. No orçamento, o botão **Buscar no catálogo técnico PRO** exibe somente tempos publicados e compatíveis com o veículo e o ano selecionados. Ao adicionar uma sugestão, descrição, horas e valor/hora continuam editáveis; o orçamento registra quando o tempo sugerido foi modificado.
+Na tela Clientes, qualquer plano pode selecionar ou vincular o veículo à configuração exata, mantendo a alternativa de digitação manual. No orçamento Pro, o botão da lista pronta exibe somente tempos publicados e compatíveis com o veículo e o ano selecionados. Ao adicionar uma sugestão, descrição, horas e valor/hora continuam editáveis; o orçamento registra quando o tempo sugerido foi modificado.
 
-Os arquivos `data/vehicle-configs.json` e `data/labor-operations.json` são carregados apenas quando alguém abre a base técnica. Os tempos aprovados ficam na coleção global `labor_time_catalog`, protegida pelas regras do Firestore. Por isso, esta versão exige publicar `firestore.rules` junto com o site.
+O arquivo `data/vehicle-configs.json` é carregado ao preparar a seleção de veículos. O arquivo `data/labor-operations.json` é carregado separadamente somente para os fluxos de mão de obra autorizados e para o painel administrativo. Os tempos aprovados ficam na coleção global `labor_time_catalog`, protegida pelas regras do Firestore.
 
 Nesta atualização, publique `firestore.rules` antes de liberar os novos arquivos do site. Depois, entre uma vez com a conta proprietária de cada oficina para concluir automaticamente a migração. Se o site for atualizado primeiro, o proprietário continua salvando no esquema 2 de forma compatível, mas os colaboradores permanecem bloqueados até que as regras sejam publicadas e a migração seja concluída.
 
@@ -94,4 +95,4 @@ Cada oficina é apresentada na ordem Acesso, Assinatura, Cobrança e Equipe. Tes
 
 ## Aceite jurídico
 
-As versões vigentes ficam em `LEGAL_TERMS_VERSION` e `LEGAL_PRIVACY_VERSION`, dentro de `firebase-sync.js`. Quando os textos forem alterados de forma relevante, aumente a versão correspondente para solicitar um novo aceite no próximo login.
+As versões vigentes ficam em `LEGAL_TERMS_VERSION`, `LEGAL_PRIVACY_VERSION` e `CONTRACT_VERSION`, dentro de `firebase-sync.js`. Quando os textos forem alterados de forma relevante, aumente a versão correspondente para solicitar um novo aceite autenticado ao proprietário. A documentação interna de conformidade fica em `docs/compliance`.
