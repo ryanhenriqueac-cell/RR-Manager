@@ -160,8 +160,8 @@ foreach ($htmlFile in $htmlFiles) {
   foreach ($localPage in $localPages) {
     Assert-True (Test-Path -LiteralPath (Join-Path $projectRoot $localPage)) "Link local ausente em $($htmlFile.Name): $localPage"
   }
-  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=134')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
-  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=125')) "Cache do script desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('style.css?v=')) { Assert-True ($content.Contains('style.css?v=135')) "Cache de CSS desatualizado em $($htmlFile.Name)." }
+  if ($content.Contains('script.js?v=')) { Assert-True ($content.Contains('script.js?v=126')) "Cache do script desatualizado em $($htmlFile.Name)." }
   if ($content.Contains('firebase-sync.js?v=')) { Assert-True ($content.Contains('firebase-sync.js?v=89')) "Cache do Firebase desatualizado em $($htmlFile.Name)." }
 }
 
@@ -274,5 +274,10 @@ Assert-True ([regex]::IsMatch($appScript, 'dre-pro-badge">LISTA DE VE.CULOS</spa
 Assert-True ([regex]::IsMatch($appScript, 'No Plano Pro, esse v.nculo tamb.m libera')) "Seletor de veiculos nao apresenta o beneficio adicional do Pro."
 Assert-True (-not $appScript.Contains('Confiança da base:')) "Seletor do veiculo ainda exibe a confianca interna da base."
 Assert-True ($styles.Contains('.labor-catalog-modal')) "Catalogo tecnico nao possui interface responsiva."
+
+Assert-True ($styles.Contains('body[data-page="dre-print"] .report-print-summary')) "Previa do DRE nao possui layout proprio para celular."
+Assert-True ($styles.Contains('body[data-page="dre-print"] #firebaseUserBar')) "Barra da sessao ainda pode cobrir a previa do DRE."
+Assert-True ($styles.Contains('.dre-print-document .dre-budget-table :is(th, td):nth-child(6)')) "Ultima coluna do DRE pode ultrapassar a largura do PDF."
+Assert-True ($appScript.Contains('class="print-table dre-budget-table"')) "Tabela detalhada do DRE nao possui dimensionamento dedicado."
 
 Write-Host "OK: $checks verificacoes da matriz de permissoes passaram." -ForegroundColor Green

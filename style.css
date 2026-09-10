@@ -1260,7 +1260,12 @@ td {
 body[data-page="orcamento-print"] #firebaseLandingReturn,
 body[data-page="orcamento-publico"] #firebaseLandingReturn,
 body[data-page="financeiro-print"] #firebaseLandingReturn,
+body[data-page="dre-print"] #firebaseLandingReturn,
 body[data-page="inspecao"] #firebaseLandingReturn {
+  display: none !important;
+}
+
+body[data-page="dre-print"] #firebaseUserBar {
   display: none !important;
 }
 
@@ -2454,6 +2459,51 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
   word-break: normal !important;
 }
 
+/* O DRE possui tabelas com quantidades diferentes de colunas. As larguras
+   genéricas acima servem ao relatório financeiro, mas faziam a sexta coluna
+   do DRE ultrapassar a folha ao gerar o PDF. */
+.dre-print-document .print-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.pdf-share-render-host .dre-print-document .print-table th,
+.pdf-share-render-host .dre-print-document .print-table td {
+  width: auto !important;
+}
+
+.dre-print-document .dre-area-table :is(th, td):nth-child(1) { width: 15% !important; }
+.dre-print-document .dre-area-table :is(th, td):nth-child(2),
+.dre-print-document .dre-area-table :is(th, td):nth-child(3),
+.dre-print-document .dre-area-table :is(th, td):nth-child(4) { width: 22% !important; }
+.dre-print-document .dre-area-table :is(th, td):nth-child(5) { width: 19% !important; }
+
+.dre-print-document .dre-ranking-table :is(th, td):nth-child(1) { width: 12% !important; }
+.dre-print-document .dre-ranking-table :is(th, td):nth-child(2) { width: 16% !important; }
+.dre-print-document .dre-ranking-table :is(th, td):nth-child(3) { width: 32% !important; }
+.dre-print-document .dre-ranking-table :is(th, td):nth-child(4) { width: 22% !important; }
+.dre-print-document .dre-ranking-table :is(th, td):nth-child(5) { width: 18% !important; }
+
+.dre-print-document .dre-budget-table :is(th, td):nth-child(1) { width: 13% !important; }
+.dre-print-document .dre-budget-table :is(th, td):nth-child(2) { width: 14% !important; }
+.dre-print-document .dre-budget-table :is(th, td):nth-child(3) { width: 22% !important; }
+.dre-print-document .dre-budget-table :is(th, td):nth-child(4),
+.dre-print-document .dre-budget-table :is(th, td):nth-child(5) { width: 16% !important; }
+.dre-print-document .dre-budget-table :is(th, td):nth-child(6) { width: 19% !important; }
+
+.dre-print-document .dre-courtesy-table :is(th, td):nth-child(1) { width: 14% !important; }
+.dre-print-document .dre-courtesy-table :is(th, td):nth-child(2) { width: 16% !important; }
+.dre-print-document .dre-courtesy-table :is(th, td):nth-child(3) { width: 16% !important; }
+.dre-print-document .dre-courtesy-table :is(th, td):nth-child(4) { width: 36% !important; }
+.dre-print-document .dre-courtesy-table :is(th, td):nth-child(5) { width: 18% !important; }
+
+.dre-print-document .dre-expenses-table :is(th, td):nth-child(1) { width: 46% !important; }
+.dre-print-document .dre-expenses-table :is(th, td):nth-child(2) { width: 30% !important; }
+.dre-print-document .dre-expenses-table :is(th, td):nth-child(3) { width: 24% !important; }
+.dre-print-document .dre-alerts-table :is(th, td):nth-child(1) { width: 22% !important; }
+.dre-print-document .dre-alerts-table :is(th, td):nth-child(2) { width: 78% !important; }
+
 .pdf-share-render-host .print-table th {
   background: #062e55 !important;
   color: #fff !important;
@@ -3189,6 +3239,181 @@ body[data-page="admin"] #firebaseUserBar,body[data-page="admin"] #firebaseLandin
   }
 
 body[data-page="financeiro-print"] #firebaseUserBar {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  body[data-page="dre-print"].print-preview-page {
+    overflow-x: hidden;
+    background: #eef3f8;
+  }
+
+  body[data-page="dre-print"] .print-toolbar {
+    justify-content: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  body[data-page="dre-print"] .print-toolbar .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 14px;
+    white-space: normal;
+  }
+
+  body[data-page="dre-print"] .dre-print-document {
+    width: calc(100% - 16px);
+    min-height: 0;
+    margin: 10px auto 24px;
+    padding: 14px;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.16);
+  }
+
+  body[data-page="dre-print"] .report-print-header {
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+
+  body[data-page="dre-print"] .print-header img {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 auto;
+  }
+
+  body[data-page="dre-print"] .print-header div {
+    min-width: 0;
+    text-align: right;
+  }
+
+  body[data-page="dre-print"] .print-header h1 {
+    font-size: 18px;
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="dre-print"] .print-header p {
+    margin-top: 3px;
+    font-size: 9px;
+    line-height: 1.25;
+  }
+
+  body[data-page="dre-print"] .report-print-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin: 10px 0;
+  }
+
+  body[data-page="dre-print"] .report-print-summary div {
+    min-width: 0;
+    padding: 9px;
+    border-radius: 6px;
+  }
+
+  body[data-page="dre-print"] .report-print-summary span {
+    font-size: 9px;
+  }
+
+  body[data-page="dre-print"] .report-print-summary strong {
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="dre-print"] .report-table-section {
+    min-width: 0;
+    margin-top: 12px;
+  }
+
+  body[data-page="dre-print"] .report-table-section h2,
+  body[data-page="dre-print"] .report-chart-card h2 {
+    margin: 0 0 7px;
+    font-size: 16px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="dre-print"] .print-dre-statement {
+    font-size: 11px;
+  }
+
+  body[data-page="dre-print"] .print-table {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    margin: 6px 0 10px;
+  }
+
+  body[data-page="dre-print"] .print-table th,
+  body[data-page="dre-print"] .print-table td {
+    min-width: 0;
+    padding: 4px 3px;
+    font-size: 7px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  body[data-page="dre-print"] .report-print-charts {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  body[data-page="dre-print"] .report-chart-card {
+    min-width: 0;
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  body[data-page="dre-print"] .report-bars-legend {
+    gap: 6px 10px;
+    margin-bottom: 8px;
+    font-size: 8px;
+  }
+
+  body[data-page="dre-print"] .report-monthly-bars {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px;
+    min-height: 112px;
+    overflow: hidden;
+  }
+
+  body[data-page="dre-print"] .report-month-group {
+    grid-template-rows: 84px auto auto;
+    min-width: 0;
+    gap: 3px;
+  }
+
+  body[data-page="dre-print"] .report-month-group div {
+    width: 100%;
+    height: 84px;
+    gap: 2px;
+    padding: 6px 3px 0;
+  }
+
+  body[data-page="dre-print"] .report-month-group span {
+    width: 5px;
+  }
+
+  body[data-page="dre-print"] .report-month-group strong,
+  body[data-page="dre-print"] .report-month-group small {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 7px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body[data-page="dre-print"] #firebaseUserBar,
+  body[data-page="dre-print"] #firebaseLandingReturn {
     display: none !important;
   }
 }
