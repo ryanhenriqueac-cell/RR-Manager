@@ -477,6 +477,33 @@ service cloud.firestore {
           && (!exists(budgetPath(id, docId)) || get(budgetPath(id, docId)).data.status != 'Aprovado'));
     }
 
+    match /workspaces/{id}/inspecoes/{docId} {
+      function canAccessInspection(permission) {
+        return isAdmin() || isActiveOwner(id)
+          || (hasPermission(id, permission)
+            && hasPermission(id, 'clientesVer') && hasPermission(id, 'orcamentosVer'));
+      }
+      function validInspection() {
+        let data = request.resource.data;
+        return data.keys().hasOnly([
+            'id', 'clienteId', 'carroId', 'orcamentoId', 'fields', 'items',
+            'createdAt', 'savedAt', 'savedBy', 'updatedAt', 'updatedBy'
+          ]) && data.id == docId
+          && data.clienteId is string && data.clienteId.size() > 0
+          && data.carroId is string && data.carroId.size() > 0
+          && data.orcamentoId is string && data.orcamentoId.size() > 0
+          && data.fields is map && data.items is map
+          && actorMatches(data);
+      }
+      allow read: if canAccessInspection('inspecoesVer');
+      allow create: if canAccessInspection('inspecoesGerenciar') && validInspection();
+      allow update: if canAccessInspection('inspecoesGerenciar') && validInspection()
+        && request.resource.data.clienteId == resource.data.clienteId
+        && request.resource.data.carroId == resource.data.carroId
+        && request.resource.data.orcamentoId == resource.data.orcamentoId;
+      allow delete: if isAdmin() || isActiveOwner(id);
+    }
+
     match /workspaces/{id}/financeiro/{docId} {
       allow read: if isAdmin() || isActiveOwner(id) || canReadFinance(id);
       allow create, update: if isAdmin() || isActiveOwner(id)

@@ -30,9 +30,9 @@ import {
   writeBatch
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro", "rr_dre_config", "rr_ordens_servico"];
-const APP_COLLECTIONS = { rr_clientes: "clientes", rr_veiculos: "veiculos", rr_servicos: "servicos", rr_orcamentos: "orcamentos", rr_financeiro: "financeiro", rr_dre_config: "dre_config", rr_ordens_servico: "ordens_servico" };
-const LEGACY_V2_APP_KEYS = APP_KEYS.filter((key) => key !== "rr_ordens_servico");
+const APP_KEYS = ["rr_clientes", "rr_veiculos", "rr_servicos", "rr_orcamentos", "rr_financeiro", "rr_dre_config", "rr_ordens_servico", "rr_inspecoes"];
+const APP_COLLECTIONS = { rr_clientes: "clientes", rr_veiculos: "veiculos", rr_servicos: "servicos", rr_orcamentos: "orcamentos", rr_financeiro: "financeiro", rr_dre_config: "dre_config", rr_ordens_servico: "ordens_servico", rr_inspecoes: "inspecoes" };
+const LEGACY_V2_APP_KEYS = APP_KEYS.filter((key) => !["rr_ordens_servico", "rr_inspecoes"].includes(key));
 const APP_SCHEMA_VERSION = 3;
 const MIGRATION_BATCH_SIZE = 400;
 const CLIENT_SUMMARY_COLLECTION = "clientes_resumo";
@@ -445,7 +445,7 @@ function clearSensitiveLocalData() {
   syncingFromCloud = false;
   for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
     const key = sessionStorage.key(index) || "";
-    if (key.startsWith("rr_inspecao_draft_") || key.startsWith("rr_public_")) sessionStorage.removeItem(key);
+    if (key.startsWith("rr_inspecao_draft_") || key.startsWith("rr_orcamento_draft_") || key.startsWith("rr_public_")) sessionStorage.removeItem(key);
   }
 }
 
@@ -1554,6 +1554,11 @@ function configureTeamInviteRegistration() {
 
 function canAccessStorageKey(key, write = false) {
   if (key === "rr_ordens_servico" && activeWorkspaceSubscription?.features?.operacao !== true) return false;
+  // Inspection records contain customer notes. Mechanics use their assigned order instead.
+  if (key === "rr_inspecoes" && activeTeamAccess) {
+    return window.rrHasPermission(write ? "inspecoesGerenciar" : "inspecoesVer")
+      && window.rrHasPermission("clientesVer") && window.rrHasPermission("orcamentosVer");
+  }
   if (!activeTeamAccess) return true;
   const permissionMap = {
     rr_clientes: write ? ["clientesGerenciar"] : ["clientesVer", "veiculosVer"],
@@ -1794,6 +1799,9 @@ function persistCloudData() {
 
 window.rrPersistAppData = async (storageKey = "") => {
   if (cloudReady === false) throw new Error('A sincronizacao ainda nao esta pronta.');
+  if (storageKey === "rr_inspecoes" && workspaceSchemaVersion < APP_SCHEMA_VERSION) {
+    throw new Error('Entre com a conta proprietária para concluir a atualização do workspace antes de salvar inspeções.');
+  }
   if (workspaceSchemaVersion >= 2) {
     const keys = (APP_KEYS.includes(storageKey) ? [storageKey] : APP_KEYS)
       .filter((key) => canAccessStorageKey(key, true))

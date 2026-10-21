@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orçamentos | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=135">
+  <link rel="stylesheet" href="style.css?v=136">
 </head>
 <body data-page="orcamentos">
   <div class="app-shell">
@@ -27,6 +27,7 @@
       <section class="form-panel" data-requires-permission="orcamentosGerenciar">
         <form id="orcamentoForm" class="form-grid">
           <input type="hidden" id="orcamentoId">
+          <input type="hidden" id="orcamentoInspecaoId">
           <label>Cliente<select id="orcamentoCliente" required></select></label>
           <label>Carro<select id="orcamentoCarro" required></select></label>
           <label>Quilometragem atual<input id="orcamentoQuilometragem" type="number" min="0" step="1" inputmode="numeric" placeholder="125000"></label>
@@ -36,7 +37,7 @@
           <div class="span-2 panel-header inspection-launch" data-requires-permission="inspecoesGerenciar">
             <div>
               <strong>Lista de inspeção do veículo</strong>
-              <span>Gere o checklist com os dados do cliente e do carro antes de montar o orçamento.</span>
+              <span>Opcional: salve o checklist vinculado a este orçamento e consulte depois no histórico do cliente.</span>
             </div>
             <button class="btn btn-primary" type="button" id="gerarInspecao" disabled>Gerar lista de inspeção</button>
           </div>
@@ -97,8 +98,8 @@
       </section>
     </main>
   </div>
-  <script src="script.js?v=126"></script>
+  <script src="script.js?v=127"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=89"></script>
+  <script type="module" src="firebase-sync.js?v=90"></script>
 </body>
 </html>

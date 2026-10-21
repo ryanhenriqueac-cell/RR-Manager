@@ -27,6 +27,16 @@ Na condição de lançamento, o Essencial custa R$ 59,90 por mês durante 12 mes
 
 ## Dados e login
 
+### Inspeções e histórico do cliente
+
+Na tela Orçamentos, a lista de inspeção é opcional. O botão **Salvar inspeção** grava o checklist no Firestore, vinculado ao cliente, veículo e orçamento, mesmo que o orçamento ainda esteja em elaboração. **Voltar** salva as alterações pendentes antes de retornar; imprimir também confirma o salvamento antes de gerar o documento. Uma falha de conexão mantém o rascunho nesta aba e informa que a gravação não foi confirmada.
+
+O formulário de orçamento mantém cliente, veículo, quilometragem, itens, custos, cortesias, responsável e valor final ao navegar para a inspeção e voltar. Esse rascunho é local à aba e separado por usuário e workspace; salvar ou limpar o orçamento encerra o rascunho. No cadastro de Clientes, **Ver histórico** reúne orçamentos e inspeções, com filtros por veículo e situação. Inspeções antigas salvas nas ordens de serviço continuam acessíveis por esse histórico.
+
+Para publicar esta atualização, publique primeiro as novas regras de `firestore.rules` e depois os arquivos do site. As inspeções ficam em `workspaces/{workspaceId}/inspecoes`. O acesso de equipe exige as permissões de inspeção, clientes e orçamentos; mecânicos continuam acessando somente a inspeção da ordem atribuída. Não é necessário migrar orçamentos antigos ou anexar uma inspeção a todos eles. PDFs antigos que existam somente no computador não são importados automaticamente.
+
+Validação: `scripts/test-permissions.ps1` e `scripts/test-inspections.cjs` (este último usa `jsdom@22`, instalado fora do projeto; informe o caminho por `RR_JSDOM_PATH` se não estiver no caminho padrão de módulos).
+
 Cada empresa possui um workspace próprio no Firestore. A partir da versão 3, clientes, veículos, serviços, orçamentos, ordens de serviço e lançamentos financeiros são armazenados em documentos separados dentro de subcoleções. Isso evita o limite de 1 MiB do documento antigo, reduz conflitos entre computador e celular e permite aplicar acesso granular no servidor.
 
 No Plano Pro, o responsável pode vincular até quatro contas de colaboradores. Cada pessoa entra com o próprio e-mail, compartilha o workspace da oficina e recebe apenas as coleções e ações autorizadas. Os vínculos ficam em `team_access` e as regras do Firestore validam plano, status e permissão em cada operação.

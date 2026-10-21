@@ -29,7 +29,8 @@ const STORAGE_KEYS = {
   orcamentos: "rr_orcamentos",
   financeiro: "rr_financeiro",
   dreConfig: "rr_dre_config",
-  ordensServico: "rr_ordens_servico"
+  ordensServico: "rr_ordens_servico",
+  inspecoes: "rr_inspecoes"
 };
 
 const legacyKeys = {
@@ -280,8 +281,14 @@ window.addEventListener("rr-plan-ready", applyEquipePlanAccess);
 window.addEventListener("rr-cloud-data-updated", (event) => {
   const key = event.detail?.key;
   if (page === "dashboard") initDashboard();
-  if (page === "clientes" && (key === STORAGE_KEYS.clientes || key === STORAGE_KEYS.veiculos)) renderClientes();
-  if (page === "orcamentos" && key === STORAGE_KEYS.orcamentos) renderOrcamentos();
+  if (page === "clientes") {
+    if (key === STORAGE_KEYS.clientes || key === STORAGE_KEYS.veiculos) renderClientes();
+    renderClienteHistorico();
+  }
+  if (page === "orcamentos" && (key === STORAGE_KEYS.orcamentos || key === STORAGE_KEYS.inspecoes)) {
+    renderOrcamentos();
+    updateOrcamentoInspectionButton();
+  }
   if (page === "financeiro" && key === STORAGE_KEYS.financeiro) refreshFinanceiro();
   if (page === "dre" && (key === STORAGE_KEYS.financeiro || key === STORAGE_KEYS.orcamentos || key === STORAGE_KEYS.dreConfig)) renderDre();
   if (page === "operacao" && key === STORAGE_KEYS.ordensServico && byId("operacaoContent")?.hidden === false) renderOperacao();
@@ -313,10 +320,13 @@ function initInternalPagePrefetch() {
 window.addEventListener("rr-workspace-ready", () => {
   applyPermissionVisibility();
   if (page === "dashboard") initDashboard();
-  if (page === "clientes") renderClientes();
+  if (page === "clientes") { renderClientes(); restoreClienteHistoricoLink(); renderClienteHistorico(); }
   if (page === "orcamentos") {
-    hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro");
+    hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro", getValue("orcamentoCarro"));
     hydrateOrcamentoAssigneeSelect();
+    const editId = new URLSearchParams(window.location.search).get("editar") || "";
+    if (!restoreBudgetDraft(editId) && editId) editOrcamento(editId);
+    updateOrcamentoInspectionButton();
     renderOrcamentos();
   }
   if (page === "financeiro") refreshFinanceiro();
@@ -581,6 +591,7 @@ function bindClearButtons() {
         renderClienteCarrosDraft();
       }
       if (button.dataset.clearForm === "orcamentoForm") {
+        clearBudgetDraft();
         resetOrcamentoDrafts();
         setValue("orcamentoData", today());
         byId("orcamentoCliente")?.dispatchEvent(new Event("change"));
@@ -1683,6 +1694,7 @@ function initClientes() {
   renderClienteCarrosDraft();
   prepareClienteVehicleCatalog();
   renderClientes();
+  restoreClienteHistoricoLink();
 }
 
 function blankCarro() {
@@ -2000,7 +2012,7 @@ function renderClientes() {
 
     return `
       <tr>
-        <td><strong>${escapeHtml(cliente.nome)}</strong><div class="muted">${canSeeSensitiveData ? escapeHtml(cliente.obs || "") : "Observações protegidas"}</div></td>
+        <td><strong>${escapeHtml(cliente.nome)}</strong><div class="muted">${canSeeSensitiveData ? escapeHtml(cliente.obs || "") : "Observações protegidas"}</div><button class="btn btn-ghost" type="button" onclick="openClienteHistorico('${escapeHtml(cliente.id)}')">Ver histórico</button></td>
         <td>${canSeeSensitiveData ? `${escapeHtml(cliente.telefone || "-")}<div class="muted">${escapeHtml(cliente.email || "")}</div>` : `<span class="protected-data">Dados protegidos</span>`}</td>
         <td>${carros}</td>
         <td>${canSeeSensitiveData ? escapeHtml(cliente.endereco || "-") : `<span class="protected-data">Protegido</span>`}</td>
@@ -2046,15 +2058,28 @@ function initOrcamentos() {
   const carroSelect = byId("orcamentoCarro");
   const inspectionButton = byId("gerarInspecao");
   clienteSelect.addEventListener("change", () => {
+    if (!guardBudgetInspectionVehicle()) return;
+    setValue("orcamentoInspecaoId", "");
     hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro");
     updateOrcamentoInspectionButton();
   });
-  carroSelect.addEventListener("change", updateOrcamentoInspectionButton);
+  carroSelect.addEventListener("change", () => {
+    if (guardBudgetInspectionVehicle()) setValue("orcamentoInspecaoId", "");
+    updateOrcamentoInspectionButton();
+  });
   inspectionButton.addEventListener("click", () => {
     if (!hasAccess("inspecoesGerenciar")) return;
     if (!clienteSelect.value || !carroSelect.value) return;
+    if (!getValue("orcamentoId")) setValue("orcamentoId", createId("orc"));
+    const budgetId = getValue("orcamentoId");
+    const inspection = getBudgetInspections(budgetId).find((item) => item.clienteId === clienteSelect.value && item.carroId === carroSelect.value);
+    const inspectionId = inspection?.id || getValue("orcamentoInspecaoId") || createId("insp");
+    setValue("orcamentoInspecaoId", inspectionId);
+    saveBudgetDraft();
     const params = new URLSearchParams({ cliente: clienteSelect.value, carro: carroSelect.value });
-    params.set("rev", "5");
+    params.set("orcamento", budgetId);
+    params.set("inspecao", inspectionId);
+    params.set("voltar", "orcamento");
     window.location.href = `inspecao.html?${params.toString()}`;
   });
   updateOrcamentoInspectionButton();
@@ -2080,13 +2105,143 @@ function initOrcamentos() {
   renderOrcamentos();
 
   const editarId = new URLSearchParams(window.location.search).get("editar");
-  if (editarId) editOrcamento(editarId);
+  if (!restoreBudgetDraft(editarId) && editarId) editOrcamento(editarId);
+  const budgetForm = byId("orcamentoForm");
+  budgetForm.addEventListener("input", saveBudgetDraft);
+  budgetForm.addEventListener("change", saveBudgetDraft);
+  window.addEventListener("pagehide", saveBudgetDraft);
+}
+
+function budgetDraftKey() {
+  const context = localStorage.getItem("rr_cache_context");
+  return context ? `rr_orcamento_draft_${context}` : "";
+}
+
+function guardBudgetInspectionVehicle() {
+  const budgetId = getValue("orcamentoId");
+  const linked = getBudgetInspections(budgetId);
+  if (!linked.length || linked.every((item) => item.clienteId === getValue("orcamentoCliente") && item.carroId === getValue("orcamentoCarro"))) return true;
+  const budget = readData("orcamentos").find((item) => item.id === budgetId);
+  if (!budget) { setValue("orcamentoId", ""); return true; }
+  setValue("orcamentoCliente", budget.clienteId);
+  hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro", budget.carroId || budget.veiculoId);
+  rrAlert("Este orçamento já possui uma inspeção vinculada. Para atender outro cliente ou veículo, use Limpar e crie um novo orçamento.", "Inspeção vinculada");
+  return false;
+}
+
+function saveBudgetDraft() {
+  if (page !== "orcamentos" || !hasAccess("orcamentosGerenciar")) return;
+  const key = budgetDraftKey();
+  const form = byId("orcamentoForm");
+  if (!key || !form) return;
+  syncOrcamentoDrafts();
+  const fields = {};
+  form.querySelectorAll("[id]").forEach((input) => {
+    if (input.matches("input, select, textarea") && !input.disabled) fields[input.id] = input.value;
+  });
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ fields, pecas: orcamentoPecasDraft,
+      servicos: orcamentoServicosDraft, terceirizados: orcamentoTerceirizadosDraft }));
+  } catch (error) { console.warn("Não foi possível guardar o rascunho nesta aba.", error); }
+}
+
+let restoredBudgetDraftContext = "";
+function restoreBudgetDraft(editId = "") {
+  const key = budgetDraftKey();
+  if (!key || !hasAccess("orcamentosGerenciar")) return false;
+  if (restoredBudgetDraftContext === key) return true;
+  let draft;
+  try { draft = JSON.parse(sessionStorage.getItem(key) || "null"); } catch { sessionStorage.removeItem(key); }
+  if (!draft?.fields || (editId && draft.fields.orcamentoId !== editId)) return false;
+  const clientId = draft.fields.orcamentoCliente;
+  if (clientId && !getCliente(clientId)) return false; // Wait for cloud hydration.
+  Object.entries(draft.fields).forEach(([id, value]) => {
+    if (id !== "orcamentoCarro") setValue(id, value);
+  });
+  hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro", draft.fields.orcamentoCarro);
+  hydrateOrcamentoAssigneeSelect(draft.fields.orcamentoResponsavel || "");
+  orcamentoPecasDraft = Array.isArray(draft.pecas) ? draft.pecas : [blankPeca()];
+  orcamentoServicosDraft = Array.isArray(draft.servicos) ? draft.servicos : [blankServicoOrcamento()];
+  orcamentoTerceirizadosDraft = Array.isArray(draft.terceirizados) ? draft.terceirizados : [blankServicoTerceirizado()];
+  renderOrcamentoDrafts();
+  updateOrcamentoInspectionButton();
+  restoredBudgetDraftContext = key;
+  return true;
+}
+
+function clearBudgetDraft() {
+  const key = budgetDraftKey();
+  if (key) sessionStorage.removeItem(key);
+  restoredBudgetDraftContext = key;
+}
+
+function getBudgetInspections(budgetId) {
+  if (!budgetId || !hasAccess("inspecoesVer")) return [];
+  return readData("inspecoes").filter((item) => item.orcamentoId === budgetId);
+}
+
+function inspectionUrl(inspection, returnTo = "cliente") {
+  return `inspecao.html?${new URLSearchParams({ cliente: inspection.clienteId, carro: inspection.carroId,
+    orcamento: inspection.orcamentoId, inspecao: inspection.id, voltar: returnTo })}`;
+}
+
+let historyClientId = "";
+function openClienteHistorico(id) {
+  if (!hasAccess("clientesVer")) return;
+  historyClientId = id;
+  const panel = byId("clienteHistorico");
+  if (!panel) return;
+  panel.hidden = false;
+  const client = getCliente(id);
+  setText("historicoClienteNome", client?.nome || "Histórico do cliente");
+  byId("historicoCarro").innerHTML = `<option value="">Todos os veículos</option>${(client?.carros || []).map((car) => `<option value="${escapeHtml(car.id)}">${escapeHtml([car.marca, car.modelo, car.placa].filter(Boolean).join(" "))}</option>`).join("")}`;
+  setValue("historicoStatus", "");
+  byId("historicoCarro").onchange = renderClienteHistorico;
+  byId("historicoStatus").onchange = renderClienteHistorico;
+  renderClienteHistorico();
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderClienteHistorico() {
+  const root = byId("historicoRegistros");
+  if (!root || !historyClientId || !hasAccess("clientesVer")) return;
+  const vehicleId = getValue("historicoCarro");
+  const status = getValue("historicoStatus");
+  const budgets = hasAccess("orcamentosVer") ? readData("orcamentos").filter((budget) => budget.clienteId === historyClientId
+    && (!vehicleId || (budget.carroId || budget.veiculoId) === vehicleId)) : [];
+  const inspections = hasAccess("inspecoesVer") ? readData("inspecoes").filter((item) => item.clienteId === historyClientId
+    && (!vehicleId || item.carroId === vehicleId)) : [];
+  const countStatus = (value) => budgets.filter((budget) => budget.status === value).length;
+  const legacyInspections = hasAccess("inspecoesVer") && hasAccess("ordensServicoVer")
+    ? readData("ordensServico").filter((order) => order.inspection && budgets.some((budget) => budget.id === order.orcamentoId)).length : 0;
+  byId("historicoResumo").innerHTML = `<span>Orçamentos: <strong>${budgets.length}</strong></span><span>Aprovados: <strong>${countStatus("Aprovado")}</strong></span><span>Não aprovados: <strong>${countStatus("Não aprovado")}</strong></span><span>Pendentes: <strong>${countStatus("Pré-orçamento")}</strong></span><span>Inspeções salvas: <strong>${inspections.length + legacyInspections}</strong></span>`;
+  const inspectionLink = (item) => `<a class="btn btn-ghost" href="${escapeHtml(inspectionUrl(item))}">Abrir inspeção · ${escapeHtml(formatDateBR(item.fields?.date))}</a>`;
+  const records = budgets.filter((budget) => !status || budget.status === status)
+    .sort((a, b) => String(b.data || "").localeCompare(String(a.data || "")))
+    .map((budget) => {
+      const linked = inspections.filter((item) => item.orcamentoId === budget.id);
+      const order = hasAccess("inspecoesVer") && hasAccess("ordensServicoVer")
+        ? readData("ordensServico").find((item) => item.orcamentoId === budget.id && item.inspection) : null;
+      return `<article class="history-record"><div class="panel-header"><div><h3>Orçamento ${escapeHtml(String(budget.numero || "").padStart(4, "0"))}</h3><p>${escapeHtml(getCarroDetalhes(budget.clienteId, budget.carroId || budget.veiculoId))}</p></div><span class="badge ${badgeClass(budget.status)}">${escapeHtml(budget.status === "Pré-orçamento" ? "Pendente de aprovação" : budget.status)}</span></div><p>${escapeHtml(formatDateBR(budget.data))} · <strong>${money(getOrcamentoTotal(budget))}</strong>${budget.quilometragem !== "" && budget.quilometragem != null ? ` · ${escapeHtml(String(budget.quilometragem))} km` : ""}</p><div class="actions"><a class="btn btn-muted" href="orcamento-imprimir.html?id=${encodeURIComponent(budget.id)}">Ver orçamento</a>${hasAccess("orcamentosGerenciar") ? `<a class="btn btn-ghost" href="orcamentos.html?editar=${encodeURIComponent(budget.id)}">Abrir no sistema</a>` : ""}${linked.map(inspectionLink).join("")}${order ? `<a class="btn btn-ghost" href="inspecao.html?ordem=${encodeURIComponent(order.id)}&voltar=cliente&cliente=${encodeURIComponent(historyClientId)}">Inspeção da ordem de serviço</a>` : ""}${!linked.length && !order ? '<span class="muted">Sem inspeção vinculada</span>' : ""}</div></article>`;
+    });
+  const allBudgetIds = new Set(readData("orcamentos").map((budget) => budget.id));
+  if (!status) inspections.filter((item) => !allBudgetIds.has(item.orcamentoId)).forEach((item) => {
+    records.push(`<article class="history-record"><h3>Inspeção · orçamento em elaboração ou removido</h3><p>${escapeHtml(getCarroDetalhes(item.clienteId, item.carroId))}</p><div class="actions">${inspectionLink(item)}</div></article>`);
+  });
+  root.innerHTML = records.join("") || `<p class="muted">${hasAccess("orcamentosVer") ? "Nenhum registro para os filtros selecionados." : "Seu perfil não tem acesso ao histórico de orçamentos."}</p>`;
+}
+
+function restoreClienteHistoricoLink() {
+  const id = new URLSearchParams(window.location.search).get("historico");
+  if (id && !historyClientId && getCliente(id)) openClienteHistorico(id);
 }
 
 function updateOrcamentoInspectionButton() {
   const button = byId("gerarInspecao");
   if (!button) return;
   button.disabled = !(getValue("orcamentoCliente") && getValue("orcamentoCarro"));
+  button.textContent = getBudgetInspections(getValue("orcamentoId")).some((item) => item.clienteId === getValue("orcamentoCliente") && item.carroId === getValue("orcamentoCarro"))
+    ? "Abrir inspeção salva" : "Gerar lista de inspeção";
 }
 
 function handleOrcamentoFormInput(event) {
@@ -2621,7 +2776,9 @@ async function saveOrcamento(event) {
     await rrAlert("O orçamento foi salvo, mas houve uma falha ao atualizar a ordem de serviço. Tente novamente ao abrir este orçamento.", "Ordem de serviço pendente");
   }
   form.reset();
+  clearBudgetDraft();
   setValue("orcamentoId", "");
+  setValue("orcamentoInspecaoId", "");
   setValue("orcamentoData", today());
   hydrateOrcamentoAssigneeSelect("");
   hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro");
@@ -2653,6 +2810,7 @@ function renderOrcamentos() {
         ${canEditItem ? `<button class="btn btn-muted" onclick="editOrcamento('${orcamento.id}')">Editar</button>` : ""}
         ${canEditItem && (orcamento.historicoVersoes || []).length ? `<button class="btn btn-ghost" onclick="restoreOrcamentoVersion('${orcamento.id}')">Versões</button>` : ""}
         <a class="btn btn-ghost" href="orcamento-imprimir.html?id=${orcamento.id}">Imprimir</a>
+        ${getBudgetInspections(orcamento.id).map((inspection) => `<a class="btn btn-ghost" href="${escapeHtml(inspectionUrl(inspection, "orcamento"))}">Inspeção</a>`).join("")}
         ${canDeleteItem ? `<button class="btn btn-danger" onclick="deleteItem('orcamentos','${orcamento.id}', renderOrcamentos)">Excluir</button>` : ""}
       </td>
       </tr>`;
@@ -2683,6 +2841,7 @@ function editOrcamento(id) {
 
 function loadOrcamentoIntoForm(orcamento) {
   setValue("orcamentoId", orcamento.id);
+  setValue("orcamentoInspecaoId", getBudgetInspections(orcamento.id).find((item) => item.clienteId === orcamento.clienteId && item.carroId === (orcamento.carroId || orcamento.veiculoId))?.id || "");
   setValue("orcamentoCliente", orcamento.clienteId);
   hydrateClienteCarroSelects("orcamentoCliente", "orcamentoCarro", orcamento.carroId || orcamento.veiculoId);
   updateOrcamentoInspectionButton();
@@ -2699,6 +2858,7 @@ function loadOrcamentoIntoForm(orcamento) {
     : [blankServicoTerceirizado()];
   renderOrcamentoDrafts();
   window.scrollTo({ top: 0, behavior: "smooth" });
+  saveBudgetDraft();
 }
 
 async function restoreOrcamentoVersion(id) {
@@ -2925,8 +3085,16 @@ async function persistOrderInspection(orderId, inspection, button) {
 function initInspecao() {
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get("ordem") || "";
-  const clienteId = params.get("cliente") || "";
-  const carroId = params.get("carro") || "";
+  const inspectionId = params.get("inspecao") || createId("insp");
+  const savedInspection = readData("inspecoes").find((item) => item.id === inspectionId);
+  const clienteId = savedInspection?.clienteId || params.get("cliente") || "";
+  const carroId = savedInspection?.carroId || params.get("carro") || "";
+  const budgetId = savedInspection?.orcamentoId || params.get("orcamento") || createId("orc");
+  if (!orderId && !params.get("inspecao")) {
+    params.set("inspecao", inspectionId);
+    params.set("orcamento", budgetId);
+    window.history.replaceState(null, "", `?${params}`);
+  }
   const order = orderId ? readData("ordensServico").find((item) => item.id === orderId) : null;
   const isOrderContext = Boolean(order);
   const cliente = isOrderContext ? { nome: "Cliente protegido", telefone: "", email: "" } : getCliente(clienteId);
@@ -2948,19 +3116,24 @@ function initInspecao() {
 
   const branding = getDocumentBranding();
   const logoUrl = new URL(branding.logoUrl, window.location.href).href;
-  const draftKey = isOrderContext ? getInspectionDraftKey("ordem", order.id) : getInspectionDraftKey(clienteId, carroId);
-  const draft = isOrderContext && order.inspection ? order.inspection : readInspectionDraft(draftKey);
+  const draftKey = `rr_inspecao_draft_${localStorage.getItem("rr_cache_context") || ""}_${isOrderContext ? order.id : inspectionId}`;
+  const localDraft = readInspectionDraft(draftKey);
+  const cloudDraft = isOrderContext ? order.inspection : savedInspection;
+  const draft = localDraft.modifiedAt && (!cloudDraft?.savedAt || localDraft.modifiedAt > cloudDraft.savedAt)
+    ? localDraft : cloudDraft || localDraft;
   const fields = draft.fields || {};
   const vehicleName = [carro.marca, carro.modelo, carro.motor, carro.ano].filter(Boolean).join(" ");
-  const canManageInspection = hasAccess("inspecoesGerenciar");
-  if (backLink) backLink.href = isOrderContext ? "operacao.html" : "orcamentos.html";
+  const canManageInspection = hasAccess("inspecoesGerenciar") && (isOrderContext ? hasAccess("ordensServicoGerenciar")
+    : hasAccess("clientesVer") && hasAccess("orcamentosVer"));
+  if (backLink) backLink.href = params.get("voltar") === "cliente" ? `clientes.html?historico=${encodeURIComponent(clienteId)}`
+    : isOrderContext ? "operacao.html" : "orcamentos.html?retomar=1";
   if (printButton) printButton.disabled = false;
   if (clearButton) {
     clearButton.disabled = !canManageInspection;
     clearButton.hidden = !canManageInspection;
   }
   if (saveButton) {
-    saveButton.hidden = !(isOrderContext && canManageInspection && hasAccess("ordensServicoGerenciar"));
+    saveButton.hidden = !canManageInspection;
     saveButton.disabled = saveButton.hidden;
   }
 
@@ -3017,7 +3190,12 @@ function initInspecao() {
 
   prepareInspectionForExport(root);
   if (!canManageInspection) root.querySelectorAll("input, textarea, select").forEach((input) => { input.disabled = true; });
-  const saveDraft = () => sessionStorage.setItem(draftKey, JSON.stringify(collectInspectionDraft(root)));
+  let confirmedInspection = JSON.stringify(cloudDraft ? { fields: cloudDraft.fields || {}, items: cloudDraft.items || {} } : collectInspectionDraft(root));
+  const saveDraft = () => {
+    sessionStorage.setItem(draftKey, JSON.stringify({ ...collectInspectionDraft(root), modifiedAt: new Date().toISOString() }));
+    setText("inspectionSaveStatus", "Alterações guardadas nesta aba. Salve para sincronizar.");
+  };
+  setText("inspectionSaveStatus", cloudDraft?.savedAt ? "Inspeção salva no sistema" : "Inspeção ainda não salva no sistema");
   if (canManageInspection) root.addEventListener("input", saveDraft);
   if (canManageInspection) root.addEventListener("change", (event) => {
     if (event.target.matches("[data-inspection-status]")) {
@@ -3029,27 +3207,70 @@ function initInspecao() {
   if (canManageInspection) root.addEventListener("input", () => prepareInspectionForExport(root));
 
   const title = sanitizePrintTitle(`RR - Lista de inspeção ${isOrderContext ? `OS ${order.numero || ""}` : cliente.nome} ${carro.placa || vehicleName}`);
-  printButton?.addEventListener("click", () => {
-    saveDraft();
-    prepareInspectionForExport(root);
-    handlePrintDocumentAction(title);
-  });
-  saveButton?.addEventListener("click", async () => {
-    if (!isOrderContext) return;
+  let savingInspection = null;
+  const persistInspection = async () => {
+    if (!canManageInspection) return true;
+    if (savingInspection) return savingInspection;
     const inspection = collectInspectionDraft(root);
     inspection.savedAt = new Date().toISOString();
     inspection.savedBy = window.rrGetActor?.() || {};
-    sessionStorage.setItem(draftKey, JSON.stringify(inspection));
-    await persistOrderInspection(order.id, inspection, saveButton);
-  });
-  clearButton?.addEventListener("click", async () => {
+    saveDraft();
+    saveButton.disabled = true;
+    setText("inspectionSaveStatus", "Salvando inspeção na nuvem...");
+    savingInspection = (async () => {
+      const saved = isOrderContext ? await persistOrderInspection(order.id, inspection, saveButton)
+        : await persistBudgetInspection({ ...inspection, id: inspectionId, clienteId, carroId, orcamentoId: budgetId });
+      if (saved) {
+        confirmedInspection = JSON.stringify({ fields: inspection.fields, items: inspection.items });
+        // Do not overwrite edits made while the save was in progress.
+        if (JSON.stringify(collectInspectionDraft(root)) === confirmedInspection) sessionStorage.removeItem(draftKey);
+      }
+      setText("inspectionSaveStatus", saved ? "Inspeção salva no sistema" : "Falha ao salvar. Suas alterações continuam nesta aba.");
+      saveButton.disabled = false;
+      return saved;
+    })();
+    try { return await savingInspection; } finally { savingInspection = null; }
+  };
+  if (printButton) printButton.onclick = async () => {
+    if (canManageInspection && !await persistInspection()) return;
+    prepareInspectionForExport(root);
+    handlePrintDocumentAction(title);
+  };
+  if (saveButton) saveButton.onclick = persistInspection;
+  if (backLink) backLink.onclick = async (event) => {
+    event.preventDefault();
+    if (canManageInspection && JSON.stringify(collectInspectionDraft(root)) !== confirmedInspection && !await persistInspection()) return;
+    // A user can keep editing during a request; save those edits before leaving too.
+    if (canManageInspection && JSON.stringify(collectInspectionDraft(root)) !== confirmedInspection && !await persistInspection()) return;
+    window.location.href = backLink.href;
+  };
+  if (clearButton) clearButton.onclick = async () => {
     if (!canManageInspection) return;
     const confirmed = await rrConfirm("Deseja limpar todas as marcações e observações desta inspeção?", "Limpar inspeção", true);
     if (!confirmed) return;
-    if (isOrderContext && !await persistOrderInspection(order.id, null, clearButton)) return;
+    root.querySelectorAll("input, textarea, select").forEach((input) => { input.value = input.dataset.inspectionField === "date" ? today() : ""; });
+    saveDraft();
+    if (!await persistInspection()) return;
     sessionStorage.removeItem(draftKey);
     window.location.reload();
-  });
+  };
+}
+
+async function persistBudgetInspection(inspection) {
+  if (!hasAccess("inspecoesGerenciar") || !hasAccess("clientesVer") || !hasAccess("orcamentosVer")) return false;
+  const previous = readData("inspecoes");
+  const existing = previous.find((item) => item.id === inspection.id);
+  const record = { ...inspection, createdAt: existing?.createdAt || inspection.savedAt,
+    updatedAt: inspection.savedAt, updatedBy: window.rrGetActor?.() || {} };
+  writeData("inspecoes", [...previous.filter((item) => item.id !== record.id), record]);
+  try {
+    await persistSavedData("inspecoes");
+    return true;
+  } catch (error) {
+    writeData("inspecoes", previous);
+    await rrAlert("Não foi possível confirmar a inspeção na nuvem. Confira sua conexão e tente salvar novamente. O rascunho foi mantido nesta aba.", "Inspeção não salva");
+    return false;
+  }
 }
 
 function initOrcamentoPrint() {

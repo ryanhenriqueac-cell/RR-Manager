@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clientes | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=135">
+  <link rel="stylesheet" href="style.css?v=136">
 </head>
 <body data-page="clientes">
   <div class="app-shell">
@@ -54,10 +54,16 @@
         <div class="panel-header"><div><p class="eyebrow">Cadastros</p><h2>Clientes cadastrados</h2></div><input class="search-input" id="buscaClientes" placeholder="Buscar cliente"></div>
         <div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Contato</th><th>Carros</th><th>Endereço</th><th>Ações</th></tr></thead><tbody id="clientesTabela"></tbody></table></div>
       </section>
+      <section class="panel customer-history" id="clienteHistorico" hidden aria-labelledby="historicoClienteNome">
+        <div class="panel-header"><div><p class="eyebrow">Histórico na oficina</p><h2 id="historicoClienteNome">Histórico do cliente</h2></div><button class="btn btn-muted" type="button" onclick="document.getElementById('clienteHistorico').hidden = true">Fechar histórico</button></div>
+        <div class="history-filters"><label>Veículo<select id="historicoCarro"><option value="">Todos os veículos</option></select></label><label>Situação do orçamento<select id="historicoStatus"><option value="">Todos os orçamentos e inspeções</option><option value="Pré-orçamento">Pendentes de aprovação</option><option value="Aprovado">Aprovados</option><option value="Não aprovado">Não aprovados</option></select></label></div>
+        <div class="totals-box" id="historicoResumo" aria-live="polite"></div>
+        <div id="historicoRegistros" class="history-records" aria-live="polite"></div>
+      </section>
     </main>
   </div>
-  <script src="script.js?v=126"></script>
+  <script src="script.js?v=127"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=89"></script>
+  <script type="module" src="firebase-sync.js?v=90"></script>
 </body>
 </html>

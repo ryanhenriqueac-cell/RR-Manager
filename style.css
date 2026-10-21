@@ -10520,3 +10520,11 @@ body[data-page="financeiro-print"] #firebaseUserBar {
   .labor-catalog-modal footer,.vehicle-catalog-modal footer { align-items: stretch; flex-direction: column; }
   .labor-catalog-modal footer > div { display: grid; grid-template-columns: 1fr 1fr; }
 }
+.history-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+.history-records { display: grid; gap: 16px; margin-top: 20px; }
+.history-record { border: 1px solid var(--line); border-radius: 12px; padding: 20px; overflow-wrap: anywhere; }
+.history-record h3 { margin: 0 0 8px; }
+.history-record .actions { flex-wrap: wrap; }
+.customer-history { scroll-margin-top: 24px; }
+#inspectionSaveStatus { font-size: .9rem; }
+@media (max-width: 640px) { .history-filters { grid-template-columns: 1fr; } .history-record { padding: 14px; } }
