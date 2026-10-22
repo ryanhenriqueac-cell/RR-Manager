@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-22",
+  "purpose": "Segundo lote: refer?ncias para importa??o como rascunhos, com motor, c?mbio, tra??o e escopo delimitados. N?o aprova publica??o autom?tica.",
+  "reuseBasis": "Registro limitado ao fato numérico, identificação da aplicação e referências bibliográficas; notas redigidas para o RR Manager. Sem copiar o procedimento, imagens, tabelas ou conceder licença sobre os documentos originais. Não representa autorização contratual do fabricante nem uso do portal REPXPERT.",
+  "evidence": [
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-change-a-clutch-on-a-kia-picanto/",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/71100/sensor-de-pressao-do-coletor--map",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-a-clutch-on-a-kia-picanto/",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy-picanto-11-petrol-g4hg.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-hyundai-tuscan/",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy-2wd-hyundai-tucson-20p.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/gridaplicacoespartial?pCodProduto=73533",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy----mini-countryman-all4-cooper-s.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/de/br/produto/gridaplicacoespartial?pCodProduto=73559",
+      "accessedOn": "2026-10-22"
+    }
+  ],
+  "records": [
+    {
+      "researchFindingId": "free-picanto-g4he-clutch",
+      "vehicleId": "veh_3d5af76e20bf7d10",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2010,
+      "timeHours": 3,
+      "application": "Somente primeira gera??o, G4HE L4 1.0, c?mbio manual e acionamento mec?nico por cabo; conferir c?digo e montagem no ve?culo.",
+      "source": {
+        "title": "How to change a clutch on a Kia Picanto",
+        "url": "https://pmmonline.co.uk/technical/how-to-change-a-clutch-on-a-kia-picanto/",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "CatE 71100 - aplica??es brasileiras Picanto",
+            "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/71100/sensor-de-pressao-do-coletor--map",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFER?NCIA LUK DO PROCEDIMENTO DE SUBSTITUI??O DA EMBREAGEM, KIT 618301600. Inclui retirar e reinstalar o c?mbio. Conferir acionamento mec?nico por cabo e montagem. N?o aplicar a motor 1.0 de tr?s cilindros, autom?tico ou ? gera??o seguinte. N?o somar outra remo??o de c?mbio. Revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-picanto-g4hg-clutch",
+      "vehicleId": "veh_21c4c41e1e16c32e",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2006,
+      "yearEnd": 2006,
+      "timeHours": 3,
+      "application": "G4HG L4 1.1, c?mbio manual, acionamento por cabo; confirmar c?digo e montagem.",
+      "source": {
+        "title": "How to replace a clutch on a Kia Picanto 1.1 G4HG",
+        "url": "https://pmmonline.co.uk/technical/how-to-replace-a-clutch-on-a-kia-picanto/",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "CatE 71100 - aplica??es brasileiras Picanto",
+            "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/71100/sensor-de-pressao-do-coletor--map",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFER?NCIA LUK DO PROCEDIMENTO DE SUBSTITUI??O DA EMBREAGEM, KIT 618308700. Inclui retirar e reinstalar o c?mbio. O PDF complementar confirma um exemplar G4HG de 2006, mas n?o informa horas: os 180 minutos v?m do artigo PMM de 2016. O reparo adicional de retentor citado no PDF n?o tem tempo individualizado neste registro. N?o somar outra remo??o de c?mbio. Revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-tucson-2007-clutch",
+      "vehicleId": "veh_fc9ed61a183878e6",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2007,
+      "yearEnd": 2007,
+      "timeHours": 5,
+      "application": "Somente Tucson JM 2.0 G4GC gasolina, manual 2WD 2007; confirmar montagem, n?o aplic?vel ao autom?tico ou 4WD.",
+      "source": {
+        "title": "How to fit a clutch on a Hyundai Tuscan - 2.0 2WD Petrol 2007",
+        "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-hyundai-tuscan/",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "CatE 73533 - Tucson G4GC Brasil",
+            "url": "https://cate.mte-thomson.com.br/pt/br/produto/gridaplicacoespartial?pCodProduto=73533",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFER?NCIA LUK: 5 HORAS PARA RETIRAR C?MBIO, SUBSTITUIR EMBREAGEM E REINSTALAR C?MBIO. Aplica??o estrita ao caso manual 2WD de 2007; conferir montagem. N?o aplicar ao autom?tico, 4WD, flex ou outros anos. N?o somar remo??o de c?mbio ou do agregado inclu?da no procedimento. N?o foi criado tempo de troca de volante bimassa. Revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-countryman-all4-2013-clutch",
+      "vehicleId": "veh_8cde074152d5169f",
+      "serviceCode": "EMB-012",
+      "fuel": "Gasolina",
+      "yearStart": 2013,
+      "yearEnd": 2013,
+      "timeHours": 6.7,
+      "application": "Somente Countryman R60 Cooper S ALL4 1.6 turbo N18B16A, c?mbio manual, 2013. Confirmar vers?o e montagem; n?o aplicar a autom?tico ou tra??o dianteira.",
+      "source": {
+        "title": "LuK Clutch Academy - MINI Countryman ALL4 Cooper S",
+        "url": "https://www.techtips.ie/LuK/luk-clutch-academy----mini-countryman-all4-cooper-s.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "CatE 73559 - Countryman N18B16A Brasil",
+            "url": "https://cate.mte-thomson.com.br/de/br/produto/gridaplicacoespartial?pCodProduto=73559",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFER?NCIA LUK DE OPERA??O COMPOSTA: KIT DE EMBREAGEM E VOLANTE BIMASSA, 6,7 HORAS. Confirmar R60 Cooper S ALL4 manual e N18B16A no ve?culo. N?o aplicar a autom?tico, vers?o com tra??o dianteira ou outros anos. N?o somar EMB-001, troca de volante, remo??o de c?mbio, card? ou caixa de transfer?ncia j? inclu?dos no procedimento. Revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}

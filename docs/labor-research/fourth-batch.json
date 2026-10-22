@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-22",
+  "purpose": "Quarto lote: nove referências MANN-FILTER Brasil para instalação de filtros de cabine FreciousPlus identificados; sem publicação automática.",
+  "reuseBasis": "Registro de fatos numéricos limitados, metadados bibliográficos e notas próprias do RR Manager. Não reproduz procedimentos, imagens ou tabelas integrais, não declara licença contratual sobre os documentos originais e não usa o portal REPXPERT.",
+  "evidence": [
+    {
+      "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+      "accessedOn": "2026-10-22"
+    }
+  ],
+  "records": [
+    {
+      "researchFindingId": "free-mann-cabin-24dfb78b902f789b-2009-2014",
+      "vehicleId": "veh_24dfb78b902f789b",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2009,
+      "yearEnd": 2014,
+      "timeHours": 0.16666666666666666,
+      "application": "1.4 16V Flex; Fit segunda geração 1.4 i-VTEC, com alojamento compatível; não é i-DSI da primeira geração. Somente montagem do filtro FreciousPlus FP 21 003.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 10 minutos de instalação de FP 21 003. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-2c3af9a2ffbd51e2-2008-2013",
+      "vehicleId": "veh_2c3af9a2ffbd51e2",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2008,
+      "yearEnd": 2013,
+      "timeHours": 0.16666666666666666,
+      "application": "1.8 16V VVT-i Flex; Corolla X E14/E15; não estender para a geração lançada em 2014. Somente montagem do filtro FreciousPlus FP 1919.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 10 minutos de instalação de FP 1919. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-7ce03785c4504067-2011-2013",
+      "vehicleId": "veh_7ce03785c4504067",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2011,
+      "yearEnd": 2013,
+      "timeHours": 0.16666666666666666,
+      "application": "2.0 16V Flex; Corolla X E14/E15; não estender para a geração lançada em 2014. Somente montagem do filtro FreciousPlus FP 1919.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 10 minutos de instalação de FP 1919. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-e01be49b2d9df5cf-2014-2014",
+      "vehicleId": "veh_e01be49b2d9df5cf",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2014,
+      "timeHours": 0.25,
+      "application": "1.4 16V TSI Gasolina; Golf geração 7 TSI gasolina, referência OE do filtro 5Q0819653; não aplicar a MPI ou flex sem outra conferência. Somente montagem do filtro FreciousPlus FP 26 009.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 15 minutos de instalação de FP 26 009. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-82f77c16ea64d2dd-2014-2019",
+      "vehicleId": "veh_82f77c16ea64d2dd",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2019,
+      "timeHours": 0.25,
+      "application": "2.0 16V GTI Gasolina; Golf geração 7 GTI, referência OE do filtro 5Q0819653; exclui gerações anteriores. Somente montagem do filtro FreciousPlus FP 26 009.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 15 minutos de instalação de FP 26 009. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-0fecca0d3602cda5-2008-2011",
+      "vehicleId": "veh_0fecca0d3602cda5",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2011,
+      "timeHours": 0.25,
+      "application": "120i 2.0 16V Gasolina; BMW Série 1 E87 120i aspirado; não estender para F20/F21 turbo. Somente montagem do filtro FreciousPlus FP 8430.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 15 minutos de instalação de FP 8430. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-98f35aaf5af3f62e-2008-2008",
+      "vehicleId": "veh_98f35aaf5af3f62e",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2008,
+      "timeHours": 0.25,
+      "application": "130i 3.0 24V Gasolina; BMW Série 1 E87 130i; recorte de ano inteiro dentro do intervalo do fabricante. Somente montagem do filtro FreciousPlus FP 8430.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 15 minutos de instalação de FP 8430. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-0ba33cf276345006-2008-2012",
+      "vehicleId": "veh_0ba33cf276345006",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2012,
+      "timeHours": 0.5,
+      "application": "2.5 20V T5 Gasolina; Volvo C30 T5; confirmar acesso e alojamento do filtro específico. Somente montagem do filtro FreciousPlus FP 2440.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 30 minutos de instalação de FP 2440. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-b763a199779d2c96-2015-2015",
+      "vehicleId": "veh_b763a199779d2c96",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2015,
+      "yearEnd": 2015,
+      "timeHours": 0.08333333333333333,
+      "application": "CLA 250 2.0 16V Gasolina; Mercedes CLA C117/X117 CLA 250; confirmar direção à esquerda e filtro específico. Somente montagem do filtro FreciousPlus FP 26 007.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 5 minutos de instalação de FP 26 007. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}

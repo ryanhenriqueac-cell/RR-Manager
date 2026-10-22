@@ -1,0 +1,506 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-22",
+  "purpose": "Terceiro lote: 16 referências históricas de concessionárias Honda brasileiras para rascunhos; recortes específicos, sem publicação automática.",
+  "reuseBasis": "Registro de fatos numéricos limitados, metadados bibliográficos e notas próprias do RR Manager. Não reproduz procedimentos, imagens ou tabelas integrais, não declara licença contratual sobre os documentos originais e não usa o portal REPXPERT.",
+  "evidence": [
+    {
+      "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+      "accessedOn": "2026-10-22"
+    }
+  ],
+  "records": [
+    {
+      "researchFindingId": "free-honda-fit-2019-frd-001",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.6,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "source": {
+        "title": "Fit - tabela de serviços Auto Japan 2019",
+        "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Fit 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-fit-2019-sud-002",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 1.7,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "source": {
+        "title": "Fit - tabela de serviços Auto Japan 2019",
+        "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Fit 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-fit-2019-rev-007",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.1,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "source": {
+        "title": "Fit - tabela de serviços Auto Japan 2019",
+        "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Fit 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-fit-2019-rev-003",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.4,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "source": {
+        "title": "Fit - tabela de serviços Auto Japan 2019",
+        "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Fit 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-city-2019-frd-001",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.6,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "source": {
+        "title": "City - tabela de serviços H Motors 2019",
+        "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo City 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-city-2019-sud-002",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 1.7,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "source": {
+        "title": "City - tabela de serviços H Motors 2019",
+        "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo City 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-city-2019-rev-007",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.1,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "source": {
+        "title": "City - tabela de serviços H Motors 2019",
+        "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo City 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-city-2019-rev-003",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.4,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "source": {
+        "title": "City - tabela de serviços H Motors 2019",
+        "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo City 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-hrv-2019-frd-001",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.6,
+      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "source": {
+        "title": "HR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - HR-V 2019 na Agrishow",
+            "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-hrv-2019-sud-002",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.9,
+      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "source": {
+        "title": "HR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - HR-V 2019 na Agrishow",
+            "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-hrv-2019-rev-007",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.1,
+      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "source": {
+        "title": "HR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - HR-V 2019 na Agrishow",
+            "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-hrv-2019-rev-003",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.4,
+      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "source": {
+        "title": "HR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - HR-V 2019 na Agrishow",
+            "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-civic-2018-frd-001",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeHours": 0.6,
+      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "source": {
+        "title": "Civic 10 - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+            "page": 15
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-civic-2018-sud-002",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeHours": 2.5,
+      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "source": {
+        "title": "Civic 10 - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+            "page": 15
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-civic-2018-rev-007",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeHours": 0.2,
+      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "source": {
+        "title": "Civic 10 - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+            "page": 15
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-civic-2018-rev-003",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeHours": 0.4,
+      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "source": {
+        "title": "Civic 10 - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+            "page": 15
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}

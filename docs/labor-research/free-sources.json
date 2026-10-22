@@ -1,0 +1,2195 @@
+{
+  "schemaVersion": 1,
+  "researchedOn": "2026-10-22",
+  "scope": "Pesquisa gratuita progressiva de sincronismo, embreagem, manutenção e instalação de filtros. Referências não equivalem a catálogo publicado. Lotes preparados são rascunhos com condições explícitas.",
+  "sources": [
+    {
+      "id": "contitech-renault-k4m",
+      "author": "ContiTech Antriebssysteme GmbH",
+      "title": "Installation tips - Renault Clio II 1.6 16V K4M 748",
+      "url": "https://www.techtips.ie/Contitech/renault-clio-ii-16-16v-timing-belt-fitting-guide.pdf",
+      "page": 1,
+      "verification": "Texto do PDF original do fabricante consultado; hospedado por terceiro.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": 2010
+    },
+    {
+      "id": "contitech-focus-2",
+      "author": "ContiTech Antriebssysteme GmbH",
+      "title": "Expert Tips for Changing Timing Belts - Ford Focus 2.0 16V",
+      "url": "https://www.techtalk.ie/wp-content/uploads/2017/01/TN_15_045-EN.pdf",
+      "page": 1,
+      "verification": "Texto do PDF original do fabricante consultado; hospedado por terceiro.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": null
+    },
+    {
+      "id": "contitech-fiesta-fxja",
+      "author": "ContiTech Power Transmission Group",
+      "title": "Expert Tips for Changing Timing Belts - Ford Fiesta V 2004 FXJA",
+      "url": "https://www.forumdellautoriparatore.it/public/attachments/danieli/ford-fiesta-timing-belt-guide-14-liter-16-v-with-engine-code-fxja.pdf",
+      "page": 1,
+      "verification": "Texto do comunicado original do fabricante consultado; hospedado por terceiro.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": 2016
+    },
+    {
+      "id": "contitech-fiat-500-12",
+      "author": "ContiTech Antriebssysteme GmbH",
+      "title": "Expert Tips for Changing Timing Belts - Fiat 500 1.2 169 A4.000",
+      "url": "https://www.techtalk.ie/wp-content/uploads/2017/01/TN_15_S01-EN.pdf",
+      "page": 1,
+      "verification": "Texto do PDF original do fabricante consultado; hospedado por terceiro.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": null
+    },
+    {
+      "id": "contitech-doblo-multijet",
+      "author": "ContiTech Power Transmission Group",
+      "title": "Expert Tips for Changing Timing Belts - Fiat Doblò 263 1.6 D Multijet",
+      "url": "https://www.techtips.ie/Contitech/fiat-doblo-timing-belt-fitting-instructions-16d-multijet.pdf",
+      "page": 1,
+      "verification": "Texto do comunicado original do fabricante consultado; hospedado por terceiro.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": 2014
+    },
+    {
+      "id": "contitech-panda-12",
+      "author": "ContiTech Power Transmission Group",
+      "title": "Expert Tips for Changing Timing Belts - Fiat Panda 2004 1.2 188.A4.000",
+      "url": "https://techtalk.ie/wp-content/uploads/2017/12/TN_17_S02-EN.pdf",
+      "page": 1,
+      "verification": "Texto do PDF original do fabricante consultado; hospedado por terceiro.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": null
+    },
+    {
+      "id": "contitech-saxo-14",
+      "author": "ContiTech Power Transmission Group",
+      "title": "Expert Tips for Changing Timing Belts - Citroën Saxo 1.4 KFX/KFW",
+      "url": "https://www.techtips.ie/Contitech/timing-belt-guide---citron-saxo-s0-s1-14-liter-vts-with-engine-code-kfx-kfw-tu3jp.pdf",
+      "page": 1,
+      "verification": "Texto do PDF original do fabricante consultado; hospedado por terceiro.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": null
+    },
+    {
+      "id": "contitech-cmax-16",
+      "author": "ContiTech Antriebssysteme GmbH",
+      "title": "Expert Tips for Changing Timing Belts - Ford Focus C-Max 1.6 Ti",
+      "url": "https://www.techtalk.ie/wp-content/uploads/2017/01/TN_15_043-EN.pdf",
+      "page": 1,
+      "verification": "Texto do PDF original do fabricante consultado; hospedado por terceiro.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": null
+    },
+    {
+      "id": "luk-focus-clutch-2008",
+      "author": "Alistair Mason, Schaeffler",
+      "title": "LuK Clutch Academy - 2008 Ford Focus 1.6",
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy---2008-ford-focus-16.pdf",
+      "page": 1,
+      "verification": "Texto da publicação assinada pelo técnico do fabricante consultado; hospedada por terceiro.",
+      "type": "manufacturer_authored_workshop_article",
+      "documentYear": 2021
+    },
+    {
+      "id": "luk-jazz-gd-14",
+      "author": "Malcolm Short, Schaeffler",
+      "title": "LuK Clutch Academy - Honda Jazz II (GD) 1.4P",
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy-honda-jazz-ii-gd-14p.pdf",
+      "page": 1,
+      "verification": "Artigo assinado pelo técnico do fabricante, AUTOBIZ fevereiro de 2016; PDF público consultado integralmente, fora do portal REPXPERT.",
+      "type": "manufacturer_authored_workshop_article",
+      "documentYear": 2016
+    },
+    {
+      "id": "luk-picanto-g4he",
+      "author": "LuK / Schaeffler Automotive Aftermarket",
+      "title": "How to change a clutch on a Kia Picanto",
+      "url": "https://pmmonline.co.uk/technical/how-to-change-a-clutch-on-a-kia-picanto/",
+      "page": 1,
+      "verification": "Artigo técnico da série Clutch Clinic, identificado como material LuK/Schaeffler na publicação; página pública integral consultada, fora do portal REPXPERT.",
+      "type": "manufacturer_authored_workshop_article",
+      "documentYear": 2015
+    },
+    {
+      "id": "luk-picanto-g4hg",
+      "author": "LuK / Schaeffler",
+      "title": "How to replace a clutch on a Kia Picanto 1.1 G4HG",
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-a-clutch-on-a-kia-picanto/",
+      "page": 1,
+      "verification": "Conte?do t?cnico integral consultado em fonte p?blica; sem acesso ao portal REPXPERT.",
+      "type": "manufacturer_authored_workshop_article",
+      "documentYear": 2016
+    },
+    {
+      "id": "luk-tucson-2007",
+      "author": "LuK / Schaeffler",
+      "title": "How to fit a clutch on a Hyundai Tuscan - 2.0 2WD Petrol 2007",
+      "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-hyundai-tuscan/",
+      "page": 1,
+      "verification": "Texto integral retornado pela pesquisa da p?gina original; abertura direta retornou timeout. O procedimento foi tamb?m lido no PDF assinado por Malcolm Short, que n?o cont?m o tempo e n?o foi usado para invent?-lo.",
+      "type": "manufacturer_authored_workshop_article",
+      "documentYear": 2015
+    },
+    {
+      "id": "luk-countryman-all4-2013",
+      "author": "Alistair Mason, Schaeffler",
+      "title": "LuK Clutch Academy - MINI Countryman ALL4 Cooper S",
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy----mini-countryman-all4-cooper-s.pdf",
+      "page": 1,
+      "verification": "Conte?do t?cnico integral consultado em fonte p?blica; sem acesso ao portal REPXPERT.",
+      "type": "manufacturer_authored_workshop_article",
+      "documentYear": 2022
+    },
+    {
+      "id": "contitech-a3-arz",
+      "author": "Continental / ContiTech",
+      "title": "Expert Tips for Changing Timing Belts - Audi A3 1.8 T ARZ",
+      "url": "https://www.techtips.ie/Contitech/audi-a3-timing-belt-fitting-guide.pdf",
+      "page": 1,
+      "verification": "Boletim original de imprensa do fabricante, oito p?ginas, consultado integralmente; tempo na p?gina 1.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": 2015
+    },
+    {
+      "id": "blueprint-mini-2001",
+      "author": "Blue Print / Ferdinand Bilstein",
+      "title": "BMW Mini Clutch Kit Replacement - INF136/BP/UK/Jan/13",
+      "url": "https://www.techtips.ie/Blue-Print/bmw-mini-clutch-kit.pdf",
+      "page": 1,
+      "verification": "Conte?do t?cnico integral consultado em fonte p?blica; sem acesso ao portal REPXPERT.",
+      "type": "manufacturer_technical_bulletin",
+      "documentYear": 2013
+    },
+    {
+      "id": "luk-jimny-third-gen",
+      "author": "LuK / Schaeffler",
+      "title": "How to replace a clutch on a Suzuki Jimny",
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-a-clutch-on-a-suzuki-jimny/",
+      "page": 1,
+      "verification": "Conte?do t?cnico integral consultado em fonte p?blica; sem acesso ao portal REPXPERT.",
+      "type": "manufacturer_authored_workshop_article",
+      "documentYear": 2016
+    },
+    {
+      "id": "luk-navara-ddti",
+      "author": "Alistair Mason, Schaeffler",
+      "title": "LuK Clutch Academy - Nissan Navara 2.5 DDTi",
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy-nissan-navara-25-ddti.pdf",
+      "page": 1,
+      "verification": "Publica??o original assinada; trecho inicial consultado. O tempo ? impreciso, impedindo a importa??o independentemente da aplica??o.",
+      "type": "manufacturer_authored_workshop_article",
+      "documentYear": 2019
+    },
+    {
+      "id": "dealer-autojapan-fit-2019",
+      "author": "Concessionária Honda Auto Japan",
+      "title": "Fit - tabela de serviços Auto Japan 2019",
+      "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+      "page": 1,
+      "type": "dealer_service_time_sheet",
+      "documentYear": 2019,
+      "verification": "Documento público baixado, texto e alinhamento das colunas conferidos na página renderizada localmente.",
+      "validityText": "31/11/2019, data impossível transcrita da fonte; validade comercial expirada.",
+      "accessedOn": "2026-10-22",
+      "downloadedSha256": "987c51558b0318d7b66dfa32e6fe11caf1be8a839115ac771b84f533313e0d6a"
+    },
+    {
+      "id": "dealer-hmotors-city-2019",
+      "author": "Concessionária Honda H Motors",
+      "title": "City - tabela de serviços H Motors 2019",
+      "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+      "page": 1,
+      "type": "dealer_service_time_sheet",
+      "documentYear": 2019,
+      "verification": "Documento público baixado, texto e alinhamento das colunas conferidos na página renderizada localmente.",
+      "validityText": "31/12/2019; validade comercial expirada.",
+      "accessedOn": "2026-10-22",
+      "downloadedSha256": "d4fd2d839dd2a8b5d4bacec280fd76596bdc78e5ca394c2b6f869c1fbaf33040"
+    },
+    {
+      "id": "dealer-flora-hrv-2019",
+      "author": "Concessionária Honda Flora",
+      "title": "HR-V - tabela de serviços Flora 2019",
+      "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+      "page": 1,
+      "type": "dealer_service_time_sheet",
+      "documentYear": 2019,
+      "verification": "Documento público baixado, texto e alinhamento das colunas conferidos na página renderizada localmente.",
+      "validityText": "30/06/2019; validade comercial expirada.",
+      "accessedOn": "2026-10-22",
+      "downloadedSha256": "e5a2fb9afed0138f81fe0b2601ff720d3461494a2e8fae9c3087fc2b433d4a20"
+    },
+    {
+      "id": "dealer-flora-civic10-2019",
+      "author": "Concessionária Honda Flora",
+      "title": "Civic 10 - tabela de serviços Flora 2019",
+      "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+      "page": 1,
+      "type": "dealer_service_time_sheet",
+      "documentYear": 2019,
+      "verification": "Documento público baixado, texto e alinhamento das colunas conferidos na página renderizada localmente.",
+      "validityText": "30/06/2019; validade comercial expirada.",
+      "accessedOn": "2026-10-22",
+      "downloadedSha256": "f32f67afea1f22241be960e5b8a138bb824abb639e60aefacb74e160aef14aef"
+    },
+    {
+      "id": "mann-freciousplus-br-2021",
+      "author": "MANN-FILTER Brasil",
+      "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+      "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+      "page": 1,
+      "type": "manufacturer_installation_time_sheet",
+      "documentYear": 2021,
+      "verification": "Documento público baixado, texto e alinhamento das colunas conferidos na página renderizada localmente.",
+      "accessedOn": "2026-10-22",
+      "downloadedSha256": "4293f80318b0a86d29cad52cdcf1d3ce9fedabbcb9b5f8f2a8f9161cffa17a0e"
+    },
+    {
+      "id": "contitech-passat-v6-2010",
+      "author": "ContiTech Antriebssysteme GmbH",
+      "title": "Installation tips - Audi/VW 2.8 V6 30V",
+      "url": "https://cdn.pressebox.de/a/62778c7a952fcedc/attachments/0346863.attachment/filename/einbautipp_audi_en%5B1%5D.pdf",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "documentYear": 2010,
+      "type": "manufacturer_technical_bulletin",
+      "verification": "Texto integral do artigo ou boletim público consultado. Limitações de aplicação mantidas."
+    },
+    {
+      "id": "ina-daily-23-2021",
+      "author": "Tim Adams / Schaeffler INA",
+      "title": "How to replace the timing belt on an Iveco Daily",
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-the-timing-belt-on-an-iveco-daily/",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "documentYear": 2021,
+      "type": "manufacturer_authored_technical_article",
+      "verification": "Texto integral do artigo ou boletim público consultado. Limitações de aplicação mantidas."
+    },
+    {
+      "id": "luk-a5-quattro-2011",
+      "author": "Alistair Mason / Schaeffler",
+      "title": "How to replace the clutch in an Audi A5",
+      "url": "https://pmmonline.co.uk/clutch-clinic/how-to-replace-the-clutch-in-an-audi-a5/",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "documentYear": 2022,
+      "type": "manufacturer_authored_technical_article",
+      "verification": "Texto integral do artigo ou boletim público consultado. Limitações de aplicação mantidas."
+    },
+    {
+      "id": "luk-c180-coupe-2003",
+      "author": "LuK / Schaeffler",
+      "title": "How to fit a clutch on a Mercedes Kompressor Coupe",
+      "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-mercedes-kompressor-coupe/",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "documentYear": null,
+      "type": "manufacturer_authored_technical_article",
+      "verification": "Texto integral do artigo ou boletim público consultado. Limitações de aplicação mantidas."
+    },
+    {
+      "id": "luk-i30-2014-clutch",
+      "author": "Alistair Mason / Schaeffler",
+      "title": "LuK Clutch Academy - Hyundai i30 2014",
+      "url": "https://www.techtips.ie/REPXPERT/luk-clutch-academy---2014-hyundai-i30.pdf",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "documentYear": 2023,
+      "type": "manufacturer_authored_technical_article",
+      "verification": "Texto integral do artigo ou boletim público consultado. Limitações de aplicação mantidas."
+    }
+  ],
+  "applicationSources": [
+    {
+      "id": "motorservice-br-focus-eddb",
+      "author": "MS Motorservice Brazil / Pierburg",
+      "title": "Catálogo brasileiro - Sensor MAF 7.22184.20.0",
+      "url": "https://catweb.ms-motorservice.com.br/detalhes.php?cw_pgAtual=199&cw_produtoAtivo=CodigoProduto%3C%212%21%3E4897",
+      "accessedOn": "2026-10-22",
+      "verification": "Tabela de aplicações consultada diretamente no domínio brasileiro do fabricante; não contém tempos de mão de obra.",
+      "application": {
+        "make": "Ford",
+        "model": "Focus",
+        "engineCode": "EDDB",
+        "engine": "Zetec-S 2.0 L 16V DOHC L4",
+        "fuel": "Gasolina",
+        "yearStart": 2000,
+        "yearEnd": 2004,
+        "variants": [
+          {
+            "name": "GHIA",
+            "yearStart": 2000,
+            "yearEnd": 2004
+          },
+          {
+            "name": "GL",
+            "yearStart": 2000,
+            "yearEnd": 2004
+          },
+          {
+            "name": "GLX",
+            "yearStart": 2002,
+            "yearEnd": 2004
+          }
+        ]
+      },
+      "notes": "Confirma somente a aplicação declarada no catálogo. Não comprova que todos os Focus 2.0 brasileiros do intervalo tenham esse motor. Não fornece equivalência de horas nem licença de reprodução do boletim Continental."
+    },
+    {
+      "id": "mte-picanto-71100",
+      "author": "MTE-THOMSON",
+      "title": "CatE 71100 - aplica??es brasileiras Picanto",
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/71100/sensor-de-pressao-do-coletor--map",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "verification": "Tabela de aplica??es consultada diretamente no dom?nio do fabricante; n?o cont?m tempos de m?o de obra.",
+      "application": [
+        {
+          "make": "Kia",
+          "model": "Picanto",
+          "engineCode": "G4HE",
+          "engine": "1.0 L4 12V",
+          "fuel": "Gasolina",
+          "yearStart": 2008,
+          "yearEnd": 2012,
+          "region": "BRASIL"
+        },
+        {
+          "make": "Kia",
+          "model": "Picanto",
+          "engineCode": "G4HG",
+          "engine": "1.1 L4 12V",
+          "fuel": "Gasolina",
+          "yearStart": 2006,
+          "yearEnd": 2007,
+          "region": "BRASIL"
+        }
+      ],
+      "notes": "Usado para identificar os motores; n?o comprova tempo nem c?mbio. O rascunho G4HE foi limitado a 2008-2010 para evitar sobreposi??o com a mudan?a de gera??o; o G4HG foi limitado ao ano 2006, tamb?m descrito no artigo complementar."
+    },
+    {
+      "id": "mte-tucson-73533",
+      "author": "MTE-THOMSON",
+      "title": "CatE 73533 - Tucson G4GC Brasil",
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/gridaplicacoespartial?pCodProduto=73533",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "verification": "Tabela de aplica??es consultada diretamente no dom?nio do fabricante; n?o cont?m tempos de m?o de obra.",
+      "application": {
+        "make": "Hyundai",
+        "model": "Tucson",
+        "engineCode": "G4GC",
+        "engine": "2.0 L4 16V",
+        "fuel": "Gasolina",
+        "yearStart": 2005,
+        "yearEnd": 2009,
+        "region": "BRASIL"
+      },
+      "notes": "Identifica motor, combust?vel e mercado. N?o individualiza c?mbio ou tra??o; a refer?ncia de tempo ? restrita ao caso manual 2WD do artigo, ano 2007. Confirmar a montagem no ve?culo."
+    },
+    {
+      "id": "mte-countryman-73559",
+      "author": "MTE-THOMSON",
+      "title": "CatE 73559 - Countryman N18B16A Brasil",
+      "url": "https://cate.mte-thomson.com.br/de/br/produto/gridaplicacoespartial?pCodProduto=73559",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "verification": "Tabela de aplica??es consultada diretamente no dom?nio do fabricante; n?o cont?m tempos de m?o de obra.",
+      "application": {
+        "make": "MINI",
+        "model": "Countryman",
+        "engineCode": "N18B16A",
+        "engine": "1.6 L4 16V",
+        "fuel": "Gasolina",
+        "yearStart": 2013,
+        "yearEnd": 2016,
+        "region": "BRASIL"
+      },
+      "notes": "Identifica motor e mercado. O tempo n?o vale para todos os Countryman: somente R60 Cooper S ALL4 manual 2013, conforme o artigo de repara??o. Confirmar vers?o, tra??o e c?mbio antes de publicar."
+    },
+    {
+      "id": "millard-a3-5552",
+      "author": "Millard Filters",
+      "title": "ML-5552 - Cat?logo Brasil - aplica??es Audi A3 8L1",
+      "url": "https://www.millardcatalog.com/inc/datasheet_generatesheet.php?catalog=Brazil&itemCode=ML-5552&lang=es",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "verification": "Tabela de aplica??es consultada diretamente no dom?nio do fabricante; n?o cont?m tempos de m?o de obra.",
+      "application": {
+        "make": "Audi",
+        "model": "A3 8L1 1.8 T",
+        "engineCodes": [
+          "AGU",
+          "AQA",
+          "ARZ",
+          "AUM"
+        ],
+        "yearStart": 2001,
+        "yearEnd": 2007,
+        "region": "BRASIL"
+      },
+      "notes": "Agrupa c?digos e anos; n?o individualiza o intervalo do ARZ. Cadastro local mistura aspirado e turbo. Material suficiente para pista, insuficiente para promover todo o intervalo como aplica??o comprovada."
+    },
+    {
+      "id": "honda-fit-2019-brochure",
+      "author": "Honda Automóveis do Brasil",
+      "title": "Honda Brasil - catálogo Fit 2019",
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+      "page": 7,
+      "accessedOn": "2026-10-22",
+      "verification": "Catálogo ou comunicado original consultado integralmente no domínio do fabricante. Identifica designação do motor e versão; não fornece código do motor nem tempos.",
+      "application": {
+        "vehicleId": "veh_a42d5a03fffe6257",
+        "make": "Honda",
+        "model": "Fit",
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "transmission": "CVT",
+        "region": "BRASIL"
+      },
+      "notes": "Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual. Nenhum código de motor foi inferido. Para esses serviços, a referência identifica versão, geração, motorização e ano."
+    },
+    {
+      "id": "honda-city-2019-brochure",
+      "author": "Honda Automóveis do Brasil",
+      "title": "Honda Brasil - catálogo City 2019",
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+      "page": 7,
+      "accessedOn": "2026-10-22",
+      "verification": "Catálogo ou comunicado original consultado integralmente no domínio do fabricante. Identifica designação do motor e versão; não fornece código do motor nem tempos.",
+      "application": {
+        "vehicleId": "veh_c03f70f6ed8ca7eb",
+        "make": "Honda",
+        "model": "City",
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "transmission": "CVT",
+        "region": "BRASIL"
+      },
+      "notes": "City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual. Nenhum código de motor foi inferido. Para esses serviços, a referência identifica versão, geração, motorização e ano."
+    },
+    {
+      "id": "honda-hrv-2019-release",
+      "author": "Honda Automóveis do Brasil",
+      "title": "Honda Brasil - HR-V 2019 na Agrishow",
+      "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "verification": "Catálogo ou comunicado original consultado integralmente no domínio do fabricante. Identifica designação do motor e versão; não fornece código do motor nem tempos.",
+      "application": {
+        "vehicleId": "veh_a1b0defbdfda6fed",
+        "make": "Honda",
+        "model": "HR-V",
+        "engineDesignation": "1.8 i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "transmission": "CVT",
+        "region": "BRASIL"
+      },
+      "notes": "HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte. Nenhum código de motor foi inferido. Para esses serviços, a referência identifica versão, geração, motorização e ano."
+    },
+    {
+      "id": "honda-civic-2018-brochure",
+      "author": "Honda Automóveis do Brasil",
+      "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+      "page": 15,
+      "accessedOn": "2026-10-22",
+      "verification": "Catálogo ou comunicado original consultado integralmente no domínio do fabricante. Identifica designação do motor e versão; não fornece código do motor nem tempos.",
+      "application": {
+        "vehicleId": "veh_7212959543275d21",
+        "make": "Honda",
+        "model": "Civic",
+        "engineDesignation": "2.0 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2018,
+        "yearEnd": 2018,
+        "transmission": "CVT",
+        "region": "BRASIL"
+      },
+      "notes": "Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9. Nenhum código de motor foi inferido. Para esses serviços, a referência identifica versão, geração, motorização e ano."
+    },
+    {
+      "id": "mann-freciousplus-br-applications-2021",
+      "author": "MANN-FILTER Brasil",
+      "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021 - aplicação do produto",
+      "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+      "page": 1,
+      "accessedOn": "2026-10-22",
+      "verification": "É o mesmo documento da fonte de minutos, não uma confirmação independente. Colunas de modelo, motor, datas, produto e minutos verificadas visualmente.",
+      "application": [
+        {
+          "vehicleId": "veh_24dfb78b902f789b",
+          "engineDesignation": "1.4 16V Flex",
+          "fuel": "Flex",
+          "yearStart": 2009,
+          "yearEnd": 2014,
+          "product": "FP 21 003",
+          "page": 1,
+          "condition": "Fit segunda geração 1.4 i-VTEC, com alojamento compatível; não é i-DSI da primeira geração.",
+          "region": "BRASIL"
+        },
+        {
+          "vehicleId": "veh_2c3af9a2ffbd51e2",
+          "engineDesignation": "1.8 16V VVT-i Flex",
+          "fuel": "Flex",
+          "yearStart": 2008,
+          "yearEnd": 2013,
+          "product": "FP 1919",
+          "page": 2,
+          "condition": "Corolla X E14/E15; não estender para a geração lançada em 2014.",
+          "region": "BRASIL"
+        },
+        {
+          "vehicleId": "veh_7ce03785c4504067",
+          "engineDesignation": "2.0 16V Flex",
+          "fuel": "Flex",
+          "yearStart": 2011,
+          "yearEnd": 2013,
+          "product": "FP 1919",
+          "page": 2,
+          "condition": "Corolla X E14/E15; não estender para a geração lançada em 2014.",
+          "region": "BRASIL"
+        },
+        {
+          "vehicleId": "veh_e01be49b2d9df5cf",
+          "engineDesignation": "1.4 16V TSI Gasolina",
+          "fuel": "Gasolina",
+          "yearStart": 2014,
+          "yearEnd": 2014,
+          "product": "FP 26 009",
+          "page": 2,
+          "condition": "Golf geração 7 TSI gasolina, referência OE do filtro 5Q0819653; não aplicar a MPI ou flex sem outra conferência.",
+          "region": "BRASIL"
+        },
+        {
+          "vehicleId": "veh_82f77c16ea64d2dd",
+          "engineDesignation": "2.0 16V GTI Gasolina",
+          "fuel": "Gasolina",
+          "yearStart": 2014,
+          "yearEnd": 2019,
+          "product": "FP 26 009",
+          "page": 2,
+          "condition": "Golf geração 7 GTI, referência OE do filtro 5Q0819653; exclui gerações anteriores.",
+          "region": "BRASIL"
+        },
+        {
+          "vehicleId": "veh_0fecca0d3602cda5",
+          "engineDesignation": "120i 2.0 16V Gasolina",
+          "fuel": "Gasolina",
+          "yearStart": 2008,
+          "yearEnd": 2011,
+          "product": "FP 8430",
+          "page": 1,
+          "condition": "BMW Série 1 E87 120i aspirado; não estender para F20/F21 turbo.",
+          "region": "BRASIL"
+        },
+        {
+          "vehicleId": "veh_98f35aaf5af3f62e",
+          "engineDesignation": "130i 3.0 24V Gasolina",
+          "fuel": "Gasolina",
+          "yearStart": 2008,
+          "yearEnd": 2008,
+          "product": "FP 8430",
+          "page": 1,
+          "condition": "BMW Série 1 E87 130i; recorte de ano inteiro dentro do intervalo do fabricante.",
+          "region": "BRASIL"
+        },
+        {
+          "vehicleId": "veh_0ba33cf276345006",
+          "engineDesignation": "2.5 20V T5 Gasolina",
+          "fuel": "Gasolina",
+          "yearStart": 2008,
+          "yearEnd": 2012,
+          "product": "FP 2440",
+          "page": 2,
+          "condition": "Volvo C30 T5; confirmar acesso e alojamento do filtro específico.",
+          "region": "BRASIL"
+        },
+        {
+          "vehicleId": "veh_b763a199779d2c96",
+          "engineDesignation": "CLA 250 2.0 16V Gasolina",
+          "fuel": "Gasolina",
+          "yearStart": 2015,
+          "yearEnd": 2015,
+          "product": "FP 26 007",
+          "page": 1,
+          "condition": "Mercedes CLA C117/X117 CLA 250; confirmar direção à esquerda e filtro específico.",
+          "region": "BRASIL"
+        }
+      ],
+      "notes": "Recortes conservadores em anos inteiros. Datas abertas não são autorização para gerações posteriores. Tempo refere-se à instalação do produto FreciousPlus identificado, não a qualquer filtro de cabine. Linhas incoerentes da tabela foram excluídas."
+    }
+  ],
+  "findings": [
+    {
+      "id": "free-clio-k4m-belt",
+      "sourceId": "contitech-renault-k4m",
+      "sourceModel": "Renault Clio II 1.6 16V",
+      "sourceEngineCodes": [
+        "K4M 748"
+      ],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada no procedimento do boletim",
+      "timeHours": 2.7,
+      "timeMinutes": 162,
+      "serviceCodeCandidates": [
+        "SIN-001",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [
+        "veh_8015c3214fbbd660"
+      ],
+      "researchStatus": "pending_application",
+      "publicationEligible": false,
+      "reviewNotes": "Confirmar código K4M 748, geração, anos e aplicação brasileira. O boletim inclui polias e bomba; confirmar operação composta antes de importar. Nova conferência: Motorservice 2021 p. PDF1445/impressa1442 individualiza K4M748 global 09/1998–04/2005; MTE brasileira identifica K4M sem sufixo. Falta prova brasileira de K4M748. O procedimento Conti inclui bomba, tensionador e polia; SIN-005 é candidato mais adequado, sem adicionais separados.",
+      "corroboratingUrls": [
+        "https://www.ms-motorservice.com/MediaAssets/2486694_pg_50003569_web.pdf",
+        "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/vt59689/valvula-termostatica"
+      ]
+    },
+    {
+      "id": "free-megane-belt",
+      "sourceId": "contitech-renault-k4m",
+      "sourceModel": "Renault Mégane",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada na família descrita",
+      "timeHours": 3.6,
+      "timeMinutes": 216,
+      "serviceCodeCandidates": [
+        "SIN-001",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [
+        "veh_d2e2aa973b7e681d"
+      ],
+      "researchStatus": "pending_application",
+      "publicationEligible": false,
+      "reviewNotes": "O valor é citado para Mégane, sem código próprio por modelo. O 1.6 da base é só uma pista; confirmar motor, geração, anos, combustível e escopo."
+    },
+    {
+      "id": "free-scenic-belt",
+      "sourceId": "contitech-renault-k4m",
+      "sourceModel": "Renault Mégane Scénic",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada na família descrita",
+      "timeHours": 3.9,
+      "timeMinutes": 234,
+      "serviceCodeCandidates": [
+        "SIN-001",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [
+        "veh_0d44d44bbe8a2b7f"
+      ],
+      "researchStatus": "pending_application",
+      "publicationEligible": false,
+      "reviewNotes": "Confirmar equivalência entre Mégane Scénic e configuração local; motor e geração não estão individualizados nesta referência."
+    },
+    {
+      "id": "free-laguna-belt",
+      "sourceId": "contitech-renault-k4m",
+      "sourceModel": "Renault Laguna",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada na família descrita",
+      "timeHours": 2.5,
+      "timeMinutes": 150,
+      "serviceCodeCandidates": [
+        "SIN-001",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "pending_application",
+      "publicationEligible": false,
+      "reviewNotes": "A fonte não individualiza o motor do Laguna; não associar às configurações 2.0 ou V6 pelo nome do carro."
+    },
+    {
+      "id": "free-focus-2-belt",
+      "sourceId": "contitech-focus-2",
+      "sourceModel": "Ford Focus 2.0 16V",
+      "sourceEngineCodes": [
+        "EDDB",
+        "EDDC",
+        "EDDD"
+      ],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada no procedimento do boletim",
+      "timeHours": 2.2,
+      "timeMinutes": 132,
+      "serviceCodeCandidates": [
+        "SIN-001",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [
+        "veh_fda727a70a533aee"
+      ],
+      "applicationSourceIds": [
+        "motorservice-br-focus-eddb"
+      ],
+      "verifiedApplicationSubset": {
+        "engineCode": "EDDB",
+        "fuel": "Gasolina",
+        "yearStart": 2000,
+        "yearEnd": 2004,
+        "condition": "Confirmar código EDDB no veículo; o recorte não abrange todos os motores do cadastro local."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "SIN-001",
+      "mappingDecision": "Vínculo de referência ao procedimento de correia dentada, conforme título e etapas do boletim, e não a um tempo isolado por componente. O mesmo valor aparece na republicação AUTOBIZ 2015. Não foi atribuída inclusão ou exclusão quantificada da bomba: a limitação consta no rascunho. Não gera registros SIN-002/003/004/005 nem publicação automática.",
+      "corroboratingUrls": [
+        "https://www.techtips.ie/Contitech/ford-focus---20-litre-16v-timing-belt-guide.pdf"
+      ],
+      "publicationEligible": false,
+      "reviewNotes": "Preparado em first-batch.json como rascunho de referência, EDDB gasolina 2000-2004 e SIN-001. A bomba não tem tempo isolado ou adicional comprovado. Revisar as condições antes de publicar; não replicar 132 minutos nas outras operações nem aplicar a 2005-2019/flex."
+    },
+    {
+      "id": "free-fiesta-fxja-belt",
+      "sourceId": "contitech-fiesta-fxja",
+      "sourceModel": "Ford Fiesta V 1.4 16V JH/JD",
+      "sourceEngineCodes": [
+        "FXJA"
+      ],
+      "sourceYear": 2004,
+      "sourceOperation": "Substituição da correia dentada CT881K2/CT881WP1",
+      "timeHours": 2.8,
+      "timeMinutes": 168,
+      "serviceCodeCandidates": [
+        "SIN-003",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "no_matching_configuration",
+      "publicationEligible": false,
+      "reviewNotes": "Fiesta 1.4 16V não existe na base atual. Não transferir para Rocam, Sigma ou EcoBoost."
+    },
+    {
+      "id": "free-fiesta-fxja-accessory",
+      "sourceId": "contitech-fiesta-fxja",
+      "sourceModel": "Ford Fiesta V 1.4 16V JH/JD",
+      "sourceEngineCodes": [
+        "FXJA"
+      ],
+      "sourceYear": 2004,
+      "sourceOperation": "Substituição da correia de acessórios ELAST",
+      "timeHours": 0.6,
+      "timeMinutes": 36,
+      "serviceCodeCandidates": [
+        "REV-010"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "no_matching_configuration",
+      "publicationEligible": false,
+      "reviewNotes": "Sem configuração correspondente. Confirmar sobreposição com correia dentada antes de somar os tempos."
+    },
+    {
+      "id": "free-fiat500-12-belt",
+      "sourceId": "contitech-fiat-500-12",
+      "sourceModel": "Fiat 500 1.2",
+      "sourceEngineCodes": [
+        "169 A4.000"
+      ],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada",
+      "timeHours": 2.35,
+      "timeMinutes": 141,
+      "serviceCodeCandidates": [
+        "SIN-001"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "no_matching_configuration",
+      "publicationEligible": false,
+      "reviewNotes": "A base tem Fiat 500 1.4, não 1.2. Não estender o valor; o boletim trata a bomba também como serviço condicional."
+    },
+    {
+      "id": "free-doblo-multijet-belt",
+      "sourceId": "contitech-doblo-multijet",
+      "sourceModel": "Fiat Doblò 263 1.6 D Multijet",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada no procedimento do boletim",
+      "timeHours": 2.7,
+      "timeMinutes": 162,
+      "serviceCodeCandidates": [
+        "SIN-001",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "no_matching_configuration",
+      "publicationEligible": false,
+      "reviewNotes": "A base local de Doblò não contém 1.6 diesel Multijet. Não usar para motores gasolina/flex."
+    },
+    {
+      "id": "free-panda-12-belt",
+      "sourceId": "contitech-panda-12",
+      "sourceModel": "Fiat Panda 1.2 44 kW",
+      "sourceEngineCodes": [
+        "188.A4.000"
+      ],
+      "sourceYear": 2004,
+      "sourceOperation": "Substituição da correia dentada CT999WP1",
+      "timeHours": 1.6,
+      "timeMinutes": 96,
+      "serviceCodeCandidates": [
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "no_matching_configuration",
+      "publicationEligible": false,
+      "reviewNotes": "Modelo ausente da base. Fonte limita motor até número 2533528 e distingue tampa de óleo; não aplicar a outros motores FIRE."
+    },
+    {
+      "id": "free-saxo-14-belt",
+      "sourceId": "contitech-saxo-14",
+      "sourceModel": "Citroën Saxo S0/S1 1.4 VTS",
+      "sourceEngineCodes": [
+        "KFX",
+        "KFW",
+        "TU3JP"
+      ],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada CT607WP1",
+      "timeHours": 1.6,
+      "timeMinutes": 96,
+      "serviceCodeCandidates": [
+        "SIN-003",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "no_matching_configuration",
+      "publicationEligible": false,
+      "reviewNotes": "Saxo ausente da base. Não transferir para Peugeot 206/Citroën C3 apenas por compartilhar família de motor; confirmar escopo de bomba."
+    },
+    {
+      "id": "free-cmax-16-belt",
+      "sourceId": "contitech-cmax-16",
+      "sourceModel": "Ford Focus C-Max 1.6 Ti",
+      "sourceEngineCodes": [
+        "HXDA",
+        "SIDA"
+      ],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da correia dentada no procedimento do boletim",
+      "timeHours": 2.9,
+      "timeMinutes": 174,
+      "serviceCodeCandidates": [
+        "SIN-001",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "no_matching_configuration",
+      "publicationEligible": false,
+      "reviewNotes": "C-Max ausente da base; não usar no Focus hatch/sedã brasileiro por nome ou cilindrada."
+    },
+    {
+      "id": "free-focus-clutch-2008",
+      "sourceId": "luk-focus-clutch-2008",
+      "sourceModel": "Ford Focus 1.6 gasolina",
+      "sourceEngineCodes": [],
+      "sourceYear": 2008,
+      "sourceOperation": "Substituição da embreagem",
+      "timeHours": null,
+      "timeMinutes": null,
+      "sourceTimeDescription": "Pouco menos de cinco horas; sem valor numérico exato.",
+      "serviceCodeCandidates": [
+        "EMB-001"
+      ],
+      "candidateVehicleIds": [],
+      "researchStatus": "insufficient_precision",
+      "publicationEligible": false,
+      "reviewNotes": "Não converter a expressão aproximada em 4,9 ou 5,0 h. Motor e aplicação brasileira não confirmados."
+    },
+    {
+      "id": "free-jazz-gd-14-clutch",
+      "sourceId": "luk-jazz-gd-14",
+      "sourceModel": "Honda Jazz II GD 1.4 gasolina, 2002-2008",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceYearStart": 2002,
+      "sourceYearEnd": 2008,
+      "sourceOperation": "Substituição do kit de embreagem LuK RepSet 619308900, remoção e reinstalação do câmbio e agregado conforme artigo",
+      "timeHours": 4.5,
+      "timeMinutes": 270,
+      "serviceCodeCandidates": [
+        "EMB-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_6d380bcae8e8ed37"
+      ],
+      "researchStatus": "pending_application",
+      "publicationEligible": false,
+      "reviewNotes": "Fit 1.4 i-DSI 2004-2008 é candidato, não equivalência comprovada. Confirmar motor, câmbio manual, mercado e montagem do agregado; não aplicar ao CVT ou ao Fit 1.4 16V de 2009 em diante. O artigo não individualiza código de motor."
+    },
+    {
+      "id": "free-picanto-g4he-clutch",
+      "sourceId": "luk-picanto-g4he",
+      "sourceModel": "Kia Picanto 1.0 gasolina G4HE",
+      "sourceEngineCodes": [
+        "G4HE"
+      ],
+      "sourceYear": null,
+      "sourceOperation": "Substituição da embreagem manual, kit LuK 618301600, com remoção e reinstalação do câmbio conforme artigo",
+      "timeHours": 3,
+      "timeMinutes": 180,
+      "serviceCodeCandidates": [
+        "EMB-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_3d5af76e20bf7d10"
+      ],
+      "researchStatus": "verified_reference_draft",
+      "publicationEligible": false,
+      "reviewNotes": "Preparado no segundo lote como refer?ncia condicionada: G4HE L4, manual, 2008-2010. A fonte usa o kit 618301600; conferir montagem. N?o ? libera??o para qualquer Picanto 1.0 de 2006-2022.",
+      "draftEligible": true,
+      "resolvedServiceCode": "EMB-001",
+      "verifiedApplicationSubset": {
+        "engineCode": "G4HE",
+        "fuel": "Gasolina",
+        "yearStart": 2008,
+        "yearEnd": 2010,
+        "transmission": "Manual",
+        "condition": "Somente primeira gera??o, G4HE L4 1.0, c?mbio manual e acionamento mec?nico por cabo; conferir c?digo e montagem no ve?culo."
+      },
+      "applicationSourceIds": [
+        "mte-picanto-71100"
+      ],
+      "mappingDecision": "Tempo publicado de 3 h para a substitui??o da embreagem, com remo??o e reinstala??o do c?mbio. Aplica??o brasileira do G4HE conferida; recorte conservador 2008-2010. N?o transferir ao G3LA L3, autom?tico ou a outros motores 1.0."
+    },
+    {
+      "id": "free-picanto-g4hg-clutch",
+      "sourceId": "luk-picanto-g4hg",
+      "sourceModel": "Kia Picanto 1.1 gasolina G4HG",
+      "sourceEngineCodes": [
+        "G4HG"
+      ],
+      "sourceYear": null,
+      "sourceOperation": "Substitui??o do kit de embreagem conforme procedimento da fonte",
+      "timeHours": 3,
+      "timeMinutes": 180,
+      "serviceCodeCandidates": [
+        "EMB-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_21c4c41e1e16c32e"
+      ],
+      "researchStatus": "verified_reference_draft",
+      "publicationEligible": false,
+      "reviewNotes": "Refer?ncia de 3 h do artigo de 2016, kit 618308700. Caso 2006 corroborado no PDF de 2018; n?o copiar o valor para o reparo adicional do retentor citado no PDF.",
+      "corroboratingUrls": [
+        "https://www.techtips.ie/LuK/luk-clutch-academy-picanto-11-petrol-g4hg.pdf"
+      ],
+      "draftEligible": true,
+      "resolvedServiceCode": "EMB-001",
+      "verifiedApplicationSubset": {
+        "engineCode": "G4HG",
+        "fuel": "Gasolina",
+        "yearStart": 2006,
+        "yearEnd": 2006,
+        "transmission": "Manual",
+        "condition": "G4HG L4 1.1, c?mbio manual, acionamento por cabo; confirmar c?digo e montagem."
+      },
+      "applicationSourceIds": [
+        "mte-picanto-71100"
+      ],
+      "mappingDecision": "Opera??o de embreagem descrita integralmente, sem substitui??o do volante. Remo??o e reinstala??o do c?mbio inclu?das no procedimento. Limite ao ano corroborado 2006."
+    },
+    {
+      "id": "free-tucson-2007-clutch",
+      "sourceId": "luk-tucson-2007",
+      "sourceModel": "Hyundai Tucson 2.0 2WD gasolina, manual, 2007",
+      "sourceEngineCodes": [],
+      "sourceYear": 2007,
+      "sourceOperation": "Substitui??o do kit de embreagem conforme procedimento da fonte",
+      "timeHours": 5,
+      "timeMinutes": 300,
+      "serviceCodeCandidates": [
+        "EMB-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_fc9ed61a183878e6"
+      ],
+      "researchStatus": "verified_reference_draft",
+      "publicationEligible": false,
+      "reviewNotes": "O tempo de 5 h inclui retirar c?mbio, substituir embreagem e reinstalar c?mbio; n?o aplicar a autom?tico ou 4WD. C?digo G4GC vem do cat?logo brasileiro de aplica??o, n?o do texto do artigo.",
+      "corroboratingUrls": [
+        "https://www.techtips.ie/LuK/luk-clutch-academy-2wd-hyundai-tucson-20p.pdf"
+      ],
+      "draftEligible": true,
+      "resolvedServiceCode": "EMB-001",
+      "verifiedApplicationSubset": {
+        "engineCode": "G4GC",
+        "fuel": "Gasolina",
+        "yearStart": 2007,
+        "yearEnd": 2007,
+        "transmission": "Manual",
+        "drive": "2WD",
+        "condition": "Somente Tucson JM 2.0 G4GC gasolina, manual 2WD 2007; confirmar montagem, n?o aplic?vel ao autom?tico ou 4WD."
+      },
+      "applicationSourceIds": [
+        "mte-tucson-73533"
+      ],
+      "mappingDecision": "Correspond?ncia de motor, combust?vel, ano e modelo; tempo e montagem manual 2WD prov?m do artigo de repara??o. Registro de refer?ncia estritamente condicionado ao caso descrito, sem extrapolar 2005-2018."
+    },
+    {
+      "id": "free-countryman-all4-2013-clutch",
+      "sourceId": "luk-countryman-all4-2013",
+      "sourceModel": "MINI Countryman R60 Cooper S ALL4 1.6 turbo manual, 2013",
+      "sourceEngineCodes": [],
+      "sourceYear": 2013,
+      "sourceOperation": "Substitui??o do kit de embreagem e volante bimassa conforme procedimento da fonte",
+      "timeHours": 6.7,
+      "timeMinutes": 402,
+      "serviceCodeCandidates": [
+        "EMB-012"
+      ],
+      "candidateVehicleIds": [
+        "veh_8cde074152d5169f"
+      ],
+      "researchStatus": "verified_reference_draft",
+      "publicationEligible": false,
+      "reviewNotes": "Opera??o composta de embreagem e volante bimassa; n?o somar outra linha de embreagem nem remo??o de c?mbio ou caixa de transfer?ncia. Artigo n?o informa c?digo do motor; N18B16A identificado na aplica??o brasileira.",
+      "draftEligible": true,
+      "resolvedServiceCode": "EMB-012",
+      "verifiedApplicationSubset": {
+        "engineCode": "N18B16A",
+        "fuel": "Gasolina",
+        "yearStart": 2013,
+        "yearEnd": 2013,
+        "transmission": "Manual",
+        "drive": "ALL4",
+        "condition": "Somente Countryman R60 Cooper S ALL4 1.6 turbo N18B16A, c?mbio manual, 2013. Confirmar vers?o e montagem; n?o aplicar a autom?tico ou tra??o dianteira."
+      },
+      "applicationSourceIds": [
+        "mte-countryman-73559"
+      ],
+      "mappingDecision": "O PDF descreve troca do kit e do bimassa e informa 6,7 h para o servi?o. O cat?logo brasileiro identifica N18B16A no Countryman de 2013. A refer?ncia permanece condicionada ? confirma??o da vers?o manual ALL4; n?o presume que todo exemplar brasileiro a possua."
+    },
+    {
+      "id": "free-a3-arz-belt",
+      "sourceId": "contitech-a3-arz",
+      "sourceModel": "Audi A3 1.8 T ARZ",
+      "sourceEngineCodes": [
+        "ARZ"
+      ],
+      "sourceYear": null,
+      "sourceOperation": "Substitui??o da correia dentada conforme procedimento da fonte",
+      "timeHours": 2.2,
+      "timeMinutes": 132,
+      "serviceCodeCandidates": [
+        "SIN-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_77864e7bd25737cf"
+      ],
+      "researchStatus": "pending_application",
+      "publicationEligible": false,
+      "reviewNotes": "O tempo e o procedimento est?o confirmados. O cat?logo Brasil agrupa ARZ com outros c?digos e anos 2001-2007; falta individualizar os anos do ARZ e separar aspirado/turbo da base. N?o transferir ao AGN, AGU, AUM ou ao Golf apenas por cilindrada.",
+      "applicationSourceIds": [
+        "millard-a3-5552"
+      ]
+    },
+    {
+      "id": "free-mini-2001-clutch",
+      "sourceId": "blueprint-mini-2001",
+      "sourceModel": "BMW MINI 1.4DT / 1.6i 2001-2006",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Substitui??o do kit de embreagem conforme procedimento da fonte",
+      "timeHours": 6.5,
+      "timeMinutes": 390,
+      "serviceCodeCandidates": [
+        "EMB-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_5b9015587d9bf400"
+      ],
+      "researchStatus": "pending_application",
+      "publicationEligible": false,
+      "reviewNotes": "Boletim agrupa tr?s refer?ncias de kit e motoriza??o diesel/gasolina. Falta delimitar motor, carroceria e c?mbio do caso brasileiro; n?o aplicar aos N12/N14/N16 ou a todos os Cooper/Hatch 2000-2014."
+    },
+    {
+      "id": "free-jimny-third-gen-clutch",
+      "sourceId": "luk-jimny-third-gen",
+      "sourceModel": "Suzuki Jimny terceira gera??o, kit 619302860",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Substitui??o do kit de embreagem conforme procedimento da fonte",
+      "timeHours": 3,
+      "timeMinutes": 180,
+      "serviceCodeCandidates": [
+        "EMB-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_178baeece3a3a7cf"
+      ],
+      "researchStatus": "pending_application",
+      "publicationEligible": false,
+      "reviewNotes": "Fonte informa gera??o e kit, mas n?o motor nem ano do exemplar. Confirmar G13BB/M13A, intervalo e montagem do c?mbio; o procedimento desloca o c?mbio cerca de 150 mm. N?o preencher todo o cadastro 2000-2018."
+    },
+    {
+      "id": "free-navara-ddti-clutch",
+      "sourceId": "luk-navara-ddti",
+      "sourceModel": "Nissan Navara 2.5 DDTi",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Substitui??o do kit de embreagem e volante bimassa conforme procedimento da fonte",
+      "timeHours": null,
+      "timeMinutes": null,
+      "serviceCodeCandidates": [
+        "EMB-012"
+      ],
+      "candidateVehicleIds": [
+        "veh_a7fd3886af3694d2"
+      ],
+      "researchStatus": "insufficient_precision",
+      "publicationEligible": false,
+      "reviewNotes": "Fonte diz pouco mais de tr?s horas e meia, sem n?mero exato. N?o arredondar para 3,5, 3,6 ou 3,75 h. Equival?ncia com Frontier e anos n?o comprovados.",
+      "sourceTimeDescription": "Pouco mais de tr?s horas e meia; sem valor num?rico exato."
+    },
+    {
+      "id": "free-honda-fit-2019-frd-001",
+      "sourceId": "dealer-autojapan-fit-2019",
+      "sourceModel": "Fit 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "FRD-001",
+      "timeHours": 0.6,
+      "timeMinutes": 36,
+      "serviceCodeCandidates": [
+        "FRD-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_a42d5a03fffe6257"
+      ],
+      "applicationSourceIds": [
+        "honda-fit-2019-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "FRD-001",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-fit-2019-sud-002",
+      "sourceId": "dealer-autojapan-fit-2019",
+      "sourceModel": "Fit 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "SUD-002",
+      "timeHours": 1.7,
+      "timeMinutes": 102,
+      "serviceCodeCandidates": [
+        "SUD-002"
+      ],
+      "candidateVehicleIds": [
+        "veh_a42d5a03fffe6257"
+      ],
+      "applicationSourceIds": [
+        "honda-fit-2019-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "SUD-002",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-fit-2019-rev-007",
+      "sourceId": "dealer-autojapan-fit-2019",
+      "sourceModel": "Fit 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "REV-007",
+      "timeHours": 0.1,
+      "timeMinutes": 6,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_a42d5a03fffe6257"
+      ],
+      "applicationSourceIds": [
+        "honda-fit-2019-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-fit-2019-rev-003",
+      "sourceId": "dealer-autojapan-fit-2019",
+      "sourceModel": "Fit 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "REV-003",
+      "timeHours": 0.4,
+      "timeMinutes": 24,
+      "serviceCodeCandidates": [
+        "REV-003"
+      ],
+      "candidateVehicleIds": [
+        "veh_a42d5a03fffe6257"
+      ],
+      "applicationSourceIds": [
+        "honda-fit-2019-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-003",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-city-2019-frd-001",
+      "sourceId": "dealer-hmotors-city-2019",
+      "sourceModel": "City 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "FRD-001",
+      "timeHours": 0.6,
+      "timeMinutes": 36,
+      "serviceCodeCandidates": [
+        "FRD-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_c03f70f6ed8ca7eb"
+      ],
+      "applicationSourceIds": [
+        "honda-city-2019-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "FRD-001",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-city-2019-sud-002",
+      "sourceId": "dealer-hmotors-city-2019",
+      "sourceModel": "City 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "SUD-002",
+      "timeHours": 1.7,
+      "timeMinutes": 102,
+      "serviceCodeCandidates": [
+        "SUD-002"
+      ],
+      "candidateVehicleIds": [
+        "veh_c03f70f6ed8ca7eb"
+      ],
+      "applicationSourceIds": [
+        "honda-city-2019-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "SUD-002",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-city-2019-rev-007",
+      "sourceId": "dealer-hmotors-city-2019",
+      "sourceModel": "City 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "REV-007",
+      "timeHours": 0.1,
+      "timeMinutes": 6,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_c03f70f6ed8ca7eb"
+      ],
+      "applicationSourceIds": [
+        "honda-city-2019-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-city-2019-rev-003",
+      "sourceId": "dealer-hmotors-city-2019",
+      "sourceModel": "City 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "REV-003",
+      "timeHours": 0.4,
+      "timeMinutes": 24,
+      "serviceCodeCandidates": [
+        "REV-003"
+      ],
+      "candidateVehicleIds": [
+        "veh_c03f70f6ed8ca7eb"
+      ],
+      "applicationSourceIds": [
+        "honda-city-2019-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.5 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-003",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-hrv-2019-frd-001",
+      "sourceId": "dealer-flora-hrv-2019",
+      "sourceModel": "HR-V 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "FRD-001",
+      "timeHours": 0.6,
+      "timeMinutes": 36,
+      "serviceCodeCandidates": [
+        "FRD-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_a1b0defbdfda6fed"
+      ],
+      "applicationSourceIds": [
+        "honda-hrv-2019-release"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.8 i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "FRD-001",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-hrv-2019-sud-002",
+      "sourceId": "dealer-flora-hrv-2019",
+      "sourceModel": "HR-V 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "SUD-002",
+      "timeHours": 0.9,
+      "timeMinutes": 54,
+      "serviceCodeCandidates": [
+        "SUD-002"
+      ],
+      "candidateVehicleIds": [
+        "veh_a1b0defbdfda6fed"
+      ],
+      "applicationSourceIds": [
+        "honda-hrv-2019-release"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.8 i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "SUD-002",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-hrv-2019-rev-007",
+      "sourceId": "dealer-flora-hrv-2019",
+      "sourceModel": "HR-V 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "REV-007",
+      "timeHours": 0.1,
+      "timeMinutes": 6,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_a1b0defbdfda6fed"
+      ],
+      "applicationSourceIds": [
+        "honda-hrv-2019-release"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.8 i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-hrv-2019-rev-003",
+      "sourceId": "dealer-flora-hrv-2019",
+      "sourceModel": "HR-V 2019 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2019,
+      "sourceOperation": "REV-003",
+      "timeHours": 0.4,
+      "timeMinutes": 24,
+      "serviceCodeCandidates": [
+        "REV-003"
+      ],
+      "candidateVehicleIds": [
+        "veh_a1b0defbdfda6fed"
+      ],
+      "applicationSourceIds": [
+        "honda-hrv-2019-release"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.8 i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2019,
+        "yearEnd": 2019,
+        "condition": "HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-003",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-civic-2018-frd-001",
+      "sourceId": "dealer-flora-civic10-2019",
+      "sourceModel": "Civic 2018 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2018,
+      "sourceOperation": "FRD-001",
+      "timeHours": 0.6,
+      "timeMinutes": 36,
+      "serviceCodeCandidates": [
+        "FRD-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_7212959543275d21"
+      ],
+      "applicationSourceIds": [
+        "honda-civic-2018-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "2.0 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2018,
+        "yearEnd": 2018,
+        "condition": "Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "FRD-001",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-civic-2018-sud-002",
+      "sourceId": "dealer-flora-civic10-2019",
+      "sourceModel": "Civic 2018 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2018,
+      "sourceOperation": "SUD-002",
+      "timeHours": 2.5,
+      "timeMinutes": 150,
+      "serviceCodeCandidates": [
+        "SUD-002"
+      ],
+      "candidateVehicleIds": [
+        "veh_7212959543275d21"
+      ],
+      "applicationSourceIds": [
+        "honda-civic-2018-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "2.0 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2018,
+        "yearEnd": 2018,
+        "condition": "Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "SUD-002",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-civic-2018-rev-007",
+      "sourceId": "dealer-flora-civic10-2019",
+      "sourceModel": "Civic 2018 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2018,
+      "sourceOperation": "REV-007",
+      "timeHours": 0.2,
+      "timeMinutes": 12,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_7212959543275d21"
+      ],
+      "applicationSourceIds": [
+        "honda-civic-2018-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "2.0 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2018,
+        "yearEnd": 2018,
+        "condition": "Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-honda-civic-2018-rev-003",
+      "sourceId": "dealer-flora-civic10-2019",
+      "sourceModel": "Civic 2018 CVT",
+      "sourceEngineCodes": [],
+      "sourceYear": 2018,
+      "sourceOperation": "REV-003",
+      "timeHours": 0.4,
+      "timeMinutes": 24,
+      "serviceCodeCandidates": [
+        "REV-003"
+      ],
+      "candidateVehicleIds": [
+        "veh_7212959543275d21"
+      ],
+      "applicationSourceIds": [
+        "honda-civic-2018-brochure"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "2.0 16V SOHC i-VTEC FlexOne",
+        "fuel": "Flex",
+        "yearStart": 2018,
+        "yearEnd": 2018,
+        "condition": "Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-003",
+      "publicationEligible": false,
+      "mappingDecision": "Tempo explícito na coluna TMO (horas), conferido visualmente na mesma linha da operação. Referência histórica da concessionária, sem atribuição a tempário de fábrica. Recorte do veículo confirmado em publicação brasileira da Honda.",
+      "reviewNotes": "Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Fonte histórica com validade comercial expirada; revisar condições antes da publicação."
+    },
+    {
+      "id": "free-mann-cabin-24dfb78b902f789b-2009-2014",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "Honda Fit",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 21 003",
+      "timeHours": 0.16666666666666666,
+      "timeMinutes": 10,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_24dfb78b902f789b"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.4 16V Flex",
+        "fuel": "Flex",
+        "yearStart": 2009,
+        "yearEnd": 2014,
+        "product": "FP 21 003",
+        "condition": "Fit segunda geração 1.4 i-VTEC, com alojamento compatível; não é i-DSI da primeira geração."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 1,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "Fit segunda geração 1.4 i-VTEC, com alojamento compatível; não é i-DSI da primeira geração. Produto FP 21 003. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-mann-cabin-2c3af9a2ffbd51e2-2008-2013",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "Toyota Corolla",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 1919",
+      "timeHours": 0.16666666666666666,
+      "timeMinutes": 10,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_2c3af9a2ffbd51e2"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.8 16V VVT-i Flex",
+        "fuel": "Flex",
+        "yearStart": 2008,
+        "yearEnd": 2013,
+        "product": "FP 1919",
+        "condition": "Corolla X E14/E15; não estender para a geração lançada em 2014."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 2,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "Corolla X E14/E15; não estender para a geração lançada em 2014. Produto FP 1919. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-mann-cabin-7ce03785c4504067-2011-2013",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "Toyota Corolla",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 1919",
+      "timeHours": 0.16666666666666666,
+      "timeMinutes": 10,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_7ce03785c4504067"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "2.0 16V Flex",
+        "fuel": "Flex",
+        "yearStart": 2011,
+        "yearEnd": 2013,
+        "product": "FP 1919",
+        "condition": "Corolla X E14/E15; não estender para a geração lançada em 2014."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 2,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "Corolla X E14/E15; não estender para a geração lançada em 2014. Produto FP 1919. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-mann-cabin-e01be49b2d9df5cf-2014-2014",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "Volkswagen Golf",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 26 009",
+      "timeHours": 0.25,
+      "timeMinutes": 15,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_e01be49b2d9df5cf"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "1.4 16V TSI Gasolina",
+        "fuel": "Gasolina",
+        "yearStart": 2014,
+        "yearEnd": 2014,
+        "product": "FP 26 009",
+        "condition": "Golf geração 7 TSI gasolina, referência OE do filtro 5Q0819653; não aplicar a MPI ou flex sem outra conferência."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 2,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "Golf geração 7 TSI gasolina, referência OE do filtro 5Q0819653; não aplicar a MPI ou flex sem outra conferência. Produto FP 26 009. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-mann-cabin-82f77c16ea64d2dd-2014-2019",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "Volkswagen Golf",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 26 009",
+      "timeHours": 0.25,
+      "timeMinutes": 15,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_82f77c16ea64d2dd"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "2.0 16V GTI Gasolina",
+        "fuel": "Gasolina",
+        "yearStart": 2014,
+        "yearEnd": 2019,
+        "product": "FP 26 009",
+        "condition": "Golf geração 7 GTI, referência OE do filtro 5Q0819653; exclui gerações anteriores."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 2,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "Golf geração 7 GTI, referência OE do filtro 5Q0819653; exclui gerações anteriores. Produto FP 26 009. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-mann-cabin-0fecca0d3602cda5-2008-2011",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "BMW Série 1",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 8430",
+      "timeHours": 0.25,
+      "timeMinutes": 15,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_0fecca0d3602cda5"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "120i 2.0 16V Gasolina",
+        "fuel": "Gasolina",
+        "yearStart": 2008,
+        "yearEnd": 2011,
+        "product": "FP 8430",
+        "condition": "BMW Série 1 E87 120i aspirado; não estender para F20/F21 turbo."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 1,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "BMW Série 1 E87 120i aspirado; não estender para F20/F21 turbo. Produto FP 8430. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-mann-cabin-98f35aaf5af3f62e-2008-2008",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "BMW Série 1",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 8430",
+      "timeHours": 0.25,
+      "timeMinutes": 15,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_98f35aaf5af3f62e"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "130i 3.0 24V Gasolina",
+        "fuel": "Gasolina",
+        "yearStart": 2008,
+        "yearEnd": 2008,
+        "product": "FP 8430",
+        "condition": "BMW Série 1 E87 130i; recorte de ano inteiro dentro do intervalo do fabricante."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 1,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "BMW Série 1 E87 130i; recorte de ano inteiro dentro do intervalo do fabricante. Produto FP 8430. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-mann-cabin-0ba33cf276345006-2008-2012",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "Volvo C30",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 2440",
+      "timeHours": 0.5,
+      "timeMinutes": 30,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_0ba33cf276345006"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "2.5 20V T5 Gasolina",
+        "fuel": "Gasolina",
+        "yearStart": 2008,
+        "yearEnd": 2012,
+        "product": "FP 2440",
+        "condition": "Volvo C30 T5; confirmar acesso e alojamento do filtro específico."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 2,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "Volvo C30 T5; confirmar acesso e alojamento do filtro específico. Produto FP 2440. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-mann-cabin-b763a199779d2c96-2015-2015",
+      "sourceId": "mann-freciousplus-br-2021",
+      "sourceModel": "Mercedes-Benz CLA",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Instalação do filtro de cabine MANN-FILTER FP 26 007",
+      "timeHours": 0.08333333333333333,
+      "timeMinutes": 5,
+      "serviceCodeCandidates": [
+        "REV-007"
+      ],
+      "candidateVehicleIds": [
+        "veh_b763a199779d2c96"
+      ],
+      "applicationSourceIds": [
+        "mann-freciousplus-br-applications-2021"
+      ],
+      "verifiedApplicationSubset": {
+        "engineDesignation": "CLA 250 2.0 16V Gasolina",
+        "fuel": "Gasolina",
+        "yearStart": 2015,
+        "yearEnd": 2015,
+        "product": "FP 26 007",
+        "condition": "Mercedes CLA C117/X117 CLA 250; confirmar direção à esquerda e filtro específico."
+      },
+      "researchStatus": "verified_reference_draft",
+      "draftEligible": true,
+      "resolvedServiceCode": "REV-007",
+      "publicationEligible": false,
+      "sourcePage": 1,
+      "mappingDecision": "Coluna expressa em minutos de instalação do filtro de cabine específico, vinculada a REV-007. Conversão para horas por divisão por 60, sem arredondar a origem em minutos. Não é tempário OEM, nem tempo de higienização.",
+      "reviewNotes": "Mercedes CLA C117/X117 CLA 250; confirmar direção à esquerda e filtro específico. Produto FP 26 007. Confirmar correspondência do alojamento e evitar acumular com revisão que já contenha a substituição."
+    },
+    {
+      "id": "free-passat-v6-belt",
+      "sourceId": "contitech-passat-v6-2010",
+      "sourceModel": "Passat 2.8 V6 30V",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Procedimento de sincronismo descrito na fonte",
+      "timeHours": 3.3,
+      "timeMinutes": 198,
+      "serviceCodeCandidates": [
+        "SIN-001",
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [
+        "veh_12f90934a7e078b5"
+      ],
+      "researchStatus": "pending_application",
+      "draftEligible": false,
+      "publicationEligible": false,
+      "reviewNotes": "Não identifica código, ano ou carroceria do Passat. MTE 7049 confirma Variant BBG Brasil 2003–2005, mas o boletim de horas não individualiza BBG/Variant. Não criar rascunho por inferência."
+    },
+    {
+      "id": "free-daily-ducato-23-belt",
+      "sourceId": "ina-daily-23-2021",
+      "sourceModel": "Iveco Daily III / Fiat Ducato 2.3 diesel",
+      "sourceEngineCodes": [],
+      "sourceYear": null,
+      "sourceOperation": "Procedimento de sincronismo descrito na fonte",
+      "timeHours": 4.2,
+      "timeMinutes": 252,
+      "serviceCodeCandidates": [
+        "SIN-005"
+      ],
+      "candidateVehicleIds": [
+        "veh_15b4e271f13bed3c"
+      ],
+      "researchStatus": "pending_application",
+      "draftEligible": false,
+      "publicationEligible": false,
+      "reviewNotes": "Tempo esperado do procedimento apresentado; não comprova igualdade de montagem Daily/Ducato nem código/ano brasileiro. Não somar as quatro horas de resfriamento citadas separadamente."
+    },
+    {
+      "id": "free-a5-quattro-2011-clutch",
+      "sourceId": "luk-a5-quattro-2011",
+      "sourceModel": "Audi A5 2.0 TFSI Quattro manual 2011",
+      "sourceEngineCodes": [],
+      "sourceYear": 2011,
+      "sourceOperation": "Procedimento de substituição da embreagem descrito na fonte",
+      "timeHours": 5.5,
+      "timeMinutes": 330,
+      "serviceCodeCandidates": [
+        "EMB-012"
+      ],
+      "candidateVehicleIds": [
+        "veh_7242b2bba71cb6bf"
+      ],
+      "researchStatus": "pending_application",
+      "draftEligible": false,
+      "publicationEligible": false,
+      "reviewNotes": "Procedimento troca também o volante bimassa; motor não tem código individualizado. MTE 71151 lista A5 CDNC Brasil 2010–2013, mas não comprova que o exemplar do artigo seja esse código ou a montagem brasileira manual Quattro."
+    },
+    {
+      "id": "free-c180-coupe-2003-clutch",
+      "sourceId": "luk-c180-coupe-2003",
+      "sourceModel": "Mercedes C180 Sports Coupe 1.8 Kompressor manual 2003",
+      "sourceEngineCodes": [],
+      "sourceYear": 2003,
+      "sourceOperation": "Procedimento de substituição da embreagem descrito na fonte",
+      "timeHours": 4,
+      "timeMinutes": 240,
+      "serviceCodeCandidates": [
+        "EMB-012"
+      ],
+      "candidateVehicleIds": [
+        "veh_c703bdaa383d2e23"
+      ],
+      "researchStatus": "pending_application",
+      "draftEligible": false,
+      "publicationEligible": false,
+      "reviewNotes": "Caso específico cupê manual, com volante bimassa. Configuração local Classe C 1.8 ampla não confirma carroceria/código/transmissão brasileiros. Não transferir ao sedã ou automático."
+    },
+    {
+      "id": "free-i30-2014-clutch",
+      "sourceId": "luk-i30-2014-clutch",
+      "sourceModel": "Hyundai i30 2014, motorização não informada",
+      "sourceEngineCodes": [],
+      "sourceYear": 2014,
+      "sourceOperation": "Procedimento de substituição da embreagem descrito na fonte",
+      "timeHours": 3.4,
+      "timeMinutes": 204,
+      "serviceCodeCandidates": [
+        "EMB-001"
+      ],
+      "candidateVehicleIds": [
+        "veh_f3a7abd35253bd73"
+      ],
+      "researchStatus": "pending_application",
+      "draftEligible": false,
+      "publicationEligible": false,
+      "reviewNotes": "PDF de artigo público, sem acesso ao portal recusado. Não informa código, cilindrada ou combustível; não transferir ao 1.6 gasolina brasileiro por nome/ano."
+    }
+  ],
+  "excludedSources": [
+    {
+      "url": "https://www.continental-industry.com/getmedia/a0a55fc1-6151-45ba-a0d8-447fa83dcd73/PTG8309-En-Technical-Info_2.pdf",
+      "reason": "Link retornou 404 na consulta direta. Trechos do índice de busca não foram usados como comprovação; para Renault foi localizada outra publicação original acessível."
+    },
+    {
+      "url": "https://curitibanos.sc.gov.br/uploads/sites/414/2022/06/1937374_Tabela_templaria_em_horas_atualizada_17_07_20.pdf",
+      "reason": "Tabela genérica por classe de veículo; insuficiente para comprovar tempo por carro, motor e versão. Não extraída para importação."
+    },
+    {
+      "url": "https://www.techtips.ie/Contitech/timing-chain-replacement-vw-polo-12-bmd-engine.pdf",
+      "reason": "Artigo consultado cita motor BMD 1.2, ausente da base local de Polo. Não transferido para Polo 1.0, 1.6 ou 2.0."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/clutch-clinic-toyota-corolla/",
+      "reason": "Artigo integral consultado: n?o informa tempo, motor ou ano do exemplar. Nenhum tempo de embreagem foi inferido pelo nome Corolla."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-ford-ranger/",
+      "reason": "Tempo de 4 h para um caso 4x4 com kits indicados; motor e ano n?o individualizados. N?o transferido ?s diversas Ranger da base."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-fit-clutch-vw-golf/",
+      "reason": "Caso 1.6 FSI BLF, 3,7 h: n?o corresponde ao Golf 1.6 8V brasileiro da base."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-a-clutch-on-a-volkswagen-golf/",
+      "reason": "Caso 2011 CGGA indicado no ?ndice editorial, 4 h; n?o transferido ao 1.4 TSI da base por cilindrada."
+    },
+    {
+      "url": "https://www.techtips.ie/Contitech/1997-opel-omega-25l-v6-timing-belt-fitting-guide.pdf",
+      "reason": "Caso Opel Omega B 2.5 V6 X25XE 1997: n?o corresponde ao Chevrolet Omega 3.8/3.6 da base."
+    },
+    {
+      "url": "https://www.techtips.ie/Contitech/vw-electronic-timing-setting.pdf",
+      "reason": "Tempo aproximado adicional para ajuste eletr?nico VAS 611 007; n?o ? tempo da troca completa da correia nem aplic?vel a todo EA211."
+    },
+    {
+      "url": "https://www.techtips.ie/Dayco/ford-c-max-16tdci-timing-belt-installation-guide.pdf",
+      "reason": "As quatro horas mencionadas s?o espera de resfriamento antes do servi?o, n?o m?o de obra de execu??o."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-fiat-500-abarth/",
+      "reason": "Artigo diferencia m?todo previsto de 5,5 h e procedimento executado com tempo maior sem n?mero final. N?o atribu?do ao procedimento descrito."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-the-clutch-on-a-ford-transit/",
+      "reason": "Tempo expresso como pouco mais de 3h45 e montagem FWD. N?o convertido em n?mero exato nem transferido ?s Transit RWD."
+    }
+  ],
+  "portalAudits": [
+    {
+      "id": "schaeffler-repxpert-br",
+      "userDecision": "Excluído do plano de pesquisa em 22/10/2026 por solicitação do usuário; pedido de contato cancelado, sem envio.",
+      "url": "https://www.repxpert.com.br/pt-br/catalog",
+      "accessedOn": "2026-10-22",
+      "method": "Consulta visual no navegador",
+      "result": "O portal anuncia acesso gratuito a dados RMI para produtos Schaeffler; o catálogo exige conta. A sessão consultada estava sem login.",
+      "status": "registration_and_reuse_permission_required",
+      "timeDataExtracted": false,
+      "termsUrl": "https://www.repxpert.com.br/pt-br/conditions-of-use",
+      "termsSections": [
+        "6.2",
+        "6.6",
+        "7.1"
+      ],
+      "notes": "Os termos consultados restringem disponibilização a terceiros e pedem consentimento expresso para usos além dos próprios fins. Preparado pedido de autorização para o catálogo comercial, ainda não enviado. Login gratuito não foi considerado licença de redistribuição."
+    },
+    {
+      "id": "fiat-official-tempario",
+      "url": "https://aftersales.fiat.com/tempario/home.aspx?LanguageID=tr-TR",
+      "accessedOn": "2026-10-22",
+      "method": "Consulta visual no navegador",
+      "result": "A seleção de modelos abriu; selecionar Palio/Siena retornou erro de servidor. A página inicial exibiu No subscription / Nessun Abbonamento Valido.",
+      "status": "subscription_required_in_observed_session",
+      "timeDataExtracted": false,
+      "notes": "Sessão aberta por link de mercado TR. Não comprova cobertura nem condições de assinatura para o Brasil. Nenhuma assinatura contratada."
+    },
+    {
+      "id": "fiat-reparador-br",
+      "url": "https://reparador.fiat.com.br/novo_reparador.html",
+      "accessedOn": "2026-10-22",
+      "method": "Leitura da página pública",
+      "result": "Página solicita cadastro no Fiat ID. Não foi comprovada disponibilidade de tempos no conteúdo aberto.",
+      "status": "registration_requested",
+      "timeDataExtracted": false
+    },
+    {
+      "id": "vw-reparador-br",
+      "url": "https://www.vw.com.br/pt/servicos-e-acessorios/reparadoresvw.html",
+      "accessedOn": "2026-10-22",
+      "method": "Leitura da página pública",
+      "result": "Conteúdo público de treinamento, procedimentos, alinhamento e lubrificantes; não foi obtida tabela de tempos por configuração na página consultada.",
+      "status": "no_time_table_obtained",
+      "timeDataExtracted": false
+    },
+    {
+      "id": "renault-maintenance-br",
+      "url": "https://www.renault.com.br/renault-care-service/manutencao.html",
+      "accessedOn": "2026-10-22",
+      "method": "Leitura da página pública",
+      "result": "Conteúdo público de manutenção e serviços; não foi obtida tabela de horas por configuração na página consultada.",
+      "status": "no_time_table_obtained",
+      "timeDataExtracted": false
+    }
+  ],
+  "publicationRequirements": [
+    "Confirmar veículo, código de motor, geração, anos, combustível, câmbio quando relevante e mercado de aplicação.",
+    "Escolher uma operação local cujo escopo corresponda ao da fonte, inclusive desmontagens e itens condicionais.",
+    "Confirmar se o tempo é de execução, garantia, adicional ou operação já desmontada.",
+    "Manter fonte e página; registrar inclusões e sobreposições.",
+    "Verificar condições de reutilização antes de disponibilizar os dados comercialmente no RR Manager.",
+    "Nenhum registro deste lote está aprovado para publicação automática."
+  ]
+}

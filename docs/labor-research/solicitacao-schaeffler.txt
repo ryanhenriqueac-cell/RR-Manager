@@ -1,0 +1,22 @@
+Destinatário: info@repxpert.com.br
+Assunto: Autorização de integração de tempos de reparação no RR Manager
+
+Olá, equipe Schaeffler/REPXPERT.
+
+Estamos desenvolvendo o catálogo técnico de mão de obra do RR Manager, um sistema comercial de gestão para oficinas no Brasil.
+
+Gostaríamos de verificar a possibilidade de uma parceria ou autorização gratuita para integrar tempos de reparação dos produtos Schaeffler, com identificação exata de veículo, motor, versão e ano, mantendo a atribuição da fonte.
+
+O uso pretendido é permitir que oficinas clientes consultem o tempo sugerido e adicionem o serviço aos seus orçamentos dentro do RR Manager. Não pretendemos reproduzir manuais completos, imagens ou vídeos.
+
+Podem informar:
+- Se esse uso por oficinas clientes é permitido e qual autorização é necessária;
+- A cobertura dos veículos brasileiros e os identificadores disponíveis para motor, geração e câmbio;
+- Se existe API, integração incorporada ou arquivo estruturado autorizado;
+- As regras de armazenamento, atualização, exibição e atribuição;
+- Se há modalidade gratuita ou parceria para esse uso. Caso exista somente modalidade paga, solicitamos apenas informações e proposta, sem contratação neste contato.
+
+Obrigado,
+Equipe RR Manager
+
+ESTADO: CANCELADO EM 22/10/2026. O usuário decidiu não utilizar o portal REPXPERT. Não enviar esta solicitação.

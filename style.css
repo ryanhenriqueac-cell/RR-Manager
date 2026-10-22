@@ -7817,6 +7817,15 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .admin-catalog-status.is-published { background: rgba(79,209,161,.14); color: #74e6bb; }
 .admin-catalog-status.is-draft { background: rgba(241,199,91,.14); color: var(--gold); }
 .admin-catalog-status.is-disabled { background: rgba(255,143,143,.14); color: #ff9d9d; }
+.admin-catalog-import { min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(7,17,31,.72); }
+.admin-catalog-import summary { cursor: pointer; color: var(--gold); font-weight: 900; }
+.admin-catalog-import > p { color: var(--muted); }
+.admin-catalog-import .admin-catalog-actions { flex-wrap: wrap; align-items: end; }
+.admin-catalog-import label { display: grid; gap: 7px; min-width: 0; }
+.admin-catalog-import input { max-width: 100%; }
+.admin-catalog-import-preview { display: grid; gap: 10px; max-height: 420px; overflow: auto; overflow-wrap: anywhere; }
+.admin-catalog-import-preview article { display: grid; gap: 5px; padding: 12px; border: 1px solid var(--line); border-radius: 6px; }
+.admin-catalog-import-preview small,.admin-catalog-provenance { color: var(--muted); white-space: pre-line; overflow-wrap: anywhere; }
 
 @media (max-width: 980px) {
   .admin-catalog-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }

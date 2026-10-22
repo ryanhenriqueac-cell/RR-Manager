@@ -1,0 +1,173 @@
+{
+  "preparedOn": "2026-10-22",
+  "batchSha256": "89cc327287d14d06cfdb6e2df0569f05816482c6d87768a0cb9ec61fb89369ea",
+  "validForDraftImport": true,
+  "drafts": [
+    {
+      "id": "labor_import_veh_a42d5a03fffe6257_FRD-001_2019_2019",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 36,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_a42d5a03fffe6257_SUD-002_2019_2019",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 102,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_a42d5a03fffe6257_REV-007_2019_2019",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 6,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_a42d5a03fffe6257_REV-003_2019_2019",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 24,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_c03f70f6ed8ca7eb_FRD-001_2019_2019",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 36,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_c03f70f6ed8ca7eb_SUD-002_2019_2019",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 102,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_c03f70f6ed8ca7eb_REV-007_2019_2019",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 6,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_c03f70f6ed8ca7eb_REV-003_2019_2019",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 24,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_a1b0defbdfda6fed_FRD-001_2019_2019",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 36,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_a1b0defbdfda6fed_SUD-002_2019_2019",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 54,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_a1b0defbdfda6fed_REV-007_2019_2019",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 6,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_a1b0defbdfda6fed_REV-003_2019_2019",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeMinutes": 24,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_7212959543275d21_FRD-001_2018_2018",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeMinutes": 36,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_7212959543275d21_SUD-002_2018_2018",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeMinutes": 150,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_7212959543275d21_REV-007_2018_2018",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeMinutes": 12,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_7212959543275d21_REV-003_2018_2018",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeMinutes": 24,
+      "status": "draft"
+    }
+  ],
+  "duplicateImportBlocked": true,
+  "adminEditPreservesFuelAndSource": true,
+  "onlineCatalogChecked": false,
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "limitation": "Validação local de estrutura e rastreabilidade. O painel deve conferir conflitos no catálogo online ao salvar; confirmar a montagem e revisar as condições antes de publicar."
+}

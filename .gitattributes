@@ -1,0 +1,4 @@
+# Keep research evidence hashes reproducible across Windows and Unix checkouts.
+data/vehicle-configs.json text eol=lf
+data/labor-operations.json text eol=lf
+docs/labor-research/*.json text eol=lf

@@ -1,0 +1,97 @@
+{
+  "researchedOn": "2026-10-22",
+  "scope": "Amplia??o gratuita, sem REPXPERT, cadastro, pagamento ou contato externo. N?o ? pesquisa exaustiva das 64 marcas.",
+  "result": {
+    "referenceSources": 18,
+    "applicationSources": 5,
+    "findings": 22,
+    "numericTimes": 20,
+    "preparedDrafts": 5,
+    "newDraftsInThisRound": 4,
+    "onlineWrites": 0
+  },
+  "preparedFindings": [
+    "free-picanto-g4he-clutch",
+    "free-picanto-g4hg-clutch",
+    "free-tucson-2007-clutch",
+    "free-countryman-all4-2013-clutch"
+  ],
+  "applicationChecks": [
+    {
+      "sourceId": "mte-picanto-71100",
+      "result": "Confirmou G4HE 1.0 L4 gasolina 2008-2012 e G4HG 1.1 L4 gasolina 2006-2007, regi?o Brasil. Rascunhos mais restritos: 2008-2010 e somente 2006."
+    },
+    {
+      "sourceId": "mte-tucson-73533",
+      "result": "Confirmou G4GC 2.0 16V gasolina, Brasil, 2005-2009. A fonte do tempo ? um caso manual 2WD de 2007; c?mbio e tra??o continuam condi??es a conferir no exemplar."
+    },
+    {
+      "sourceId": "mte-countryman-73559",
+      "result": "Confirmou Countryman N18B16A gasolina no Brasil em 2013-2016. O tempo ? exclusivo do caso R60 Cooper S ALL4 manual 2013; o cat?logo de sensor n?o comprova cada montagem de c?mbio."
+    },
+    {
+      "sourceId": "millard-a3-5552",
+      "result": "A3 8L1 1.8 T Brasil aparece com ARZ agrupado a AGU/AQA/AUM e intervalo amplo. N?o individualiza anos do ARZ; caso continua pendente."
+    }
+  ],
+  "additionalChecks": [
+    {
+      "url": "https://pmmonline.co.uk/technical/clutch-replacement-volkswagen-golf/",
+      "result": "Artigo completo do Golf Mk4 lido. N?o informa horas nem c?digo de motor do exemplar. Nenhum tempo gerado."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/clutch-clinic-audi-tt/",
+      "result": "Caso TT 2.0 TDI Quattro, sem equival?ncia com TT gasolina da base. N?o transferido."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/clutch-clinic-honda-cr-v-2-2cdti/",
+      "result": "Caso CR-V 2.2 CDTi diesel. N?o transferido ao CR-V brasileiro gasolina/flex."
+    },
+    {
+      "url": "https://pmmonline.co.uk/clutch-clinic/how-to-replace-the-clutch-on-a-volvo-s40/",
+      "result": "Caso S40 1.8 de 2008, 4,8 h para embreagem e bimassa. N?o transferido para S40 2.0 ou T5; nenhuma configura??o 1.8 foi identificada na base local."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-a-clutch-on-a-citroen-c4-picasso/",
+      "result": "Caso Grand Picasso 1.8 gasolina de 2007. N?o transferido ao 2.0 brasileiro ou ao THP."
+    },
+    {
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy-ford-transit-22-tdci-fwd.pdf",
+      "result": "Tempo pouco acima de 3h45, montagem FWD. N?o convertido em n?mero exato nem transferido a RWD."
+    },
+    {
+      "url": "https://omecanico.com.br/atuadores-de-embreagem-de-onix-e-onix-joy-parte-1/",
+      "result": "Consulta de material t?cnico brasileiro espec?fico para Onix; n?o foi obtido tempo verific?vel para alimentar o lote. Dura??o de v?deo, espera e vida ?til n?o foram usadas como horas de servi?o."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-the-clutch-on-a-2018-fiat-doblo/",
+      "result": "Caso 2018 1.6 Multijet diesel. N?o transferido ao Dobl? brasileiro 1.6/1.8 gasolina/flex."
+    }
+  ],
+  "accessLimits": [
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-hyundai-tuscan/",
+      "result": "Abertura direta retornou timeout. O texto integral da pr?pria p?gina foi retornado na pesquisa. Procedimento corroborado no PDF assinado, que n?o cont?m o n?mero de horas."
+    },
+    {
+      "url": "https://assets.web4u.valeoservice.com/d8/prod/s3fs-public/media/pdf_file/field_pdf_file/VALEO%20INFO%20ALTERNADOR%20%26%20MOTOR%20DE%20PARTIDA.pdf",
+      "result": "403 na leitura direta; trecho do ?ndice n?o usado para liberar aplica??o ARZ."
+    },
+    {
+      "url": "https://www.catweb.ms-motorservice.com.br/detalhes.php?cw_pgAtual=165&cw_produtoAtivo=CodigoProduto%3C%212%21%3E4780",
+      "result": "Cache miss; para Tucson foi usado cat?logo MTE-THOMSON acess?vel."
+    },
+    {
+      "url": "https://www.techtips.ie/company.php?company=LuK&search=hours&anyallexact=all",
+      "result": "Filtro p?blico n?o acess?vel pela ferramenta; consulta continuou por artigos individuais e PDFs."
+    }
+  ],
+  "remainingLimits": [
+    "Dados de pe?a identificam aplica??o; n?o fornecem horas nem comprovam automaticamente c?mbio e tra??o.",
+    "As condi??es de montagem acompanham o rascunho e precisam ser confirmadas no ve?culo antes de publicar ou usar.",
+    "O cadastro ainda agrupa gera??es e vers?es; os lotes n?o corrigem nem completam toda a base veicular.",
+    "Nenhuma taxa gen?rica ou tempo de espera foi copiado para preencher lacunas de outros sistemas.",
+    "Busca sem resultado, erro de acesso ou aus?ncia de hora no artigo n?o prova inexist?ncia de outras fontes gratuitas.",
+    "A amplia??o encontra menor rendimento nos artigos restantes: vers?es diesel estrangeiras, motores diferentes, tempos imprecisos ou falta de ano/c?digo. Outras fontes e sistemas ainda podem ser investigados."
+  ]
+}

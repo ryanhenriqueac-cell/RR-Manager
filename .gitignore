@@ -8,6 +8,8 @@ Thumbs.db
 # Backups exportados pelo app
 rr-reparacao-backup-*.json
 exports/
+tmp/labor-import-preview/
+tmp/labor-research/
 
 # Materiais locais de marketing
 marketing/

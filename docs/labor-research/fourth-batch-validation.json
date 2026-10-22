@@ -1,0 +1,103 @@
+{
+  "preparedOn": "2026-10-22",
+  "batchSha256": "2a5804db8e0563caa9a124203d44d794cdd110fcbaeb0ebd5ad3b93e32768340",
+  "validForDraftImport": true,
+  "drafts": [
+    {
+      "id": "labor_import_veh_24dfb78b902f789b_REV-007_2009_2014",
+      "vehicleId": "veh_24dfb78b902f789b",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2009,
+      "yearEnd": 2014,
+      "timeMinutes": 10,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_2c3af9a2ffbd51e2_REV-007_2008_2013",
+      "vehicleId": "veh_2c3af9a2ffbd51e2",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2008,
+      "yearEnd": 2013,
+      "timeMinutes": 10,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_7ce03785c4504067_REV-007_2011_2013",
+      "vehicleId": "veh_7ce03785c4504067",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2011,
+      "yearEnd": 2013,
+      "timeMinutes": 10,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_e01be49b2d9df5cf_REV-007_2014_2014",
+      "vehicleId": "veh_e01be49b2d9df5cf",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2014,
+      "timeMinutes": 15,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_82f77c16ea64d2dd_REV-007_2014_2019",
+      "vehicleId": "veh_82f77c16ea64d2dd",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2019,
+      "timeMinutes": 15,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_0fecca0d3602cda5_REV-007_2008_2011",
+      "vehicleId": "veh_0fecca0d3602cda5",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2011,
+      "timeMinutes": 15,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_98f35aaf5af3f62e_REV-007_2008_2008",
+      "vehicleId": "veh_98f35aaf5af3f62e",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2008,
+      "timeMinutes": 15,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_0ba33cf276345006_REV-007_2008_2012",
+      "vehicleId": "veh_0ba33cf276345006",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2012,
+      "timeMinutes": 30,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_b763a199779d2c96_REV-007_2015_2015",
+      "vehicleId": "veh_b763a199779d2c96",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2015,
+      "yearEnd": 2015,
+      "timeMinutes": 5,
+      "status": "draft"
+    }
+  ],
+  "duplicateImportBlocked": true,
+  "adminEditPreservesFuelAndSource": true,
+  "onlineCatalogChecked": false,
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "limitation": "Validação local de estrutura e rastreabilidade. O painel deve conferir conflitos no catálogo online ao salvar; confirmar a montagem e revisar as condições antes de publicar."
+}

@@ -1,0 +1,983 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-22",
+  "purpose": "Lote consolidado de referências para importar somente como rascunhos. Conferir as condições de cada aplicação antes de publicar.",
+  "reuseBasis": "Fatos numéricos limitados, identificação bibliográfica e notas próprias. Não reproduz documentos integrais nem declara licença contratual sobre o material original.",
+  "evidence": [
+    {
+      "id": "focus-time",
+      "url": "https://www.techtalk.ie/wp-content/uploads/2017/01/TN_15_045-EN.pdf",
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "supports": "Tempo de 2,2 h na página 1 para o procedimento de correia dentada nos motores EDDB/EDDC/EDDD. As demais páginas descrevem desmontagem, instalação, sincronismo, montagem e teste."
+    },
+    {
+      "id": "focus-time-republication",
+      "url": "https://www.techtips.ie/Contitech/ford-focus---20-litre-16v-timing-belt-guide.pdf",
+      "pages": [
+        1,
+        2
+      ],
+      "supports": "Republicação do mesmo procedimento ContiTech, AUTOBIZ julho/agosto de 2015, páginas impressas 62 e 64; confirma valor e escopo, não é medição independente."
+    },
+    {
+      "id": "focus-br-application",
+      "url": "https://catweb.ms-motorservice.com.br/detalhes.php?cw_pgAtual=199&cw_produtoAtivo=CodigoProduto%3C%212%21%3E4897",
+      "pages": [
+        1
+      ],
+      "supports": "Catálogo brasileiro Motorservice/Pierburg 7.22184.20.0: EDDB 2.0 16V gasolina, GL/Ghia 2000-2004 e GLX 2002-2004. Não contém tempos."
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-change-a-clutch-on-a-kia-picanto/",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/71100/sensor-de-pressao-do-coletor--map",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-replace-a-clutch-on-a-kia-picanto/",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy-picanto-11-petrol-g4hg.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-hyundai-tuscan/",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy-2wd-hyundai-tucson-20p.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/gridaplicacoespartial?pCodProduto=73533",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.techtips.ie/LuK/luk-clutch-academy----mini-countryman-all4-cooper-s.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/de/br/produto/gridaplicacoespartial?pCodProduto=73559",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+      "accessedOn": "2026-10-22"
+    },
+    {
+      "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+      "accessedOn": "2026-10-22"
+    }
+  ],
+  "records": [
+    {
+      "researchFindingId": "free-focus-2-belt",
+      "vehicleId": "veh_fda727a70a533aee",
+      "serviceCode": "SIN-001",
+      "fuel": "Gasolina",
+      "yearStart": 2000,
+      "yearEnd": 2004,
+      "timeHours": 2.2,
+      "application": "Focus I 2.0 16V Zetec-S, motor EDDB, gasolina. GL/Ghia 2000-2004; GLX 2002-2004. Confirmar EDDB no veículo. Exclui Duratec, flex e outros anos.",
+      "source": {
+        "title": "ContiTech - Focus 2.0 16V EDDB/EDDC/EDDD - TN_15_045-EN",
+        "url": "https://www.techtalk.ie/wp-content/uploads/2017/01/TN_15_045-EN.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Catálogo brasileiro - Sensor MAF 7.22184.20.0",
+            "url": "https://catweb.ms-motorservice.com.br/detalhes.php?cw_pgAtual=199&cw_produtoAtivo=CodigoProduto%3C%212%21%3E4897",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO PROCEDIMENTO CONTITECH DE CORREIA DENTADA; NÃO É UM TEMPÁRIO FORD DE GARANTIA. A fonte recomenda tensionador, polias e bomba, mas não discrimina horas por componente. O valor pertence ao procedimento citado; não estabelece tempo isolado ou adicional da bomba. Não duplicar em SIN-002/003/004/005 nem somar serviços de desmontagem já incluídos. Publicação exige revisão dessas condições. Aplicação cruzada com catálogo Motorservice/Pierburg 7.22184.20.0; fontes completas no dossiê first-batch.json.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-picanto-g4he-clutch",
+      "vehicleId": "veh_3d5af76e20bf7d10",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2010,
+      "timeHours": 3,
+      "application": "Somente primeira gera??o, G4HE L4 1.0, c?mbio manual e acionamento mec?nico por cabo; conferir c?digo e montagem no ve?culo.",
+      "source": {
+        "title": "How to change a clutch on a Kia Picanto",
+        "url": "https://pmmonline.co.uk/technical/how-to-change-a-clutch-on-a-kia-picanto/",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "CatE 71100 - aplica??es brasileiras Picanto",
+            "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/71100/sensor-de-pressao-do-coletor--map",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFER?NCIA LUK DO PROCEDIMENTO DE SUBSTITUI??O DA EMBREAGEM, KIT 618301600. Inclui retirar e reinstalar o c?mbio. Conferir acionamento mec?nico por cabo e montagem. N?o aplicar a motor 1.0 de tr?s cilindros, autom?tico ou ? gera??o seguinte. N?o somar outra remo??o de c?mbio. Revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-picanto-g4hg-clutch",
+      "vehicleId": "veh_21c4c41e1e16c32e",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2006,
+      "yearEnd": 2006,
+      "timeHours": 3,
+      "application": "G4HG L4 1.1, c?mbio manual, acionamento por cabo; confirmar c?digo e montagem.",
+      "source": {
+        "title": "How to replace a clutch on a Kia Picanto 1.1 G4HG",
+        "url": "https://pmmonline.co.uk/technical/how-to-replace-a-clutch-on-a-kia-picanto/",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "CatE 71100 - aplica??es brasileiras Picanto",
+            "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/71100/sensor-de-pressao-do-coletor--map",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFER?NCIA LUK DO PROCEDIMENTO DE SUBSTITUI??O DA EMBREAGEM, KIT 618308700. Inclui retirar e reinstalar o c?mbio. O PDF complementar confirma um exemplar G4HG de 2006, mas n?o informa horas: os 180 minutos v?m do artigo PMM de 2016. O reparo adicional de retentor citado no PDF n?o tem tempo individualizado neste registro. N?o somar outra remo??o de c?mbio. Revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-tucson-2007-clutch",
+      "vehicleId": "veh_fc9ed61a183878e6",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2007,
+      "yearEnd": 2007,
+      "timeHours": 5,
+      "application": "Somente Tucson JM 2.0 G4GC gasolina, manual 2WD 2007; confirmar montagem, n?o aplic?vel ao autom?tico ou 4WD.",
+      "source": {
+        "title": "How to fit a clutch on a Hyundai Tuscan - 2.0 2WD Petrol 2007",
+        "url": "https://pmmonline.co.uk/technical/how-to-fit-a-clutch-on-a-hyundai-tuscan/",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "CatE 73533 - Tucson G4GC Brasil",
+            "url": "https://cate.mte-thomson.com.br/pt/br/produto/gridaplicacoespartial?pCodProduto=73533",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFER?NCIA LUK: 5 HORAS PARA RETIRAR C?MBIO, SUBSTITUIR EMBREAGEM E REINSTALAR C?MBIO. Aplica??o estrita ao caso manual 2WD de 2007; conferir montagem. N?o aplicar ao autom?tico, 4WD, flex ou outros anos. N?o somar remo??o de c?mbio ou do agregado inclu?da no procedimento. N?o foi criado tempo de troca de volante bimassa. Revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-countryman-all4-2013-clutch",
+      "vehicleId": "veh_8cde074152d5169f",
+      "serviceCode": "EMB-012",
+      "fuel": "Gasolina",
+      "yearStart": 2013,
+      "yearEnd": 2013,
+      "timeHours": 6.7,
+      "application": "Somente Countryman R60 Cooper S ALL4 1.6 turbo N18B16A, c?mbio manual, 2013. Confirmar vers?o e montagem; n?o aplicar a autom?tico ou tra??o dianteira.",
+      "source": {
+        "title": "LuK Clutch Academy - MINI Countryman ALL4 Cooper S",
+        "url": "https://www.techtips.ie/LuK/luk-clutch-academy----mini-countryman-all4-cooper-s.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "CatE 73559 - Countryman N18B16A Brasil",
+            "url": "https://cate.mte-thomson.com.br/de/br/produto/gridaplicacoespartial?pCodProduto=73559",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFER?NCIA LUK DE OPERA??O COMPOSTA: KIT DE EMBREAGEM E VOLANTE BIMASSA, 6,7 HORAS. Confirmar R60 Cooper S ALL4 manual e N18B16A no ve?culo. N?o aplicar a autom?tico, vers?o com tra??o dianteira ou outros anos. N?o somar EMB-001, troca de volante, remo??o de c?mbio, card? ou caixa de transfer?ncia j? inclu?dos no procedimento. Revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-fit-2019-frd-001",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.6,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "source": {
+        "title": "Fit - tabela de serviços Auto Japan 2019",
+        "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Fit 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-fit-2019-sud-002",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 1.7,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "source": {
+        "title": "Fit - tabela de serviços Auto Japan 2019",
+        "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Fit 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-fit-2019-rev-007",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.1,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "source": {
+        "title": "Fit - tabela de serviços Auto Japan 2019",
+        "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Fit 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-fit-2019-rev-003",
+      "vehicleId": "veh_a42d5a03fffe6257",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.4,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "source": {
+        "title": "Fit - tabela de serviços Auto Japan 2019",
+        "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Fit 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-city-2019-frd-001",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.6,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "source": {
+        "title": "City - tabela de serviços H Motors 2019",
+        "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo City 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-city-2019-sud-002",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 1.7,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "source": {
+        "title": "City - tabela de serviços H Motors 2019",
+        "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo City 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-city-2019-rev-007",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.1,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "source": {
+        "title": "City - tabela de serviços H Motors 2019",
+        "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo City 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-city-2019-rev-003",
+      "vehicleId": "veh_c03f70f6ed8ca7eb",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.4,
+      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "source": {
+        "title": "City - tabela de serviços H Motors 2019",
+        "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo City 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
+            "page": 7
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-hrv-2019-frd-001",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.6,
+      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "source": {
+        "title": "HR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - HR-V 2019 na Agrishow",
+            "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-hrv-2019-sud-002",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.9,
+      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "source": {
+        "title": "HR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - HR-V 2019 na Agrishow",
+            "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-hrv-2019-rev-007",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.1,
+      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "source": {
+        "title": "HR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - HR-V 2019 na Agrishow",
+            "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-hrv-2019-rev-003",
+      "vehicleId": "veh_a1b0defbdfda6fed",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.4,
+      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "source": {
+        "title": "HR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - HR-V 2019 na Agrishow",
+            "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-civic-2018-frd-001",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeHours": 0.6,
+      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "source": {
+        "title": "Civic 10 - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+            "page": 15
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: pastilhas dianteiras do eixo. Não inclui troca de discos, retífica ou sangria. Não somar a revisão completa sem verificar sobreposição. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-civic-2018-sud-002",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeHours": 2.5,
+      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "source": {
+        "title": "Civic 10 - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+            "page": 15
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: amortecedores dianteiros, o par, conforme a linha da fonte. Não duplicar por lado nem converter para kit de coxins/coifas ou alinhamento. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-civic-2018-rev-007",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeHours": 0.2,
+      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "source": {
+        "title": "Civic 10 - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+            "page": 15
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: substituir filtro do ar-condicionado/cabine. Não inclui higienização, oxi-sanitização, lavagem do evaporador ou recarga de gás. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-honda-civic-2018-rev-003",
+      "vehicleId": "veh_7212959543275d21",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2018,
+      "timeHours": 0.4,
+      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "source": {
+        "title": "Civic 10 - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
+            "page": 15
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA; não é tempo de garantia Honda. Escopo: óleo do motor e filtro juntos. Não criar duas cobranças nem somar à revisão completa quando já incluído. Confirmar montagem e revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-24dfb78b902f789b-2009-2014",
+      "vehicleId": "veh_24dfb78b902f789b",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2009,
+      "yearEnd": 2014,
+      "timeHours": 0.16666666666666666,
+      "application": "1.4 16V Flex; Fit segunda geração 1.4 i-VTEC, com alojamento compatível; não é i-DSI da primeira geração. Somente montagem do filtro FreciousPlus FP 21 003.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 10 minutos de instalação de FP 21 003. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-2c3af9a2ffbd51e2-2008-2013",
+      "vehicleId": "veh_2c3af9a2ffbd51e2",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2008,
+      "yearEnd": 2013,
+      "timeHours": 0.16666666666666666,
+      "application": "1.8 16V VVT-i Flex; Corolla X E14/E15; não estender para a geração lançada em 2014. Somente montagem do filtro FreciousPlus FP 1919.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 10 minutos de instalação de FP 1919. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-7ce03785c4504067-2011-2013",
+      "vehicleId": "veh_7ce03785c4504067",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2011,
+      "yearEnd": 2013,
+      "timeHours": 0.16666666666666666,
+      "application": "2.0 16V Flex; Corolla X E14/E15; não estender para a geração lançada em 2014. Somente montagem do filtro FreciousPlus FP 1919.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 10 minutos de instalação de FP 1919. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-e01be49b2d9df5cf-2014-2014",
+      "vehicleId": "veh_e01be49b2d9df5cf",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2014,
+      "timeHours": 0.25,
+      "application": "1.4 16V TSI Gasolina; Golf geração 7 TSI gasolina, referência OE do filtro 5Q0819653; não aplicar a MPI ou flex sem outra conferência. Somente montagem do filtro FreciousPlus FP 26 009.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 15 minutos de instalação de FP 26 009. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-82f77c16ea64d2dd-2014-2019",
+      "vehicleId": "veh_82f77c16ea64d2dd",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2019,
+      "timeHours": 0.25,
+      "application": "2.0 16V GTI Gasolina; Golf geração 7 GTI, referência OE do filtro 5Q0819653; exclui gerações anteriores. Somente montagem do filtro FreciousPlus FP 26 009.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 15 minutos de instalação de FP 26 009. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-0fecca0d3602cda5-2008-2011",
+      "vehicleId": "veh_0fecca0d3602cda5",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2011,
+      "timeHours": 0.25,
+      "application": "120i 2.0 16V Gasolina; BMW Série 1 E87 120i aspirado; não estender para F20/F21 turbo. Somente montagem do filtro FreciousPlus FP 8430.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 15 minutos de instalação de FP 8430. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-98f35aaf5af3f62e-2008-2008",
+      "vehicleId": "veh_98f35aaf5af3f62e",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2008,
+      "timeHours": 0.25,
+      "application": "130i 3.0 24V Gasolina; BMW Série 1 E87 130i; recorte de ano inteiro dentro do intervalo do fabricante. Somente montagem do filtro FreciousPlus FP 8430.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 15 minutos de instalação de FP 8430. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-0ba33cf276345006-2008-2012",
+      "vehicleId": "veh_0ba33cf276345006",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2012,
+      "timeHours": 0.5,
+      "application": "2.5 20V T5 Gasolina; Volvo C30 T5; confirmar acesso e alojamento do filtro específico. Somente montagem do filtro FreciousPlus FP 2440.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 30 minutos de instalação de FP 2440. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-mann-cabin-b763a199779d2c96-2015-2015",
+      "vehicleId": "veh_b763a199779d2c96",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2015,
+      "yearEnd": 2015,
+      "timeHours": 0.08333333333333333,
+      "application": "CLA 250 2.0 16V Gasolina; Mercedes CLA C117/X117 CLA 250; confirmar direção à esquerda e filtro específico. Somente montagem do filtro FreciousPlus FP 26 007.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Aplicação e produto na mesma tabela MANN-FILTER; não é fonte independente",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO FABRICANTE DO FILTRO: 5 minutos de instalação de FP 26 007. Não é tempo OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; revisar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}

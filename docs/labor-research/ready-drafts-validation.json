@@ -1,0 +1,35 @@
+{
+  "preparedOn": "2026-10-22",
+  "batchSha256": "673000ec5edd027551bb627cfe83b5d135fb5281224acf1e0e5da2868f9bf85b",
+  "validForDraftImport": true,
+  "records": 30,
+  "allRecordsAreDrafts": true,
+  "duplicateImportBlocked": true,
+  "sourceBatches": [
+    {
+      "file": "docs/labor-research/first-batch.json",
+      "batchSha256": "458492efac5cdb0e79e6ef635571973cc39d6639c8ed6eac55d60cae4f0ab28d",
+      "drafts": 1
+    },
+    {
+      "file": "docs/labor-research/second-batch.json",
+      "batchSha256": "380157e007e10ab69eb81fb99dfb19d2132ea91d9eba56afc6c3498ca31f0a7a",
+      "drafts": 4
+    },
+    {
+      "file": "docs/labor-research/third-batch.json",
+      "batchSha256": "89cc327287d14d06cfdb6e2df0569f05816482c6d87768a0cb9ec61fb89369ea",
+      "drafts": 16
+    },
+    {
+      "file": "docs/labor-research/fourth-batch.json",
+      "batchSha256": "2a5804db8e0563caa9a124203d44d794cdd110fcbaeb0ebd5ad3b93e32768340",
+      "drafts": 9
+    }
+  ],
+  "minuteConversionChecked": true,
+  "axleUnitChecked": true,
+  "databaseWritesPerformed": 0,
+  "onlineCatalogChecked": false,
+  "automaticPublicationApproved": false
+}

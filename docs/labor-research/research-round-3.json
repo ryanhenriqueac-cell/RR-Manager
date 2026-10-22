@@ -1,0 +1,110 @@
+{
+  "researchedOn": "2026-10-22",
+  "scope": "Fontes públicas gratuitas, sem REPXPERT, cadastro, pagamento ou contato externo. Não é pesquisa exaustiva.",
+  "newDrafts": 25,
+  "batches": [
+    {
+      "file": "third-batch.json",
+      "count": 16,
+      "scope": "Honda: origem concessionária, versão automática e ano comprovado"
+    },
+    {
+      "file": "fourth-batch.json",
+      "count": 9,
+      "scope": "MANN Brasil: tempo de instalação e produto específico"
+    }
+  ],
+  "newPendingFindings": [
+    "free-passat-v6-belt",
+    "free-daily-ducato-23-belt",
+    "free-a5-quattro-2011-clutch",
+    "free-c180-coupe-2003-clutch",
+    "free-i30-2014-clutch"
+  ],
+  "databaseWritesPerformed": 0,
+  "downloadedDocuments": [
+    {
+      "id": "dealer-autojapan-fit-2019",
+      "sha256": "987c51558b0318d7b66dfa32e6fe11caf1be8a839115ac771b84f533313e0d6a"
+    },
+    {
+      "id": "dealer-hmotors-city-2019",
+      "sha256": "d4fd2d839dd2a8b5d4bacec280fd76596bdc78e5ca394c2b6f869c1fbaf33040"
+    },
+    {
+      "id": "dealer-flora-hrv-2019",
+      "sha256": "e5a2fb9afed0138f81fe0b2601ff720d3461494a2e8fae9c3087fc2b433d4a20"
+    },
+    {
+      "id": "dealer-flora-civic10-2019",
+      "sha256": "f32f67afea1f22241be960e5b8a138bb824abb639e60aefacb74e160aef14aef"
+    },
+    {
+      "id": "mann-freciousplus-br-2021",
+      "sha256": "4293f80318b0a86d29cad52cdcf1d3ce9fedabbcb9b5f8f2a8f9161cffa17a0e"
+    }
+  ],
+  "decisions": [
+    "Identificação por designação de motor, geração e ano, sem inventar código quando a fonte não o informa.",
+    "Civic restrito ao 2.0 Flex CVT 2018 do catálogo oficial; não atribuído ao Touring turbo ou automático de geração anterior.",
+    "Tempos Honda são fatos históricos de concessionária; nenhum preço foi importado.",
+    "Discos por unidade não foram convertidos em par; bateria com teste/recarga e revisões completas não foram desmembradas.",
+    "Não aplicar tempo MANN a qualquer filtro: manter produto e condição no registro.",
+    "Excluídas linhas MANN incoerentes: City1.4, datas Sprinter06/11–12/09, Hilux15/15 e PoloIV com aplicação2017 não individualizada neste lote.",
+    "Não extender datas abertas para novas gerações ou anos atuais.",
+    "MANN é fonte única de minutos e aplicação; citar duas vezes não conta como confirmação independente.",
+    "Fit2019 de concessionária6min não conflita com Fit1.4de2009–14 MANN10min; não calcular média ou substituir uma fonte pela outra.",
+    "Clio permanece pendente: MotorserviceglobalK4M748 p1445 confirmado; MTEBrasilK4M não comprova sufixo748."
+  ],
+  "accessLimits": [
+    "HondaPrixx PDF falhou DNS local e leitura web502; não usado.",
+    "ManualCivic2019 recusado tamanho no web e403no download; não usado como comprovação integral.",
+    "CatálogoMotorservice de37MB foi baixado e conferido localmente; imagensJBIG2 de peças não renderizaram, texto da aplicação e alinhamento da tabela legíveis."
+  ],
+  "complementarySources": [
+    {
+      "url": "https://www.ms-motorservice.com/MediaAssets/2486694_pg_50003569_web.pdf",
+      "page": 1445,
+      "printedPage": 1442,
+      "note": "K4M748 global, não prova Brasil."
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/vt59689/valvula-termostatica",
+      "note": "K4M gasolina Brasil2000–05, sem sufixo748; consulta por texto da página original em busca."
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/7049/sensor-de-rotacao",
+      "note": "PassatVariantBBGBrasil2003–05; sem equivalência do tempo Conti."
+    },
+    {
+      "url": "https://cate.mte-thomson.com.br/pt/br/produto/detalhes/71151/sensor-de-pressao-do-coletor--map",
+      "note": "A5CDNCBrasil2010–13; sem código no artigo de horas."
+    }
+  ],
+  "discardedChecks": [
+    "MercedesAClass: acima7h/abaixo4h sem número exato, motor ou ano; W168A160 ausente na base.",
+    "HondaCivic1.6petrolgeração7: artigo sem horas, configuração brasileira da geração é1.7.",
+    "Picanto1.12005sincronismo: procedimento sem horas.",
+    "Beetle2008sincronismo: dieselBSW1.9, sem equivalência2.0gasolina.",
+    "FocusII2005:1.7h para HHDA1.6TDCi, não Rocam/Sigma.",
+    "KangooIIK4M830:4h citadas são resfriamento, não execução."
+  ],
+  "peerReview": {
+    "newRowsReviewed": 25,
+    "reviewers": 2,
+    "result": "Sem bloqueadores para rascunhos nas condições documentadas. Corrigido OE5Q0819653 como elemento filtrante e limitado BMW130i/120i a E87 no texto.",
+    "sourceOfReview": "Conferência independente das fontes e dos IDs, anos, combustível, operações e conversões; não é certificação de montadora nem revisão de veículo físico."
+  },
+  "result": {
+    "totalFindings": 52,
+    "numericTimes": 50,
+    "preparedDrafts": 30,
+    "newDrafts": 25,
+    "pendingApplication": 13,
+    "noMatchingConfiguration": 7,
+    "insufficientPrecision": 2,
+    "referenceSources": 28,
+    "applicationDocuments": 10,
+    "onlineWrites": 0
+  }
+}

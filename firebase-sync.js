@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { buildLaborImportTemplate, validateLaborImport } from "./labor-catalog-import.mjs?v=3";
 import {
   browserLocalPersistence,
   browserSessionPersistence,
@@ -24,6 +25,7 @@ import {
   getFirestore,
   onSnapshot,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   where,
@@ -236,6 +238,7 @@ let technicalReferencePromise = null;
 const publishedLaborTimes = new Map();
 let adminLaborTimes = [];
 let adminCatalogEditingId = "";
+let adminCatalogPendingImport = null;
 
 function normalizeSubscription(subscription = {}) {
   const planId = PLAN_CATALOG[subscription.planId] ? subscription.planId : DEFAULT_SUBSCRIPTION.planId;
@@ -325,7 +328,7 @@ function normalizePublishedLaborTime(item = {}) {
     operationType: normalizeReadyLaborText(item.operationType),
     unit: normalizeReadyLaborText(item.unit),
     notes: normalizeReadyLaborText(item.notes),
-    source: normalizeReadyLaborText(item.source)
+    source: String(item.source || "").trim()
   };
 }
 
@@ -895,6 +898,7 @@ function buildAuthShell() {
           <fieldset><legend>2. Operação</legend><div class="admin-catalog-grid"><label>Sistema<select id="adminCatalogSystem" required><option value="">Selecione</option></select></label><label class="admin-catalog-operation-field">Serviço / operação<select id="adminCatalogOperation" required disabled><option value="">Selecione</option></select></label><label>Quantidade de horas<input id="adminCatalogHours" type="number" min="0.01" max="166.67" step="0.01" required placeholder="Ex.: 3,5"></label><label class="admin-catalog-notes">Observação específica<textarea id="adminCatalogNotes" rows="3" maxlength="1000" placeholder="Condições, ferramentas ou ressalvas"></textarea></label></div><p id="adminCatalogOperationDetail" class="muted"></p></fieldset>
           <div class="admin-catalog-actions"><button class="btn btn-muted" id="adminCatalogSaveDraft" type="button">Salvar rascunho</button><button class="btn btn-primary" id="adminCatalogPublish" type="button">Revisar e publicar</button><button class="btn btn-ghost" id="adminCatalogCancel" type="button">Limpar</button><span id="adminCatalogMessage" class="form-status"></span></div>
         </form>
+        <details class="admin-catalog-import"><summary>Importar tempos pesquisados</summary><p>Selecione um arquivo JSON com até 100 tempos e confira a prévia. Os registros entram como rascunhos para revisão, com a fonte e a aplicação de cada serviço.</p><div class="admin-catalog-actions"><label>Arquivo de tempos<input id="adminCatalogImportFile" type="file" accept=".json,application/json"></label><button class="btn btn-muted" id="adminCatalogImportTemplate" type="button">Baixar modelo</button><button class="btn btn-primary" id="adminCatalogImportSave" type="button" disabled>Salvar lote como rascunhos</button></div><p id="adminCatalogImportMessage" class="muted" role="status" aria-live="polite"></p><div id="adminCatalogImportPreview" class="admin-catalog-import-preview"></div></details>
         <div class="admin-catalog-list-head"><div><h3>Tempos cadastrados</h3><p class="muted">Edite, publique ou desative cada vínculo individualmente.</p></div><div><input id="adminCatalogSearch" type="search" placeholder="Buscar veículo ou serviço"><select id="adminCatalogStatus"><option value="">Todos</option><option value="published">Publicados</option><option value="draft">Rascunhos</option><option value="disabled">Desativados</option></select></div></div>
         <div id="adminCatalogList" class="admin-catalog-list"><div class="admin-empty">Carregando catálogo...</div></div>
       </section>
@@ -3274,6 +3278,93 @@ function bindAdminTechnicalCatalog() {
   document.getElementById("adminCatalogCancel")?.addEventListener("click", resetAdminCatalogForm);
   document.getElementById("adminCatalogSearch")?.addEventListener("input", renderAdminTechnicalCatalogList);
   document.getElementById("adminCatalogStatus")?.addEventListener("change", renderAdminTechnicalCatalogList);
+  document.getElementById("adminCatalogImportFile")?.addEventListener("change", previewAdminLaborImport);
+  document.getElementById("adminCatalogImportTemplate")?.addEventListener("click", downloadAdminLaborImportTemplate);
+  document.getElementById("adminCatalogImportSave")?.addEventListener("click", saveAdminLaborImport);
+}
+
+function downloadAdminLaborImportTemplate() {
+  if (!isAdminUser(currentUser)) return;
+  const vehicle = technicalVehicleConfigs.find((item) => item.id === document.getElementById("adminCatalogVehicle")?.value);
+  const operation = technicalLaborOperations.find((item) => item.code === document.getElementById("adminCatalogOperation")?.value);
+  const blob = new Blob([JSON.stringify(buildLaborImportTemplate(vehicle, operation), null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "rr-modelo-importacao-mao-de-obra.json";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function previewAdminLaborImport(event) {
+  if (!isAdminUser(currentUser)) return;
+  const input = event.target;
+  const file = input.files?.[0];
+  const message = document.getElementById("adminCatalogImportMessage");
+  const preview = document.getElementById("adminCatalogImportPreview");
+  const button = document.getElementById("adminCatalogImportSave");
+  adminCatalogPendingImport = null;
+  button.disabled = true;
+  preview.innerHTML = "";
+  message.textContent = "";
+  if (!file) return;
+  input.disabled = true;
+  try {
+    if (file.size > 1024 * 1024) throw new Error("O arquivo deve ter até 1 MB.");
+    const payload = JSON.parse((await file.text()).replace(/^\uFEFF/, ""));
+    const plan = validateLaborImport(payload, { vehicles: technicalVehicleConfigs, operations: technicalLaborOperations, existing: adminLaborTimes });
+    if (!plan.valid) {
+      message.textContent = "Corrija as pendências do arquivo antes de salvar o lote.";
+      preview.innerHTML = `<ul>${plan.errors.map((error) => `<li>${escapeHtml(error)}</li>`).join("")}</ul>`;
+      return;
+    }
+    adminCatalogPendingImport = payload;
+    preview.innerHTML = plan.records.map((item) => `<article><strong>${escapeHtml(`${item.make} ${item.model} ${item.engine} · ${item.fuel} · ${item.yearStart}–${item.yearEnd}`)}</strong><span>${escapeHtml(`${item.serviceCode} · ${item.description} · ${formatCatalogHours(item.timeMinutes / 60)} h`)}</span><small>${escapeHtml(item.source)}</small><small>${escapeHtml(item.notes)}</small></article>`).join("");
+    message.textContent = `${plan.records.length} tempo(s) validado(s). Confira veículo, intervalo, serviço e fonte antes de salvar.`;
+    button.disabled = false;
+  } catch (error) {
+    message.textContent = error instanceof SyntaxError ? "O arquivo não contém um JSON válido." : error.message;
+  } finally {
+    input.disabled = false;
+  }
+}
+
+async function saveAdminLaborImport() {
+  if (!isAdminUser(currentUser) || !adminCatalogPendingImport) return;
+  const button = document.getElementById("adminCatalogImportSave");
+  const input = document.getElementById("adminCatalogImportFile");
+  const message = document.getElementById("adminCatalogImportMessage");
+  const payload = adminCatalogPendingImport;
+  button.disabled = true;
+  input.disabled = true;
+  try {
+    message.textContent = "Conferindo o catálogo e salvando o lote...";
+    const snapshot = await getDocs(collection(db, TECHNICAL_CATALOG_COLLECTION));
+    const existing = snapshot.docs.map((record) => normalizePublishedLaborTime({ id: record.id, ...record.data() }));
+    const plan = validateLaborImport(payload, { vehicles: technicalVehicleConfigs, operations: technicalLaborOperations, existing });
+    if (!plan.valid) throw new Error(plan.errors.join(" "));
+    const now = new Date().toISOString();
+    const rows = plan.records.map((item) => ({ ...item, revisions: [], revision: 1, createdAt: now, updatedAtISO: now, publishedAt: "", updatedBy: currentUser.email }));
+    await runTransaction(db, async (transaction) => {
+      const refs = rows.map((item) => doc(db, TECHNICAL_CATALOG_COLLECTION, item.id));
+      const previous = await Promise.all(refs.map((ref) => transaction.get(ref)));
+      if (previous.some((record) => record.exists())) throw new Error("Este lote contém registros já importados. Recarregue o catálogo antes de tentar novamente.");
+      rows.forEach((item, index) => transaction.set(refs[index], { ...item, updatedAt: serverTimestamp() }));
+    });
+    adminLaborTimes = [...rows, ...existing];
+    adminCatalogPendingImport = null;
+    input.value = "";
+    document.getElementById("adminCatalogImportPreview").innerHTML = "";
+    renderAdminTechnicalCatalog();
+    message.textContent = `${rows.length} rascunho(s) salvo(s). Abra cada registro para revisar e publicar.`;
+  } catch (error) {
+    // An uncertain network outcome must be checked again from a new preview, never retried blindly.
+    adminCatalogPendingImport = null;
+    input.value = "";
+    message.textContent = `${firebaseError(error)} Selecione o arquivo novamente para conferir e tentar salvar.`;
+  } finally {
+    input.disabled = false;
+  }
 }
 
 function updateAdminCatalogModels(selected = "") {
@@ -3329,7 +3420,7 @@ function getAdminCatalogFormData(status) {
   const yearEnd = Number(document.getElementById("adminCatalogYearEnd")?.value || 0);
   const rawTimeHours = Number(document.getElementById("adminCatalogHours")?.value || 0);
   const existing = adminLaborTimes.find((item) => item.id === adminCatalogEditingId);
-  const source = normalizeReadyLaborText(existing?.source || "Catálogo RR Manager");
+  const source = String(existing?.source || "Catálogo RR Manager").trim();
   if (!vehicle || !operation) throw new Error("Selecione o veículo e a operação.");
   if (!yearStart || !yearEnd || yearStart > yearEnd || yearStart < vehicle.yearStart || yearEnd > vehicle.yearEnd) throw new Error(`Informe anos entre ${vehicle.yearStart} e ${vehicle.yearEnd}.`);
   if (!Number.isFinite(rawTimeHours) || rawTimeHours <= 0 || rawTimeHours > 166.67) throw new Error("Informe a quantidade de horas, por exemplo 3,5.");
@@ -3342,9 +3433,12 @@ function getAdminCatalogFormData(status) {
     && yearStart <= Number(item.yearEnd)
     && yearEnd >= Number(item.yearStart));
   if (conflict) throw new Error(`Já existe um tempo para esta operação entre ${conflict.yearStart} e ${conflict.yearEnd}. Edite o registro existente ou desative-o.`);
+  const existingFuel = existing?.vehicleId === vehicle.id ? String(existing.fuel || "").trim() : "";
+  const allowedFuels = [vehicle.fuel, ...String(vehicle.fuel || "").split("/")];
+  const fuel = allowedFuels.find((value) => value.toLocaleUpperCase("pt-BR") === existingFuel.toLocaleUpperCase("pt-BR")) || vehicle.fuel;
   return {
     vehicleId: vehicle.id, make: vehicle.make, model: vehicle.model, engine: vehicle.engine,
-    fuel: vehicle.fuel, aspiration: vehicle.aspiration, yearStart, yearEnd,
+    fuel, aspiration: vehicle.aspiration, yearStart, yearEnd,
     serviceCode: operation.code, system: normalizeReadyLaborText(operation.system), subsystem: normalizeReadyLaborText(operation.subsystem),
     description: normalizeReadyLaborText(operation.description, true), operationType: normalizeReadyLaborText(operation.operationType), unit: normalizeReadyLaborText(operation.unit),
     overlap: operation.overlap === true, timeMinutes, source,
@@ -3449,7 +3543,7 @@ function renderAdminTechnicalCatalogList() {
   const filtered = adminLaborTimes.filter((item) => (!status || item.status === status) && (!search || normalizeCatalogText(`${item.make} ${item.model} ${item.engine} ${item.description} ${item.serviceCode}`).includes(search)));
   root.innerHTML = filtered.map((item) => `
     <article class="admin-catalog-item">
-      <div><span class="admin-catalog-status is-${escapeHtml(item.status || "draft")}">${item.status === "published" ? "Publicado" : item.status === "disabled" ? "Desativado" : "Rascunho"}</span><strong>${escapeHtml(`${item.make} ${item.model} ${item.engine}`)}</strong><small>${escapeHtml(`${item.yearStart}–${item.yearEnd} · ${item.serviceCode} · ${item.description}`)}</small><span>${escapeHtml(`${formatCatalogHours(item.timeHours ?? Number(item.timeMinutes) / 60)} h`)}</span></div>
+      <div><span class="admin-catalog-status is-${escapeHtml(item.status || "draft")}">${item.status === "published" ? "Publicado" : item.status === "disabled" ? "Desativado" : "Rascunho"}</span><strong>${escapeHtml(`${item.make} ${item.model} ${item.engine}`)}</strong><small>${escapeHtml(`${item.yearStart}–${item.yearEnd} · ${item.serviceCode} · ${item.description}`)}</small><span>${escapeHtml(`${formatCatalogHours(item.timeHours ?? Number(item.timeMinutes) / 60)} h`)}</span>${item.source ? `<small class="admin-catalog-provenance">Fonte: ${escapeHtml(item.source)}</small>` : ""}${item.notes ? `<small class="admin-catalog-provenance">${escapeHtml(item.notes)}</small>` : ""}</div>
       <div class="actions"><button class="btn btn-muted" type="button" data-catalog-edit="${escapeHtml(item.id)}">Editar</button>${item.status === "published" ? `<button class="btn btn-danger" type="button" data-catalog-status="disabled" data-catalog-id="${escapeHtml(item.id)}">Desativar</button>` : `<button class="btn btn-primary" type="button" data-catalog-status="published" data-catalog-id="${escapeHtml(item.id)}">Publicar</button>`}</div>
     </article>`).join("") || `<div class="admin-empty">Nenhum tempo técnico cadastrado com estes filtros.</div>`;
   root.querySelectorAll("[data-catalog-edit]").forEach((button) => button.addEventListener("click", () => editAdminLaborTime(button.dataset.catalogEdit)));

@@ -1,0 +1,416 @@
+{
+  "researchedOn": "2026-10-22",
+  "scope": "Pesquisa progressiva de referências gratuitas. Não é levantamento exaustivo das 664 operações nem verificação do banco online.",
+  "inputHashes": {
+    "vehicleConfigsSha256": "f993e290f1bc0ef56ba70d1022a90c3ffef99241aed89088172f50be69e092ce",
+    "laborOperationsSha256": "dc6a99a539d6a2f8194bd9e15fd18409108dc9648fff121df4c3f9e6f33416e0",
+    "researchSha256": "ea112dbbb1b2399921814dd0b8b891fbd52512c2a4c8af3f8e6d3d4bd690e126"
+  },
+  "vehicleConfigurations": 999,
+  "makes": 64,
+  "operations": 664,
+  "potentialCartesianPairs": 663336,
+  "configurationsWithoutDedicatedEngineCode": 999,
+  "configurationsWithoutDedicatedTransmission": 999,
+  "configurationsWithoutDedicatedGeneration": 999,
+  "configurationsSpanningAtLeastTenYears": 302,
+  "consultedDocuments": 28,
+  "consultedApplicationDocuments": 10,
+  "findings": 52,
+  "numericTimes": 50,
+  "pendingApplicationFindings": 13,
+  "pendingOperationScopeFindings": 0,
+  "verifiedReferenceDraftFindings": 30,
+  "findingsWithVerifiedApplicationSubset": 30,
+  "noMatchingConfigurationFindings": 7,
+  "insufficientPrecisionFindings": 2,
+  "candidateConfigurations": 31,
+  "approvedForImport": 30,
+  "approvedForAutomaticPublication": 0,
+  "byMake": [
+    {
+      "make": "Abarth",
+      "configurations": 2,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Agrale",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Alfa Romeo",
+      "configurations": 4,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Aston Martin",
+      "configurations": 7,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Audi",
+      "configurations": 35,
+      "configurationsWithPendingCandidate": 2,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Bentley",
+      "configurations": 4,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "BMW",
+      "configurations": 38,
+      "configurationsWithPendingCandidate": 2,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "BYD",
+      "configurations": 12,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Changan/Chana",
+      "configurations": 2,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Chery/CAOA Chery",
+      "configurations": 14,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Chevrolet",
+      "configurations": 64,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Chrysler",
+      "configurations": 7,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Citroën",
+      "configurations": 32,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Cross Lander",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Daewoo",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Denza",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Dodge",
+      "configurations": 9,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "DS",
+      "configurations": 3,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Effa/Hafei",
+      "configurations": 2,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Ferrari",
+      "configurations": 12,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Fiat",
+      "configurations": 91,
+      "configurationsWithPendingCandidate": 1,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Ford",
+      "configurations": 51,
+      "configurationsWithPendingCandidate": 1,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Foton",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "GAC",
+      "configurations": 5,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Geely",
+      "configurations": 4,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "GWM",
+      "configurations": 5,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Honda",
+      "configurations": 26,
+      "configurationsWithPendingCandidate": 6,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Hyundai",
+      "configurations": 34,
+      "configurationsWithPendingCandidate": 2,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "JAC",
+      "configurations": 14,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Jaecoo",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Jaguar",
+      "configurations": 13,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Jeep",
+      "configurations": 24,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Jinbei",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Kia",
+      "configurations": 27,
+      "configurationsWithPendingCandidate": 2,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Lamborghini",
+      "configurations": 8,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Land Rover",
+      "configurations": 18,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Lexus",
+      "configurations": 11,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Lifan",
+      "configurations": 5,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Mahindra",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Maserati",
+      "configurations": 8,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "McLaren",
+      "configurations": 4,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Mercedes-Benz",
+      "configurations": 40,
+      "configurationsWithPendingCandidate": 2,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "MINI",
+      "configurations": 7,
+      "configurationsWithPendingCandidate": 2,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Mitsubishi",
+      "configurations": 19,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Neta",
+      "configurations": 2,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Nissan",
+      "configurations": 26,
+      "configurationsWithPendingCandidate": 1,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Omoda",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Peugeot",
+      "configurations": 43,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Porsche",
+      "configurations": 26,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Ram",
+      "configurations": 8,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Renault",
+      "configurations": 45,
+      "configurationsWithPendingCandidate": 3,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Rolls-Royce",
+      "configurations": 4,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Seat",
+      "configurations": 4,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Seres",
+      "configurations": 2,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Shineray",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Smart",
+      "configurations": 1,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "SsangYong",
+      "configurations": 7,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Subaru",
+      "configurations": 14,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Suzuki",
+      "configurations": 13,
+      "configurationsWithPendingCandidate": 1,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Toyota",
+      "configurations": 31,
+      "configurationsWithPendingCandidate": 2,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Troller",
+      "configurations": 4,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Volkswagen",
+      "configurations": 74,
+      "configurationsWithPendingCandidate": 3,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Volvo",
+      "configurations": 22,
+      "configurationsWithPendingCandidate": 1,
+      "exhaustiveResearchCompleted": false
+    },
+    {
+      "make": "Zeekr",
+      "configurations": 2,
+      "configurationsWithPendingCandidate": 0,
+      "exhaustiveResearchCompleted": false
+    }
+  ]
+}

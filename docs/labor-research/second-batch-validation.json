@@ -1,0 +1,53 @@
+{
+  "preparedOn": "2026-10-22",
+  "batchSha256": "380157e007e10ab69eb81fb99dfb19d2132ea91d9eba56afc6c3498ca31f0a7a",
+  "validForDraftImport": true,
+  "drafts": [
+    {
+      "id": "labor_import_veh_3d5af76e20bf7d10_EMB-001_2008_2010",
+      "vehicleId": "veh_3d5af76e20bf7d10",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2010,
+      "timeMinutes": 180,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_21c4c41e1e16c32e_EMB-001_2006_2006",
+      "vehicleId": "veh_21c4c41e1e16c32e",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2006,
+      "yearEnd": 2006,
+      "timeMinutes": 180,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_fc9ed61a183878e6_EMB-001_2007_2007",
+      "vehicleId": "veh_fc9ed61a183878e6",
+      "serviceCode": "EMB-001",
+      "fuel": "Gasolina",
+      "yearStart": 2007,
+      "yearEnd": 2007,
+      "timeMinutes": 300,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_8cde074152d5169f_EMB-012_2013_2013",
+      "vehicleId": "veh_8cde074152d5169f",
+      "serviceCode": "EMB-012",
+      "fuel": "Gasolina",
+      "yearStart": 2013,
+      "yearEnd": 2013,
+      "timeMinutes": 402,
+      "status": "draft"
+    }
+  ],
+  "duplicateImportBlocked": true,
+  "adminEditPreservesFuelAndSource": true,
+  "onlineCatalogChecked": false,
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "limitation": "Validação local de estrutura e rastreabilidade. O painel deve conferir conflitos no catálogo online ao salvar; confirmar a montagem e revisar as condições antes de publicar."
+}

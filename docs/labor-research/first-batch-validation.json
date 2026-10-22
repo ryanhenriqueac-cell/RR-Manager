@@ -1,0 +1,23 @@
+{
+  "preparedOn": "2026-10-22",
+  "batchSha256": "458492efac5cdb0e79e6ef635571973cc39d6639c8ed6eac55d60cae4f0ab28d",
+  "validForDraftImport": true,
+  "drafts": [
+    {
+      "id": "labor_import_veh_fda727a70a533aee_SIN-001_2000_2004",
+      "vehicleId": "veh_fda727a70a533aee",
+      "serviceCode": "SIN-001",
+      "fuel": "Gasolina",
+      "yearStart": 2000,
+      "yearEnd": 2004,
+      "timeMinutes": 132,
+      "status": "draft"
+    }
+  ],
+  "duplicateImportBlocked": true,
+  "adminEditPreservesFuelAndSource": true,
+  "onlineCatalogChecked": false,
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "limitation": "Validação local de estrutura e rastreabilidade. O painel deve conferir conflitos no catálogo online ao salvar; confirmar a montagem e revisar as condições antes de publicar."
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-22",
+  "purpose": "Primeiro lote para importar como rascunho. Tempo de referência de procedimento técnico, sujeito a revisão antes da publicação.",
+  "evidence": [
+    {
+      "id": "focus-time",
+      "url": "https://www.techtalk.ie/wp-content/uploads/2017/01/TN_15_045-EN.pdf",
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "supports": "Tempo de 2,2 h na página 1 para o procedimento de correia dentada nos motores EDDB/EDDC/EDDD. As demais páginas descrevem desmontagem, instalação, sincronismo, montagem e teste."
+    },
+    {
+      "id": "focus-time-republication",
+      "url": "https://www.techtips.ie/Contitech/ford-focus---20-litre-16v-timing-belt-guide.pdf",
+      "pages": [
+        1,
+        2
+      ],
+      "supports": "Republicação do mesmo procedimento ContiTech, AUTOBIZ julho/agosto de 2015, páginas impressas 62 e 64; confirma valor e escopo, não é medição independente."
+    },
+    {
+      "id": "focus-br-application",
+      "url": "https://catweb.ms-motorservice.com.br/detalhes.php?cw_pgAtual=199&cw_produtoAtivo=CodigoProduto%3C%212%21%3E4897",
+      "pages": [
+        1
+      ],
+      "supports": "Catálogo brasileiro Motorservice/Pierburg 7.22184.20.0: EDDB 2.0 16V gasolina, GL/Ghia 2000-2004 e GLX 2002-2004. Não contém tempos."
+    }
+  ],
+  "reuseBasis": "Registro limitado ao fato numérico, identificação da aplicação e referências bibliográficas; notas redigidas para o RR Manager. Sem copiar o procedimento, imagens, tabelas ou conceder licença sobre os documentos originais. Não representa autorização contratual do fabricante nem uso do portal REPXPERT.",
+  "records": [
+    {
+      "researchFindingId": "free-focus-2-belt",
+      "vehicleId": "veh_fda727a70a533aee",
+      "serviceCode": "SIN-001",
+      "fuel": "Gasolina",
+      "yearStart": 2000,
+      "yearEnd": 2004,
+      "timeHours": 2.2,
+      "application": "Focus I 2.0 16V Zetec-S, motor EDDB, gasolina. GL/Ghia 2000-2004; GLX 2002-2004. Confirmar EDDB no veículo. Exclui Duratec, flex e outros anos.",
+      "source": {
+        "title": "ContiTech - Focus 2.0 16V EDDB/EDDC/EDDD - TN_15_045-EN",
+        "url": "https://www.techtalk.ie/wp-content/uploads/2017/01/TN_15_045-EN.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-22",
+        "supporting": [
+          {
+            "title": "Catálogo brasileiro - Sensor MAF 7.22184.20.0",
+            "url": "https://catweb.ms-motorservice.com.br/detalhes.php?cw_pgAtual=199&cw_produtoAtivo=CodigoProduto%3C%212%21%3E4897",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA DO PROCEDIMENTO CONTITECH DE CORREIA DENTADA; NÃO É UM TEMPÁRIO FORD DE GARANTIA. A fonte recomenda tensionador, polias e bomba, mas não discrimina horas por componente. O valor pertence ao procedimento citado; não estabelece tempo isolado ou adicional da bomba. Não duplicar em SIN-002/003/004/005 nem somar serviços de desmontagem já incluídos. Publicação exige revisão dessas condições. Aplicação cruzada com catálogo Motorservice/Pierburg 7.22184.20.0; fontes completas no dossiê first-batch.json.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}
