@@ -2189,6 +2189,9 @@ let historyClientId = "";
 function openClienteHistorico(id) {
   if (!hasAccess("clientesVer")) return;
   historyClientId = id;
+  const historyUrl = new URL(window.location.href);
+  historyUrl.searchParams.set("historico", id);
+  window.history.replaceState(null, "", historyUrl);
   const panel = byId("clienteHistorico");
   if (!panel) return;
   panel.hidden = false;
