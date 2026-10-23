@@ -1,0 +1,73 @@
+{
+  "researchedOn": "2026-10-23",
+  "newPreparedDrafts": 38,
+  "enhancedPreviousDrafts": 16,
+  "newPendingOrUnmatched": 9,
+  "expectedTotalDrafts": 68,
+  "sourceBatches": [
+    {
+      "file": "fifth-batch.json",
+      "records": 18
+    },
+    {
+      "file": "sixth-batch.json",
+      "records": 17
+    },
+    {
+      "file": "seventh-batch.json",
+      "records": 3
+    }
+  ],
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "method": [
+    "Fatos numéricos com poucas referências por fonte, sem reproduzir tabelas ou procedimentos integrais.",
+    "Operação, unidade, produto, direção, geração e anos conferidos separadamente.",
+    "Aplicações globaisMANN cruzadas com a ficha do fabricante em português do Brasil; inferência cruzada explicitada, não homologação de todoVIN.",
+    "Códigos de16rascunhosHonda anteriores acrescentados a partir da própria Honda, preservando catálogo específico para geração e câmbio.",
+    "Três JLR são referências históricas de garantiaNA, condicionadas aVIN/código/peça/percurso; a declaração brasileira não prova equivalência integral."
+  ],
+  "peerReview": {
+    "agents": 3,
+    "result": "Fontes e aplicações revisadas em paralelo. Recortes BMW E90 encerrados em2010 e X4 descrito2.0N20B20A245cv; JLRNAS2 conferido visualmente."
+  },
+  "decisions": [
+    "Polo/Virtus mantêm FP26010/15min da fonteBR; globalPoloAWFP26021/6min não transportado.",
+    "MANN global tem duas linhas concorrentes para E90; quatro novas aplicações encerradas em2010.",
+    "FP2939 sem/1 para direção esquerda, alternativa direita não misturada.",
+    "FP19004 é o elemento no compartimento do motor, não todos os filtros de cabine.",
+    "CR-V quatro tempos visuais permanecem pendentes de individualizar versão.",
+    "JLR poliaNAS2=0.3h, separada; não incluída nos registros de correia do gerador.",
+    "Discos por unidade, bateria com testes/recarga e revisões completas não foram convertidos em outras operações."
+  ],
+  "accessLimits": [
+    "PDFHonda2019: texto integral lido no serviço web, download local403.",
+    "GuiasHondaWRV/CRV e MANNglobal renderizados localmente; MANNpáginas1/2/16.",
+    "JLRNAS2textoofuscado resolvido por renderização localpáginas2/3.",
+    "MANNFP1919consulta direta instável; texto da própria ficha recuperado por busca restrita àURL."
+  ],
+  "additionalLeads": [
+    {
+      "url": "https://www.salinasdamargarida.ba.gov.br/HandlerLicitacao.ashx?name=089-2019D.pdf&query=documentosLic%2F669%2F2019%2F089%2F189059.pdf+",
+      "note": "OrçamentoBrione/FiatStrada2017/18, indicação0.5h3310A60; acesso direto falhou e página não conferida. Apenas pista; não importar identificação de pessoas/veículo."
+    },
+    {
+      "url": "https://static.nhtsa.gov/odi/rcl/2019/RCSB-19V086-2926.pdf",
+      "note": "Camaro2017EPS:2.0hbase,+0.1LT1/LT4,+0.4KC4; faltaKC4brasileiro. Alinhamento adicional0.7não embutido."
+    },
+    {
+      "url": "https://www.motor.com/wp-content/uploads/2014-Labor-Guide.pdf",
+      "note": "Amostra2014: sensorcomandoCamaro6.22010–13,2.7h; fonte restrita a25palavras, não ampliar extração."
+    },
+    {
+      "url": "https://haikar.com.br/themes/theme-haikar-site-antigo/assets/uploads/12-09-2018_TABELA_DE_REVIS%C3%95ES_MOD_HONDA_MESA.pdf",
+      "note": "Outra concessionária apresenta tempos diferentes; acesso direto403. Não calcular média nem atribuir tempo universalHonda."
+    }
+  ],
+  "remainingLimits": [
+    "FontesPSA/Renault/Fiat com variantes diferentes de produto não autorizam transferirminutos.",
+    "Discovery4tem6min no global e18 noBrasil; manter pendente.",
+    "Hilux2.5eSprinter415/515possuem datas impossíveis na fonte de minutos.",
+    "Não se pesquisaram exaustivamente64marcas nem664operações."
+  ]
+}

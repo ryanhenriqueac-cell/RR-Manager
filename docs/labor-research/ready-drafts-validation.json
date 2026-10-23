@@ -1,8 +1,8 @@
 {
-  "preparedOn": "2026-10-22",
-  "batchSha256": "673000ec5edd027551bb627cfe83b5d135fb5281224acf1e0e5da2868f9bf85b",
+  "preparedOn": "2026-10-23",
+  "batchSha256": "d4bcc6c938b8668e354898a4d426955d761ffad81edfcf4eee312067780d9721",
   "validForDraftImport": true,
-  "records": 30,
+  "records": 96,
   "allRecordsAreDrafts": true,
   "duplicateImportBlocked": true,
   "sourceBatches": [
@@ -18,13 +18,38 @@
     },
     {
       "file": "docs/labor-research/third-batch.json",
-      "batchSha256": "89cc327287d14d06cfdb6e2df0569f05816482c6d87768a0cb9ec61fb89369ea",
+      "batchSha256": "b9995e84ef1fe2b5e44377c3e8737b4beda4e16be2a3a0a0ec73acd5c069fdde",
       "drafts": 16
     },
     {
       "file": "docs/labor-research/fourth-batch.json",
       "batchSha256": "2a5804db8e0563caa9a124203d44d794cdd110fcbaeb0ebd5ad3b93e32768340",
       "drafts": 9
+    },
+    {
+      "file": "docs/labor-research/fifth-batch.json",
+      "batchSha256": "74f06a7506ce861a4d1034a259e4f5a237dd626374c68f83c4d037c78e6c42ea",
+      "drafts": 18
+    },
+    {
+      "file": "docs/labor-research/sixth-batch.json",
+      "batchSha256": "aee5f8549b31fc6f5f3747193d2c3f3bed0b0ce9b692e0461105c47318d2ccbd",
+      "drafts": 17
+    },
+    {
+      "file": "docs/labor-research/seventh-batch.json",
+      "batchSha256": "6ea54f91afddde4da6df2236d511e1005f05ae5993cb240a121abf6181349f70",
+      "drafts": 3
+    },
+    {
+      "file": "docs/labor-research/eighth-batch.json",
+      "batchSha256": "e6a807cc3f371bdfa6509cffcd60b09e63adb55866f067746b889346a9ed52e7",
+      "drafts": 22
+    },
+    {
+      "file": "docs/labor-research/ninth-batch.json",
+      "batchSha256": "9502eec52abefec6e422825f89dfea836a7c59e38f1e46f1a856d6e58dc27e9b",
+      "drafts": 6
     }
   ],
   "minuteConversionChecked": true,

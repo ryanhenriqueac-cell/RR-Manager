@@ -1,0 +1,73 @@
+{
+  "preparedOn": "2026-10-23",
+  "batchSha256": "9502eec52abefec6e422825f89dfea836a7c59e38f1e46f1a856d6e58dc27e9b",
+  "validForDraftImport": true,
+  "drafts": [
+    {
+      "id": "labor_import_veh_e23925def6acc183_REV-007_2017_2018",
+      "vehicleId": "veh_e23925def6acc183",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2017,
+      "yearEnd": 2018,
+      "timeMinutes": 10,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_aa68e37ba9271e3e_REV-007_2017_2018",
+      "vehicleId": "veh_aa68e37ba9271e3e",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2017,
+      "yearEnd": 2018,
+      "timeMinutes": 10,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_b4399db790a90cb6_REV-007_2017_2018",
+      "vehicleId": "veh_b4399db790a90cb6",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2017,
+      "yearEnd": 2018,
+      "timeMinutes": 10,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_b145fb6377bd9aee_REV-007_2015_2016",
+      "vehicleId": "veh_b145fb6377bd9aee",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2015,
+      "yearEnd": 2016,
+      "timeMinutes": 10,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_c1b82e86ab96983b_REV-007_2015_2016",
+      "vehicleId": "veh_c1b82e86ab96983b",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2015,
+      "yearEnd": 2016,
+      "timeMinutes": 10,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_b5c1c7d2a75f7e77_REV-007_2013_2013",
+      "vehicleId": "veh_b5c1c7d2a75f7e77",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2013,
+      "yearEnd": 2013,
+      "timeMinutes": 15,
+      "status": "draft"
+    }
+  ],
+  "duplicateImportBlocked": true,
+  "adminEditPreservesFuelAndSource": true,
+  "onlineCatalogChecked": false,
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "limitation": "Validação local de estrutura e rastreabilidade. O painel deve conferir conflitos no catálogo online ao salvar; confirmar a montagem e revisar as condições antes de publicar."
+}

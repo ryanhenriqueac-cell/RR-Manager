@@ -1,0 +1,37 @@
+{
+  "researchedOn": "2026-10-23",
+  "newPreparedDrafts": 6,
+  "expectedTotalDrafts": 96,
+  "sourceBatches": [
+    {
+      "file": "ninth-batch.json",
+      "records": 6
+    }
+  ],
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "sourceInspection": [
+    "GuiaMANNCU22011: baixado/renderizado, p.1tempo/produto,pp.2-3LoganII/SanderoII,p.8revisão04.16.",
+    "RenaultBrasil31/12/2018:p.1item38,p.2item71,p.3itens113-116.",
+    "GlobalMANN2019p.10:Fluence15minCUK/FP26005."
+  ],
+  "decisions": [
+    "Os cinco Logan/Sandero usam CU22011 histórico sem /1. Ficha atual indica substituição; não transportar minutos ao sucessor sem conferência.",
+    "Sandero8V: fichaMANN agrupa K4M/K7M erroneamente; somente K7M7648V sustentado pelaRenault.",
+    "FluenceGT: preservar F4R872T daRenault e F4R872 daMANN separados; vínculo condicionado aGTgasolinaM6/climatizaçãoautomática, sem equivalência irrestrita de códigos.",
+    "Datas de transição2014/2016 excluídas quando necessário; fonteglobal2019nãoestendida a anosposteriores.",
+    "Auditor exige identidade e produto por veículo, admitindo documentos distintos para os dois papéis quando o cruzamento está documentado."
+  ],
+  "discarded": [
+    "DusterI/LoganI/SanderoI BR possuem CU22019/2 em fontebrasileira; não transferir minutos FP1829global.",
+    "DusterSCe brasileiro permanece geraçãoI; global10minéDusterIIeuropeu.",
+    "CapturBR:plataforma/procedimento não individualizados.",
+    "Logan1.68V:designaçõesExclusive/EASYRnaMANN versusExpression/DynamiquenaRenault não fechadas.",
+    "FluenceFlex:M4R714/751naMANN versusM4R752/753naRenault; não importar.",
+    "SanderoRS2.0semconfiguração local correspondente."
+  ],
+  "accessLimits": [
+    "URLs antigas HBnhVER1/HBmsHkkq retornam404. Guia atual obtido pelo link da própria ficha CU22011."
+  ],
+  "peerReview": "Dois agentes conferiram aplicações; agente principal inspecionou PDFs renderizados. Pesquisa não exaustiva."
+}

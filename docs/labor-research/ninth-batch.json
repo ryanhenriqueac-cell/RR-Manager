@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-23",
+  "purpose": "Seis referências condicionais Renault, com geração/produto e identificação brasileira cruzadas.",
+  "reuseBasis": "Fatos numéricos limitados, metadados bibliográficos e notas próprias; não declara licença contratual ou reproduz documentos integrais.",
+  "evidence": [
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/cu22011_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://cdn.group.renault.com/ren/br/renault-new-cars/editorial/discover-renault/renault-brasil/pdfs/tabela-ru%C3%ADdo-site-renault-v31-12-12018-05.09.pdf.asset.pdf/c692ecbc84.pdf",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/content/dam/mann-filter/pim-assets/mounting-instruction/MF_Mounting_Instruction_CU_CUK_FP_22_011.pdf",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/cuk26005_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/uk-en/catalogue/search-results/product.html/cuk26005_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+      "accessedOn": "2026-10-23"
+    }
+  ],
+  "records": [
+    {
+      "researchFindingId": "free-cabin-renault-e23925def6acc183-2017-2018",
+      "vehicleId": "veh_e23925def6acc183",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2017,
+      "yearEnd": 2018,
+      "timeHours": 0.16666666666666666,
+      "application": "Novo Logan II 1.0 12V SCe B4D401 M5; Authentique/Expression; confirmar geração II; exclui montagem antiga CU22019/2. Direção à esquerda; confirmar alojamento e produto CU 22 011; não transferir ao sucessor /1.",
+      "source": {
+        "title": "Instrução de montagem CU/CUK/FP 22 011, revisão 04/2016",
+        "url": "https://www.mann-filter.com/content/dam/mann-filter/pim-assets/mounting-instruction/MF_Mounting_Instruction_CU_CUK_FP_22_011.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação CU 22 011",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/cu22011_mann-filter.html",
+            "page": 1
+          },
+          {
+            "title": "Renault Brasil - tabela de ruídos, versão 31/12/2018",
+            "url": "https://cdn.group.renault.com/ren/br/renault-new-cars/editorial/discover-renault/renault-brasil/pdfs/tabela-ru%C3%ADdo-site-renault-v31-12-12018-05.09.pdf.asset.pdf/c692ecbc84.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "10 minutos. Guia CU/CUK/FP22011 p.1 informa 10min; LoganII/SanderoII nas pp.2-3. Manter produto histórico CU22011; não extrapolar ao sucessor /1. Referência de instalação, sem higienização/reparos. Não somar à revisão se já incluído; confirmar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-renault-aa68e37ba9271e3e-2017-2018",
+      "vehicleId": "veh_aa68e37ba9271e3e",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2017,
+      "yearEnd": 2018,
+      "timeHours": 0.16666666666666666,
+      "application": "Sandero II 1.0 12V SCe B4D401 M5; Authentique/Expression; confirmar geração II e alojamento histórico. Direção à esquerda; confirmar alojamento e produto CU 22 011; não transferir ao sucessor /1.",
+      "source": {
+        "title": "Instrução de montagem CU/CUK/FP 22 011, revisão 04/2016",
+        "url": "https://www.mann-filter.com/content/dam/mann-filter/pim-assets/mounting-instruction/MF_Mounting_Instruction_CU_CUK_FP_22_011.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação CU 22 011",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/cu22011_mann-filter.html",
+            "page": 1
+          },
+          {
+            "title": "Renault Brasil - tabela de ruídos, versão 31/12/2018",
+            "url": "https://cdn.group.renault.com/ren/br/renault-new-cars/editorial/discover-renault/renault-brasil/pdfs/tabela-ru%C3%ADdo-site-renault-v31-12-12018-05.09.pdf.asset.pdf/c692ecbc84.pdf",
+            "page": 3
+          }
+        ]
+      },
+      "notes": "10 minutos. Guia CU/CUK/FP22011 p.1 informa 10min; LoganII/SanderoII nas pp.2-3. Manter produto histórico CU22011; não extrapolar ao sucessor /1. Referência de instalação, sem higienização/reparos. Não somar à revisão se já incluído; confirmar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-renault-b4399db790a90cb6-2017-2018",
+      "vehicleId": "veh_b4399db790a90cb6",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2017,
+      "yearEnd": 2018,
+      "timeHours": 0.16666666666666666,
+      "application": "Sandero II 1.6 16V SCe H4M734 M5; Somente Expression/Dynamique manual; exclui robotizado e Stepway H4M735. Direção à esquerda; confirmar alojamento e produto CU 22 011; não transferir ao sucessor /1.",
+      "source": {
+        "title": "Instrução de montagem CU/CUK/FP 22 011, revisão 04/2016",
+        "url": "https://www.mann-filter.com/content/dam/mann-filter/pim-assets/mounting-instruction/MF_Mounting_Instruction_CU_CUK_FP_22_011.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação CU 22 011",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/cu22011_mann-filter.html",
+            "page": 1
+          },
+          {
+            "title": "Renault Brasil - tabela de ruídos, versão 31/12/2018",
+            "url": "https://cdn.group.renault.com/ren/br/renault-new-cars/editorial/discover-renault/renault-brasil/pdfs/tabela-ru%C3%ADdo-site-renault-v31-12-12018-05.09.pdf.asset.pdf/c692ecbc84.pdf",
+            "page": 3
+          }
+        ]
+      },
+      "notes": "10 minutos. Guia CU/CUK/FP22011 p.1 informa 10min; LoganII/SanderoII nas pp.2-3. Manter produto histórico CU22011; não extrapolar ao sucessor /1. Referência de instalação, sem higienização/reparos. Não somar à revisão se já incluído; confirmar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-renault-b145fb6377bd9aee-2015-2016",
+      "vehicleId": "veh_b145fb6377bd9aee",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2015,
+      "yearEnd": 2016,
+      "timeHours": 0.16666666666666666,
+      "application": "Sandero II 1.0 16V D4D754 M5; Authentique/Expression manual; exclui 2014 de transição e geração anterior. Direção à esquerda; confirmar alojamento e produto CU 22 011; não transferir ao sucessor /1.",
+      "source": {
+        "title": "Instrução de montagem CU/CUK/FP 22 011, revisão 04/2016",
+        "url": "https://www.mann-filter.com/content/dam/mann-filter/pim-assets/mounting-instruction/MF_Mounting_Instruction_CU_CUK_FP_22_011.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação CU 22 011",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/cu22011_mann-filter.html",
+            "page": 1
+          },
+          {
+            "title": "Renault Brasil - tabela de ruídos, versão 31/12/2018",
+            "url": "https://cdn.group.renault.com/ren/br/renault-new-cars/editorial/discover-renault/renault-brasil/pdfs/tabela-ru%C3%ADdo-site-renault-v31-12-12018-05.09.pdf.asset.pdf/c692ecbc84.pdf",
+            "page": 3
+          }
+        ]
+      },
+      "notes": "10 minutos. Guia CU/CUK/FP22011 p.1 informa 10min; LoganII/SanderoII nas pp.2-3. Manter produto histórico CU22011; não extrapolar ao sucessor /1. Referência de instalação, sem higienização/reparos. Não somar à revisão se já incluído; confirmar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-renault-c1b82e86ab96983b-2015-2016",
+      "vehicleId": "veh_c1b82e86ab96983b",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2015,
+      "yearEnd": 2016,
+      "timeHours": 0.16666666666666666,
+      "application": "Sandero II 1.6 8V K7M764 M5; Dynamique/Expression/GT Line manual; somente K7M7648V, nunca K4M8V; exclui robotizado. Direção à esquerda; confirmar alojamento e produto CU 22 011; não transferir ao sucessor /1.",
+      "source": {
+        "title": "Instrução de montagem CU/CUK/FP 22 011, revisão 04/2016",
+        "url": "https://www.mann-filter.com/content/dam/mann-filter/pim-assets/mounting-instruction/MF_Mounting_Instruction_CU_CUK_FP_22_011.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação CU 22 011",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/cu22011_mann-filter.html",
+            "page": 1
+          },
+          {
+            "title": "Renault Brasil - tabela de ruídos, versão 31/12/2018",
+            "url": "https://cdn.group.renault.com/ren/br/renault-new-cars/editorial/discover-renault/renault-brasil/pdfs/tabela-ru%C3%ADdo-site-renault-v31-12-12018-05.09.pdf.asset.pdf/c692ecbc84.pdf",
+            "page": 3
+          }
+        ]
+      },
+      "notes": "10 minutos. Guia CU/CUK/FP22011 p.1 informa 10min; LoganII/SanderoII nas pp.2-3. Manter produto histórico CU22011; não extrapolar ao sucessor /1. Referência de instalação, sem higienização/reparos. Não somar à revisão se já incluído; confirmar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-renault-b5c1c7d2a75f7e77-2013-2013",
+      "vehicleId": "veh_b5c1c7d2a75f7e77",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2013,
+      "yearEnd": 2013,
+      "timeHours": 0.25,
+      "application": "Fluence GT 2.0 16V Turbo F4R872T M6; Somente GT gasolina manual com climatização automática. Renault usa F4R872T e MANN F4R872; confirmar código/montagem, sem afirmar equivalência técnica irrestrita. Direção à esquerda; confirmar alojamento e produto CUK 26 005.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 10,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação CUK 26 005",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/cuk26005_mann-filter.html",
+            "page": 1
+          },
+          {
+            "title": "Renault Brasil - tabela de ruídos, versão 31/12/2018",
+            "url": "https://cdn.group.renault.com/ren/br/renault-new-cars/editorial/discover-renault/renault-brasil/pdfs/tabela-ru%C3%ADdo-site-renault-v31-12-12018-05.09.pdf.asset.pdf/c692ecbc84.pdf",
+            "page": 1
+          },
+          {
+            "title": "MANN-FILTER - condição de climatização automática CUK 26 005",
+            "url": "https://www.mann-filter.com/uk-en/catalogue/search-results/product.html/cuk26005_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos. Tempo específico Fluence/ CUK26005 no global2019 p.10; condição de climatização automática na ficha internacional. Designações de código distintas nas fontes, não normalizadas. Referência de instalação, sem higienização/reparos. Não somar à revisão se já incluído; confirmar montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}

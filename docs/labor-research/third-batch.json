@@ -46,7 +46,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.6,
-      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "application": "L15Z3; 1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
       "source": {
         "title": "Fit - tabela de serviços Auto Japan 2019",
         "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
@@ -57,6 +57,11 @@
             "title": "Honda Brasil - catálogo Fit 2019",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
             "page": 7
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
           }
         ]
       },
@@ -75,7 +80,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 1.7,
-      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "application": "L15Z3; 1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
       "source": {
         "title": "Fit - tabela de serviços Auto Japan 2019",
         "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
@@ -86,6 +91,11 @@
             "title": "Honda Brasil - catálogo Fit 2019",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
             "page": 7
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
           }
         ]
       },
@@ -104,7 +114,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.1,
-      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "application": "L15Z3; 1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
       "source": {
         "title": "Fit - tabela de serviços Auto Japan 2019",
         "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
@@ -115,6 +125,11 @@
             "title": "Honda Brasil - catálogo Fit 2019",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
             "page": 7
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
           }
         ]
       },
@@ -133,7 +148,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.4,
-      "application": "1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
+      "application": "L15Z3; 1.5 16V SOHC i-VTEC FlexOne; Fit terceira geração, LX/EX/EXL, transmissão CVT; não aplicar ao DX manual.",
       "source": {
         "title": "Fit - tabela de serviços Auto Japan 2019",
         "url": "https://legado.autoforce.com.br/mods/bdg/tabelas/Fit.pdf",
@@ -144,6 +159,11 @@
             "title": "Honda Brasil - catálogo Fit 2019",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCAMPANHA%20FIT2019_Folheto%20Simples_863x306MM_R16.pdf",
             "page": 7
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
           }
         ]
       },
@@ -162,7 +182,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.6,
-      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "application": "L15Z3; 1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
       "source": {
         "title": "City - tabela de serviços H Motors 2019",
         "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
@@ -173,6 +193,11 @@
             "title": "Honda Brasil - catálogo City 2019",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
             "page": 7
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 1
           }
         ]
       },
@@ -191,7 +216,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 1.7,
-      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "application": "L15Z3; 1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
       "source": {
         "title": "City - tabela de serviços H Motors 2019",
         "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
@@ -202,6 +227,11 @@
             "title": "Honda Brasil - catálogo City 2019",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
             "page": 7
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 1
           }
         ]
       },
@@ -220,7 +250,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.1,
-      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "application": "L15Z3; 1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
       "source": {
         "title": "City - tabela de serviços H Motors 2019",
         "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
@@ -231,6 +261,11 @@
             "title": "Honda Brasil - catálogo City 2019",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
             "page": 7
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 1
           }
         ]
       },
@@ -249,7 +284,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.4,
-      "application": "1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
+      "application": "L15Z3; 1.5 16V SOHC i-VTEC FlexOne; City sedã, Personal/LX/EX/EXL CVT; não aplicar a City Hatchback ou DX manual.",
       "source": {
         "title": "City - tabela de serviços H Motors 2019",
         "url": "https://legado.autoforce.com.br/mods/honda/hmotors/city.pdf",
@@ -260,6 +295,11 @@
             "title": "Honda Brasil - catálogo City 2019",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20City%202019_Catalogo%20YMC_R13.pdf",
             "page": 7
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 1
           }
         ]
       },
@@ -278,7 +318,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.6,
-      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "application": "R18ZC; 1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
       "source": {
         "title": "HR-V - tabela de serviços Flora 2019",
         "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
@@ -289,6 +329,11 @@
             "title": "Honda Brasil - HR-V 2019 na Agrishow",
             "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
             "page": 1
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
           }
         ]
       },
@@ -307,7 +352,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.9,
-      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "application": "R18ZC; 1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
       "source": {
         "title": "HR-V - tabela de serviços Flora 2019",
         "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
@@ -318,6 +363,11 @@
             "title": "Honda Brasil - HR-V 2019 na Agrishow",
             "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
             "page": 1
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
           }
         ]
       },
@@ -336,7 +386,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.1,
-      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "application": "R18ZC; 1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
       "source": {
         "title": "HR-V - tabela de serviços Flora 2019",
         "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
@@ -347,6 +397,11 @@
             "title": "Honda Brasil - HR-V 2019 na Agrishow",
             "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
             "page": 1
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
           }
         ]
       },
@@ -365,7 +420,7 @@
       "yearStart": 2019,
       "yearEnd": 2019,
       "timeHours": 0.4,
-      "application": "1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
+      "application": "R18ZC; 1.8 i-VTEC FlexOne; HR-V 1.8 aspirado LX/EX/EXL CVT; não aplicar a motor turbo ou à geração seguinte.",
       "source": {
         "title": "HR-V - tabela de serviços Flora 2019",
         "url": "https://legado.autoforce.com.br/mods/flora/revisao/hr-v.pdf",
@@ -376,6 +431,11 @@
             "title": "Honda Brasil - HR-V 2019 na Agrishow",
             "url": "https://saladeimprensa.honda.com.br/releases/honda-participa-da-agrishow-2019-com-areas-exclusivas-para-demonstracao-e-teste-dos-seus",
             "page": 1
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
           }
         ]
       },
@@ -394,7 +454,7 @@
       "yearStart": 2018,
       "yearEnd": 2018,
       "timeHours": 0.6,
-      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "application": "R20Z5; 2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
       "source": {
         "title": "Civic 10 - tabela de serviços Flora 2019",
         "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
@@ -405,6 +465,11 @@
             "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
             "page": 15
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 1
           }
         ]
       },
@@ -423,7 +488,7 @@
       "yearStart": 2018,
       "yearEnd": 2018,
       "timeHours": 2.5,
-      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "application": "R20Z5; 2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
       "source": {
         "title": "Civic 10 - tabela de serviços Flora 2019",
         "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
@@ -434,6 +499,11 @@
             "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
             "page": 15
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 1
           }
         ]
       },
@@ -452,7 +522,7 @@
       "yearStart": 2018,
       "yearEnd": 2018,
       "timeHours": 0.2,
-      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "application": "R20Z5; 2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
       "source": {
         "title": "Civic 10 - tabela de serviços Flora 2019",
         "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
@@ -463,6 +533,11 @@
             "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
             "page": 15
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 1
           }
         ]
       },
@@ -481,7 +556,7 @@
       "yearStart": 2018,
       "yearEnd": 2018,
       "timeHours": 0.4,
-      "application": "2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
+      "application": "R20Z5; 2.0 16V SOHC i-VTEC FlexOne; Civic geração 10, Sport/EX/EXL 2.0 CVT; exclui Sport manual, Touring 1.5 turbo e geração 9.",
       "source": {
         "title": "Civic 10 - tabela de serviços Flora 2019",
         "url": "https://legado.autoforce.com.br/mods/flora/revisao/civic.pdf",
@@ -492,6 +567,11 @@
             "title": "Honda Brasil - catálogo Civic 2018, ficha de especificações",
             "url": "https://www.honda.com.br/automoveis/sites/hab/files/2019-06/%5BHONDA%5DCampanha%20Civic%202018_Folheto%20EXL_R8%20%281%29.pdf",
             "page": 15
+          },
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 1
           }
         ]
       },

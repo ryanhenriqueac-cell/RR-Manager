@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-23",
+  "purpose": "Sétimo lote: três referências históricas de garantia JLR norte-americana; ano2016, motor, VIN e correia delimitados; não aprova publicação automática.",
+  "reuseBasis": "Fatos numéricos limitados, identificação bibliográfica e notas próprias. Sem reproduzir tabelas, textos ou imagens integrais e sem declarar licença contratual dos documentos. Sem acesso ao portal REPXPERT.",
+  "evidence": [
+    {
+      "url": "https://static.nhtsa.gov/odi/tsbs/2018/MC-10130728-9999.pdf",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.landrover.com.br/content/dam/lrdx/pdfs/br/Relacao_Land_Rover_dados_tecnicos_-_Tabela_base_site_LR_importados_gasolina_dez_1_2016.pdf",
+      "accessedOn": "2026-10-23"
+    }
+  ],
+  "records": [
+    {
+      "researchFindingId": "free-jlr-generator-828d5e4c17b18535-2016",
+      "vehicleId": "veh_828d5e4c17b18535",
+      "serviceCode": "REV-010",
+      "fuel": "Gasolina",
+      "yearStart": 2016,
+      "yearEnd": 2016,
+      "timeHours": 0.6,
+      "application": "306PS; Range Rover Sport L494/LW V6 3.0SC; VINs finais586563–599998,100000–176663 ou652358–694293; fábricaSolihull, ano2016, confirmar código, VIN e percurso da correia LR035543.",
+      "source": {
+        "title": "LTB01034NAS2 - Engine Accessory Drive Idler Pulley and Belt Failure",
+        "url": "https://static.nhtsa.gov/odi/tsbs/2018/MC-10130728-9999.pdf",
+        "page": 3,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "JLR Brasil - dados técnicos dos importados gasolina, revisão28/11/2016",
+            "url": "https://www.landrover.com.br/content/dam/lrdx/pdfs/br/Relacao_Land_Rover_dados_tecnicos_-_Tabela_base_site_LR_importados_gasolina_dez_1_2016.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DE GARANTIA NORTE-AMERICANA, revisão2018, SRO86.10.03. Não é tempário de varejo brasileiro. Só correia do gerador LR035543; exclui polia e correia do supercharger. Não somar desmontagens já incluídas; confirmar equivalência da montagem e condições antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-jlr-generator-5c0b3a1277f72e89-2016",
+      "vehicleId": "veh_5c0b3a1277f72e89",
+      "serviceCode": "REV-010",
+      "fuel": "Gasolina",
+      "yearStart": 2016,
+      "yearEnd": 2016,
+      "timeHours": 0.7,
+      "application": "508PS; Range Rover Sport L494/LW V8 5.0SC; VINs finais586563–599998,100000–176663 ou652358–694293; fábricaSolihull, ano2016, confirmar código, VIN e percurso da correia LR035542.",
+      "source": {
+        "title": "LTB01034NAS2 - Engine Accessory Drive Idler Pulley and Belt Failure",
+        "url": "https://static.nhtsa.gov/odi/tsbs/2018/MC-10130728-9999.pdf",
+        "page": 3,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "JLR Brasil - dados técnicos dos importados gasolina, revisão28/11/2016",
+            "url": "https://www.landrover.com.br/content/dam/lrdx/pdfs/br/Relacao_Land_Rover_dados_tecnicos_-_Tabela_base_site_LR_importados_gasolina_dez_1_2016.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DE GARANTIA NORTE-AMERICANA, revisão2018, SRO86.10.03. Não é tempário de varejo brasileiro. Só correia do gerador LR035542; exclui polia e correia do supercharger. Não somar desmontagens já incluídas; confirmar equivalência da montagem e condições antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-jlr-generator-3d2dc7b9ddd3d46a-2016",
+      "vehicleId": "veh_3d2dc7b9ddd3d46a",
+      "serviceCode": "REV-010",
+      "fuel": "Gasolina",
+      "yearStart": 2016,
+      "yearEnd": 2016,
+      "timeHours": 0.7,
+      "application": "508PS; Range Rover L405/LG V8 5.0SC; VINs finais286494–376035; fábricaSolihull, ano2016, confirmar código, VIN e percurso da correia LR035542.",
+      "source": {
+        "title": "LTB01034NAS2 - Engine Accessory Drive Idler Pulley and Belt Failure",
+        "url": "https://static.nhtsa.gov/odi/tsbs/2018/MC-10130728-9999.pdf",
+        "page": 3,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "JLR Brasil - dados técnicos dos importados gasolina, revisão28/11/2016",
+            "url": "https://www.landrover.com.br/content/dam/lrdx/pdfs/br/Relacao_Land_Rover_dados_tecnicos_-_Tabela_base_site_LR_importados_gasolina_dez_1_2016.pdf",
+            "page": 2
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DE GARANTIA NORTE-AMERICANA, revisão2018, SRO86.10.03. Não é tempário de varejo brasileiro. Só correia do gerador LR035542; exclui polia e correia do supercharger. Não somar desmontagens já incluídas; confirmar equivalência da montagem e condições antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}

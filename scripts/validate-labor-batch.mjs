@@ -10,7 +10,7 @@ const hash = (file) => crypto.createHash("sha256").update(fs.readFileSync(new UR
 const research = read("docs/labor-research/free-sources.json");
 const vehicles = read("data/vehicle-configs.json");
 const operations = read("data/labor-operations.json");
-const files = ["first", "second", "third", "fourth"].map((name) => `docs/labor-research/${name}-batch.json`);
+const files = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth"].map((name) => `docs/labor-research/${name}-batch.json`);
 const code = fs.readFileSync(new URL("firebase-sync.js", root), "utf8");
 const handler = code.slice(code.indexOf("function getAdminCatalogFormData("), code.indexOf("\nasync function saveAdminLaborTime("));
 assert.ok(handler.length > 100);
@@ -91,7 +91,7 @@ assert.ok(focus);
 assert.equal(focus.timeMinutes, 132);
 assert.equal(focus.fuel, "Gasolina");
 assert.match(focus.notes, /NÃO DISCRIMINA HORAS POR COMPONENTE/);
-// A single reviewable file avoids requiring the administrator to upload four separate batches.
+// A single reviewable file avoids requiring the administrator to upload separate batches.
 const consolidatedFile = "docs/labor-research/ready-drafts.json";
 const consolidated = {
   schemaVersion: 1,
@@ -111,8 +111,14 @@ const fitMann = allRows.find((item) => item.vehicleId === "veh_24dfb78b902f789b"
 assert.equal(fitDealer.timeMinutes, 6);
 assert.equal(fitMann.timeMinutes, 10);
 assert.ok(fitMann.notes.includes("FP 21 003"));
-assert.equal(allRows.filter((item) => item.serviceCode === "SUD-002").length, 4);
+assert.equal(allRows.filter((item) => item.serviceCode === "SUD-002").length, 5);
 assert.ok(allRows.filter((item) => item.serviceCode === "SUD-002").every((item) => item.unit === "EIXO"));
+// Shared filter products do not imply equal installation times across models.
+const cayenne = allRows.find(item => item.vehicleId === 'veh_d1e2beeeeedb4862' && item.serviceCode === 'REV-007');
+const q7 = allRows.find(item => item.vehicleId === 'veh_132565b54b56f24e' && item.yearStart === 2011 && item.serviceCode === 'REV-007');
+assert.equal(cayenne.timeMinutes, 12);
+assert.equal(q7.timeMinutes, 10);
+assert.equal(allRows.find(item => item.vehicleId === 'veh_538874f891e86b31' && item.serviceCode === 'REV-007').timeMinutes, 20);
 fs.writeFileSync(new URL(consolidatedFile, root), JSON.stringify(consolidated, null, 2) + "\n");
 fs.writeFileSync(new URL(consolidatedFile.replace(/\.json$/, "-validation.json"), root), JSON.stringify({
   preparedOn: research.researchedOn, batchSha256: hash(consolidatedFile), validForDraftImport: true,

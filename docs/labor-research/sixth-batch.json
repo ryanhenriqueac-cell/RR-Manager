@@ -1,0 +1,527 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-23",
+  "purpose": "Sexto lote: 17 instalações MANN global/2019 cruzadas com produto e versão do catálogo em português do Brasil.",
+  "reuseBasis": "Fatos numéricos limitados, identificação bibliográfica e notas próprias. Sem reproduzir tabelas, textos ou imagens integrais e sem declarar licença contratual dos documentos. Sem acesso ao portal REPXPERT.",
+  "evidence": [
+    {
+      "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp25001_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp8430_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp19004_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26010_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2939_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    }
+  ],
+  "records": [
+    {
+      "researchFindingId": "free-cabin-global19-6d3b2290d77523c1-2012-2014",
+      "vehicleId": "veh_6d3b2290d77523c1",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2012,
+      "yearEnd": 2014,
+      "timeHours": 0.35,
+      "application": "118i F20/F21 N13B16; Série1 F20/F21 118i, direção esquerda; exclui geração anterior. Produto FP 25 001.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 25001",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp25001_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "21 minutos para FP 25 001. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-ee8919b054e0a93f-2008-2010",
+      "vehicleId": "veh_ee8919b054e0a93f",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2010,
+      "timeHours": 0.25,
+      "application": "320i E90 2.0; E90 320i; fonte de aplicação não informa código ou aspiração. Encerrar em2010 devido às duas linhas concorrentes para E90 no global. Produto FP 8430.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 8430",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp8430_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 8430. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-0120bef34d967711-2006-2010",
+      "vehicleId": "veh_0120bef34d967711",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2006,
+      "yearEnd": 2010,
+      "timeHours": 0.25,
+      "application": "325i E90 N52B25 2.5; Somente N52B25 de2.5litros, exclui325i3.0/N53. Recorte até2010 evita duplicação editorial do global. Produto FP 8430.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 8430",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp8430_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 8430. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-6738fa3cc7968862-2007-2010",
+      "vehicleId": "veh_6738fa3cc7968862",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2007,
+      "yearEnd": 2010,
+      "timeHours": 0.25,
+      "application": "335i E90 N54B30A/N55B30A; E90/E92/E93, confirmar motor/geração. Recorte até2010 evita linha concorrente do global. Produto FP 8430.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 8430",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp8430_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 8430. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-7ac57a2391e47171-2008-2010",
+      "vehicleId": "veh_7ac57a2391e47171",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2010,
+      "timeHours": 0.25,
+      "application": "M3 E90/E92/E93 S65B40A; Somente M3 V8 S65, não Série3genérico. Recorte até2010 evita linha concorrente. Produto FP 8430.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 8430",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp8430_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 8430. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-ee8919b054e0a93f-2012-2013",
+      "vehicleId": "veh_ee8919b054e0a93f",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2012,
+      "yearEnd": 2013,
+      "timeHours": 0.35,
+      "application": "328i F30 N20B20A; F30 gasolina N20B20A; não aplicar a320iE90, Flex ou motores posteriores. Produto FP 25 001.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 25001",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp25001_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "21 minutos para FP 25 001. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-5e6ca73f1a461537-2013-2016",
+      "vehicleId": "veh_5e6ca73f1a461537",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2013,
+      "yearEnd": 2016,
+      "timeHours": 0.16666666666666666,
+      "application": "X3 F25 28i N20B20A; Elemento específico no compartimento do motor; não promete troca de todos os elementos de cabine. Produto FP 19 004.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 19004",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp19004_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "10 minutos para FP 19 004. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-85d934fead16441f-2012-2016",
+      "vehicleId": "veh_85d934fead16441f",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2012,
+      "yearEnd": 2016,
+      "timeHours": 0.16666666666666666,
+      "application": "X3 F25 35i N55B30A; Elemento específico no compartimento do motor; não promete troca de todos os elementos de cabine. Produto FP 19 004.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 19004",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp19004_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "10 minutos para FP 19 004. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-6077144eee6486a9-2015-2017",
+      "vehicleId": "veh_6077144eee6486a9",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2015,
+      "yearEnd": 2017,
+      "timeHours": 0.16666666666666666,
+      "application": "X4 F26 2.0 N20B20A 245cv; Ficha BR identifica2.0/245cv; não inventar nome28i. Elemento no compartimento do motor. Produto FP 19 004.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 19004",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp19004_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "10 minutos para FP 19 004. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-2b067e95103f44a6-2015-2017",
+      "vehicleId": "veh_2b067e95103f44a6",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2015,
+      "yearEnd": 2017,
+      "timeHours": 0.16666666666666666,
+      "application": "X4 F26 35i N55B30A; Elemento específico no compartimento do motor; não inclui todos os elementos de cabine. Produto FP 19 004.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 19004",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp19004_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "10 minutos para FP 19 004. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-442c04bda91a25db-2011-2014",
+      "vehicleId": "veh_442c04bda91a25db",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2011,
+      "yearEnd": 2014,
+      "timeHours": 0.25,
+      "application": "A1 8X 1.4 CAXA/CNVA; Somente A1 8X; exclui GB/FP26021/6min. Produto FP 26 010.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26010",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26010_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 26 010. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-e5e5a66bf58bc8fc-2007-2012",
+      "vehicleId": "veh_e5e5a66bf58bc8fc",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2007,
+      "yearEnd": 2012,
+      "timeHours": 0.2,
+      "application": "A3 8P 2.0 TFSI; A3 8P com ar-condicionado, direção esquerda; produto sem sufixo/1; não aplicar a8V. Produto FP 2939.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 2939",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2939_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "12 minutos para FP 2939. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-a141451fdcf1205b-2015-2017",
+      "vehicleId": "veh_a141451fdcf1205b",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2015,
+      "yearEnd": 2017,
+      "timeHours": 0.2,
+      "application": "Q3 8U 2.0 CULC; Q3 8U, direção esquerda, FP2939 sem/1; não aplicar aF3. Produto FP 2939.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 2939",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2939_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "12 minutos para FP 2939. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-47688809a9db43b6-2007-2009",
+      "vehicleId": "veh_47688809a9db43b6",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2007,
+      "yearEnd": 2009,
+      "timeHours": 0.2,
+      "application": "TT 8J 2.0 BWA/BPY/CCZA/CCTA; TT 8J, direção esquerda, produto sem/1; recorte antes da transição2010. Produto FP 2939.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 2939",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2939_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "12 minutos para FP 2939. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-cd156ddd3b358e6e-2013-2014",
+      "vehicleId": "veh_cd156ddd3b358e6e",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2013,
+      "yearEnd": 2014,
+      "timeHours": 0.2,
+      "application": "TT RS 8J 2.5 CEPA; Somente TT RS8J CEPA, direção esquerda, produto sem/1. Produto FP 2939.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 2939",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2939_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "12 minutos para FP 2939. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-206d492aeed25859-2012-2016",
+      "vehicleId": "veh_206d492aeed25859",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2012,
+      "yearEnd": 2016,
+      "timeHours": 0.2,
+      "application": "Tiguan I 5N CAWB/CCTA/CCZA; TiguanI5N, direção esquerda, produto sem/1; não TiguanII/Allspace. Produto FP 2939.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 16,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 2939",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2939_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "12 minutos para FP 2939. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-global19-a6be15a3d178bf09-2008-2009",
+      "vehicleId": "veh_a6be15a3d178bf09",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2008,
+      "yearEnd": 2009,
+      "timeHours": 0.2,
+      "application": "Passat B6/3C 2.0 TFSI; PassatB6/3C, direção esquerda, produto sem/1; não generalizar para B8. Produto FP 2939.",
+      "source": {
+        "title": "FreciousPlus model overview - January 2019",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/en/documents/freciousplus-model-overview.pdf",
+        "page": 16,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 2939",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2939_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "12 minutos para FP 2939. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}

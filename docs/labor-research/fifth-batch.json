@@ -1,0 +1,592 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-10-23",
+  "purpose": "Quinto lote: quatro referências WR-V e 14 instalações MANN Brasil; somente rascunhos com aplicação restrita.",
+  "reuseBasis": "Fatos numéricos limitados, identificação bibliográfica e notas próprias. Sem reproduzir tabelas, textos ou imagens integrais e sem declarar licença contratual dos documentos. Sem acesso ao portal REPXPERT.",
+  "evidence": [
+    {
+      "url": "https://legado.autoforce.com.br/mods/flora/revisao/wr-v.pdf",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/wk58/1_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26010_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2450_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp8430_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26007_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp1919_mann-filter.html",
+      "accessedOn": "2026-10-23"
+    },
+    {
+      "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/cat%C3%A1logo/catalogo_mann_filter_LEVE_2022_2023_web.pdf",
+      "accessedOn": "2026-10-23"
+    }
+  ],
+  "records": [
+    {
+      "researchFindingId": "free-wrv-2019-frd-001",
+      "vehicleId": "veh_3196fcc01e058a62",
+      "serviceCode": "FRD-001",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.6,
+      "application": "L15Z9; WR-V primeira geração EX/EXL 1.5 16V Flex CVT, somente2019; confirmar montagem.",
+      "source": {
+        "title": "WR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/wr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
+          },
+          {
+            "title": "MANN-FILTER WK58/1 - dimensões de motor e versões Honda",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/wk58/1_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA, não garantia Honda. Pastilhas dianteiras do eixo; exclui discos, retífica e sangria. Não somar a revisão que já inclua este serviço; revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-wrv-2019-sud-002",
+      "vehicleId": "veh_3196fcc01e058a62",
+      "serviceCode": "SUD-002",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 1.7,
+      "application": "L15Z9; WR-V primeira geração EX/EXL 1.5 16V Flex CVT, somente2019; confirmar montagem.",
+      "source": {
+        "title": "WR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/wr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
+          },
+          {
+            "title": "MANN-FILTER WK58/1 - dimensões de motor e versões Honda",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/wk58/1_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA, não garantia Honda. Amortecedores dianteiros, o par; não duplicar por lado nem acrescentar kits ou alinhamento. Não somar a revisão que já inclua este serviço; revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-wrv-2019-rev-007",
+      "vehicleId": "veh_3196fcc01e058a62",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.1,
+      "application": "L15Z9; WR-V primeira geração EX/EXL 1.5 16V Flex CVT, somente2019; confirmar montagem.",
+      "source": {
+        "title": "WR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/wr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
+          },
+          {
+            "title": "MANN-FILTER WK58/1 - dimensões de motor e versões Honda",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/wk58/1_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA, não garantia Honda. Filtro de cabine; exclui higienização e recarga de gás. Não somar a revisão que já inclua este serviço; revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-wrv-2019-rev-003",
+      "vehicleId": "veh_3196fcc01e058a62",
+      "serviceCode": "REV-003",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2019,
+      "timeHours": 0.4,
+      "application": "L15Z9; WR-V primeira geração EX/EXL 1.5 16V Flex CVT, somente2019; confirmar montagem.",
+      "source": {
+        "title": "WR-V - tabela de serviços Flora 2019",
+        "url": "https://legado.autoforce.com.br/mods/flora/revisao/wr-v.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "Honda Brasil - tabela de ruído parado, agosto 2019",
+            "url": "https://www.honda.com.br/automoveis/sites/hab/files/aviso-ruido/Tabela_Emissoes_Ruidos_Agosto2019.pdf",
+            "page": 2
+          },
+          {
+            "title": "MANN-FILTER WK58/1 - dimensões de motor e versões Honda",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/wk58/1_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "REFERÊNCIA HISTÓRICA DA CONCESSIONÁRIA, não garantia Honda. Óleo do motor e filtro juntos; não desmembrar em duas cobranças. Não somar a revisão que já inclua este serviço; revisar antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-5d1934b2b1663aa3-2018-2020",
+      "vehicleId": "veh_5d1934b2b1663aa3",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2020,
+      "timeHours": 0.25,
+      "application": "Polo MPI 1.0 12V EA211; Polo brasileiro, sem armação plástica original; rótulo PoloIV/9N da fonte é inconsistente com EA211 moderno. Produto FP 26 010.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26010",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26010_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 26 010. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-4257bc6416a510a9-2018-2020",
+      "vehicleId": "veh_4257bc6416a510a9",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2018,
+      "yearEnd": 2020,
+      "timeHours": 0.25,
+      "application": "Polo TSI 1.0 12V EA211; Polo brasileiro, sem armação plástica original; não usar6min do PoloAW europeu com FP26021. Produto FP 26 010.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26010",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26010_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 26 010. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-cf82d86948d02dd7-2019-2020",
+      "vehicleId": "veh_cf82d86948d02dd7",
+      "serviceCode": "REV-007",
+      "fuel": "Flex",
+      "yearStart": 2019,
+      "yearEnd": 2020,
+      "timeHours": 0.25,
+      "application": "Virtus 1.0 200TSI DHSB; Virtus brasileiro, filtro sem armação plástica original; não aplicar a1.6MSI ou produto FP26021. Produto FP 26 010.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26010",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26010_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 26 010. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-a8bc7cc7e5f1b851-2009-2014",
+      "vehicleId": "veh_a8bc7cc7e5f1b851",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2009,
+      "yearEnd": 2014,
+      "timeHours": 0.3333333333333333,
+      "application": "A4 B8 2.0 TFSI; A4 B8/8K; exclui B9/8W com outro produto. Produto FP 2450.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 2450",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2450_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "20 minutos para FP 2450. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-7242b2bba71cb6bf-2009-2014",
+      "vehicleId": "veh_7242b2bba71cb6bf",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2009,
+      "yearEnd": 2014,
+      "timeHours": 0.3333333333333333,
+      "application": "A5 8T/8F 2.0 TFSI; A5 primeira geração8T/8F; exclui F5. Produto FP 2450.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 2450",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp2450_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "20 minutos para FP 2450. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-860a0f0969b87ee3-2011-2014",
+      "vehicleId": "veh_860a0f0969b87ee3",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2011,
+      "yearEnd": 2014,
+      "timeHours": 0.25,
+      "application": "X1 E84 18i N46B20A; Somente18i aspirado E84 N46B20A; exclui Flex e F48. Produto FP 8430.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 8430",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp8430_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "15 minutos para FP 8430. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-0002cb2cd7b1c80b-2014-2015",
+      "vehicleId": "veh_0002cb2cd7b1c80b",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2015,
+      "timeHours": 0.08333333333333333,
+      "application": "A200 Style W176 M270.910; W176 A200Style gasolina, direção esquerda; não estender a Flex ou W177. Produto FP 26 007.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26007",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26007_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "5 minutos para FP 26 007. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-2a8a77c64e9a1d91-2015-2017",
+      "vehicleId": "veh_2a8a77c64e9a1d91",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2015,
+      "yearEnd": 2017,
+      "timeHours": 0.08333333333333333,
+      "application": "A250 W176 M270.920; W176 A250, direção esquerda; não generalizar para qualquer ClasseA2.0. Produto FP 26 007.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26007",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26007_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "5 minutos para FP 26 007. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-a398013bcfc408af-2014-2018",
+      "vehicleId": "veh_a398013bcfc408af",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2018,
+      "timeHours": 0.08333333333333333,
+      "application": "CLA200 C117 M270.910; CLA200 C117, direção esquerda; exclui C118. Produto FP 26 007.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 1,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26007",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26007_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "5 minutos para FP 26 007. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-0df2abea6e9b7768-2015-2015",
+      "vehicleId": "veh_0df2abea6e9b7768",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2015,
+      "yearEnd": 2015,
+      "timeHours": 0.08333333333333333,
+      "application": "GLA200 X156 M270.910; GLA200 X156, direção esquerda; excluir geração seguinte. Produto FP 26 007.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26007",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26007_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "5 minutos para FP 26 007. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-2d62fa2a714dc57b-2016-2018",
+      "vehicleId": "veh_2d62fa2a714dc57b",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2016,
+      "yearEnd": 2018,
+      "timeHours": 0.08333333333333333,
+      "application": "GLA250 X156 M270.920; GLA250 X156, direção esquerda; excluir geração seguinte. Produto FP 26 007.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 26007",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp26007_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "5 minutos para FP 26 007. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-76a36eb39375e665-2008-2014",
+      "vehicleId": "veh_76a36eb39375e665",
+      "serviceCode": "REV-007",
+      "fuel": "Diesel",
+      "yearStart": 2008,
+      "yearEnd": 2014,
+      "timeHours": 0.16666666666666666,
+      "application": "Hilux 3.0 16V 1KD-FTV; Somente KUN1/KUN2 1KD-FTV; não transferir à2.8geração seguinte. Produto FP 1919.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 1919",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp1919_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "10 minutos para FP 1919. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-05613ea5b572babc-2013-2015",
+      "vehicleId": "veh_05613ea5b572babc",
+      "serviceCode": "REV-007",
+      "fuel": "Híbrido",
+      "yearStart": 2013,
+      "yearEnd": 2015,
+      "timeHours": 0.16666666666666666,
+      "application": "Prius ZVW30 1.8 2ZR-FXE; Somente ZVW30; não aplicar a ZVW50 e filtro FP22032. Produto FP 1919.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER - aplicação FP 1919",
+            "url": "https://www.mann-filter.com/br-pt/catalogo/resultados-da-pesquisa/produto.html/fp1919_mann-filter.html",
+            "page": 1
+          }
+        ]
+      },
+      "notes": "10 minutos para FP 1919. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    },
+    {
+      "researchFindingId": "free-cabin-br21-0bc5987344857d5b-2014-2018",
+      "vehicleId": "veh_0bc5987344857d5b",
+      "serviceCode": "REV-007",
+      "fuel": "Gasolina",
+      "yearStart": 2014,
+      "yearEnd": 2018,
+      "timeHours": 0.16666666666666666,
+      "application": "RAV4 IV 2.5 2AR-FE; Somente RAV4IV gasolina; exclui híbrido e geração seguinte. Produto FP 1919.",
+      "source": {
+        "title": "FreciousPlus - tabela de aplicação Linha Leve - junho 2021",
+        "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/Mann_Filter_-_Tabela_Frecious_Plus_-_Junho_2021_-_WEB.pdf",
+        "page": 2,
+        "accessedOn": "2026-10-23",
+        "supporting": [
+          {
+            "title": "MANN-FILTER Brasil 2022-2023 - Toyota, RAV4 IV",
+            "url": "https://www.mann-filter.com/content/dam/website/mann-filter/mann-filter-com/br-pt/documents/cat%C3%A1logo/catalogo_mann_filter_LEVE_2022_2023_web.pdf",
+            "page": 114
+          }
+        ]
+      },
+      "notes": "10 minutos para FP 1919. Referência de instalação do produto FreciousPlus indicado, não tempário OEM de garantia. Exclui higienização, reparo do alojamento e outros filtros. Não somar à revisão se já incluído; confirmar geração, versão, direção e montagem antes de publicar.",
+      "applicationVerified": true,
+      "operationVerified": true,
+      "reuseAllowed": true,
+      "researchStatus": "verified",
+      "publicationReviewRequired": true
+    }
+  ]
+}

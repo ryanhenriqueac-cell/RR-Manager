@@ -1,0 +1,35 @@
+{
+  "researchedOn": "2026-10-23",
+  "newPreparedDrafts": 22,
+  "expectedTotalDrafts": 90,
+  "sourceBatches": [
+    {
+      "file": "eighth-batch.json",
+      "records": 22
+    }
+  ],
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "method": [
+    "Tempo por geração e produto cruzado com ficha de aplicação por versão/motor. Consulta em português do Brasil não prova homologação de todo VIN.",
+    "Global de janeiro de 2019: aplicações abertas limitadas até 2018; recortes mais estreitos quando a base ou a ficha exigem.",
+    "Conferência independente por dois agentes; páginas 1, 7, 10, 14 e 15 do global e 1, 4 e 5 do guia CU2442 renderizadas e inspecionadas."
+  ],
+  "decisions": [
+    "FP2842: Cayenne 12 minutos e Q7 10 minutos. Produto compartilhado não autoriza copiar tempo.",
+    "Fox FP26010 somente sem armação plástica original; SpaceFox/SpaceCross excluídos.",
+    "FP29005 sem /1 para direção à esquerda; W205 e E207 excluídos das aplicações W204/W212.",
+    "XC60 T5 B4204T11 limitado a Gasolina; combustível composto da base não foi ampliado.",
+    "Cruze 20 minutos CU/CUK/FP2442: guia identifica Cruze nas páginas 4-5; não extrapolado a outros Chevrolet.",
+    "Corrigida página do tempo GM 20-NA-218 para 5; aplicação página 1 e Brasil página 2. Equinox permanece sem configuração correspondente."
+  ],
+  "remainingLeads": [
+    "BMW X5/X6 não constam na fonte global examinada.",
+    "BMW Série 5/7: aplicações exatas FP3139 e FP2533-2 não fechadas; FP3139 possui dois elementos e não autoriza multiplicar o tempo.",
+    "FP2533-2: divergência entre instrução indexada de 24 min e global de 15 min; URL do guia retorna 404.",
+    "Audi A6/A7/A8 com mudança de geração ou assistência híbrida: falta aplicação brasileira individualizada.",
+    "Macan possui conflito interno de rótulo 3.6 e cilindrada 2997 cm³; não preparado.",
+    "Fiat CU2335 e FP2335 KIT: divergência de produto/dimensões e geração; não transpor minutos.",
+    "Não houve pesquisa exaustiva das 64 marcas ou 664 operações."
+  ]
+}

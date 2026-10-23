@@ -1,0 +1,43 @@
+{
+  "preparedOn": "2026-10-23",
+  "batchSha256": "6ea54f91afddde4da6df2236d511e1005f05ae5993cb240a121abf6181349f70",
+  "validForDraftImport": true,
+  "drafts": [
+    {
+      "id": "labor_import_veh_828d5e4c17b18535_REV-010_2016_2016",
+      "vehicleId": "veh_828d5e4c17b18535",
+      "serviceCode": "REV-010",
+      "fuel": "Gasolina",
+      "yearStart": 2016,
+      "yearEnd": 2016,
+      "timeMinutes": 36,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_5c0b3a1277f72e89_REV-010_2016_2016",
+      "vehicleId": "veh_5c0b3a1277f72e89",
+      "serviceCode": "REV-010",
+      "fuel": "Gasolina",
+      "yearStart": 2016,
+      "yearEnd": 2016,
+      "timeMinutes": 42,
+      "status": "draft"
+    },
+    {
+      "id": "labor_import_veh_3d2dc7b9ddd3d46a_REV-010_2016_2016",
+      "vehicleId": "veh_3d2dc7b9ddd3d46a",
+      "serviceCode": "REV-010",
+      "fuel": "Gasolina",
+      "yearStart": 2016,
+      "yearEnd": 2016,
+      "timeMinutes": 42,
+      "status": "draft"
+    }
+  ],
+  "duplicateImportBlocked": true,
+  "adminEditPreservesFuelAndSource": true,
+  "onlineCatalogChecked": false,
+  "databaseWritesPerformed": 0,
+  "automaticPublicationApproved": false,
+  "limitation": "Validação local de estrutura e rastreabilidade. O painel deve conferir conflitos no catálogo online ao salvar; confirmar a montagem e revisar as condições antes de publicar."
+}
