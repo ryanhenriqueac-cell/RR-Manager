@@ -2,6 +2,8 @@
 
 Atualização: 2026-10-23. Fontes gratuitas e abertas, sem REPXPERT, criação de conta em portais técnicos ou contato externo. O levantamento ainda não cobre todas as configurações e operações. Após a pesquisa, os 96 rascunhos foram cadastrados no Firebase e conferidos por nova leitura, conforme o [relatório de importação efetiva](catalog-import-2026-10-23.json).
 
+**Situação online em 23/10/2026:** os 97 tempos do catálogo estão publicados, sem rascunhos pendentes. A pedido explícito do usuário, os 93 que ainda estavam em rascunho foram publicados em uma transação, preservando os quatro já publicados. O [relatório de publicação](catalog-publication-2026-10-23.json) registra a conferência posterior de todos os campos, a preservação dos dados técnicos e o histórico da alteração. A publicação não acrescenta validação técnica independente às fontes ou às condições de aplicação documentadas.
+
 O [lote consolidado](ready-drafts.json) contém **96 rascunhos condicionais**, com fonte, página, data, aplicação e notas. O [relatório](ready-drafts-validation.json) registra hashes, conversão de minutos, preservação das fontes ao editar e bloqueio de reimportação. O arquivo não é carregado automaticamente pelo site.
 
 ## Cobertura registrada
@@ -62,9 +64,11 @@ reuseAllowed se refere ao uso limitado de fatos numéricos, metadados e notas pr
 
 ## Importação e verificação
 
-**Cadastro online confirmado em 23/10/2026:** a coleção labor_time_catalog passou de um registro publicado para **97 registros: 96 rascunhos e um publicado**. A gravação foi atômica, com condição de inexistência em todos os novos IDs. Todos os campos dos 96 rascunhos foram lidos novamente e comparados; o documento preexistente do T-Cross foi preservado integralmente. A conexão autenticada existente da Firebase CLI foi usada via IAM, sem copiar credenciais para arquivos ou relatórios.
+**Importação online confirmada em 23/10/2026:** a coleção labor_time_catalog passou de um registro publicado para **97 registros: inicialmente 96 rascunhos e um publicado**. A gravação foi atômica, com condição de inexistência em todos os novos IDs. Todos os campos dos 96 rascunhos foram lidos novamente e comparados; o documento preexistente do T-Cross foi preservado integralmente. A conexão autenticada existente da Firebase CLI foi usada via IAM, sem copiar credenciais para arquivos ou relatórios.
 
-No painel administrativo, atualizar a página e selecionar **Todos** ou **Rascunhos** para ver os registros cadastrados. Os 96 ainda exigem revisão antes da publicação e não aparecem na lista das oficinas enquanto estiverem em rascunho.
+**Publicação posterior confirmada em 23/10/2026:** havia quatro publicados e 93 rascunhos na leitura anterior à execução. Todos os 93 rascunhos foram publicados por solicitação explícita do usuário; a nova leitura confirmou **97 publicados e nenhum rascunho**. Cada alteração incrementou a revisão e preservou o estado anterior no histórico. Fonte, minutos, combustível, anos, observações e demais dados técnicos permaneceram idênticos. As quatro publicações preexistentes não foram modificadas.
+
+No painel administrativo, atualizar a página e selecionar **Todos** ou **Publicados** para ver os registros. As oficinas Pro recebem os tempos publicados compatíveis com o veículo e o ano selecionados, mantendo as condições de aplicação de cada referência.
 
 O fluxo **Importar tempos pesquisados** permanece disponível para novos lotes: conferir a prévia e salvar como rascunhos. O lote ready-drafts.json já foi cadastrado; tentar reimportá-lo ou importar seus lotes separados será recusado por sobreposição. O importador aceita até 100 registros por arquivo e até três fontes complementares por registro.
 
