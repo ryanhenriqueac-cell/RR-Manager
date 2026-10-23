@@ -239,6 +239,10 @@ const publishedLaborTimes = new Map();
 let adminLaborTimes = [];
 let adminCatalogEditingId = "";
 let adminCatalogPendingImport = null;
+const ADMIN_CATALOG_PAGE_SIZES = [5, 10, 20];
+let adminCatalogPage = 1;
+let adminCatalogPageSize = 5;
+let adminCatalogFilterKey = "";
 
 function normalizeSubscription(subscription = {}) {
   const planId = PLAN_CATALOG[subscription.planId] ? subscription.planId : DEFAULT_SUBSCRIPTION.planId;
@@ -892,14 +896,22 @@ function buildAuthShell() {
       <section id="adminCatalog" class="admin-dashboard-section admin-technical-catalog">
         <div class="admin-section-title"><div><span>Diferencial RR Manager Pro</span><h2>Catálogo técnico de mão de obra</h2></div><small>Somente tempos publicados aparecem nas oficinas</small></div>
         <div class="admin-catalog-metrics"><article><span>Veículos</span><strong id="adminCatalogVehicleCount">0</strong><small>configurações técnicas</small></article><article><span>Operações</span><strong id="adminCatalogOperationCount">0</strong><small>serviços disponíveis</small></article><article><span>Publicados</span><strong id="adminCatalogPublishedCount">0</strong><small>tempos liberados</small></article><article><span>Rascunhos</span><strong id="adminCatalogDraftCount">0</strong><small>aguardando revisão</small></article></div>
+        <details id="adminCatalogEditor" class="admin-catalog-editor">
+        <summary id="adminCatalogEditorSummary">Cadastrar novo tempo</summary>
         <form id="adminCatalogForm" class="admin-catalog-form">
           <input id="adminCatalogId" type="hidden">
           <fieldset><legend>1. Veículo</legend><div class="admin-catalog-grid"><label>Montadora<select id="adminCatalogMake" required><option value="">Selecione</option></select></label><label>Modelo<select id="adminCatalogModel" required disabled><option value="">Selecione</option></select></label><label>Configuração / motor<select id="adminCatalogVehicle" required disabled><option value="">Selecione</option></select></label><label>Ano inicial<input id="adminCatalogYearStart" type="number" min="1900" max="2100" required></label><label>Ano final<input id="adminCatalogYearEnd" type="number" min="1900" max="2100" required></label></div><p id="adminCatalogVehicleDetail" class="muted"></p></fieldset>
           <fieldset><legend>2. Operação</legend><div class="admin-catalog-grid"><label>Sistema<select id="adminCatalogSystem" required><option value="">Selecione</option></select></label><label class="admin-catalog-operation-field">Serviço / operação<select id="adminCatalogOperation" required disabled><option value="">Selecione</option></select></label><label>Quantidade de horas<input id="adminCatalogHours" type="number" min="0.01" max="166.67" step="0.01" required placeholder="Ex.: 3,5"></label><label class="admin-catalog-notes">Observação específica<textarea id="adminCatalogNotes" rows="3" maxlength="1000" placeholder="Condições, ferramentas ou ressalvas"></textarea></label></div><p id="adminCatalogOperationDetail" class="muted"></p></fieldset>
-          <div class="admin-catalog-actions"><button class="btn btn-muted" id="adminCatalogSaveDraft" type="button">Salvar rascunho</button><button class="btn btn-primary" id="adminCatalogPublish" type="button">Revisar e publicar</button><button class="btn btn-ghost" id="adminCatalogCancel" type="button">Limpar</button><span id="adminCatalogMessage" class="form-status"></span></div>
+          <div class="admin-catalog-actions"><button class="btn btn-muted" id="adminCatalogSaveDraft" type="button">Salvar rascunho</button><button class="btn btn-primary" id="adminCatalogPublish" type="button">Revisar e publicar</button><button class="btn btn-ghost" id="adminCatalogCancel" type="button">Cancelar</button></div>
         </form>
+        </details>
+        <p id="adminCatalogMessage" class="form-status admin-catalog-message" role="status"></p>
         <details class="admin-catalog-import"><summary>Importar tempos pesquisados</summary><p>Selecione um arquivo JSON com até 100 tempos e confira a prévia. Os registros entram como rascunhos para revisão, com a fonte e a aplicação de cada serviço.</p><div class="admin-catalog-actions"><label>Arquivo de tempos<input id="adminCatalogImportFile" type="file" accept=".json,application/json"></label><button class="btn btn-muted" id="adminCatalogImportTemplate" type="button">Baixar modelo</button><button class="btn btn-primary" id="adminCatalogImportSave" type="button" disabled>Salvar lote como rascunhos</button></div><p id="adminCatalogImportMessage" class="muted" role="status" aria-live="polite"></p><div id="adminCatalogImportPreview" class="admin-catalog-import-preview"></div></details>
-        <div class="admin-catalog-list-head"><div><h3>Tempos cadastrados</h3><p class="muted">Edite, publique ou desative cada vínculo individualmente.</p></div><div><input id="adminCatalogSearch" type="search" placeholder="Buscar veículo ou serviço"><select id="adminCatalogStatus"><option value="">Todos</option><option value="published">Publicados</option><option value="draft">Rascunhos</option><option value="disabled">Desativados</option></select></div></div>
+        <div class="admin-catalog-list-head"><div><h3>Tempos cadastrados</h3><p class="muted">Busque um veículo ou serviço para localizar seu tempo.</p></div><div><input id="adminCatalogSearch" type="search" placeholder="Buscar veículo ou serviço" aria-label="Buscar tempos por veículo ou serviço"><select id="adminCatalogStatus" aria-label="Situação dos tempos"><option value="">Todos</option><option value="published">Publicados</option><option value="draft">Rascunhos</option><option value="disabled">Desativados</option></select></div></div>
+        <nav id="adminCatalogPagination" class="admin-catalog-pagination" aria-label="Paginação dos tempos cadastrados" hidden>
+          <p id="adminCatalogResults" role="status" aria-live="polite"></p>
+          <div class="admin-catalog-page-controls"><label for="adminCatalogPageSize">Por página <select id="adminCatalogPageSize"><option value="5">5</option><option value="10">10</option><option value="20">20</option></select></label><div class="admin-catalog-page-buttons"><button id="adminCatalogPrevious" class="btn btn-muted" type="button" aria-controls="adminCatalogList">Anterior</button><span id="adminCatalogPageLabel"></span><button id="adminCatalogNext" class="btn btn-muted" type="button" aria-controls="adminCatalogList">Próxima</button></div></div>
+        </nav>
         <div id="adminCatalogList" class="admin-catalog-list"><div class="admin-empty">Carregando catálogo...</div></div>
       </section>
       <section id="adminFinance" class="admin-dashboard-section">
@@ -3266,6 +3278,7 @@ function bindAdminTechnicalCatalog() {
   const form = document.getElementById("adminCatalogForm");
   if (!form || form.dataset.bound === "true") return;
   form.dataset.bound = "true";
+  form.addEventListener("submit", (event) => event.preventDefault());
   fillAdminCatalogSelect("adminCatalogMake", uniqueCatalogValues(technicalVehicleConfigs, "make"), "Selecione a montadora");
   fillAdminCatalogSelect("adminCatalogSystem", uniqueCatalogValues(technicalLaborOperations, "system"), "Selecione o sistema");
   document.getElementById("adminCatalogMake")?.addEventListener("change", updateAdminCatalogModels);
@@ -3278,6 +3291,21 @@ function bindAdminTechnicalCatalog() {
   document.getElementById("adminCatalogCancel")?.addEventListener("click", resetAdminCatalogForm);
   document.getElementById("adminCatalogSearch")?.addEventListener("input", renderAdminTechnicalCatalogList);
   document.getElementById("adminCatalogStatus")?.addEventListener("change", renderAdminTechnicalCatalogList);
+  document.getElementById("adminCatalogPageSize")?.addEventListener("change", (event) => {
+    const size = Number(event.target.value);
+    if (!ADMIN_CATALOG_PAGE_SIZES.includes(size)) return;
+    adminCatalogPageSize = size;
+    adminCatalogPage = 1;
+    renderAdminTechnicalCatalogList();
+  });
+  document.getElementById("adminCatalogPrevious")?.addEventListener("click", () => {
+    adminCatalogPage -= 1;
+    renderAdminTechnicalCatalogList();
+  });
+  document.getElementById("adminCatalogNext")?.addEventListener("click", () => {
+    adminCatalogPage += 1;
+    renderAdminTechnicalCatalogList();
+  });
   document.getElementById("adminCatalogImportFile")?.addEventListener("change", previewAdminLaborImport);
   document.getElementById("adminCatalogImportTemplate")?.addEventListener("click", downloadAdminLaborImportTemplate);
   document.getElementById("adminCatalogImportSave")?.addEventListener("click", saveAdminLaborImport);
@@ -3486,14 +3514,18 @@ async function setAdminLaborTimeStatus(id, status) {
   const item = adminLaborTimes.find((entry) => entry.id === id);
   if (!item) return;
   adminCatalogEditingId = id;
-  editAdminLaborTime(id);
+  editAdminLaborTime(id, { scroll: false });
   await saveAdminLaborTime(status);
 }
 
-function editAdminLaborTime(id) {
+function editAdminLaborTime(id, { scroll = true } = {}) {
   const item = adminLaborTimes.find((entry) => entry.id === id);
   if (!item) return;
   adminCatalogEditingId = id;
+  const editor = document.getElementById("adminCatalogEditor");
+  if (editor && scroll) editor.open = true;
+  const summary = document.getElementById("adminCatalogEditorSummary");
+  if (summary) summary.textContent = "Editar tempo de mão de obra";
   document.getElementById("adminCatalogId").value = id;
   document.getElementById("adminCatalogMake").value = item.make;
   updateAdminCatalogModels(item.model);
@@ -3511,7 +3543,10 @@ function editAdminLaborTime(id) {
   document.getElementById("adminCatalogYearStart").value = item.yearStart;
   document.getElementById("adminCatalogYearEnd").value = item.yearEnd;
   updateAdminCatalogOperationDetail();
-  document.getElementById("adminCatalogForm")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (scroll) {
+    document.getElementById("adminCatalogForm")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("adminCatalogMake")?.focus({ preventScroll: true });
+  }
 }
 
 function resetAdminCatalogForm() {
@@ -3524,6 +3559,16 @@ function resetAdminCatalogForm() {
   fillAdminCatalogSelect("adminCatalogOperation", [], "Selecione a operação");
   if (document.getElementById("adminCatalogVehicleDetail")) document.getElementById("adminCatalogVehicleDetail").textContent = "";
   if (document.getElementById("adminCatalogOperationDetail")) document.getElementById("adminCatalogOperationDetail").textContent = "";
+  const editor = document.getElementById("adminCatalogEditor");
+  const restoreFocus = editor?.open && editor.contains(document.activeElement);
+  if (editor) editor.open = false;
+  const summary = document.getElementById("adminCatalogEditorSummary");
+  if (summary) {
+    summary.textContent = "Cadastrar novo tempo";
+    if (restoreFocus) summary.focus({ preventScroll: true });
+  }
+  const message = document.getElementById("adminCatalogMessage");
+  if (message) message.textContent = "";
 }
 
 function renderAdminTechnicalCatalog() {
@@ -3540,10 +3585,27 @@ function renderAdminTechnicalCatalogList() {
   if (!root) return;
   const search = normalizeCatalogText(document.getElementById("adminCatalogSearch")?.value || "");
   const status = document.getElementById("adminCatalogStatus")?.value || "";
-  const filtered = adminLaborTimes.filter((item) => (!status || item.status === status) && (!search || normalizeCatalogText(`${item.make} ${item.model} ${item.engine} ${item.description} ${item.serviceCode}`).includes(search)));
-  root.innerHTML = filtered.map((item) => `
+  const filterKey = JSON.stringify([search, status]);
+  if (filterKey !== adminCatalogFilterKey) adminCatalogPage = 1;
+  adminCatalogFilterKey = filterKey;
+  const filtered = adminLaborTimes.filter((item) => (!status || item.status === status) && (!search || normalizeCatalogText(`${item.make} ${item.model} ${item.engine} ${item.fuel || ""} ${item.yearStart} ${item.yearEnd} ${item.description} ${item.serviceCode} ${item.notes || ""}`).includes(search)));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / adminCatalogPageSize));
+  adminCatalogPage = Math.max(1, Math.min(adminCatalogPage, pageCount));
+  const start = (adminCatalogPage - 1) * adminCatalogPageSize;
+  const visible = filtered.slice(start, start + adminCatalogPageSize);
+  const pagination = document.getElementById("adminCatalogPagination");
+  if (pagination) pagination.hidden = filtered.length === 0;
+  const results = document.getElementById("adminCatalogResults");
+  if (results) results.textContent = `Exibindo ${filtered.length ? start + 1 : 0}–${start + visible.length} de ${filtered.length} ${filtered.length === 1 ? "tempo" : "tempos"}${filtered.length !== adminLaborTimes.length ? ` · ${adminLaborTimes.length} no catálogo` : ""}`;
+  const label = document.getElementById("adminCatalogPageLabel");
+  if (label) label.textContent = `Página ${adminCatalogPage} de ${pageCount}`;
+  const previous = document.getElementById("adminCatalogPrevious");
+  const next = document.getElementById("adminCatalogNext");
+  if (previous) previous.disabled = adminCatalogPage === 1;
+  if (next) next.disabled = adminCatalogPage === pageCount;
+  root.innerHTML = visible.map((item) => `
     <article class="admin-catalog-item">
-      <div><span class="admin-catalog-status is-${escapeHtml(item.status || "draft")}">${item.status === "published" ? "Publicado" : item.status === "disabled" ? "Desativado" : "Rascunho"}</span><strong>${escapeHtml(`${item.make} ${item.model} ${item.engine}`)}</strong><small>${escapeHtml(`${item.yearStart}–${item.yearEnd} · ${item.serviceCode} · ${item.description}`)}</small><span>${escapeHtml(`${formatCatalogHours(item.timeHours ?? Number(item.timeMinutes) / 60)} h`)}</span>${item.source ? `<small class="admin-catalog-provenance">Fonte: ${escapeHtml(item.source)}</small>` : ""}${item.notes ? `<small class="admin-catalog-provenance">${escapeHtml(item.notes)}</small>` : ""}</div>
+      <div><span class="admin-catalog-status is-${escapeHtml(item.status || "draft")}">${item.status === "published" ? "Publicado" : item.status === "disabled" ? "Desativado" : "Rascunho"}</span><strong>${escapeHtml(`${item.make} ${item.model} ${item.engine}`)}</strong><small>${escapeHtml(`${item.yearStart}–${item.yearEnd} · ${item.serviceCode} · ${item.description}`)}</small><span>${escapeHtml(`${formatCatalogHours(item.timeHours ?? Number(item.timeMinutes) / 60)} h`)}</span>${item.source || item.notes ? `<details class="admin-catalog-details"><summary>Fonte e condições</summary>${item.source ? `<small class="admin-catalog-provenance">Fonte: ${escapeHtml(item.source)}</small>` : ""}${item.notes ? `<small class="admin-catalog-provenance">${escapeHtml(item.notes)}</small>` : ""}</details>` : ""}</div>
       <div class="actions"><button class="btn btn-muted" type="button" data-catalog-edit="${escapeHtml(item.id)}">Editar</button>${item.status === "published" ? `<button class="btn btn-danger" type="button" data-catalog-status="disabled" data-catalog-id="${escapeHtml(item.id)}">Desativar</button>` : `<button class="btn btn-primary" type="button" data-catalog-status="published" data-catalog-id="${escapeHtml(item.id)}">Publicar</button>`}</div>
     </article>`).join("") || `<div class="admin-empty">Nenhum tempo técnico cadastrado com estes filtros.</div>`;
   root.querySelectorAll("[data-catalog-edit]").forEach((button) => button.addEventListener("click", () => editAdminLaborTime(button.dataset.catalogEdit)));

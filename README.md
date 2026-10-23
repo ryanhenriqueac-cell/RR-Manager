@@ -89,6 +89,8 @@ Na tela Clientes, qualquer plano pode selecionar ou vincular o veículo à confi
 
 O arquivo `data/vehicle-configs.json` é carregado ao preparar a seleção de veículos. O arquivo `data/labor-operations.json` é carregado separadamente somente para os fluxos de mão de obra autorizados e para o painel administrativo. Os tempos aprovados ficam na coleção global `labor_time_catalog`, protegida pelas regras do Firestore.
 
+No painel administrativo, os tempos cadastrados são exibidos em páginas de cinco registros, com opções de dez ou vinte. A busca e o filtro de situação abrangem todo o catálogo. Fontes e condições ficam em um bloco expansível por registro; o formulário de cadastro começa recolhido e abre ao editar. Isso mantém o painel compacto conforme o catálogo cresce. A prévia local `node scripts/preview-admin-catalog.cjs` usa os mesmos handlers com dados locais e banco em memória, sem conexão com Firebase.
+
 Nesta atualização, publique `firestore.rules` antes de liberar os novos arquivos do site. Depois, entre uma vez com a conta proprietária de cada oficina para concluir automaticamente a migração. Se o site for atualizado primeiro, o proprietário continua salvando no esquema 2 de forma compatível, mas os colaboradores permanecem bloqueados até que as regras sejam publicadas e a migração seja concluída.
 
 ## Controle administrativo de cobranças

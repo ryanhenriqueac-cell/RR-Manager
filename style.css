@@ -7798,6 +7798,11 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .admin-catalog-metrics article { display: grid; gap: 4px; padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(7, 17, 31, .72); }
 .admin-catalog-metrics span,.admin-catalog-metrics small { color: var(--muted); }
 .admin-catalog-metrics strong { color: var(--gold); font-size: 28px; }
+.admin-catalog-editor { min-width: 0; border: 1px solid rgba(241,199,91,.25); border-radius: 8px; background: rgba(7,17,31,.72); }
+.admin-catalog-editor > summary { padding: 18px; color: var(--gold); font-weight: 900; cursor: pointer; }
+.admin-catalog-editor .admin-catalog-form { border: 0; background: transparent; }
+.admin-catalog-message { margin: 0; }
+.admin-catalog-message:empty { display: none; }
 .admin-catalog-form { display: grid; gap: 16px; padding: 20px; border: 1px solid rgba(241,199,91,.25); border-radius: 8px; background: rgba(7,17,31,.72); }
 .admin-catalog-form fieldset { padding: 16px; border: 1px solid var(--line); border-radius: 8px; }
 .admin-catalog-form legend { padding: 0 8px; color: var(--gold); font-weight: 900; }
@@ -7809,9 +7814,21 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .admin-catalog-actions .form-status { margin-left: auto; }
 .admin-catalog-list-head { justify-content: space-between; }
 .admin-catalog-list-head > div:last-child { display: flex; gap: 8px; }
+.admin-catalog-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.admin-catalog-pagination[hidden] { display: none; }
+.admin-catalog-pagination p { margin: 0; color: var(--muted); font-size: 13px; }
+.admin-catalog-page-controls,.admin-catalog-page-buttons,.admin-catalog-page-controls label { display: flex; align-items: center; gap: 10px; }
+.admin-catalog-page-controls { flex-wrap: wrap; }
+.admin-catalog-page-controls label,.admin-catalog-page-buttons span { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.admin-catalog-page-controls select { width: auto; min-width: 64px; }
+.admin-catalog-page-buttons .btn { padding: 9px 12px; }
 .admin-catalog-list { display: grid; gap: 10px; }
 .admin-catalog-item { justify-content: space-between; padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: rgba(7,17,31,.66); }
-.admin-catalog-item > div:first-child { display: grid; gap: 5px; }
+.admin-catalog-item > div:first-child { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.admin-catalog-item > .actions { flex-shrink: 0; }
+.admin-catalog-details { margin-top: 3px; min-width: 0; }
+.admin-catalog-details summary { cursor: pointer; color: var(--gold); font-size: 12px; font-weight: 800; }
+.admin-catalog-details .admin-catalog-provenance { display: block; margin-top: 8px; }
 .admin-catalog-item small,.admin-catalog-item span { color: var(--muted); }
 .admin-catalog-status { width: max-content; padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 900; text-transform: uppercase; }
 .admin-catalog-status.is-published { background: rgba(79,209,161,.14); color: #74e6bb; }
@@ -7834,10 +7851,12 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 }
 
 @media (max-width: 640px) {
-  .admin-catalog-metrics,.admin-catalog-grid { grid-template-columns: 1fr; }
+  .admin-catalog-grid { grid-template-columns: 1fr; }
   .admin-catalog-operation-field,.admin-catalog-notes { grid-column: auto; }
   .admin-catalog-list-head,.admin-catalog-item { align-items: stretch; flex-direction: column; }
   .admin-catalog-list-head > div:last-child { flex-direction: column; }
+  .admin-catalog-page-controls { width: 100%; justify-content: space-between; }
+  .admin-catalog-page-buttons { justify-content: space-between; width: 100%; }
 }
 .manager-client-choice > span { font-size: 10px; }
 .manager-client-choice > strong { font-size: 15px; }

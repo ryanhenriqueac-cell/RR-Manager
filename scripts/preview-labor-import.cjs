@@ -30,6 +30,8 @@ const firebaseError=(error)=>error.message;
 const technicalVehicleConfigs=[{id:'vehicle_test',make:'Marca teste',model:'Modelo teste',engine:'1.6 16V',fuel:'Gasolina',aspiration:'Aspirado',yearStart:2000,yearEnd:2006}];
 const technicalLaborOperations=[{code:'SIN-001',description:'SUBST. CORREIA DENTADA',system:'MOTOR',subsystem:'SINCRONISMO',operationType:'SUBSTITUIÇÃO',unit:'VEÍCULO',active:true}];
 let adminLaborTimes=[],adminCatalogPendingImport=null;
+const ADMIN_CATALOG_PAGE_SIZES=[5,10,20];
+let adminCatalogPage=1,adminCatalogPageSize=5,adminCatalogFilterKey='';
 const db={},TECHNICAL_CATALOG_COLLECTION='mock';
 const mockRows=new Map();
 let simulateFailure=false;
@@ -64,7 +66,7 @@ document.getElementById('mockFail').onclick=()=>{simulateFailure=true;document.g
 renderAdminTechnicalCatalog();
 document.getElementById('fixtureState').textContent='Pronto para testar';
 `;
-const html = `<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teste local - importação de mão de obra</title><link rel="stylesheet" href="/style.css?v=137"><body data-page="admin"><main style="max-width:1200px;margin:24px auto;padding:20px"><h1>Importação de mão de obra</h1><p>TESTE LOCAL COM DADOS FICTÍCIOS. Nenhuma conexão com Firebase.</p><div class="actions"><button id="mockValid" class="btn btn-muted">Simular arquivo válido</button><button id="mockDuplicate" class="btn btn-muted">Simular arquivo duplicado</button><button id="mockFail" class="btn btn-muted">Simular falha de conexão</button></div><p id="mockWrites">0 registro(s) no banco simulado</p><p id="fixtureState">Carregando...</p>${section}</main><script type="module">${setup}\n${names.map(getFunction).join("\n")}\n${interaction}</script></body></html>`;
+const html = `<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teste local - importação de mão de obra</title><link rel="stylesheet" href="/style.css?v=138"><body data-page="admin"><main style="max-width:1200px;margin:24px auto;padding:20px"><h1>Importação de mão de obra</h1><p>TESTE LOCAL COM DADOS FICTÍCIOS. Nenhuma conexão com Firebase.</p><div class="actions"><button id="mockValid" class="btn btn-muted">Simular arquivo válido</button><button id="mockDuplicate" class="btn btn-muted">Simular arquivo duplicado</button><button id="mockFail" class="btn btn-muted">Simular falha de conexão</button></div><p id="mockWrites">0 registro(s) no banco simulado</p><p id="fixtureState">Carregando...</p>${section}</main><script type="module">${setup}\n${names.map(getFunction).join("\n")}\n${interaction}</script></body></html>`;
 const output = path.join(root, "tmp", "labor-import-preview", "index.html");
 fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, html);
