@@ -7,6 +7,6 @@ Esses arquivos são referências para seleção e não contêm tempos de execuç
 
 A base recebida não é exaustiva e não substitui identificação por VIN, catálogo OEM ou documentação técnica. A fonte e a revisão individual são obrigatórias.
 
-A [pesquisa de fontes gratuitas](../docs/labor-research/README.md), atualizada em 2026-10-23, preparou **96 rascunhos condicionais** no [lote consolidado](../docs/labor-research/ready-drafts.json), com [validação](../docs/labor-research/ready-drafts-validation.json). Nenhum arquivo é importado automaticamente. Nenhum tempo foi gravado ou publicado no banco online durante a pesquisa.
+A [pesquisa de fontes gratuitas](../docs/labor-research/README.md), atualizada em 2026-10-23, preparou **96 rascunhos condicionais** no [lote consolidado](../docs/labor-research/ready-drafts.json), com [validação](../docs/labor-research/ready-drafts-validation.json). Os 96 foram posteriormente cadastrados no Firebase e conferidos por nova leitura: o catálogo online contém **96 rascunhos e um registro publicado**, preservado da situação anterior. O [relatório de importação efetiva](../docs/labor-research/catalog-import-2026-10-23.json) registra essa gravação. Os arquivos de pesquisa não são carregados automaticamente pelo site; esse lote já foi importado e não deve ser reimportado.
 
 O [mapa das 999 configurações](../docs/labor-research/backlog.json) registra 75 com rascunhos, 14 somente com referências pendentes e 910 sem fonte mapeada. Um rascunho não significa cobertura de todas as operações ou anos. O levantamento continua incompleto.

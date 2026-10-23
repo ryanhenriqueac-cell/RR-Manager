@@ -1,6 +1,6 @@
 # Pesquisa gratuita de tempos de mão de obra
 
-Atualização: 2026-10-23. Fontes gratuitas e abertas, sem REPXPERT, cadastro ou contato externo. O levantamento ainda não cobre todas as configurações e operações. Nenhuma consulta ou gravação no catálogo online foi feita nesta pesquisa.
+Atualização: 2026-10-23. Fontes gratuitas e abertas, sem REPXPERT, criação de conta em portais técnicos ou contato externo. O levantamento ainda não cobre todas as configurações e operações. Após a pesquisa, os 96 rascunhos foram cadastrados no Firebase e conferidos por nova leitura, conforme o [relatório de importação efetiva](catalog-import-2026-10-23.json).
 
 O [lote consolidado](ready-drafts.json) contém **96 rascunhos condicionais**, com fonte, página, data, aplicação e notas. O [relatório](ready-drafts-validation.json) registra hashes, conversão de minutos, preservação das fontes ao editar e bloqueio de reimportação. O arquivo não é carregado automaticamente pelo site.
 
@@ -62,7 +62,11 @@ reuseAllowed se refere ao uso limitado de fatos numéricos, metadados e notas pr
 
 ## Importação e verificação
 
-No painel administrativo, usar **Importar tempos pesquisados** com ready-drafts.json: conferir a prévia e salvar como rascunhos. Não importar também os lotes separados; a sobreposição será recusada. O importador aceita até 100 registros por arquivo e até três fontes complementares por registro.
+**Cadastro online confirmado em 23/10/2026:** a coleção labor_time_catalog passou de um registro publicado para **97 registros: 96 rascunhos e um publicado**. A gravação foi atômica, com condição de inexistência em todos os novos IDs. Todos os campos dos 96 rascunhos foram lidos novamente e comparados; o documento preexistente do T-Cross foi preservado integralmente. A conexão autenticada existente da Firebase CLI foi usada via IAM, sem copiar credenciais para arquivos ou relatórios.
+
+No painel administrativo, atualizar a página e selecionar **Todos** ou **Rascunhos** para ver os registros cadastrados. Os 96 ainda exigem revisão antes da publicação e não aparecem na lista das oficinas enquanto estiverem em rascunho.
+
+O fluxo **Importar tempos pesquisados** permanece disponível para novos lotes: conferir a prévia e salvar como rascunhos. O lote ready-drafts.json já foi cadastrado; tentar reimportá-lo ou importar seus lotes separados será recusado por sobreposição. O importador aceita até 100 registros por arquivo e até três fontes complementares por registro.
 
 Ao salvar, o painel consulta conflitos no catálogo online e usa transação integral com IDs determinísticos, sem sobrescrever importação anterior. Publicação continua individual. free-sources.json, coverage.json e backlog.json são arquivos de pesquisa e não servem como lote de importação.
 
