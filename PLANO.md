@@ -6,7 +6,7 @@ Briefing completo: [docs/PROMPT-RECONSTRUCAO.md](docs/PROMPT-RECONSTRUCAO.md).
 ## Andamento
 
 - [x] **Fase 0: Diagnóstico** (24/10/2026)
-- [ ] **Fase 1: Confiabilidade dos dados** (código pronto em 24/10/2026; falta teste do dono e publicação)
+- [ ] **Fase 1: Confiabilidade dos dados** (testada pelo dono em 24/10/2026; falta publicar)
 - [ ] Fase 2: Desempenho
 - [ ] Fase 3: Funcionar em todo dispositivo
 - [ ] Fase 4: Segurança e multi-oficina
@@ -89,7 +89,7 @@ Lacunas:
 
 ---
 
-## Fase 1: Confiabilidade dos dados (proposta)
+## Fase 1: Confiabilidade dos dados
 
 Mudanças pequenas e seguras, sem trocar a arquitetura ainda e sem alterar a estrutura dos dados no Firestore:
 
@@ -102,7 +102,8 @@ Mudanças pequenas e seguras, sem trocar a arquitetura ainda e sem alterar a est
 - [x] 1g. Aviso ao fechar a página com alterações ainda na fila, e envio automático ao sair.
 - [x] 1h. Botão **Baixar backup agora** em Meu cadastro (lê direto do servidor). Não existia mais backup no sistema.
 - [x] Extra: a abertura das páginas não espera mais a regravação das configurações (que só acontece quando algo mudou), e leituras vazias do cache sem internet não apagam as listas locais.
-- [ ] **Teste do dono** (roteiro abaixo) e publicação.
+- [x] **Teste do dono** aprovado em 24/10/2026.
+- [ ] Publicação (git push para o GitHub Pages).
 
 Roteiro de teste (http://localhost:5500, logado na sua conta):
 1. Meu cadastro → Baixar backup agora. Guardar o arquivo.
