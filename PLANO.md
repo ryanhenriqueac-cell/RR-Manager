@@ -6,7 +6,7 @@ Briefing completo: [docs/PROMPT-RECONSTRUCAO.md](docs/PROMPT-RECONSTRUCAO.md).
 ## Andamento
 
 - [x] **Fase 0: Diagnóstico** (24/10/2026)
-- [ ] **Fase 1: Confiabilidade dos dados** (testada pelo dono em 24/10/2026; falta publicar)
+- [x] **Fase 1: Confiabilidade dos dados** (publicada em 24/10/2026)
 - [ ] Fase 2: Desempenho
 - [ ] Fase 3: Funcionar em todo dispositivo
 - [ ] Fase 4: Segurança e multi-oficina
@@ -103,7 +103,7 @@ Mudanças pequenas e seguras, sem trocar a arquitetura ainda e sem alterar a est
 - [x] 1h. Botão **Baixar backup agora** em Meu cadastro (lê direto do servidor). Não existia mais backup no sistema.
 - [x] Extra: a abertura das páginas não espera mais a regravação das configurações (que só acontece quando algo mudou), e leituras vazias do cache sem internet não apagam as listas locais.
 - [x] **Teste do dono** aprovado em 24/10/2026.
-- [ ] Publicação (git push para o GitHub Pages).
+- [x] Publicada em 24/10/2026 (commit dcaf58d).
 
 Roteiro de teste (http://localhost:5500, logado na sua conta):
 1. Meu cadastro → Baixar backup agora. Guardar o arquivo.
