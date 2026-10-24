@@ -10556,3 +10556,61 @@ body[data-page="financeiro-print"] #firebaseUserBar {
 .customer-history { scroll-margin-top: 24px; }
 #inspectionSaveStatus { font-size: .9rem; }
 @media (max-width: 640px) { .history-filters { grid-template-columns: 1fr; } .history-record { padding: 14px; } }
+
+/* Indicador de conexão: aparece só sem internet ou enquanto há envio pendente. */
+#rrSyncStatus {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 50%;
+  z-index: 1200;
+  display: none;
+  max-width: calc(100vw - 32px);
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(7, 17, 31, 0.94);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+#rrSyncStatus::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  vertical-align: 1px;
+}
+
+.firebase-logged-in #rrSyncStatus[data-state="offline"],
+.firebase-logged-in #rrSyncStatus[data-state="syncing"] {
+  display: block;
+}
+
+#rrSyncStatus[data-state="offline"] {
+  border-color: rgba(239, 98, 98, 0.5);
+}
+
+#rrSyncStatus[data-state="offline"]::before {
+  background: var(--danger);
+}
+
+body[data-page="admin"] #rrSyncStatus,
+body[data-page="orcamento-publico"] #rrSyncStatus {
+  display: none !important;
+}
+
+@media print {
+  #rrSyncStatus {
+    display: none !important;
+  }
+}

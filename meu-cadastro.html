@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu cadastro | RR Manager</title>
   <link rel="icon" type="image/png" href="assets/logo-rr-manager.png">
-  <link rel="stylesheet" href="style.css?v=138">
+  <link rel="stylesheet" href="style.css?v=139">
 </head>
 <body data-page="meu-cadastro">
   <div class="app-shell">
@@ -142,6 +142,18 @@
           <a class="btn btn-primary" href="contrato.html">Imprimir / gerar PDF do contrato</a>
       </section>
 
+      <section class="form-panel backup-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Segurança dos dados</p>
+            <h2>Backup completo</h2>
+          </div>
+        </div>
+        <p>Baixa um arquivo com todos os clientes, veículos, orçamentos, ordens de serviço, inspeções, financeiro e configurações da oficina, direto do servidor. Guarde em local seguro: o arquivo contém dados pessoais dos seus clientes.</p>
+        <button class="btn btn-primary" type="button" id="rrBackupDownload">Baixar backup agora</button>
+        <p class="backup-status" id="rrBackupStatus" role="status"></p>
+      </section>
+
       <section class="form-panel customization-panel">
         <div class="panel-header">
           <div>
@@ -209,7 +221,7 @@
   </div>
   <script src="script.js?v=128"></script>
   <script src="firebase-config.js?v=13"></script>
-  <script type="module" src="firebase-sync.js?v=94"></script>
+  <script type="module" src="firebase-sync.js?v=95"></script>
   <script src="navigation.js?v=1"></script>
 </body>
 </html>

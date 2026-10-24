@@ -6,7 +6,7 @@ Briefing completo: [docs/PROMPT-RECONSTRUCAO.md](docs/PROMPT-RECONSTRUCAO.md).
 ## Andamento
 
 - [x] **Fase 0: Diagnóstico** (24/10/2026)
-- [ ] **Fase 1: Confiabilidade dos dados** (aguardando aprovação)
+- [ ] **Fase 1: Confiabilidade dos dados** (código pronto em 24/10/2026; falta teste do dono e publicação)
 - [ ] Fase 2: Desempenho
 - [ ] Fase 3: Funcionar em todo dispositivo
 - [ ] Fase 4: Segurança e multi-oficina
@@ -93,16 +93,23 @@ Lacunas:
 
 Mudanças pequenas e seguras, sem trocar a arquitetura ainda e sem alterar a estrutura dos dados no Firestore:
 
-- [ ] 1a. Ativar o **cache offline do Firestore** (`initializeFirestore` + `persistentLocalCache` com várias abas). As gravações passam a ficar guardadas no aparelho (IndexedDB), sobrevivem a recarregar a página e sobem sozinhas quando a internet volta.
-- [ ] 1b. Considerar salvo assim que gravar no aparelho, sem esperar o servidor. Mostrar "Salvo no aparelho · sincronizando" e depois "Sincronizado ✓". Sem botão travado.
-- [ ] 1c. Tirar o `getCountFromServer` do caminho do salvamento (a estatística fica para depois, em segundo plano).
-- [ ] 1d. Corrigir o "desfazer": em caso de falha, **nunca** enviar exclusão do que pode ter sido gravado. Manter na fila e tentar de novo.
-- [ ] 1e. Bloquear os botões de salvar até a sincronização estar pronta (com aviso "Conectando…"), em vez de aceitar e depois recusar.
-- [ ] 1f. Indicador fixo de conexão: Online / Offline / Sincronizando (N pendentes).
-- [ ] 1g. Aviso ao sair da página com alterações ainda não enviadas.
-- [ ] 1h. Antes de tudo: **backup completo** dos dados reais, exportado para `exports/` (fora do Git).
+- [x] 1a. Cache offline do Firestore (`persistentLocalCache`, várias abas): alterações ficam no aparelho (IndexedDB), sobrevivem a recarregar a página e sobem sozinhas quando a internet volta. Se o navegador não suportar, usa o modo antigo.
+- [x] 1b. Salvar não trava mais: espera o servidor até 4 s (0,3 s sem internet) e depois considera guardado no aparelho. Se o servidor recusar depois, aparece um aviso e a alteração é desfeita na tela.
+- [x] 1c. Removido o `getCountFromServer` do salvamento (a estatística usa a contagem local, em segundo plano).
+- [x] 1d. Recusa definitiva do servidor (permissão, dado inválido) não é reenviada; só falhas de rede voltam para a fila. Com 1c, o caso "salvou mas apagou" deixa de existir.
+- [x] 1e. Formulários do sistema não salvam enquanto a conta ainda está conectando (aviso "Ainda conectando…").
+- [x] 1f. Indicador no topo: aparece com "Offline · salvando no aparelho" ou "Sincronizando…". O rodapé mostra Online/Offline de verdade.
+- [x] 1g. Aviso ao fechar a página com alterações ainda na fila, e envio automático ao sair.
+- [x] 1h. Botão **Baixar backup agora** em Meu cadastro (lê direto do servidor). Não existia mais backup no sistema.
+- [x] Extra: a abertura das páginas não espera mais a regravação das configurações (que só acontece quando algo mudou), e leituras vazias do cache sem internet não apagam as listas locais.
+- [ ] **Teste do dono** (roteiro abaixo) e publicação.
 
-Teste: salvar orçamento, cliente e lançamento online; desligar o Wi-Fi, salvar, recarregar a página, religar e confirmar que chegou ao Firestore; salvar com duas abas abertas.
+Roteiro de teste (http://localhost:5500, logado na sua conta):
+1. Meu cadastro → Baixar backup agora. Guardar o arquivo.
+2. Online: criar um cliente de teste e um orçamento de teste; editar; excluir.
+3. Desligar o Wi-Fi: o aviso "Offline" aparece; criar um orçamento de teste (deve salvar na hora); recarregar a página (deve continuar lá).
+4. Religar o Wi-Fi: o aviso some; abrir em outro aparelho e conferir que o orçamento chegou.
+5. Duas abas abertas ao mesmo tempo: salvar em uma e ver na outra.
 
 ## Decisão para a Fase 2 (discutir antes)
 

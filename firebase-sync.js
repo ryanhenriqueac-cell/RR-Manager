@@ -19,11 +19,14 @@ import {
   deleteField,
   deleteDoc,
   doc,
-  getCountFromServer,
   getDoc,
   getDocs,
+  getDocsFromServer,
   getFirestore,
+  initializeFirestore,
   onSnapshot,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   query,
   runTransaction,
   serverTimestamp,
@@ -220,6 +223,8 @@ let cloudReady = false;
 let syncingFromCloud = false;
 let workspaceSchemaVersion = 1;
 let collectionUnsubscribers = [];
+let inflightCommits = 0;
+let syncStatusElement = null;
 const pendingCollectionChanges = new Map();
 const savingCollectionKeys = new Set();
 const confirmedCollectionState = new Map();
@@ -579,8 +584,10 @@ if (!configReady) {
 } else {
   const app = initializeApp(config);
   auth = getAuth(app);
-  db = getFirestore(app);
+  db = createFirestore(app);
   patchLocalStorageSync();
+  bindSyncStatusEvents();
+  bindBackupDownload();
   bindAuthEvents();
 
   async function resolveUserWorkspace(user) {
@@ -735,6 +742,7 @@ if (!configReady) {
     cacheValidatedAccess(user);
     setUserStatus(user.email);
     cloudReady = true;
+    updateSyncIndicator();
     window.rrFirebaseReady = true;
     setAuthRestoring(false);
     setAppLocked(false);
@@ -1210,19 +1218,37 @@ function getFinancialWorkspaceSettings(workspace = {}) {
   };
 }
 
+function hashText(text) {
+  let hash = 5381;
+  for (let index = 0; index < text.length; index += 1) hash = ((hash << 5) + hash + text.charCodeAt(index)) | 0;
+  return String(hash >>> 0);
+}
+
 async function publishWorkspaceSettings(uid, workspace = {}) {
   if (!currentUser || activeTeamAccess || !uid) return;
+  const settings = {
+    public: getSharedWorkspaceSettings(workspace),
+    commercial: getCommercialWorkspaceSettings(workspace),
+    financial: getFinancialWorkspaceSettings(workspace),
+    team_directory: {
+      members: (Array.isArray(workspace.teamMembers) ? workspace.teamMembers : [])
+        .filter((member) => member.status !== "blocked")
+        .map((member) => ({ name: member.name || "Colaborador", email: normalizeEmail(member.email), role: member.role || "custom" })),
+      updatedAt: serverTimestamp()
+    }
+  };
+  // Só regrava quando algo mudou desde a última publicação confirmada neste aparelho;
+  // antes eram 4 gravações a cada página aberta.
+  const signatureKey = `rr_settings_signature_${uid}`;
+  const signature = hashText(JSON.stringify(settings, (key, value) => (key === "updatedAt" ? undefined : value)));
+  if (localStorage.getItem(signatureKey) === signature) return;
   const batch = writeBatch(db);
-  batch.set(doc(db, "workspaces", uid, "settings", "public"), getSharedWorkspaceSettings(workspace), { merge: true });
-  batch.set(doc(db, "workspaces", uid, "settings", "commercial"), getCommercialWorkspaceSettings(workspace));
-  batch.set(doc(db, "workspaces", uid, "settings", "financial"), getFinancialWorkspaceSettings(workspace));
-  batch.set(doc(db, "workspaces", uid, "settings", "team_directory"), {
-    members: (Array.isArray(workspace.teamMembers) ? workspace.teamMembers : [])
-      .filter((member) => member.status !== "blocked")
-      .map((member) => ({ name: member.name || "Colaborador", email: normalizeEmail(member.email), role: member.role || "custom" })),
-    updatedAt: serverTimestamp()
-  });
+  batch.set(doc(db, "workspaces", uid, "settings", "public"), settings.public, { merge: true });
+  batch.set(doc(db, "workspaces", uid, "settings", "commercial"), settings.commercial);
+  batch.set(doc(db, "workspaces", uid, "settings", "financial"), settings.financial);
+  batch.set(doc(db, "workspaces", uid, "settings", "team_directory"), settings.team_directory);
   await batch.commit();
+  localStorage.setItem(signatureKey, signature);
 }
 
 async function ensureTeamPermissionMigration(uid, workspace = {}) {
@@ -1276,7 +1302,7 @@ async function ensureTeamPermissionMigration(uid, workspace = {}) {
       updatedAt: serverTimestamp()
     });
   });
-  await batch.commit();
+  await commitDurably(batch);
 
   workspace.teamMembers = members;
   workspace.teamAccessEmails = teamAccessEmails;
@@ -1339,10 +1365,17 @@ async function loadCloudData(uid, reuseCachedCollections = false) {
     activeWorkspaceEmail = cloudData.ownerEmail || activeWorkspaceEmail;
     let secureSettingsReady = true;
     if (!activeTeamAccess && !adminViewingWorkspace) {
-      try { await publishWorkspaceSettings(uid, cloudData); }
-      catch (settingsError) {
-        secureSettingsReady = false;
-        console.warn("As novas regras ainda não estão publicadas; a migração segura ficará pendente.", settingsError);
+      if (Number(cloudData.schemaVersion) >= APP_SCHEMA_VERSION) {
+        // Oficina já migrada: publicar as configurações não precisa segurar a abertura da página
+        // (e, sem internet, travaria a página esperando o servidor).
+        publishWorkspaceSettings(uid, cloudData)
+          .catch((settingsError) => console.warn("Configurações da oficina não publicadas; nova tentativa no próximo acesso.", settingsError));
+      } else {
+        try { await publishWorkspaceSettings(uid, cloudData); }
+        catch (settingsError) {
+          secureSettingsReady = false;
+          console.warn("As novas regras ainda não estão publicadas; a migração segura ficará pendente.", settingsError);
+        }
       }
       if (secureSettingsReady) await ensureTeamPermissionMigration(uid, cloudData);
       activeWorkspaceData = { id: uid, ...cloudData };
@@ -1726,6 +1759,183 @@ async function saveLegacyCloudData() {
   }, { merge: true });
 }
 
+// Quanto tempo o salvamento espera a confirmação do servidor antes de considerar
+// a alteração guardada no aparelho (ela continua na fila e sobe sozinha depois).
+const SERVER_ACK_WAIT_MS = 4000;
+const OFFLINE_ACK_WAIT_MS = 300;
+const RETRYABLE_SYNC_ERRORS = ["unavailable", "deadline-exceeded", "resource-exhausted", "aborted", "internal", "cancelled", "unknown"];
+
+function createFirestore(app) {
+  try {
+    // Cache no aparelho (IndexedDB): alterações sobrevivem a recarregar a página e
+    // sobem sozinhas quando a internet volta. Vale para todas as abas abertas.
+    return initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    });
+  } catch (error) {
+    console.warn("Cache offline indisponível neste navegador; usando somente a conexão.", error);
+    return getFirestore(app);
+  }
+}
+
+function isRetryableSyncError(error) {
+  const code = String(error?.code || "").replace(/^firestore\//, "");
+  return !code || RETRYABLE_SYNC_ERRORS.includes(code);
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Sem cache offline, batch.commit() só termina quando o servidor responde: sem internet,
+// o botão ficava em "Salvando..." para sempre. Agora a gravação entra na fila do aparelho
+// e, se o servidor demorar, é dada como guardada localmente.
+function commitDurably(batch) {
+  let acceptedLocally = false;
+  inflightCommits += 1;
+  updateSyncIndicator();
+  const committed = batch.commit();
+  committed
+    .catch((error) => {
+      if (acceptedLocally) reportLateSyncFailure(error);
+    })
+    .finally(() => {
+      inflightCommits = Math.max(0, inflightCommits - 1);
+      updateSyncIndicator();
+    });
+  const ackWait = navigator.onLine === false ? OFFLINE_ACK_WAIT_MS : SERVER_ACK_WAIT_MS;
+  return Promise.race([committed, wait(ackWait).then(() => { acceptedLocally = true; })]);
+}
+
+function reportLateSyncFailure(error) {
+  console.error("Alteração recusada pelo servidor depois de guardada no aparelho.", error);
+  const message = String(error?.code || "").includes("permission-denied")
+    ? "Uma alteração recente foi recusada pelo servidor (sem permissão) e foi desfeita. Confira os dados na tela."
+    : "Uma alteração recente não pôde ser enviada ao servidor e foi desfeita. Confira os dados na tela.";
+  if (typeof window.rrAlert === "function") window.rrAlert(message, "Alteração não sincronizada");
+  else window.alert(message);
+}
+
+function getSyncState() {
+  if (navigator.onLine === false) return "offline";
+  if (inflightCommits > 0 || pendingCollectionChanges.size > 0) return "syncing";
+  return cloudReady ? "online" : "connecting";
+}
+
+const SYNC_STATE_LABELS = {
+  offline: "Offline · salvando no aparelho",
+  syncing: "Sincronizando…",
+  online: "Sincronizado",
+  connecting: "Conectando…"
+};
+
+function updateSyncIndicator() {
+  if (!syncStatusElement) {
+    syncStatusElement = document.createElement("div");
+    syncStatusElement.id = "rrSyncStatus";
+    syncStatusElement.setAttribute("role", "status");
+    syncStatusElement.setAttribute("aria-live", "polite");
+    document.body.appendChild(syncStatusElement);
+  }
+  const state = getSyncState();
+  const pending = inflightCommits + pendingCollectionChanges.size;
+  syncStatusElement.dataset.state = state;
+  syncStatusElement.textContent = state === "syncing" && pending > 1
+    ? `${SYNC_STATE_LABELS.syncing} (${pending})`
+    : SYNC_STATE_LABELS[state];
+  syncStatusElement.title = state === "offline"
+    ? "Sem internet. O que você salvar fica guardado neste aparelho e sobe sozinho quando a conexão voltar."
+    : "";
+}
+
+function bindSyncStatusEvents() {
+  const refresh = () => {
+    updateSyncIndicator();
+    if (currentUser) setUserStatus(currentUser.email);
+  };
+  window.addEventListener("online", refresh);
+  window.addEventListener("offline", refresh);
+  // Ao sair da página, envia o que ainda estava aguardando o intervalo de gravação.
+  window.addEventListener("pagehide", () => {
+    if (cloudReady && pendingCollectionChanges.size) persistCloudData().catch(() => {});
+  });
+  window.addEventListener("beforeunload", (event) => {
+    if (!pendingCollectionChanges.size) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
+  // Enquanto a sincronização inicial não termina, formulários do sistema não salvam:
+  // o que fosse gravado nesse intervalo seria sobrescrito pelos dados da nuvem.
+  document.addEventListener("submit", (event) => {
+    const form = event.target;
+    if (cloudReady || !currentUser || isAdminPage || isRegisterPage || form?.closest?.("#firebaseAuthShell, .legal-acceptance-overlay")) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const message = "Ainda conectando à sua conta. Aguarde alguns segundos e salve de novo; nada foi perdido do que está na tela.";
+    if (typeof window.rrAlert === "function") window.rrAlert(message, "Conectando");
+    else window.alert(message);
+  }, true);
+  updateSyncIndicator();
+}
+
+const BACKUP_COLLECTIONS = [...Object.values(APP_COLLECTIONS), BUDGET_COST_COLLECTION, CLIENT_SUMMARY_COLLECTION];
+const BACKUP_SETTINGS_DOCS = ["public", "commercial", "financial", "team_directory"];
+
+// Backup lido do servidor (não do aparelho), para conferir o que de fato está salvo na nuvem.
+async function downloadWorkspaceBackup() {
+  if (!cloudReady || !activeWorkspaceId || activeTeamAccess) throw new Error("Entre com a conta proprietária para baixar o backup.");
+  const workspaceSnapshot = await getDoc(doc(db, "workspaces", activeWorkspaceId));
+  const collections = {};
+  for (const name of BACKUP_COLLECTIONS) {
+    const snapshot = await getDocsFromServer(collection(db, "workspaces", activeWorkspaceId, name));
+    collections[name] = snapshot.docs.map((record) => ({ _id: record.id, ...record.data() }));
+  }
+  const settings = {};
+  for (const name of BACKUP_SETTINGS_DOCS) {
+    const snapshot = await getDoc(doc(db, "workspaces", activeWorkspaceId, "settings", name));
+    settings[name] = snapshot.exists() ? snapshot.data() : null;
+  }
+  collections.settings = settings;
+  const backup = {
+    app: "RR Manager",
+    format: 1,
+    exportedAt: new Date().toISOString(),
+    workspaceId: activeWorkspaceId,
+    workspace: workspaceSnapshot.exists() ? workspaceSnapshot.data() : null,
+    collections
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `rr-reparacao-backup-${getLocalDateISO()}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+  return Object.fromEntries(Object.entries(collections).map(([name, items]) => [name, items.length]));
+}
+
+function bindBackupDownload() {
+  const button = document.getElementById("rrBackupDownload");
+  const status = document.getElementById("rrBackupStatus");
+  if (!button) return;
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    if (status) status.textContent = "Baixando do servidor...";
+    try {
+      const counts = await downloadWorkspaceBackup();
+      if (status) status.textContent = `Backup baixado: ${counts.clientes} clientes, ${counts.orcamentos} orçamentos, ${counts.financeiro} lançamentos, ${counts.ordens_servico} ordens de serviço.`;
+    } catch (error) {
+      console.error("Falha ao gerar backup.", error);
+      if (status) status.textContent = navigator.onLine === false
+        ? "Sem internet: o backup precisa ler os dados do servidor. Tente quando a conexão voltar."
+        : `Não foi possível gerar o backup: ${error?.message || error}`;
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
 async function flushV2Changes() {
   if (!currentUser || !db || !activeWorkspaceId || !pendingCollectionChanges.size) return;
   const secureSchema = workspaceSchemaVersion >= APP_SCHEMA_VERSION;
@@ -1771,23 +1981,25 @@ async function flushV2Changes() {
           if (operation.type === "set") batch.set(ref, operation.value);
           else batch.delete(ref);
         });
-        await batch.commit();
+        await commitDurably(batch);
       }
       if (change.delta && !activeTeamAccess) {
-        const collectionRef = collection(db, "workspaces", activeWorkspaceId, getCollectionName(key));
-        const countSnapshot = await getCountFromServer(collectionRef);
-        await setDoc(doc(db, "workspaces", activeWorkspaceId), {
-          stats: { [getCollectionName(key)]: countSnapshot.data().count },
+        // A estatística usa a contagem local: consultar o servidor aqui fazia um salvamento
+        // já gravado ser tratado como falha quando a rede oscilava.
+        setDoc(doc(db, "workspaces", activeWorkspaceId), {
+          stats: { [getCollectionName(key)]: readLocalArray(key).length },
           updatedAt: serverTimestamp()
-        }, { merge: true });
+        }, { merge: true }).catch((error) => console.warn("Estatística da oficina não atualizada.", error));
       }
       confirmedCollectionState.set(key, localStorage.getItem(key) || "[]");
     }
   } catch (error) {
-    changes.forEach(([key, change]) => mergePendingChange(key, change));
+    // Recusa definitiva do servidor (permissão, dado inválido) não é reenviada; só falhas de rede.
+    if (isRetryableSyncError(error)) changes.forEach(([key, change]) => mergePendingChange(key, change));
     throw error;
   } finally {
     changes.forEach(([key]) => savingCollectionKeys.delete(key));
+    updateSyncIndicator();
   }
 }
 
@@ -1803,6 +2015,7 @@ function mergePendingChange(key, incoming) {
   });
   current.delta += incoming.delta || 0;
   pendingCollectionChanges.set(key, current);
+  updateSyncIndicator();
 }
 
 function persistCloudData() {
@@ -4578,9 +4791,13 @@ function startCollectionListeners(uid) {
       getCollectionSource(uid, key),
       async (snapshot) => {
         if (!cloudReady || pendingCollectionChanges.has(key) || savingCollectionKeys.has(key)) return;
+        // Sem internet e com o cache do aparelho ainda vazio, a leitura vem vazia:
+        // não apagar a lista local por causa disso.
+        if (isUntrustedEmptySnapshot(snapshot, readLocalArray(key).length)) return;
         let records = snapshot.docs.map((record) => record.data());
         if (key === "rr_orcamentos" && canReadBudgetCosts()) {
           const costSnapshot = await getDocs(collection(db, "workspaces", uid, BUDGET_COST_COLLECTION));
+          if (isUntrustedEmptySnapshot(costSnapshot, records.length)) return;
           const costs = new Map(costSnapshot.docs.map((record) => [record.id, record.data()]));
           records = records.map((budget, index) => mergeBudgetCosts(budget, costs.get(getRecordDocumentId(budget, index, key)) || {}));
         }
@@ -4600,6 +4817,7 @@ function startCollectionListeners(uid) {
   if (canAccessStorageKey("rr_orcamentos") && canReadBudgetCosts()) {
     const unsubscribeCosts = onSnapshot(collection(db, "workspaces", uid, BUDGET_COST_COLLECTION), (snapshot) => {
       if (!cloudReady || pendingCollectionChanges.has("rr_orcamentos") || savingCollectionKeys.has("rr_orcamentos")) return;
+      if (isUntrustedEmptySnapshot(snapshot, readLocalArray("rr_orcamentos").length)) return;
       const costs = new Map(snapshot.docs.map((record) => [record.id, record.data()]));
       const publicBudgets = readLocalArray("rr_orcamentos").map((budget) => sanitizeBudgetForTeam(budget));
       const merged = publicBudgets.map((budget, index) => mergeBudgetCosts(budget, costs.get(getRecordDocumentId(budget, index, "rr_orcamentos")) || {}));
@@ -4612,6 +4830,10 @@ function startCollectionListeners(uid) {
     }, (error) => console.warn("Sincronização de custos de orçamentos indisponível.", error));
     collectionUnsubscribers.push(unsubscribeCosts);
   }
+}
+
+function isUntrustedEmptySnapshot(snapshot, localCount) {
+  return Boolean(snapshot?.metadata?.fromCache && snapshot.empty && localCount > 0);
 }
 
 function scheduleCloudSave() {
@@ -4637,7 +4859,7 @@ function setUserStatus(email) {
   const adminViewing = currentUser && isAdminUser(currentUser) && activeWorkspaceId;
   if (status) {
     const planName = activeWorkspaceSubscription ? getPlanName(activeWorkspaceSubscription) : "Carregando";
-    const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId} · Plano ${planName}` : activeTeamAccess ? `${activeTeamAccess.name || email} · Equipe · Plano ${planName}` : `Plano ${planName} · Online`;
+    const detail = adminViewing ? `Admin: ${activeWorkspaceEmail || activeWorkspaceId} · Plano ${planName}` : activeTeamAccess ? `${activeTeamAccess.name || email} · Equipe · Plano ${planName}` : `Plano ${planName} · ${navigator.onLine === false ? "Offline" : "Online"}`;
     status.textContent = email ? detail : "";
   }
   if (adminBack) adminBack.hidden = !adminViewing;
