@@ -1,6 +1,6 @@
 # ARQUITETURA.md: RR Manager 2.0
 
-Proposta de 24/10/2026, **aguardando aprovação do dono**. Segue o padrão do RR InfoTech (`../RR InfoTech`), com uma adaptação: a oficina precisa trabalhar sem internet.
+Aprovada pelo dono em 24/10/2026 (decisões na seção 7). Segue o padrão do RR InfoTech (`../RR InfoTech`), com uma adaptação: a oficina precisa trabalhar sem internet.
 
 ## 1. Princípios
 
@@ -58,11 +58,11 @@ Proposta de 24/10/2026, **aguardando aprovação do dono**. Segue o padrão do R
 - Contas de login dos usuários atuais.
 - Termos, Privacidade e Contrato (revisados na fase de venda).
 
-## 7. Decisões pendentes do dono
+## 7. Decisões do dono (24/10/2026)
 
-| # | Decisão | Recomendação |
-|---|---|---|
-| D1 | Onde fica o código novo | **Pasta e repositório novos** (`RR Manager App`, repositório `rr-manager-app`), como o InfoTech. O site atual continua intacto neste repositório |
-| D2 | Teste grátis | **14 dias** com todos os recursos do Pro, depois a pessoa escolhe o plano |
-| D3 | Ordem das telas | Login → Clientes/Veículos → Orçamentos (com impressão, link público e WhatsApp) → Painel → Financeiro → OS/Operação → Inspeções → DRE → Meu cadastro/Equipe → Admin |
-| D4 | Identidade visual | Manter a do RR Manager atual (azul-escuro e dourado), modernizada no padrão de acabamento do InfoTech |
+| # | Decisão |
+|---|---|
+| D1 | Código novo em **pasta e repositório próprios**: `RR Automotive/RR Manager App`. O site atual continua intacto neste repositório |
+| D2 | Teste grátis de **7 dias**, com todos os recursos do Pro |
+| D3 | Ordem das telas: Login → Clientes/Veículos → Orçamentos (impressão, link público, WhatsApp) → Painel → Financeiro → OS/Operação → Inspeções → DRE → Meu cadastro/Equipe → Admin |
+| D4 | Identidade visual do RR Manager atual (azul-escuro e dourado), modernizada no acabamento do InfoTech |

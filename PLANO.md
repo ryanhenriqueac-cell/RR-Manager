@@ -7,11 +7,11 @@ Briefing completo: [docs/PROMPT-RECONSTRUCAO.md](docs/PROMPT-RECONSTRUCAO.md).
 
 - [x] **Fase 0: Diagnóstico** (24/10/2026)
 - [x] **Fase 1: Confiabilidade dos dados** (publicada em 24/10/2026)
-A partir da Fase 2, o plano segue o caminho A decidido pelo dono em 24/10/2026: reconstruir em Next.js no padrão do RR Infotech, sobre os mesmos dados. As antigas fases de desempenho, dispositivos e segurança passam a ser resolvidas dentro do 2.0. Arquitetura: [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+A partir da Fase 2, o plano segue o caminho A decidido pelo dono em 24/10/2026: reconstruir em Next.js no padrão do RR InfoTech, sobre os mesmos dados. As antigas fases de desempenho, dispositivos e segurança passam a ser resolvidas dentro do 2.0. Arquitetura: [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
-- [ ] **Fase 2: Fundação do 2.0** (aguardando decisões D1 a D4 da arquitetura). Inclui: repositório, Next.js, identidade visual, login, menu, cache offline, PWA, emuladores com testes das regras e publicação de teste no plano gratuito.
+- [ ] **Fase 2: Fundação do 2.0** (em andamento; decisões D1 a D4 aprovadas em 24/10/2026). Inclui: repositório, Next.js, identidade visual, login, menu, cache offline, PWA, emuladores com testes das regras e publicação de teste no plano gratuito.
 - [ ] Fase 3: Telas do dia a dia, uma por vez, cada uma aprovada pelo dono comparando com a antiga.
-- [ ] Fase 4: Landing page de vendas e cadastro self-service com teste grátis (Turnstile).
+- [ ] Fase 4: Landing page de vendas e cadastro self-service com teste grátis de 7 dias (Turnstile).
 - [ ] Fase 5: Assinatura pelo Mercado Pago (plano Blaze), com liberação e suspensão automáticas e painel de assinantes.
 - [ ] Fase 6: Virada do domínio, monitoramento, backups agendados e testes em aparelhos reais.
 
