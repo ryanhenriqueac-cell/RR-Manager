@@ -225,6 +225,19 @@ let workspaceSchemaVersion = 1;
 let collectionUnsubscribers = [];
 let inflightCommits = 0;
 let syncStatusElement = null;
+// Quanto tempo o salvamento espera a confirmação do servidor antes de considerar
+// a alteração guardada no aparelho (ela continua na fila e sobe sozinha depois).
+const SERVER_ACK_WAIT_MS = 4000;
+const OFFLINE_ACK_WAIT_MS = 300;
+const RETRYABLE_SYNC_ERRORS = ["unavailable", "deadline-exceeded", "resource-exhausted", "aborted", "internal", "cancelled", "unknown"];
+const SYNC_STATE_LABELS = {
+  offline: "Offline · salvando no aparelho",
+  syncing: "Sincronizando…",
+  online: "Sincronizado",
+  connecting: "Conectando…"
+};
+const BACKUP_COLLECTIONS = [...Object.values(APP_COLLECTIONS), BUDGET_COST_COLLECTION, CLIENT_SUMMARY_COLLECTION];
+const BACKUP_SETTINGS_DOCS = ["public", "commercial", "financial", "team_directory"];
 const pendingCollectionChanges = new Map();
 const savingCollectionKeys = new Set();
 const confirmedCollectionState = new Map();
@@ -1759,11 +1772,6 @@ async function saveLegacyCloudData() {
   }, { merge: true });
 }
 
-// Quanto tempo o salvamento espera a confirmação do servidor antes de considerar
-// a alteração guardada no aparelho (ela continua na fila e sobe sozinha depois).
-const SERVER_ACK_WAIT_MS = 4000;
-const OFFLINE_ACK_WAIT_MS = 300;
-const RETRYABLE_SYNC_ERRORS = ["unavailable", "deadline-exceeded", "resource-exhausted", "aborted", "internal", "cancelled", "unknown"];
 
 function createFirestore(app) {
   try {
@@ -1822,13 +1830,6 @@ function getSyncState() {
   return cloudReady ? "online" : "connecting";
 }
 
-const SYNC_STATE_LABELS = {
-  offline: "Offline · salvando no aparelho",
-  syncing: "Sincronizando…",
-  online: "Sincronizado",
-  connecting: "Conectando…"
-};
-
 function updateSyncIndicator() {
   if (!syncStatusElement) {
     syncStatusElement = document.createElement("div");
@@ -1878,8 +1879,6 @@ function bindSyncStatusEvents() {
   updateSyncIndicator();
 }
 
-const BACKUP_COLLECTIONS = [...Object.values(APP_COLLECTIONS), BUDGET_COST_COLLECTION, CLIENT_SUMMARY_COLLECTION];
-const BACKUP_SETTINGS_DOCS = ["public", "commercial", "financial", "team_directory"];
 
 // Backup lido do servidor (não do aparelho), para conferir o que de fato está salvo na nuvem.
 async function downloadWorkspaceBackup() {
