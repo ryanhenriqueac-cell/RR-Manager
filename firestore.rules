@@ -136,33 +136,47 @@ service cloud.firestore {
         && get(teamPath()).data.permissions[permission] == true;
     }
 
+    // Permissões do colaborador ativo, calculadas UMA vez por regra. Consultar hasPermission
+    // várias vezes na mesma regra estourava o limite de 1000 expressões do Firestore e recusava,
+    // por exemplo, qualquer aprovação de orçamento feita pela equipe (corrigido em 25/10/2026).
+    function teamPerms(id) {
+      return isActiveTeamMember(id) ? get(teamPath()).data.permissions : {};
+    }
+
+    function can(perms, permission) {
+      return perms.get(permission, false) == true;
+    }
+
     function canReadClientSummary(id) {
-      return hasPermission(id, 'clientesVer')
-        || hasPermission(id, 'veiculosVer');
+      let p = teamPerms(id);
+      return can(p, 'clientesVer') || can(p, 'veiculosVer');
     }
 
     function canReadBudgets(id) {
-      return hasPermission(id, 'orcamentosVer')
-        || hasPermission(id, 'orcamentosGerenciar')
-        || hasPermission(id, 'orcamentosVerCustos')
-        || hasPermission(id, 'aprovarOrcamentos')
-        || hasPermission(id, 'financeiroVer')
-        || hasPermission(id, 'dreVer')
-        || hasPermission(id, 'dashboardComercial')
-        || hasPermission(id, 'dashboardFinanceiro');
+      let p = teamPerms(id);
+      return can(p, 'orcamentosVer')
+        || can(p, 'orcamentosGerenciar')
+        || can(p, 'orcamentosVerCustos')
+        || can(p, 'aprovarOrcamentos')
+        || can(p, 'financeiroVer')
+        || can(p, 'dreVer')
+        || can(p, 'dashboardComercial')
+        || can(p, 'dashboardFinanceiro');
     }
 
     function canReadBudgetCosts(id) {
-      return hasPermission(id, 'orcamentosVerCustos')
-        || hasPermission(id, 'financeiroVer')
-        || hasPermission(id, 'dreVer')
-        || hasPermission(id, 'dashboardFinanceiro');
+      let p = teamPerms(id);
+      return can(p, 'orcamentosVerCustos')
+        || can(p, 'financeiroVer')
+        || can(p, 'dreVer')
+        || can(p, 'dashboardFinanceiro');
     }
 
     function canReadFinance(id) {
-      return hasPermission(id, 'financeiroVer')
-        || hasPermission(id, 'dreVer')
-        || hasPermission(id, 'dashboardFinanceiro');
+      let p = teamPerms(id);
+      return can(p, 'financeiroVer')
+        || can(p, 'dreVer')
+        || can(p, 'dashboardFinanceiro');
     }
 
     function isAssignableTeamMember(id, email) {
@@ -190,16 +204,16 @@ service cloud.firestore {
         && isAssignableTeamMember(id, data.assignedToEmail);
     }
 
-    function canSetBudgetAssignment(id, data) {
+    function canSetBudgetAssignment(id, data, p) {
       return isUnassigned(data)
-        || (hasPermission(id, 'ordensServicoAtribuir') && hasValidAssignee(id, data));
+        || (can(p, 'ordensServicoAtribuir') && hasValidAssignee(id, data));
     }
 
-    function budgetAssignmentChangeAllowed(id) {
+    function budgetAssignmentChangeAllowed(id, p) {
       return !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'assignedToEmail', 'assignedToName'
         ])
-        || (hasPermission(id, 'ordensServicoAtribuir')
+        || (can(p, 'ordensServicoAtribuir')
           && (isUnassigned(request.resource.data) || hasValidAssignee(id, request.resource.data)));
     }
 
@@ -402,54 +416,60 @@ service cloud.firestore {
     match /workspaces/{id}/orcamentos/{docId} {
       allow read: if isAdmin() || isActiveOwner(id) || canReadBudgets(id);
 
-      allow create: if isAdmin() || isActiveOwner(id)
-        || (hasPermission(id, 'orcamentosGerenciar')
+      function teamCanCreateBudget(p) {
+        return can(p, 'orcamentosGerenciar')
           && isSafeBudgetDocument(request.resource.data)
           && request.resource.data.status == 'Pré-orçamento'
           && !request.resource.data.keys().hasAny(['decidedAt', 'decidedBy', 'pagamento'])
-          && canSetBudgetAssignment(id, request.resource.data)
-          && actorMatches(request.resource.data));
+          && canSetBudgetAssignment(id, request.resource.data, p)
+          && actorMatches(request.resource.data);
+      }
 
-      allow update: if isAdmin() || isActiveOwner(id)
-        || (hasPermission(id, 'orcamentosGerenciar')
-          && isSafeBudgetDocument(request.resource.data)
-          && resource.data.status == 'Pré-orçamento'
-          && request.resource.data.status == resource.data.status
-          && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
-            'status', 'decidedAt', 'decidedBy', 'pagamento'
-          ])
-          && budgetAssignmentChangeAllowed(id)
-          && actorMatches(request.resource.data))
-        || (hasPermission(id, 'orcamentosGerenciar')
-          && isSafeBudgetDocument(request.resource.data)
-          && resource.data.status == 'Não aprovado'
-          && request.resource.data.status == 'Pré-orçamento'
-          && !request.resource.data.keys().hasAny(['decidedAt', 'decidedBy', 'pagamento'])
-          && budgetAssignmentChangeAllowed(id)
-          && actorMatches(request.resource.data))
-        || (hasPermission(id, 'orcamentosGerenciar')
-          && hasPermission(id, 'aprovarOrcamentos')
-          && isSafeBudgetDocument(request.resource.data)
-          && resource.data.status == 'Aprovado'
-          && request.resource.data.status == 'Pré-orçamento'
-          && !request.resource.data.keys().hasAny(['decidedAt', 'decidedBy', 'pagamento'])
-          && budgetAssignmentChangeAllowed(id)
-          && actorMatches(request.resource.data))
-        || (hasPermission(id, 'ordensServicoAtribuir')
-          && request.resource.data.status == resource.data.status
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'assignedToEmail', 'assignedToName', 'updatedBy', 'updatedAt'
-          ])
-          && (isUnassigned(request.resource.data) || hasValidAssignee(id, request.resource.data))
-          && actorMatches(request.resource.data))
-        || (hasPermission(id, 'aprovarOrcamentos')
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'status', 'decidedAt', 'pagamento', 'decidedBy', 'updatedBy', 'updatedAt'
-          ])
-          && resource.data.status == 'Pré-orçamento'
-          && request.resource.data.status in ['Aprovado', 'Não aprovado']
-          && actorMatches(request.resource.data)
-          && request.resource.data.decidedBy.uid == request.auth.uid);
+      function teamCanUpdateBudget(p) {
+        return (can(p, 'orcamentosGerenciar')
+            && isSafeBudgetDocument(request.resource.data)
+            && resource.data.status == 'Pré-orçamento'
+            && request.resource.data.status == resource.data.status
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+              'status', 'decidedAt', 'decidedBy', 'pagamento'
+            ])
+            && budgetAssignmentChangeAllowed(id, p)
+            && actorMatches(request.resource.data))
+          || (can(p, 'orcamentosGerenciar')
+            && isSafeBudgetDocument(request.resource.data)
+            && resource.data.status == 'Não aprovado'
+            && request.resource.data.status == 'Pré-orçamento'
+            && !request.resource.data.keys().hasAny(['decidedAt', 'decidedBy', 'pagamento'])
+            && budgetAssignmentChangeAllowed(id, p)
+            && actorMatches(request.resource.data))
+          || (can(p, 'orcamentosGerenciar')
+            && can(p, 'aprovarOrcamentos')
+            && isSafeBudgetDocument(request.resource.data)
+            && resource.data.status == 'Aprovado'
+            && request.resource.data.status == 'Pré-orçamento'
+            && !request.resource.data.keys().hasAny(['decidedAt', 'decidedBy', 'pagamento'])
+            && budgetAssignmentChangeAllowed(id, p)
+            && actorMatches(request.resource.data))
+          || (can(p, 'ordensServicoAtribuir')
+            && request.resource.data.status == resource.data.status
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'assignedToEmail', 'assignedToName', 'updatedBy', 'updatedAt'
+            ])
+            && (isUnassigned(request.resource.data) || hasValidAssignee(id, request.resource.data))
+            && actorMatches(request.resource.data))
+          || (can(p, 'aprovarOrcamentos')
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'decidedAt', 'pagamento', 'decidedBy', 'updatedBy', 'updatedAt'
+            ])
+            && resource.data.status == 'Pré-orçamento'
+            && request.resource.data.status in ['Aprovado', 'Não aprovado']
+            && actorMatches(request.resource.data)
+            && request.resource.data.decidedBy.uid == request.auth.uid);
+      }
+
+      allow create: if isAdmin() || isActiveOwner(id) || teamCanCreateBudget(teamPerms(id));
+
+      allow update: if isAdmin() || isActiveOwner(id) || teamCanUpdateBudget(teamPerms(id));
 
       allow delete: if isAdmin() || isActiveOwner(id)
         || (hasPermission(id, 'orcamentosExcluir') && resource.data.status != 'Aprovado');
@@ -457,31 +477,41 @@ service cloud.firestore {
 
     match /workspaces/{id}/orcamento_custos/{docId} {
       allow read: if isAdmin() || isActiveOwner(id) || canReadBudgetCosts(id);
-      allow create: if isAdmin() || isActiveOwner(id)
-        || (hasPermission(id, 'orcamentosGerenciar') && hasPermission(id, 'orcamentosVerCustos'))
-        || (hasPermission(id, 'aprovarOrcamentos')
-          && request.resource.data.keys().hasOnly(['id', 'pagamento', 'updatedBy', 'updatedAt'])
-          && request.resource.data.id == docId
-          && isValidPaymentCostUpdate(request.resource.data));
-      allow update: if isAdmin() || isActiveOwner(id)
-        || (hasPermission(id, 'orcamentosGerenciar') && hasPermission(id, 'orcamentosVerCustos'))
-        || (hasPermission(id, 'aprovarOrcamentos')
-          && request.resource.data.id == resource.data.id
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'pagamento', 'updatedBy', 'updatedAt'
-          ])
-          && isValidPaymentCostUpdate(request.resource.data));
+      function teamCanCreateCosts(p) {
+        return (can(p, 'orcamentosGerenciar') && can(p, 'orcamentosVerCustos'))
+          || (can(p, 'aprovarOrcamentos')
+            && request.resource.data.keys().hasOnly(['id', 'pagamento', 'updatedBy', 'updatedAt'])
+            && request.resource.data.id == docId
+            && isValidPaymentCostUpdate(request.resource.data));
+      }
+
+      function teamCanUpdateCosts(p) {
+        return (can(p, 'orcamentosGerenciar') && can(p, 'orcamentosVerCustos'))
+          || (can(p, 'aprovarOrcamentos')
+            && request.resource.data.id == resource.data.id
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'pagamento', 'updatedBy', 'updatedAt'
+            ])
+            && isValidPaymentCostUpdate(request.resource.data));
+      }
+
+      function teamCanDeleteCosts(p) {
+        return can(p, 'orcamentosExcluir') && can(p, 'orcamentosVerCustos');
+      }
+
+      allow create: if isAdmin() || isActiveOwner(id) || teamCanCreateCosts(teamPerms(id));
+      allow update: if isAdmin() || isActiveOwner(id) || teamCanUpdateCosts(teamPerms(id));
       allow delete: if isAdmin() || isActiveOwner(id)
-        || (hasPermission(id, 'orcamentosExcluir')
-          && hasPermission(id, 'orcamentosVerCustos')
+        || (teamCanDeleteCosts(teamPerms(id))
           && (!exists(budgetPath(id, docId)) || get(budgetPath(id, docId)).data.status != 'Aprovado'));
     }
 
     match /workspaces/{id}/inspecoes/{docId} {
+      function teamCanAccessInspection(p, permission) {
+        return can(p, permission) && can(p, 'clientesVer') && can(p, 'orcamentosVer');
+      }
       function canAccessInspection(permission) {
-        return isAdmin() || isActiveOwner(id)
-          || (hasPermission(id, permission)
-            && hasPermission(id, 'clientesVer') && hasPermission(id, 'orcamentosVer'));
+        return isAdmin() || isActiveOwner(id) || teamCanAccessInspection(teamPerms(id), permission);
       }
       function validInspection() {
         let data = request.resource.data;
@@ -517,10 +547,12 @@ service cloud.firestore {
     }
 
     match /workspaces/{id}/ordens_servico/{docId} {
-      allow read: if isAdmin() || isActiveOwner(id)
-        || hasPermission(id, 'ordensServicoAtribuir')
-        || (hasPermission(id, 'ordensServicoVer')
-          && resource.data.assignedToEmail == request.auth.token.email);
+      function teamCanReadOrder(p) {
+        return can(p, 'ordensServicoAtribuir')
+          || (can(p, 'ordensServicoVer') && resource.data.assignedToEmail == request.auth.token.email);
+      }
+
+      allow read: if isAdmin() || isActiveOwner(id) || teamCanReadOrder(teamPerms(id));
 
       allow create: if isAdmin()
         || ((isActiveOwner(id)
@@ -534,26 +566,29 @@ service cloud.firestore {
           && matchesSourceBudget(id, request.resource.data)
           && actorMatches(request.resource.data));
 
-      allow update: if isAdmin() || isActiveOwner(id)
-        || (hasPermission(id, 'ordensServicoAtribuir')
-          && isSafeOrderDocument(request.resource.data)
-          && isValidOrderStatus(request.resource.data.status)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'numero', 'status', 'assignedToEmail', 'assignedToName',
-            'vehicle', 'services', 'parts', 'sourceStatus', 'sourceUpdatedAt',
-            'technicalNotes', 'updatedAt', 'updatedBy'
-          ])
-          && (isUnassigned(request.resource.data) || hasValidAssignee(id, request.resource.data))
-          && matchesSourceBudget(id, request.resource.data)
-          && actorMatches(request.resource.data))
-        || (hasPermission(id, 'ordensServicoGerenciar')
-          && resource.data.assignedToEmail == request.auth.token.email
-          && request.resource.data.assignedToEmail == resource.data.assignedToEmail
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'status', 'technicalNotes', 'inspection', 'updatedAt', 'updatedBy'
-          ])
-          && isValidOrderStatus(request.resource.data.status)
-          && actorMatches(request.resource.data));
+      function teamCanUpdateOrder(p) {
+        return (can(p, 'ordensServicoAtribuir')
+            && isSafeOrderDocument(request.resource.data)
+            && isValidOrderStatus(request.resource.data.status)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'numero', 'status', 'assignedToEmail', 'assignedToName',
+              'vehicle', 'services', 'parts', 'sourceStatus', 'sourceUpdatedAt',
+              'technicalNotes', 'updatedAt', 'updatedBy'
+            ])
+            && (isUnassigned(request.resource.data) || hasValidAssignee(id, request.resource.data))
+            && matchesSourceBudget(id, request.resource.data)
+            && actorMatches(request.resource.data))
+          || (can(p, 'ordensServicoGerenciar')
+            && resource.data.assignedToEmail == request.auth.token.email
+            && request.resource.data.assignedToEmail == resource.data.assignedToEmail
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'technicalNotes', 'inspection', 'updatedAt', 'updatedBy'
+            ])
+            && isValidOrderStatus(request.resource.data.status)
+            && actorMatches(request.resource.data));
+      }
+
+      allow update: if isAdmin() || isActiveOwner(id) || teamCanUpdateOrder(teamPerms(id));
 
       allow delete: if isAdmin() || isActiveOwner(id);
     }
