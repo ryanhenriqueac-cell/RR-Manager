@@ -1,10 +1,10 @@
 window.firebaseConfig = {
-  apiKey: "AIzaSyBkXaq3Gf3MM-0ulAU7CixAdlhJurY1BUQ",
-  authDomain: "rr-reparacao-manager.firebaseapp.com",
-  projectId: "rr-reparacao-manager",
-  storageBucket: "rr-reparacao-manager.firebasestorage.app",
-  messagingSenderId: "802685910397",
-  appId: "1:802685910397:web:a40ac971bd941a3c40a014"
+  apiKey: "AIzaSyC_N0uWBDddZje_hGIcOBJbiP1aiNTT0BU",
+  authDomain: "rr-manager-antigo.firebaseapp.com",
+  projectId: "rr-manager-antigo",
+  storageBucket: "rr-manager-antigo.firebasestorage.app",
+  messagingSenderId: "795192541547",
+  appId: "1:795192541547:web:159e9bd9ea271cb7540c2e"
 };
 
 window.rrAdminAccess = {
